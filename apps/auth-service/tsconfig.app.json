@@ -10,7 +10,7 @@
   },
   "include": [
     "src/**/*.ts",
-    "../../packages/**/*.ts"
+    "../../packages/**/*.ts" //makes packages folder accessible in apps folder
   ],
   "exclude": [
     "out-tsc",
