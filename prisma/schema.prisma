@@ -12,7 +12,7 @@ datasource db {
   provider = "mongodb"
   url = env("DATABASE_URL")
 }
-
+//Node js 20 is depricated
 
 model users{
 
