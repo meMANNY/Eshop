@@ -15,11 +15,11 @@ datasource db {
 //Node js 20 is depricated
 
 model images{
-  id          String @id @default(auto()) @map("_id") @db.ObjectId
+  id          String @id @default(auto()) @map("_id") @db.ObjectId //primary key
   file_id     String
   url         String
-  userId      String? @db.ObjectId @unique
-  users       users? @relation(fields: [userId], references: [id])
+  userId      String? @db.ObjectId @unique // foreign key
+  users       users? @relation(fields: [userId], references: [id])// requires foreign key to be unique
 
 }
 
@@ -29,6 +29,7 @@ model users{
   name        String
   email       String @unique
   password    String?
+  following   String[]
   avatar      images?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
