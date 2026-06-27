@@ -46,3 +46,6 @@ Thumbs.db
 test-output
 
 /generated/prisma
+.env
+.env.*
+!.env.example
