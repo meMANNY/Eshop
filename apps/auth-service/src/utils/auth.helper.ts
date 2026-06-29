@@ -1,6 +1,8 @@
 import crypto from 'crypto';
 import { ValidationError } from '../../../../packages/error-handler';
 import { NextFunction } from 'express';
+import redis from '../../../../packages/libs/redis';
+import { sendEmail } from './sendMail';
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -51,4 +53,9 @@ export const sendOtp = async (
 ) => {
 
     const otp = crypto.randomInt(1000, 9999).toString();
+    await sendEmail(email, "Verify your email", template, {name, otp});
+    await redis.set(`otp:${email}`, otp, 'EX', 300); // Set OTP with 5 minutes expiration
+    await redis.set(`otp_cooldown:${email}`, 'true', 'EX', 60); // Set cooldown with 1 minute expiration
+
+
 }
