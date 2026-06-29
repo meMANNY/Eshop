@@ -45,7 +45,6 @@ export const checkOtpRestrictions = async (
 }
 
 export const sendOtp = async (
-
     name: string,
     email: string,
     template: string
