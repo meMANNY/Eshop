@@ -43,8 +43,31 @@ export const checkOtpRestrictions = async (
     next: NextFunction
 ) =>{
 
+    if(await redis.get(`otp_lock:${email}`)) {
 
-}
+        return next(
+            new ValidationError("Invalid request data", {
+            email: "Account locked due to multiple failed attempts. Please try again later."
+        }));
+    }
+
+    if(await redis.get(`otp_spam_lock:${email}`)) {
+        return next(
+            new ValidationError("Invalid request data", {
+            email: "Too many OTP requests. Please try again after 1 hour."
+        }));
+    }
+
+    if(await redis.get(`otp_cooldown:${email}`)) {
+        return next(
+            new ValidationError("Invalid request data", {
+            email: "Please wait for 1 minute before requesting a new OTP."
+        }));
+    }
+
+
+
+};
 
 export const sendOtp = async (
     name: string,
@@ -58,4 +81,4 @@ export const sendOtp = async (
     await redis.set(`otp_cooldown:${email}`, 'true', 'EX', 60); // Set cooldown with 1 minute expiration
 
 
-}
+};

@@ -29,6 +29,6 @@ export const userRegistration = async(req: Request, res: Response, next: NextFun
     }
 
     await checkOtpRestrictions(email,next);
-
+    
     
 }
