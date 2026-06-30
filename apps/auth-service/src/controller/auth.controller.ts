@@ -1,7 +1,8 @@
 import prisma from "../../../../packages/libs/primsa";
-import { ValidateRegistrationData, checkOtpRestrictions } from "../utils/auth.helper";
+import { ValidateRegistrationData, checkOtpRestrictions, trackOtpRequest,sendOtp} from "../utils/auth.helper";
 import { Request,NextFunction,Response } from "express";
 import { ValidationError } from "../../../../packages/error-handler";
+
 
 
 
@@ -9,26 +10,37 @@ import { ValidationError } from "../../../../packages/error-handler";
 //Register a new user
 export const userRegistration = async(req: Request, res: Response, next: NextFunction) =>{
 
-    ValidateRegistrationData(req.body, "user");
+    try{
 
-    const {name,email} = req.body;
-    const existingUser = await prisma.users.findUnique(
-        {
-            where: {
-                email
-            }
-        }
-    )
+        ValidateRegistrationData(req.body, "user");
 
-    if(existingUser){
-        return next(new ValidationError("Invalid request data",
+        const {name,email} = req.body;
+        const existingUser = await prisma.users.findUnique(
             {
-                email: "Email already exists"
+                where: {
+                    email
+                }
             }
-        ));
-    }
+        )
 
-    await checkOtpRestrictions(email,next);
+        if(existingUser){
+            return next(new ValidationError("Invalid request data",
+                {
+                    email: "Email already exists"
+                }
+            ));
+        }
+
+        await checkOtpRestrictions(email,next);
+        await trackOtpRequest(email,next);
+        await sendOtp(name,email,"user-activation-mail");
+
+        res.status(200).json({
+            message: "OTP sent to your email. Please check your inbox."
+        });
+    }
     
-    
-}
+    catch (error) {
+        return next(error);
+    }
+};
