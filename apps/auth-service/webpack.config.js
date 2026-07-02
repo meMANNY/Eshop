@@ -6,6 +6,12 @@ module.exports = {
     output:{
         path: join(__dirname,'dist'),
     },
+    resolve:{
+        alias:{
+            "@packages": resolve(__dirname,'../../packages'),
+        },
+        extensions:['.ts','.js'],
+    },
     plugins:[
         new NxAppWebpackPlugin({
             target:'node',
