@@ -137,7 +137,9 @@ export const verifyOtp = async (
 
     await redis.del(`otp:${email}`,failedAttemptsKey); // Delete the OTP and failed attempts after successful verification
 
-}
+};
+
+
 
 
     

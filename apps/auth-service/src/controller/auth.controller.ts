@@ -1,9 +1,10 @@
 import prisma from "../../../../packages/libs/primsa";
 import { ValidateRegistrationData, checkOtpRestrictions, trackOtpRequest,sendOtp, verifyOtp} from "../utils/auth.helper";
 import { Request,NextFunction,Response } from "express";
-import { ValidationError } from "../../../../packages/error-handler";
+import { AuthError, ValidationError } from "../../../../packages/error-handler";
 import bcrypt from "bcryptjs";
-
+import jwt from "jsonwebtoken";
+import { setCookie } from "../utils/cookies/setCookie";
 
 
 
@@ -96,4 +97,67 @@ export const verifyUser = async(req: Request, res: Response, next: NextFunction)
         return next(error);
     }
 };
+
+//login user
+
+export const loginUser = async(req: Request, res: Response, next: NextFunction) =>{
+
+    try {
+        const {email, password} = req.body;
+
+        if(!email || !password){
+            return next(new ValidationError("Invalid request data",{
+                email: !email ? "Email is required" : undefined,
+                password: !password ? "Password is required" : undefined
+            }));
+        }
+
+        const user = await prisma.users.findUnique({
+            where: {
+                email
+            }
+        });
+
+        if(!user){
+            return next(new AuthError("Invalid email or password"));
+        }
+
+        //verify password
+
+        const isMatch = await bcrypt.compare(password, user.password!);
+
+        if(!isMatch){
+            return next(new AuthError("Invalid email or password"));
+        }
+
+        //Generate JWT token
+
+        const accessToken = jwt.sign({id: user.id,role: "user"}, 
+            process.env.ACCESS_TOKEN_SECRET as string, {expiresIn: '15m'}); // Replace with actual JWT generation logic
+        
+        const refreshToken = jwt.sign({id: user.id,role: "user"},
+            process.env.REFRESH_TOKEN_SECRET as string, {expiresIn: '7d'}); // Replace with actual JWT generation logic
+
+        //store the refresh token and access token in an httpOnly cookie
+
+        setCookie(res, "accessToken", accessToken, {httpOnly: true, secure: true, sameSite: 'none', maxAge: 15 * 60 * 1000}); // 15 minutes
+        setCookie(res, "refreshToken", refreshToken, {httpOnly: true, secure: true, sameSite: 'none', maxAge: 7 * 24 * 60 * 60 * 1000}); // 7 days
+
+
+        res.status(200).json({
+            message: "User logged in successfully",
+            user: {
+                id: user.id,
+                name: user.name,
+                email: user.email
+            }
+        });
+
+    } catch (error) {
+        return next(error);
+    }
+
+};
+
+    
 
