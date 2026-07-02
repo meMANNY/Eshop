@@ -25,6 +25,7 @@ const renderEmailTemplate = async (
 
     const templatePath = path.join(
         process.cwd(),
+        'apps',
         'auth-service',
         'src',
         'utils',
