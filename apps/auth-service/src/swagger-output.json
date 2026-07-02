@@ -11,7 +11,7 @@
     "http"
   ],
   "paths": {
-    "/user-register": {
+    "/api/user-register": {
       "post": {
         "description": "",
         "parameters": [
