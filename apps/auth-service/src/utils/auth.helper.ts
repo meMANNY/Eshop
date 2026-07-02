@@ -91,7 +91,7 @@ export const trackOtpRequest = async (
     const otpRequestKey = `otp_request_count:${email}`;
     let otpRequests = parseInt(await redis.get(otpRequestKey) || '0');
 
-    if(otpRequests >= 2) {
+    if(otpRequests >= 4) {
         await redis.set(`otp_spam_lock:${email}`, 'locked', 'EX', 3600); // Lock
         return next(
             new ValidationError("Invalid request data", {
@@ -102,4 +102,43 @@ export const trackOtpRequest = async (
     await redis.set(otpRequestKey, otpRequests + 1, 'EX', 3600); // Increment count with 1 hour expiration
     
 };
+
+export const verifyOtp = async (
+    email: string,
+    otp: string,
+    next: NextFunction
+) => {
+
+    const storedOtp = await redis.get(`otp:${email}`);
+
+    if(!storedOtp){
+        throw new ValidationError("Invalid request data", {
+            otp: "Invalid OTP"
+        });
+    }
+
+    const failedAttemptsKey = `otp_failed_attempts:${email}`;
+    const failedAttempts = parseInt(await redis.get(failedAttemptsKey) || '0');
+
+    if(storedOtp !== otp) {
+        if(failedAttempts >= 4) {
+                await redis.set(`otp_lock:${email}`, 'locked', 'EX', 3600); // Lock account for 1 hour
+                await redis.del(`otp:${email}`,failedAttemptsKey); // Delete the OTP and failed attempts after locking the account
+                throw new ValidationError("Invalid request data", {
+                    otp: "Account locked due to multiple failed attempts. Please try again later."
+                });
+        }
+
+                await redis.set(failedAttemptsKey, failedAttempts + 1, 'EX', 3600); // Increment failed attempts with 1 hour expiration
+                throw new ValidationError("Invalid request data", {
+                    otp: "Invalid OTP"
+                });
+    }
+
+    await redis.del(`otp:${email}`,failedAttemptsKey); // Delete the OTP and failed attempts after successful verification
+
+}
+
+
+    
 
