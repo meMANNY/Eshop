@@ -3,6 +3,9 @@ import { ValidationError } from '../../../../packages/error-handler';
 import { NextFunction } from 'express';
 import redis from '../../../../packages/libs/redis';
 import { sendEmail } from './sendMail';
+import { Request, Response } from 'express';
+import prisma from '../../../../packages/libs/primsa';
+
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -139,7 +142,72 @@ export const verifyOtp = async (
 
 };
 
+export const handleForgotPassword = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+    userType: "user" | "seller"
+) => {
 
+    try {
+        const {email} = req.body;
+        if(!email){
+            return next(new ValidationError("Invalid request data",{
+                email: "Email is required"
+            }));
+        }
+
+        //Find user/seller in DB
+
+        const user = userType === "user" &&  await prisma.users.findUnique({where: {email}})
+
+        if(!user){
+            throw new ValidationError("Invalid request data",{
+                email: "No user found with this email"
+            });
+        }
+
+        //check otp restrictions
+
+        await checkOtpRestrictions(email,next);
+        await trackOtpRequest(email,next);
+        await sendOtp(user.name,email,"forgot-password-mail");
+        return res.status(200).json({message: "OTP sent successfully"});
+
+    } catch (error) {
+        return next(error);
+    }
+
+};
+
+//writing it here so that it can used for user and seller both
+
+export const verifyForgotPasswordOtp = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+) => {
+
+    try{
+        const {email, otp} = req.body;
+        if(!email || !otp){
+            throw new ValidationError("Invalid request data",{
+                email: !email ? "Email is required" : undefined,
+                otp: !otp ? "OTP is required" : undefined
+            });
+        }
+
+        await verifyOtp(email, otp, next);
+        res
+            .status(200)
+            .json({message: "OTP verified successfully"});
+
+    }
+    catch( error){
+        return next(error);
+    }
+
+};
 
 
     
