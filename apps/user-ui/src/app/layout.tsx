@@ -1,5 +1,5 @@
-import Header from "@/shared/widgets/header"
-
+import './global.css'
+import Header from '@/shared/widgets/header'
 export const metadata = {
   title: 'Welcome to Eshop',
   description: 'Its Eshop',
