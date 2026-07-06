@@ -1,6 +1,8 @@
 'use client';
+import { navItems } from '@/configs/constants';
 import { AlignLeft, ChevronDown } from 'lucide-react';
 import React, { useEffect, useState } from 'react'
+import Link from 'next/link';
 
 const HeaderBottom = () => {
 
@@ -11,7 +13,7 @@ const HeaderBottom = () => {
 
     useEffect(() => {
         const handleScroll = () => {
-            if (window.screenY > 100) {
+            if (window.scrollY > 100) {
                 setIsSticky(true);
             } else {
                 setIsSticky(false);
@@ -37,7 +39,22 @@ const HeaderBottom = () => {
                     <ChevronDown color = "white"/>
                 </div>
                 {/*Dropdown menu*/}
-                
+                {show && (
+                    <div className = {
+                        `absolute left-0 ${isSticky ? 
+                            'top-[70px]' : "top-[50px]"
+                        } w-[260px] h-[400px] bg-[#f5f5f5]`}>
+
+                    </div>
+                )}
+                {/*Navigation links*/}
+                <div className = "flex items-center gap-5">
+                    {navItems.map((item : NavItem, index: number) => (
+                        <Link key={index} href={item.href} className="text-gray-700 hover:text-gray-900">
+                            {item.title}
+                        </Link>
+                    ))}
+                </div>
             </div>
         </div>
     )
