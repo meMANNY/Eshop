@@ -3,7 +3,7 @@ import { loginUser, resetUserPassword, userRegistration, verifyUser,userForgotPa
 
 const router: Router = express.Router();
 
-router.post("/user-register", userRegistration);
+router.post("/user-registration", userRegistration);
 router.post("/verify-user", verifyUser);
 router.post("/login-user",loginUser);
 router.post("/forgot-password-user", userForgotPassword);

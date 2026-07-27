@@ -1,10 +1,11 @@
 'use client';
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import Link from 'next/link';
 import { Eye, EyeOff } from 'lucide-react';
-
+import { useMutation } from '@tanstack/react-query';
+import axios,{AxiosError} from 'axios';
 type FormData = {
     name: string;
     email: string;
@@ -22,39 +23,11 @@ const Signup = () => {
     const [otp,setOtp] = useState(['','','','']);
     const [userData, setUserData] = useState<FormData | null>(null);
     const inputRefs = React.useRef<(HTMLInputElement | null)[]>([]);
+
     const router  = useRouter();
 
-    const onSubmit = (data: FormData) => {
-        setUserData(data);
-        setOtp(['', '', '', '']);
-        setShowOtp(true);
-        setCanResend(false);
-        setTimer(60);
-    };
 
-    const verifyOtp = () => {
-        // TODO: call verify-user API with userData + otp.join('')
-        console.log('Verifying OTP', otp.join(''), 'for', userData);
-    };
-
-    const resendOtp = () => {
-        if (!canResend) return;
-        setOtp(['', '', '', '']);
-        setCanResend(false);
-        setTimer(60);
-        // TODO: call resend-otp API
-    };
-
-    // countdown for the resend button while the OTP view is open
-    useEffect(() => {
-        if (!showOtp) return;
-        if (timer <= 0) {
-            setCanResend(true);
-            return;
-        }
-        const interval = setTimeout(() => setTimer((prev) => prev - 1), 1000);
-        return () => clearTimeout(interval);
-    }, [showOtp, timer]);
+    
 
     const {
         register,
@@ -73,12 +46,78 @@ const Signup = () => {
         }
     };
 
+    const startResendTimer = () => {
+        const interval = setInterval(() => {
+            setTimer((prev) => {
+                if (prev <= 1) {
+                    clearInterval(interval);
+                    setCanResend(true);
+                    return 0;
+                }
+                return prev - 1;
+            });
+        }, 1000);
+    };
     const handleOtpKeyDown = (index: number, event: React.KeyboardEvent<HTMLInputElement>) => {
         if (event.key === 'Backspace' && !otp[index] && index > 0) {
             inputRefs.current[index - 1]?.focus();
         }
     };
 
+
+
+    const signupMutation = useMutation({
+        mutationFn: async (data: FormData) => {
+            const response = await axios.post(`${process.env.NEXT_PUBLIC_SERVER_URI}/api/user-registration`,data);
+            return response.data;
+        },
+        onSuccess: (_,formData) => {
+            setUserData(formData);
+            setServerError('');
+            setShowOtp(true);
+            setCanResend(false);
+            setTimer(60);
+            startResendTimer();
+        },
+        onError: (error: AxiosError<{ message: string }>) => {
+            setServerError(error.response?.data?.message || 'Something went wrong. Please try again.');
+        },
+    });
+
+    const verifyOtpMutation = useMutation({
+        mutationFn: async () => {
+            if (!userData) return;
+            const response = await axios.post(`${process.env.NEXT_PUBLIC_SERVER_URI}/api/verify-user`, {
+                ...userData,
+                otp: otp.join(''),
+            });
+            return response.data;
+        },
+        onSuccess: () => {
+            setServerError('');
+            router.push('/login');
+        },
+        onError: (error: AxiosError<{ message: string }>) => {
+            setServerError(error.response?.data?.message || 'Invalid OTP. Please try again.');
+        },
+    });
+
+    const onSubmit = (data: FormData) => {
+        signupMutation.mutate(data);
+    };
+
+    const verifyOtp = () => {
+        verifyOtpMutation.mutate();
+    };
+
+    const resendOtp = () => {
+        if (!canResend || !userData) return;
+        setOtp(['', '', '', '']);
+        setCanResend(false);
+        setTimer(60);
+        startResendTimer();
+        signupMutation.mutate(userData);
+    };
 
   return (
     <div className = "w-full py-10 min-h-[85vh] bg-[#f1f1f1]">
@@ -169,9 +208,10 @@ const Signup = () => {
                                 </div>
                                 <button
                                     type="submit"
+                                    disabled={signupMutation.isPending}
                                     className="w-full bg-[#ff6f61] text-white py-2 px-4 rounded font-semibold hover:bg-[#e05a4d] active:scale-[0.99] transition-all duration-200 mt-4"
                                 >
-                                    Signup
+                                    {signupMutation.isPending ? 'Signing up...' : 'Sign Up'}
                                 </button>
                                 {serverError && <p className="text-red-500 text-sm mt-2">{serverError}</p>}
                         </form>
@@ -204,9 +244,10 @@ const Signup = () => {
                         <button
                             type="button"
                             onClick={verifyOtp}
-                            className="w-full bg-[#ff6f61] text-white py-2 px-4 rounded font-semibold hover:bg-[#e05a4d] active:scale-[0.99] transition-all duration-200 mt-6"
+                            disabled={verifyOtpMutation.isPending || otp.some((d) => d === '')}
+                            className="w-full bg-[#ff6f61] text-white py-2 px-4 rounded font-semibold hover:bg-[#e05a4d] active:scale-[0.99] transition-all duration-200 mt-6 disabled:opacity-60"
                         >
-                            Verify OTP
+                            {verifyOtpMutation.isPending ? 'Verifying...' : 'Verify OTP'}
                         </button>
                         <p className="text-center text-sm text-[#00000099] mt-4">
                             {canResend ? (

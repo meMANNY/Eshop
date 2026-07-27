@@ -36,8 +36,8 @@ export const userRegistration = async(
             ));
         }
 
-        await checkOtpRestrictions(email,next);
-        await trackOtpRequest(email,next);
+        await checkOtpRestrictions(email);
+        await trackOtpRequest(email);
         await sendOtp(name,email,"user-activation-mail");
 
         res.status(200).json({
