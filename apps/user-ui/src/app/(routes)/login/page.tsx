@@ -4,6 +4,8 @@ import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import Link from 'next/link';
 import { Eye, EyeOff } from 'lucide-react';
+import { useMutation } from '@tanstack/react-query';
+import axios, { AxiosError } from 'axios';
 
 type FormData = {
     email: string;
@@ -18,8 +20,28 @@ const Login = () => {
     const [rememberMe, setRememberMe] = useState(false);
     const router  = useRouter();
 
+
+    
+    const loginMutation = useMutation({
+        mutationFn: async (data: FormData) => {
+            const response = await axios.post(
+                `${process.env.NEXT_PUBLIC_SERVER_URI}/api/login-user`,
+                data,
+                { withCredentials: true }
+            );
+            return response.data;
+        },
+        onSuccess: () => {
+            setServerError('');
+            router.push('/');
+        },
+        onError: (error: AxiosError<{ message: string }>) => {
+            setServerError(error.response?.data?.message || 'Invalid credentials. Please try again.');
+        },
+    });
+
     const onSubmit = (data: FormData) => {
-        console.log(data);
+        loginMutation.mutate(data);
     };
 
     const {
@@ -121,9 +143,10 @@ const Login = () => {
                         </div>
                         <button
                             type="submit"
-                            className="w-full bg-[#ff6f61] text-white py-2 px-4 rounded font-semibold hover:bg-[#e05a4d] active:scale-[0.99] transition-all duration-200 mt-2"
+                            disabled={loginMutation.isPending}
+                            className="w-full bg-[#ff6f61] text-white py-2 px-4 rounded font-semibold hover:bg-[#e05a4d] active:scale-[0.99] transition-all duration-200 mt-2 disabled:opacity-60"
                         >
-                            Login
+                            {loginMutation.isPending ? 'Logging in...' : 'Login'}
                         </button>
                         {serverError && <p className="text-red-500 text-sm mt-2">{serverError}</p>}
                     </form>

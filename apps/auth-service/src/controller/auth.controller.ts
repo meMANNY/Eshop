@@ -168,6 +168,22 @@ export const loginUser = async(
 
 };
 
+export const refreshToken = async(
+
+    req: Request, 
+    res: Response, 
+    next: NextFunction
+)=>{
+    try{
+        const refreshToken = req.cookies.refresh_token;
+        if(!refreshToken){
+            throw new ValidationError("Invalid request data")
+        }
+    }
+    catch(error){
+        return next(error);
+    }
+}
 //user forgot password
 
 export const userForgotPassword = async(

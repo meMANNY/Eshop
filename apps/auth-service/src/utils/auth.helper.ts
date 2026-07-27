@@ -96,7 +96,7 @@ export const trackOtpRequest = async (
         });
     }
 
-    await redis.set(otpRequestKey, otpRequests + 1, 'EX', 3600); // Increment count with 1 hour expiration
+    await redis.set(otpRequestKey, otpRequests + 1, 'EX', 60); // Increment count with 1 minute expiration
     
 };
 
@@ -164,8 +164,7 @@ export const handleForgotPassword = async (
         //check otp restrictions
 
         await checkOtpRestrictions(email);
-        await trackOtpRequest(email);
-        await sendOtp(user.name,email,"forgot-password-mail");
+        await trackOtpRequest(email);        await sendOtp(user.name,email,"forgot-password-user");
         return res.status(200).json({message: "OTP sent successfully"});
 
     } catch (error) {
