@@ -9,6 +9,7 @@ import { setCookie } from "../utils/cookies/setCookie";
 
 
 
+
 //Register a new user
 export const userRegistration = async (
     req: Request,
@@ -319,6 +320,23 @@ export const registerSeller = async (
 
     try {
         ValidateRegistrationData(req.body, "seller")
+        const { name, email } = req.body;
+        const existingSeller = await prisma.sellers.findUnique({
+            where: { email }
+        });
+        if (existingSeller) {
+            return next(new ValidationError("Invalid request data", {
+                email: "Email already exists"
+            }));
+        }
+
+        await checkOtpRestrictions(email)
+        await trackOtpRequest(email)
+        await sendOtp(email, email, "seller-activation")
+
+        res.status(200).json({
+            message: "OTP sent successfully to mail. Please verify your account"
+        });
 
     } catch (error) {
         next(error)
@@ -327,3 +345,101 @@ export const registerSeller = async (
 
 
 }
+
+//verify seller with otp
+export const verifySeller = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const { email, otp, password, name, phone_number, country } = req.body;
+        if (!email || !otp || !password || !name || !phone_number || !country)
+            return next(new ValidationError("Invalid request data", {
+                email: !email ? "Email is required" : undefined,
+                otp: !otp ? "OTP is required" : undefined,
+                password: !password ? "Password is required" : undefined,
+                name: !name ? "Name is required" : undefined,
+                phone_number: !phone_number ? "Phone number is required" : undefined,
+                country: !country ? "Country is required" : undefined
+            }));
+
+        const existingSeller = await prisma.sellers.findUnique({
+            where: { email }
+        });
+        if (existingSeller) {
+            return next(new ValidationError("Invalid request data", {
+                email: "Seller already exists"
+            }));
+        }
+        await verifyOtp(email, otp, next);
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const seller = await prisma.sellers.create({
+            data: {
+                email,
+                phone_number,
+                country,
+                password: hashedPassword,
+                name
+            },
+        });
+
+
+        res.status(200).json({
+            seller,
+            message: "Seller registered successfully"
+        });
+    }
+    catch (error) {
+        next(error);
+    }
+}
+
+export const createShop = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const { name, bio, address, opening_hours, website, category, sellerId } = req.body;
+        if (!name || !bio || !address || !opening_hours || !website || !category || !sellerId)
+            return next(new ValidationError("Invalid request data", {
+                name: !name ? "Name is required" : undefined,
+                bio: !bio ? "Bio is required" : undefined,
+                address: !address ? "Address is required" : undefined,
+                opening_hours: !opening_hours ? "Opening hours is required" : undefined,
+                website: !website ? "Website is required" : undefined,
+                category: !category ? "Category is required" : undefined,
+                sellerId: !sellerId ? "Seller ID is required" : undefined
+            }));
+
+        const shopData: any = {
+            name,
+            bio,
+            address,
+            opening_hours,
+            website,
+            category,
+            sellerId
+        }
+
+        if (website && website.trim() !== "") {
+            shopData.website = website;
+        }
+
+        const shop = await prisma.shops.create({
+            data: shopData
+        })
+
+        res.status(201).json({
+            shop,
+            success: true
+        })
+
+    }
+    catch (error) {
+        next(error);
+    }
+}
+
+//create stripe connect account link

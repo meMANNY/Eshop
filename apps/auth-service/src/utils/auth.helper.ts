@@ -10,29 +10,28 @@ import prisma from '../../../../packages/libs/primsa';
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export const ValidateRegistrationData = (
-    data: any, 
+    data: any,
     userType: "user" | "seller"
 ) => {
 
-    const {name, email, password, phone_number,country} = data;
+    const { name, email, password, phone_number, country } = data;
 
-    if( !name || 
+    if (!name ||
         !email ||
         !emailRegex.test(email) ||
-        !password || 
-        (userType === "seller" && (!phone_number || !country)))
-        {
-            throw new ValidationError("Invalid request data", {
-                name: !name ? "Name is required" : undefined,
-                email: !email ? "Email is required" : undefined,
-                password: !password ? "Password is required" : undefined,
-                phone_number: userType === "seller" && !phone_number ? "Phone number is required for sellers" : undefined,
-                country: userType === "seller" && !country ? "Country is required for sellers" : undefined
-            });
-        }
-        
-    
-    if(!emailRegex.test(email)){
+        !password ||
+        (userType === "seller" && (!phone_number || !country))) {
+        throw new ValidationError("Invalid request data", {
+            name: !name ? "Name is required" : undefined,
+            email: !email ? "Email is required" : undefined,
+            password: !password ? "Password is required" : undefined,
+            phone_number: userType === "seller" && !phone_number ? "Phone number is required for sellers" : undefined,
+            country: userType === "seller" && !country ? "Country is required for sellers" : undefined
+        });
+    }
+
+
+    if (!emailRegex.test(email)) {
         throw new ValidationError("Invalid request data", {
             email: "Invalid email format"
         });
@@ -43,22 +42,22 @@ export const ValidateRegistrationData = (
 
 export const checkOtpRestrictions = async (
     email: string
-) =>{
+) => {
 
-    if(await redis.get(`otp_lock:${email}`)) {
+    if (await redis.get(`otp_lock:${email}`)) {
 
         throw new ValidationError("Invalid request data", {
             email: "Account locked due to multiple failed attempts. Please try again later."
         });
     }
 
-    if(await redis.get(`otp_spam_lock:${email}`)) {
+    if (await redis.get(`otp_spam_lock:${email}`)) {
         throw new ValidationError("Invalid request data", {
             email: "Too many OTP requests. Please try again after 1 hour."
         });
     }
 
-    if(await redis.get(`otp_cooldown:${email}`)) {
+    if (await redis.get(`otp_cooldown:${email}`)) {
         throw new ValidationError("Invalid request data", {
             email: "Please wait for 1 minute before requesting a new OTP."
         });
@@ -75,7 +74,7 @@ export const sendOtp = async (
 ) => {
 
     const otp = crypto.randomInt(1000, 9999).toString();
-    await sendEmail(email, "Verify your email", template, {name, otp});
+    await sendEmail(email, "Verify your email", template, { name, otp });
     await redis.set(`otp:${email}`, otp, 'EX', 300); // Set OTP with 5 minutes expiration
     await redis.set(`otp_cooldown:${email}`, 'true', 'EX', 60); // Set cooldown with 1 minute expiration
 
@@ -89,7 +88,7 @@ export const trackOtpRequest = async (
     const otpRequestKey = `otp_request_count:${email}`;
     let otpRequests = parseInt(await redis.get(otpRequestKey) || '0');
 
-    if(otpRequests >= 4) {
+    if (otpRequests >= 4) {
         await redis.set(`otp_spam_lock:${email}`, 'locked', 'EX', 3600); // Lock
         throw new ValidationError("Invalid request data", {
             email: "Too many OTP requests. Please try again after 1 hour."
@@ -97,7 +96,7 @@ export const trackOtpRequest = async (
     }
 
     await redis.set(otpRequestKey, otpRequests + 1, 'EX', 60); // Increment count with 1 minute expiration
-    
+
 };
 
 export const verifyOtp = async (
@@ -108,7 +107,7 @@ export const verifyOtp = async (
 
     const storedOtp = await redis.get(`otp:${email}`);
 
-    if(!storedOtp){
+    if (!storedOtp) {
         throw new ValidationError("Invalid request data", {
             otp: "Invalid OTP"
         });
@@ -117,22 +116,22 @@ export const verifyOtp = async (
     const failedAttemptsKey = `otp_failed_attempts:${email}`;
     const failedAttempts = parseInt(await redis.get(failedAttemptsKey) || '0');
 
-    if(storedOtp !== otp) {
-        if(failedAttempts >= 4) {
-                await redis.set(`otp_lock:${email}`, 'locked', 'EX', 3600); // Lock account for 1 hour
-                await redis.del(`otp:${email}`,failedAttemptsKey); // Delete the OTP and failed attempts after locking the account
-                throw new ValidationError("Invalid request data", {
-                    otp: "Account locked due to multiple failed attempts. Please try again later."
-                });
+    if (storedOtp !== otp) {
+        if (failedAttempts >= 4) {
+            await redis.set(`otp_lock:${email}`, 'locked', 'EX', 3600); // Lock account for 1 hour
+            await redis.del(`otp:${email}`, failedAttemptsKey); // Delete the OTP and failed attempts after locking the account
+            throw new ValidationError("Invalid request data", {
+                otp: "Account locked due to multiple failed attempts. Please try again later."
+            });
         }
 
-                await redis.set(failedAttemptsKey, failedAttempts + 1, 'EX', 3600); // Increment failed attempts with 1 hour expiration
-                throw new ValidationError("Invalid request data", {
-                    otp: "Invalid OTP"
-                });
+        await redis.set(failedAttemptsKey, failedAttempts + 1, 'EX', 3600); // Increment failed attempts with 1 hour expiration
+        throw new ValidationError("Invalid request data", {
+            otp: "Invalid OTP"
+        });
     }
 
-    await redis.del(`otp:${email}`,failedAttemptsKey); // Delete the OTP and failed attempts after successful verification
+    await redis.del(`otp:${email}`, failedAttemptsKey); // Delete the OTP and failed attempts after successful verification
 
 };
 
@@ -144,19 +143,19 @@ export const handleForgotPassword = async (
 ) => {
 
     try {
-        const {email} = req.body;
-        if(!email){
-            return next(new ValidationError("Invalid request data",{
+        const { email } = req.body;
+        if (!email) {
+            return next(new ValidationError("Invalid request data", {
                 email: "Email is required"
             }));
         }
 
         //Find user/seller in DB
 
-        const user = userType === "user" &&  await prisma.users.findUnique({where: {email}})
+        const user = userType === "user" ? await prisma.users.findUnique({ where: { email } }) : await prisma.sellers.findUnique({ where: { email } });
 
-        if(!user){
-            throw new ValidationError("Invalid request data",{
+        if (!user) {
+            throw new ValidationError("Invalid request data", {
                 email: "No user found with this email"
             });
         }
@@ -164,8 +163,8 @@ export const handleForgotPassword = async (
         //check otp restrictions
 
         await checkOtpRestrictions(email);
-        await trackOtpRequest(email);        await sendOtp(user.name,email,"forgot-password-user");
-        return res.status(200).json({message: "OTP sent successfully"});
+        await trackOtpRequest(email); await sendOtp(user.name, email, userType === "user" ? "forgot-password-user" : "forgot-password-seller");
+        return res.status(200).json({ message: "OTP sent successfully" });
 
     } catch (error) {
         return next(error);
@@ -181,10 +180,10 @@ export const verifyForgotPasswordOtp = async (
     next: NextFunction,
 ) => {
 
-    try{
-        const {email, otp} = req.body;
-        if(!email || !otp){
-            throw new ValidationError("Invalid request data",{
+    try {
+        const { email, otp } = req.body;
+        if (!email || !otp) {
+            throw new ValidationError("Invalid request data", {
                 email: !email ? "Email is required" : undefined,
                 otp: !otp ? "OTP is required" : undefined
             });
@@ -193,15 +192,15 @@ export const verifyForgotPasswordOtp = async (
         await verifyOtp(email, otp, next);
         res
             .status(200)
-            .json({message: "OTP verified successfully"});
+            .json({ message: "OTP verified successfully" });
 
     }
-    catch( error){
+    catch (error) {
         return next(error);
     }
 
 };
 
 
-    
+
 

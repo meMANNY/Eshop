@@ -42,7 +42,7 @@ model sellers {
   password     String?
   name         String
   country      String
-  address      String
+  address      String?
   phone_number String?
   stripeId     String?
   shop         shops?
