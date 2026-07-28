@@ -20,6 +20,6 @@ router.post("/forgot-password-user", userForgotPassword);
 router.post("/reset-password-user", resetUserPassword);
 router.post("/verify-forgot-password-otp", verifyUserForgotPassword);
 router.post("/refresh-token-user", refreshToken);
-router.post("/logged-in-user", isAuthenticated, getUser);
+router.get("/logged-in-user", isAuthenticated, getUser);
 
 export default router;

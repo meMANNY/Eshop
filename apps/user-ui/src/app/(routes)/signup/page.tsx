@@ -218,7 +218,7 @@ const Signup = () => {
                     </>
                 ) : (
                     <div>
-                        <h3 className="text-xl font-semibold text-center mb-2">Enter OTP</h3>
+                        <h3 className="text-3xl font-semibold text-center mb-2">Enter OTP</h3>
                         <p className="text-center text-sm text-[#00000099] mb-4">
                             We sent a 4-digit code to {userData?.email}
                         </p>
