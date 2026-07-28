@@ -309,3 +309,4 @@ export const resetUserPassword = async (
     }
 }
 
+//register a new seller

@@ -3,8 +3,9 @@ import React, { useState } from 'react'
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import Link from 'next/link';
-import { Eye, EyeOff, Check } from 'lucide-react';
+import { Eye, EyeOff, Check, ChevronDown } from 'lucide-react';
 import { useMutation } from '@tanstack/react-query';
+import countries from '@/utils/countries';
 import axios, { AxiosError } from 'axios';
 
 type AccountData = {
@@ -12,6 +13,7 @@ type AccountData = {
     email: string;
     phone_number: string;
     password: string;
+    country: string;
 }
 
 type ShopData = {
@@ -42,8 +44,25 @@ const Signup = () => {
     const {
         register: registerAccount,
         handleSubmit: handleSubmitAccount,
+        setValue: setValueAccount,
+        watch: watchAccount,
         formState: { errors: accountErrors },
     } = useForm<AccountData>();
+
+    const [countryOpen, setCountryOpen] = useState(false);
+    const countryRef = React.useRef<HTMLDivElement | null>(null);
+    const selectedCountry = watchAccount('country');
+
+    // close the country dropdown when clicking outside of it
+    React.useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (countryRef.current && !countryRef.current.contains(event.target as Node)) {
+                setCountryOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
 
     const {
         register: registerShop,
@@ -242,24 +261,6 @@ const Signup = () => {
 
                             {!showOtp ? (
                                 <>
-                                    <button
-                                        type="button"
-                                        className="group w-full flex items-center justify-center gap-3 border border-[#e0e0e0] rounded-xl py-3 px-4 text-sm font-semibold text-[#000000cc] bg-white shadow-sm hover:shadow-md hover:border-[#c9c9c9] hover:bg-[#fafafa] active:scale-[0.99] transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#4285F4]/30"
-                                    >
-                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" className="w-5 h-5 transition-transform duration-200 group-hover:scale-110">
-                                            <path fill="#EA4335" d="M24 9.5c3.14 0 5.95 1.08 8.17 2.84l6.08-6.08C34.46 3.09 29.52 1 24 1 14.82 1 6.98 6.48 3.38 14.34l7.08 5.5C12.13 13.65 17.6 9.5 24 9.5z" />
-                                            <path fill="#4285F4" d="M46.52 24.5c0-1.64-.15-3.22-.42-4.75H24v9h12.67c-.55 2.97-2.22 5.48-4.72 7.17l7.25 5.63C43.35 37.26 46.52 31.35 46.52 24.5z" />
-                                            <path fill="#FBBC05" d="M10.46 28.16A14.6 14.6 0 0 1 9.5 24c0-1.44.2-2.84.55-4.16l-7.08-5.5A23.94 23.94 0 0 0 0 24c0 3.86.92 7.51 2.54 10.74l7.92-6.58z" />
-                                            <path fill="#34A853" d="M24 47c5.52 0 10.15-1.83 13.53-4.96l-7.25-5.63c-1.83 1.23-4.17 1.96-6.28 1.96-6.4 0-11.87-4.15-13.54-9.84l-7.92 6.58C6.98 41.52 14.82 47 24 47z" />
-                                            <path fill="none" d="M0 0h48v48H0z" />
-                                        </svg>
-                                        Sign up with Google
-                                    </button>
-                                    <div className="flex items-center my-5 text-gray-400 text-sm">
-                                        <div className="flex-1 border-t border-gray-300" />
-                                        <span>or Sign up with Email</span>
-                                        <div className="flex-1 border-t border-gray-300" />
-                                    </div>
                                     <form onSubmit={handleSubmitAccount(onSubmitAccount)}>
                                         <label className="block text-gray-700 mb-1"> Name</label>
                                         <input
@@ -287,6 +288,52 @@ const Signup = () => {
                                         />
                                         {accountErrors.email &&
                                             (<p className="text-red-500 text-sm mb-1">{accountErrors.email.message}</p>)}
+                                        <label className="block text-gray-700 mb-1"> Country</label>
+                                        <div className="relative mb-1" ref={countryRef}>
+                                            {/* registered hidden field so react-hook-form tracks + validates the value */}
+                                            <input
+                                                type="hidden"
+                                                {...registerAccount('country', { required: 'Country is required' })}
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={() => setCountryOpen((prev) => !prev)}
+                                                className="w-full flex items-center justify-between p-2 border border-gray-300 !rounded bg-white text-left outline-0 focus:border-[#ff6f61]"
+                                            >
+                                                <span className={selectedCountry ? 'text-black' : 'text-gray-400'}>
+                                                    {selectedCountry
+                                                        ? countries.find((c) => c.code === selectedCountry)?.name
+                                                        : 'Select a country'}
+                                                </span>
+                                                <ChevronDown
+                                                    size={18}
+                                                    className={`text-gray-500 transition-transform duration-200 ${countryOpen ? 'rotate-180' : ''}`}
+                                                />
+                                            </button>
+                                            {countryOpen && (
+                                                <ul
+                                                    className="absolute z-20 mt-2 w-full max-h-60 overflow-auto rounded-xl border border-white/50 bg-white/70 backdrop-blur-xl shadow-[0_20px_40px_-12px_rgba(0,0,0,0.25)] ring-1 ring-black/5 bg-gradient-to-b from-white/90 to-white/60"
+                                                >
+                                                    {countries.map((c) => (
+                                                        <li key={c.code}>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => {
+                                                                    setValueAccount('country', c.code, { shouldValidate: true });
+                                                                    setCountryOpen(false);
+                                                                }}
+                                                                className={`w-full text-left px-4 py-2 text-sm transition-colors duration-150 hover:bg-[#ff6f61]/10 hover:text-[#ff6f61]
+                                                                ${selectedCountry === c.code ? 'bg-[#ff6f61]/15 text-[#ff6f61] font-medium' : 'text-gray-700'}`}
+                                                            >
+                                                                {c.name}
+                                                            </button>
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            )}
+                                        </div>
+                                        {accountErrors.country &&
+                                            (<p className="text-red-500 text-sm mb-1">{accountErrors.country.message}</p>)}
                                         <label className="block text-gray-700 mb-1"> Phone Number</label>
                                         <input
                                             type="tel"
@@ -302,35 +349,35 @@ const Signup = () => {
                                         />
                                         {accountErrors.phone_number &&
                                             (<p className="text-red-500 text-sm mb-1">{accountErrors.phone_number.message}</p>)}
-                                        <label className="block text-gray-700 mb-1"> Password</label>
-                                        <div className="relative">
-                                            <input
-                                                type={passwordVisible ? 'text' : 'password'}
-                                                placeholder="Minimum 6 characters"
-                                                className="w-full p-2 border border-gray-300 outline-0 !rounded mb-1"
-                                                {...registerAccount('password', {
-                                                    required: 'Password is required',
-                                                    minLength: {
-                                                        value: 6,
-                                                        message: 'Password must be at least 6 characters',
-                                                    },
-                                                })}
-                                            />
-                                            <button type="button" onClick={() => setPasswordVisible(!passwordVisible)}
-                                                className="absolute inset-y-0 right-3 flex items-center text-gray-400" >
-                                                {passwordVisible ? <Eye /> : <EyeOff />}
+                                            <label className="block text-gray-700 mb-1"> Password</label>
+                                            <div className="relative">
+                                                <input
+                                                    type={passwordVisible ? 'text' : 'password'}
+                                                    placeholder="Minimum 6 characters"
+                                                    className="w-full p-2 border border-gray-300 outline-0 !rounded mb-1"
+                                                    {...registerAccount('password', {
+                                                        required: 'Password is required',
+                                                        minLength: {
+                                                            value: 6,
+                                                            message: 'Password must be at least 6 characters',
+                                                        },
+                                                    })}
+                                                />
+                                                <button type="button" onClick={() => setPasswordVisible(!passwordVisible)}
+                                                    className="absolute inset-y-0 right-3 flex items-center text-gray-400" >
+                                                    {passwordVisible ? <Eye /> : <EyeOff />}
+                                                </button>
+                                                {accountErrors.password &&
+                                                    (<p className="text-red-500 text-sm mb-1">{accountErrors.password.message}</p>)}
+                                            </div>
+                                            <button
+                                                type="submit"
+                                                disabled={signupMutation.isPending}
+                                                className="w-full bg-[#ff6f61] text-white py-2 px-4 rounded font-semibold hover:bg-[#e05a4d] active:scale-[0.99] transition-all duration-200 mt-4 disabled:opacity-60"
+                                            >
+                                                {signupMutation.isPending ? 'Signing up...' : 'Sign Up'}
                                             </button>
-                                            {accountErrors.password &&
-                                                (<p className="text-red-500 text-sm mb-1">{accountErrors.password.message}</p>)}
-                                        </div>
-                                        <button
-                                            type="submit"
-                                            disabled={signupMutation.isPending}
-                                            className="w-full bg-[#ff6f61] text-white py-2 px-4 rounded font-semibold hover:bg-[#e05a4d] active:scale-[0.99] transition-all duration-200 mt-4 disabled:opacity-60"
-                                        >
-                                            {signupMutation.isPending ? 'Signing up...' : 'Sign Up'}
-                                        </button>
-                                        {serverError && <p className="text-red-500 text-sm mt-2">{serverError}</p>}
+                                            {serverError && <p className="text-red-500 text-sm mt-2">{serverError}</p>}
                                     </form>
                                 </>
                             ) : (
