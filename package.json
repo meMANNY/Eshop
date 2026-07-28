@@ -4,7 +4,8 @@
   "license": "MIT",
   "scripts": {
     "dev": "npx nx run-many --target=serve --all",
-    "user-ui": "npx nx run @org/user-ui:dev"
+    "user-ui": "npx nx run @org/user-ui:dev",
+    "seller-ui": "npx nx run @org/seller-ui:dev"
   },
   "private": true,
   "dependencies": {
