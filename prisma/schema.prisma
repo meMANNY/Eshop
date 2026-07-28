@@ -5,32 +5,81 @@
 
 generator client {
   provider = "prisma-client-js"
-
 }
 
 datasource db {
   provider = "mongodb"
-  url = env("DATABASE_URL")
+  url      = env("DATABASE_URL")
 }
+
 //Node js 20 is depricated
 
-model images{
-  id          String @id @default(auto()) @map("_id") @db.ObjectId //primary key
-  file_id     String
-  url         String
-  userId      String? @db.ObjectId @unique // foreign key
-  users       users? @relation(fields: [userId], references: [id])// requires foreign key to be unique
-
+model images {
+  id      String  @id @default(auto()) @map("_id") @db.ObjectId //primary key
+  file_id String
+  url     String
+  userId  String? @unique @db.ObjectId // foreign key
+  users   users?  @relation(fields: [userId], references: [id]) // requires foreign key to be unique
+  shopId  String? @unique @db.ObjectId
+  shops   shops?  @relation(fields: [shopId], references: [id])
 }
 
-model users{
+model users {
+  id        String        @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  email     String        @unique
+  password  String?
+  following String[]
+  avatar    images?
+  reviews   shopReviews[]
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+}
 
-  id          String @id @default(auto()) @map("_id") @db.ObjectId
-  name        String
-  email       String @unique
-  password    String?
-  following   String[]
-  avatar      images?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+model sellers {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  email        String   @unique
+  password     String?
+  name         String
+  country      String
+  address      String
+  phone_number String?
+  stripeId     String?
+  shop         shops?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model shopReviews {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  user      users    @relation(fields: [userId], references: [id])
+  shopId    String   @db.ObjectId
+  shop      shops    @relation(fields: [shopId], references: [id])
+  rating    Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model shops {
+  id            String        @id @default(auto()) @map("_id") @db.ObjectId
+  name          String
+  country       String
+  bio           String
+  category      String
+  avatar        images?
+  coverBanner   String?
+  address       String
+  opening_hours String?
+  closing_hours String?
+  website       String?
+  phone_number  String?
+  socialLinks   Json[]
+  ratings       Float         @default(0)
+  totalRating   Int           @default(0)
+  reviews       shopReviews[]
+  sellerId      String        @unique @db.ObjectId
+  sellers       sellers       @relation(fields: [sellerId], references: [id])
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
 }

@@ -310,3 +310,20 @@ export const resetUserPassword = async (
 }
 
 //register a new seller
+export const registerSeller = async (
+
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+
+    try {
+        ValidateRegistrationData(req.body, "seller")
+
+    } catch (error) {
+        next(error)
+    }
+
+
+
+}
