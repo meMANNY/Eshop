@@ -1,13 +1,25 @@
-import express, {Router} from "express";
-import { loginUser, resetUserPassword, userRegistration, verifyUser,userForgotPassword, verifyUserForgotPassword } from "../controller/auth.controller";
+import express, { Router } from "express";
+import {
+    loginUser,
+    resetUserPassword,
+    userRegistration,
+    verifyUser,
+    userForgotPassword,
+    verifyUserForgotPassword,
+    refreshToken,
+    getUser
+} from "../controller/auth.controller";
+import { isAuthenticated } from "../../../../packages/middleware/isAuthenticated";
 
 const router: Router = express.Router();
 
 router.post("/user-registration", userRegistration);
 router.post("/verify-user", verifyUser);
-router.post("/login-user",loginUser);
+router.post("/login-user", loginUser);
 router.post("/forgot-password-user", userForgotPassword);
 router.post("/reset-password-user", resetUserPassword);
 router.post("/verify-forgot-password-otp", verifyUserForgotPassword);
+router.post("/refresh-token-user", refreshToken);
+router.post("/logged-in-user", isAuthenticated, getUser);
 
 export default router;
