@@ -7,7 +7,10 @@ import {
     userForgotPassword,
     verifyUserForgotPassword,
     refreshToken,
-    getUser
+    getUser,
+    registerSeller,
+    verifySeller,
+    createShop
 } from "../controller/auth.controller";
 import { isAuthenticated } from "../../../../packages/middleware/isAuthenticated";
 
@@ -21,5 +24,7 @@ router.post("/reset-password-user", resetUserPassword);
 router.post("/verify-forgot-password-otp", verifyUserForgotPassword);
 router.post("/refresh-token-user", refreshToken);
 router.get("/logged-in-user", isAuthenticated, getUser);
-
+router.post("/seller-registration", registerSeller);
+router.post("/verify-seller", verifySeller);
+router.post("/create-shop", createShop);
 export default router;

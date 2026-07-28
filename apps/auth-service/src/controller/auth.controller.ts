@@ -332,7 +332,7 @@ export const registerSeller = async (
 
         await checkOtpRestrictions(email)
         await trackOtpRequest(email)
-        await sendOtp(email, email, "seller-activation")
+        await sendOtp(name, email, "seller-activation")
 
         res.status(200).json({
             message: "OTP sent successfully to mail. Please verify your account"

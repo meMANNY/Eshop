@@ -37,6 +37,7 @@ const Signup = () => {
     const [timer, setTimer] = useState(60);
     const [otp, setOtp] = useState(['', '', '', '']);
     const [sellerData, setSellerData] = useState<AccountData | null>(null);
+    const [sellerId, setSellerId] = useState<string | null>(null);
     const inputRefs = React.useRef<(HTMLInputElement | null)[]>([]);
 
     const router = useRouter();
@@ -129,7 +130,9 @@ const Signup = () => {
             });
             return response.data;
         },
-        onSuccess: () => {
+        onSuccess: (data: any) => {
+
+            setSellerId(data?.seller?.id);
             setServerError('');
             setActiveStep(2);
         },
@@ -349,35 +352,35 @@ const Signup = () => {
                                         />
                                         {accountErrors.phone_number &&
                                             (<p className="text-red-500 text-sm mb-1">{accountErrors.phone_number.message}</p>)}
-                                            <label className="block text-gray-700 mb-1"> Password</label>
-                                            <div className="relative">
-                                                <input
-                                                    type={passwordVisible ? 'text' : 'password'}
-                                                    placeholder="Minimum 6 characters"
-                                                    className="w-full p-2 border border-gray-300 outline-0 !rounded mb-1"
-                                                    {...registerAccount('password', {
-                                                        required: 'Password is required',
-                                                        minLength: {
-                                                            value: 6,
-                                                            message: 'Password must be at least 6 characters',
-                                                        },
-                                                    })}
-                                                />
-                                                <button type="button" onClick={() => setPasswordVisible(!passwordVisible)}
-                                                    className="absolute inset-y-0 right-3 flex items-center text-gray-400" >
-                                                    {passwordVisible ? <Eye /> : <EyeOff />}
-                                                </button>
-                                                {accountErrors.password &&
-                                                    (<p className="text-red-500 text-sm mb-1">{accountErrors.password.message}</p>)}
-                                            </div>
-                                            <button
-                                                type="submit"
-                                                disabled={signupMutation.isPending}
-                                                className="w-full bg-[#ff6f61] text-white py-2 px-4 rounded font-semibold hover:bg-[#e05a4d] active:scale-[0.99] transition-all duration-200 mt-4 disabled:opacity-60"
-                                            >
-                                                {signupMutation.isPending ? 'Signing up...' : 'Sign Up'}
+                                        <label className="block text-gray-700 mb-1"> Password</label>
+                                        <div className="relative">
+                                            <input
+                                                type={passwordVisible ? 'text' : 'password'}
+                                                placeholder="Minimum 6 characters"
+                                                className="w-full p-2 border border-gray-300 outline-0 !rounded mb-1"
+                                                {...registerAccount('password', {
+                                                    required: 'Password is required',
+                                                    minLength: {
+                                                        value: 6,
+                                                        message: 'Password must be at least 6 characters',
+                                                    },
+                                                })}
+                                            />
+                                            <button type="button" onClick={() => setPasswordVisible(!passwordVisible)}
+                                                className="absolute inset-y-0 right-3 flex items-center text-gray-400" >
+                                                {passwordVisible ? <Eye /> : <EyeOff />}
                                             </button>
-                                            {serverError && <p className="text-red-500 text-sm mt-2">{serverError}</p>}
+                                            {accountErrors.password &&
+                                                (<p className="text-red-500 text-sm mb-1">{accountErrors.password.message}</p>)}
+                                        </div>
+                                        <button
+                                            type="submit"
+                                            disabled={signupMutation.isPending}
+                                            className="w-full bg-[#ff6f61] text-white py-2 px-4 rounded font-semibold hover:bg-[#e05a4d] active:scale-[0.99] transition-all duration-200 mt-4 disabled:opacity-60"
+                                        >
+                                            {signupMutation.isPending ? 'Signing up...' : 'Sign Up'}
+                                        </button>
+                                        {serverError && <p className="text-red-500 text-sm mt-2">{serverError}</p>}
                                     </form>
                                 </>
                             ) : (

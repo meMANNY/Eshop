@@ -3,86 +3,102 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Eshop Activation Mail</title>
+    <meta name="color-scheme" content="light">
+    <title>Verify your Eshop account</title>
     <style>
-        /* Add your CSS styles here */
-        body{
-            margin: 0;
-            padding: 0;
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            line-height: 1.6;
-            font-size: 16px;
-            min-width: 100%;
-            color: #222222;
-        }
-        a{
-            color: #007bff;
-            text-decoration: none;
-        }
-        h1{
-            font-size: 24px;
-            font-weight: bold;
-            line-height: 1.2;
-            margin-bottom: 15px;
-            text-align: center;
-        }
-        p{
-            margin-bottom: 15px;
-            text-align: center;
-            margin-top: 0;
-        }
-
-        .email-wrapper{
-            max-width: 600px;
-            margin: 0 auto;
-        }
-        .email-header{
-            background-color: #007bff;
-            color: #ffffff;
-            padding: 20px;
-            text-align: center;
-        }
-        .email-body{
-            background-color: #ffffff;
-            padding: 20px;
-        }
-        .email-footer{
-            background-color: #f4f4f4;
-            color: #666666;
-            padding: 20px;
-            text-align: center;
-        }
-
-        .otp-code{
-            display: inline-block;
-            background-color: #f0f6ff;
-            color: #007bff;
-            padding: 12px 28px;
-            border-radius: 8px;
-            font-size: 32px;
-            font-weight: bold;
-            letter-spacing: 8px;
-            margin: 10px 0;
+        body { margin: 0; padding: 0; width: 100%; background-color: #faf6f4; }
+        table { border-collapse: collapse; }
+        img { border: 0; line-height: 100%; outline: none; text-decoration: none; }
+        a { text-decoration: none; }
+        @media only screen and (max-width: 620px) {
+            .card { width: 100% !important; border-radius: 0 !important; }
+            .pad { padding-left: 26px !important; padding-right: 26px !important; }
+            .tile { width: 48px !important; height: 56px !important; font-size: 26px !important; line-height: 56px !important; }
         }
     </style>
 </head>
-<body>
-    <div class="email-wrapper">
-        <div class="email-header">
-            <h1>Welcome to Eshop!</h1>
-        </div>
-        <div class="email-body">
-            <p>Hi <%= name %>,</p>
-            <p>Thank you for registering with Eshop. Use the verification code below to activate your account:</p>
-            <p><span class="otp-code"><%= otp %></span></p>
-            <p>This code will expire in 5 minutes.</p>
-            <p>If you did not register for an account, please ignore this email.</p>
-        </div>
-        <div class="email-footer"> 
-            <p>&copy; 2024 Eshop. All rights reserved.</p>
-        </div>
-
+<body style="margin:0; padding:0; background-color:#faf6f4;">
+    <!-- preheader (hidden preview text) -->
+    <div style="display:none; max-height:0; overflow:hidden; opacity:0; color:#faf6f4; font-size:1px; line-height:1px;">
+        Your Eshop verification code is inside. It expires in 5 minutes.
     </div>
+
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#faf6f4;">
+        <tr>
+            <td align="center" style="padding:40px 16px;">
+
+                <!-- card -->
+                <table role="presentation" class="card" width="600" cellpadding="0" cellspacing="0" style="width:600px; max-width:600px; background-color:#ffffff; border-radius:20px; overflow:hidden; box-shadow:0 18px 40px -18px rgba(224,87,74,0.35);">
+
+                    <!-- header -->
+                    <tr>
+                        <td align="center" style="background-color:#ff6f61; background-image:linear-gradient(135deg,#ff6f61 0%,#ff8a5b 100%); padding:38px 32px;">
+                            <span style="font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif; font-size:27px; font-weight:800; letter-spacing:-0.5px; color:#ffffff;">Eshop</span>
+                        </td>
+                    </tr>
+
+                    <!-- body -->
+                    <tr>
+                        <td class="pad" style="padding:44px 48px 8px 48px; font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+                            <p style="margin:0 0 10px 0; text-align:center; font-size:12px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:#ff6f61;">Account verification</p>
+                            <h1 style="margin:0 0 18px 0; text-align:center; font-size:26px; font-weight:800; color:#2b2320;">Verify your email</h1>
+                            <p style="margin:0 0 6px 0; text-align:center; font-size:16px; line-height:1.6; color:#6b615c;">
+                                Hi <%= name %>, welcome to Eshop. Enter the code below to activate your account and start shopping.
+                            </p>
+                        </td>
+                    </tr>
+
+                    <!-- OTP hero panel -->
+                    <tr>
+                        <td class="pad" style="padding:22px 48px 8px 48px;">
+                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#fff6f4; border:1px solid #ffe2dc; border-radius:16px;">
+                                <tr>
+                                    <td align="center" style="padding:30px 20px 26px 20px;">
+                                        <!-- digit tiles -->
+                                        <table role="presentation" align="center" cellpadding="0" cellspacing="0">
+                                            <tr>
+                                                <% otp.toString().split('').forEach(function(digit){ %>
+                                                <td style="padding:0 6px;">
+                                                    <div class="tile" style="width:56px; height:64px; line-height:64px; text-align:center; background-color:#ffffff; border:2px solid #ffd0c8; border-radius:12px; font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif; font-size:30px; font-weight:800; color:#e0574a; box-shadow:0 4px 10px -4px rgba(224,87,74,0.3);"><%= digit %></div>
+                                                </td>
+                                                <% }) %>
+                                            </tr>
+                                        </table>
+                                        <!-- expiry badge -->
+                                        <div style="margin-top:22px;">
+                                            <span style="display:inline-block; background-color:#ffece8; color:#c94a3d; font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif; font-size:12px; font-weight:600; letter-spacing:0.3px; padding:7px 14px; border-radius:999px;">&#9201; Expires in 5 minutes</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+
+                    <!-- helper -->
+                    <tr>
+                        <td class="pad" style="padding:20px 48px 40px 48px; font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+                            <p style="margin:0; text-align:center; font-size:14px; line-height:1.6; color:#9a908a;">
+                                Didn't create an Eshop account? You can safely ignore this email.
+                            </p>
+                        </td>
+                    </tr>
+
+                    <!-- footer -->
+                    <tr>
+                        <td style="padding:24px 48px; background-color:#fbf4f2; border-top:1px solid #f2e6e2; font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+                            <p style="margin:0 0 4px 0; text-align:center; font-size:13px; font-weight:700; color:#2b2320;">Eshop</p>
+                            <p style="margin:0; text-align:center; font-size:12px; line-height:1.5; color:#a99f99;">
+                                This is an automated message — please don't reply.<br>
+                                &copy; 2026 Eshop. All rights reserved.
+                            </p>
+                        </td>
+                    </tr>
+
+                </table>
+                <!-- /card -->
+
+            </td>
+        </tr>
+    </table>
 </body>
 </html>
