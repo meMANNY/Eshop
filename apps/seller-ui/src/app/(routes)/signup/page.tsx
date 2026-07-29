@@ -3,7 +3,7 @@ import React, { useState } from 'react'
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import Link from 'next/link';
-import { Eye, EyeOff, Check, ChevronDown } from 'lucide-react';
+import { Eye, EyeOff, Check, ChevronDown, UserRound, Store, Landmark, ShieldCheck } from 'lucide-react';
 import { useMutation } from '@tanstack/react-query';
 import countries from '@/utils/countries';
 import categories from '@/utils/categories';
@@ -26,8 +26,6 @@ type ShopData = {
     category: string;
     customCategory?: string;
 }
-
-const steps = ['Create Account', 'Register Shop', 'Connect to Bank'];
 
 const Signup = () => {
 
@@ -239,86 +237,158 @@ const Signup = () => {
         signupMutation.mutate(sellerData);
     };
 
+    // shared field styling — kept in sync with the seller login page
+    const labelCls = 'mb-1.5 block text-[13px] font-medium text-gray-700';
+    const inputCls = 'w-full rounded-lg border border-gray-200 px-3.5 py-2.5 text-[15px] outline-0 transition-colors focus:border-[#ff6f61] focus:ring-2 focus:ring-[#ff6f61]/15';
+    const triggerCls = 'flex w-full items-center justify-between rounded-lg border border-gray-200 px-3.5 py-2.5 text-[15px] text-left outline-0 transition-colors focus:border-[#ff6f61] focus:ring-2 focus:ring-[#ff6f61]/15';
+    const menuCls = 'absolute z-20 w-full max-h-60 overflow-auto rounded-xl border border-white/50 bg-white/70 backdrop-blur-xl shadow-[0_20px_40px_-12px_rgba(0,0,0,0.25)] ring-1 ring-black/5 bg-gradient-to-b from-white/90 to-white/60';
+    const errorCls = 'mt-1 text-sm text-red-500';
+    const submitCls = 'mt-2 w-full rounded-lg bg-[#ff6f61] py-2.5 font-semibold text-white shadow-[0_8px_20px_-6px_rgba(255,111,97,0.6)] transition-all duration-200 hover:bg-[#e05a4d] active:scale-[0.99] disabled:opacity-60';
+
+    // left-rail metadata — labels + icons for the setup journey
+    const stepMeta = [
+        { label: 'Create account', desc: 'Your sign-in details', Icon: UserRound },
+        { label: 'Register shop', desc: 'Name, bio & category', Icon: Store },
+        { label: 'Connect payouts', desc: 'Get paid via Stripe', Icon: Landmark },
+    ];
+
     return (
-        <div className="w-full py-10 min-h-[85vh] bg-[#f1f1f1]">
-            <h1 className="text-4xl font-Poppins font-semibold text-black text-center ">
-                Become a Seller
-            </h1>
-            <p className='text-center text-lg font-medium py-3 text-[#00000099]'>
-                HOME . SIGNUP
-            </p>
+        <div className="flex min-h-screen w-full bg-white">
 
-            {/* Step indicator */}
-            <div className="w-full flex justify-center mb-8">
-                <div className="md:w-[560px] w-[90%] flex items-center justify-between">
-                    {steps.map((label, index) => {
-                        const stepNumber = index + 1;
-                        const isCompleted = activeStep > stepNumber;
-                        const isActive = activeStep === stepNumber;
-                        return (
-                            <React.Fragment key={label}>
-                                <div className="flex flex-col items-center">
-                                    <div
-                                        className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold border-2 transition-all duration-200
-                                        ${isCompleted || isActive
-                                                ? 'bg-[#ff6f61] border-[#ff6f61] text-white'
-                                                : 'bg-white border-gray-300 text-gray-400'}`}
-                                    >
-                                        {isCompleted ? <Check size={20} /> : stepNumber}
-                                    </div>
-                                    <span
-                                        className={`mt-2 text-sm font-medium text-center
-                                        ${isCompleted || isActive ? 'text-[#ff6f61]' : 'text-gray-400'}`}
-                                    >
-                                        {label}
-                                    </span>
-                                </div>
-                                {stepNumber < steps.length && (
-                                    <div
-                                        className={`flex-1 h-[2px] mx-2 mb-6 transition-all duration-200
-                                        ${activeStep > stepNumber ? 'bg-[#ff6f61]' : 'bg-gray-300'}`}
-                                    />
-                                )}
-                            </React.Fragment>
-                        );
-                    })}
+            {/* ── Left: setup-rail panel (storefront at night) ──────────── */}
+            <aside className="relative hidden lg:flex lg:sticky lg:top-0 h-screen w-[42%] flex-col justify-between overflow-hidden bg-[#171310] px-12 py-10 text-white">
+                {/* ambient coral glow */}
+                <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_28%_18%,rgba(255,111,97,0.28),transparent_58%)]" />
+                <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_85%_100%,rgba(255,111,97,0.14),transparent_55%)]" />
+
+                {/* brand */}
+                <div className="relative flex items-center gap-3">
+                    <span className="text-2xl font-semibold tracking-tight">Eshop</span>
+                    <span className="rounded-full border border-white/20 bg-white/5 px-2.5 py-0.5 text-[11px] font-medium uppercase tracking-[0.18em] text-white/70">
+                        Seller
+                    </span>
                 </div>
-            </div>
 
-            <div className="w-full flex justify-center">
-                <div className="md:w-[480px] p-8 bg-white shadow rounded-lg">
+                {/* signature: headline + live setup rail */}
+                <div className="relative">
+                    <h1 className="max-w-sm font-Poppins text-4xl font-semibold leading-tight">
+                        Let&apos;s open<br />your shop.
+                    </h1>
+                    <p className="mt-4 mb-10 max-w-sm text-[15px] leading-relaxed text-white/55">
+                        Three quick steps and your storefront is live.
+                    </p>
+
+                    <ol className="relative space-y-7">
+                        {stepMeta.map((step, index) => {
+                            const stepNumber = index + 1;
+                            const isCompleted = activeStep > stepNumber;
+                            const isActive = activeStep === stepNumber;
+                            const Icon = step.Icon;
+                            return (
+                                <li key={step.label} className="relative flex items-start gap-4">
+                                    {/* connector to the next node */}
+                                    {stepNumber < stepMeta.length && (
+                                        <span
+                                            className={`absolute left-[19px] top-11 h-7 w-px transition-colors duration-300
+                                            ${isCompleted ? 'bg-[#ff6f61]' : 'bg-white/15'}`}
+                                        />
+                                    )}
+                                    <span
+                                        className={`relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full border transition-all duration-300
+                                        ${isCompleted
+                                                ? 'border-[#ff6f61] bg-[#ff6f61] text-white'
+                                                : isActive
+                                                    ? 'border-[#ff6f61] bg-white/[0.04] text-[#ff8a7d] shadow-[0_0_18px_rgba(255,111,97,0.55)]'
+                                                    : 'border-white/15 text-white/40'}`}
+                                    >
+                                        {isCompleted ? <Check size={18} /> : <Icon size={18} />}
+                                    </span>
+                                    <div className="pt-0.5">
+                                        <p className={`text-[15px] font-medium ${isActive || isCompleted ? 'text-white' : 'text-white/45'}`}>
+                                            {step.label}
+                                        </p>
+                                        <p className={`text-[13px] ${isActive ? 'text-white/60' : 'text-white/35'}`}>
+                                            {step.desc}
+                                        </p>
+                                    </div>
+                                </li>
+                            );
+                        })}
+                    </ol>
+                </div>
+
+                {/* trust footer */}
+                <div className="relative flex items-center gap-2 text-sm text-white/45">
+                    <ShieldCheck size={16} className="text-[#ff8a7d]" /> Secured with bank-grade encryption
+                </div>
+            </aside>
+
+            {/* ── Right: form column ────────────────────────────────────── */}
+            <main className="flex min-h-screen w-full items-start justify-center px-6 py-12 lg:w-[58%] lg:items-center">
+                <div className="fade-up w-full max-w-[440px]">
+
+                    {/* mobile brand */}
+                    <div className="mb-8 flex items-center gap-2 lg:hidden">
+                        <span className="text-xl font-semibold tracking-tight text-black">Eshop</span>
+                        <span className="rounded-full border border-gray-200 px-2 py-0.5 text-[10px] font-medium uppercase tracking-[0.18em] text-gray-500">
+                            Seller
+                        </span>
+                    </div>
+
+                    {/* mobile stepper (left rail is hidden on small screens) */}
+                    <div className="mb-8 flex items-center gap-2 lg:hidden">
+                        {stepMeta.map((step, index) => {
+                            const stepNumber = index + 1;
+                            const isCompleted = activeStep > stepNumber;
+                            const isActive = activeStep === stepNumber;
+                            return (
+                                <React.Fragment key={step.label}>
+                                    <span
+                                        className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border text-sm font-semibold transition-colors
+                                        ${isCompleted || isActive ? 'border-[#ff6f61] bg-[#ff6f61] text-white' : 'border-gray-300 text-gray-400'}`}
+                                    >
+                                        {isCompleted ? <Check size={16} /> : stepNumber}
+                                    </span>
+                                    {stepNumber < stepMeta.length && (
+                                        <span className={`h-px flex-1 ${activeStep > stepNumber ? 'bg-[#ff6f61]' : 'bg-gray-200'}`} />
+                                    )}
+                                </React.Fragment>
+                            );
+                        })}
+                    </div>
 
                     {/* STEP 1 — Create Account */}
                     {activeStep === 1 && (
-                        <>
-                            <h3 className="text-3xl font-semibold text-center mb-2">
-                                Create Account
-                            </h3>
-                            {!showOtp && (
-                                <p className="text-center text-[#00000099] mb-6">
-                                    Already have an account? <Link href="/login" className="text-[#ff6f61] cursor-pointer">Login</Link>
+                        !showOtp ? (
+                            <>
+                                <h2 className="font-Poppins text-3xl font-semibold text-black">Create your account</h2>
+                                <p className="mt-2 text-[15px] text-[#00000099]">
+                                    Already selling with us? <Link href="/login" className="font-medium text-[#ff6f61] hover:underline">Sign in</Link>
                                 </p>
-                            )}
 
-                            {!showOtp ? (
-                                <>
-                                    <form onSubmit={handleSubmitAccount(onSubmitAccount)}>
-                                        <label className="block text-gray-700 mb-1"> Name</label>
+                                <form onSubmit={handleSubmitAccount(onSubmitAccount)} className="mt-7 space-y-4">
+                                    <div>
+                                        <label htmlFor="name" className={labelCls}>Name</label>
                                         <input
+                                            id="name"
                                             type="text"
                                             placeholder="Dark King"
-                                            className="w-full p-2 border border-gray-300 outline-0 !rounded mb-1"
+                                            className={inputCls}
                                             {...registerAccount('name', {
                                                 required: 'Name is required',
                                             })}
                                         />
                                         {accountErrors.name &&
-                                            (<p className="text-red-500 text-sm mb-1">{accountErrors.name.message}</p>)}
-                                        <label className="block text-gray-700 mb-1"> Email</label>
+                                            (<p className={errorCls}>{accountErrors.name.message}</p>)}
+                                    </div>
+
+                                    <div>
+                                        <label htmlFor="email" className={labelCls}>Email</label>
                                         <input
+                                            id="email"
                                             type="email"
-                                            placeholder="support@DarkKing.com"
-                                            className="w-full p-2 border border-gray-300 outline-0 !rounded mb-1"
+                                            placeholder="support@darkking.com"
+                                            className={inputCls}
                                             {...registerAccount('email', {
                                                 required: 'Email is required',
                                                 pattern: {
@@ -328,9 +398,12 @@ const Signup = () => {
                                             })}
                                         />
                                         {accountErrors.email &&
-                                            (<p className="text-red-500 text-sm mb-1">{accountErrors.email.message}</p>)}
-                                        <label className="block text-gray-700 mb-1"> Country</label>
-                                        <div className="relative mb-1" ref={countryRef}>
+                                            (<p className={errorCls}>{accountErrors.email.message}</p>)}
+                                    </div>
+
+                                    <div>
+                                        <label className={labelCls}>Country</label>
+                                        <div className="relative" ref={countryRef}>
                                             {/* registered hidden field so react-hook-form tracks + validates the value */}
                                             <input
                                                 type="hidden"
@@ -339,7 +412,7 @@ const Signup = () => {
                                             <button
                                                 type="button"
                                                 onClick={() => setCountryOpen((prev) => !prev)}
-                                                className="w-full flex items-center justify-between p-2 border border-gray-300 !rounded bg-white text-left outline-0 focus:border-[#ff6f61]"
+                                                className={triggerCls}
                                             >
                                                 <span className={selectedCountry ? 'text-black' : 'text-gray-400'}>
                                                     {selectedCountry
@@ -348,13 +421,11 @@ const Signup = () => {
                                                 </span>
                                                 <ChevronDown
                                                     size={18}
-                                                    className={`text-gray-500 transition-transform duration-200 ${countryOpen ? 'rotate-180' : ''}`}
+                                                    className={`text-gray-400 transition-transform duration-200 ${countryOpen ? 'rotate-180' : ''}`}
                                                 />
                                             </button>
                                             {countryOpen && (
-                                                <ul
-                                                    className="absolute z-20 mt-2 w-full max-h-60 overflow-auto rounded-xl border border-white/50 bg-white/70 backdrop-blur-xl shadow-[0_20px_40px_-12px_rgba(0,0,0,0.25)] ring-1 ring-black/5 bg-gradient-to-b from-white/90 to-white/60"
-                                                >
+                                                <ul className={`${menuCls} mt-2`}>
                                                     {countries.map((c) => (
                                                         <li key={c.code}>
                                                             <button
@@ -374,12 +445,16 @@ const Signup = () => {
                                             )}
                                         </div>
                                         {accountErrors.country &&
-                                            (<p className="text-red-500 text-sm mb-1">{accountErrors.country.message}</p>)}
-                                        <label className="block text-gray-700 mb-1"> Phone Number</label>
+                                            (<p className={errorCls}>{accountErrors.country.message}</p>)}
+                                    </div>
+
+                                    <div>
+                                        <label htmlFor="phone" className={labelCls}>Phone number</label>
                                         <input
+                                            id="phone"
                                             type="tel"
                                             placeholder="9876543210"
-                                            className="w-full p-2 border border-gray-300 outline-0 !rounded mb-1"
+                                            className={inputCls}
                                             {...registerAccount('phone_number', {
                                                 required: 'Phone number is required',
                                                 pattern: {
@@ -389,13 +464,17 @@ const Signup = () => {
                                             })}
                                         />
                                         {accountErrors.phone_number &&
-                                            (<p className="text-red-500 text-sm mb-1">{accountErrors.phone_number.message}</p>)}
-                                        <label className="block text-gray-700 mb-1"> Password</label>
+                                            (<p className={errorCls}>{accountErrors.phone_number.message}</p>)}
+                                    </div>
+
+                                    <div>
+                                        <label htmlFor="password" className={labelCls}>Password</label>
                                         <div className="relative">
                                             <input
+                                                id="password"
                                                 type={passwordVisible ? 'text' : 'password'}
                                                 placeholder="Minimum 6 characters"
-                                                className="w-full p-2 border border-gray-300 outline-0 !rounded mb-1"
+                                                className={`${inputCls} pr-11`}
                                                 {...registerAccount('password', {
                                                     required: 'Password is required',
                                                     minLength: {
@@ -405,194 +484,219 @@ const Signup = () => {
                                                 })}
                                             />
                                             <button type="button" onClick={() => setPasswordVisible(!passwordVisible)}
-                                                className="absolute inset-y-0 right-3 flex items-center text-gray-400" >
-                                                {passwordVisible ? <Eye /> : <EyeOff />}
+                                                aria-label={passwordVisible ? 'Hide password' : 'Show password'}
+                                                className="absolute inset-y-0 right-3 flex items-center text-gray-400 hover:text-gray-600">
+                                                {passwordVisible ? <Eye size={19} /> : <EyeOff size={19} />}
                                             </button>
-                                            {accountErrors.password &&
-                                                (<p className="text-red-500 text-sm mb-1">{accountErrors.password.message}</p>)}
                                         </div>
-                                        <button
-                                            type="submit"
-                                            disabled={signupMutation.isPending}
-                                            className="w-full bg-[#ff6f61] text-white py-2 px-4 rounded font-semibold hover:bg-[#e05a4d] active:scale-[0.99] transition-all duration-200 mt-4 disabled:opacity-60"
-                                        >
-                                            {signupMutation.isPending ? 'Signing up...' : 'Sign Up'}
-                                        </button>
-                                        {serverError && <p className="text-red-500 text-sm mt-2">{serverError}</p>}
-                                    </form>
-                                </>
-                            ) : (
-                                <div>
-                                    <h3 className="text-3xl font-semibold text-center mb-2">Enter OTP</h3>
-                                    <p className="text-center text-sm text-[#00000099] mb-4">
-                                        We sent a 4-digit code to {sellerData?.email}
-                                    </p>
-                                    <div className="flex justify-center gap-3">
-                                        {otp.map((digit, index) => (
-                                            <input
-                                                key={index}
-                                                ref={(element) => {
-                                                    inputRefs.current[index] = element;
-                                                }}
-                                                type="text"
-                                                inputMode="numeric"
-                                                autoComplete="one-time-code"
-                                                maxLength={1}
-                                                value={digit}
-                                                onChange={(event) => handleOtpChange(index, event.target.value)}
-                                                onKeyDown={(event) => handleOtpKeyDown(index, event)}
-                                                aria-label={`OTP digit ${index + 1}`}
-                                                className="h-12 w-12 rounded border border-gray-300 bg-white text-center text-xl font-semibold outline-0 focus:border-[#ff6f61] focus:ring-2 focus:ring-[#ff6f61]/20"
-                                            />
-                                        ))}
+                                        {accountErrors.password &&
+                                            (<p className={errorCls}>{accountErrors.password.message}</p>)}
                                     </div>
+
                                     <button
-                                        type="button"
-                                        onClick={verifyOtp}
-                                        disabled={verifyOtpMutation.isPending || otp.some((d) => d === '')}
-                                        className="w-full bg-[#ff6f61] text-white py-2 px-4 rounded font-semibold hover:bg-[#e05a4d] active:scale-[0.99] transition-all duration-200 mt-6 disabled:opacity-60"
+                                        type="submit"
+                                        disabled={signupMutation.isPending}
+                                        className={submitCls}
                                     >
-                                        {verifyOtpMutation.isPending ? 'Verifying...' : 'Verify OTP'}
+                                        {signupMutation.isPending ? 'Creating account…' : 'Create account'}
                                     </button>
-                                    <p className="text-center text-sm text-[#00000099] mt-4">
-                                        {canResend ? (
-                                            <button type="button" onClick={resendOtp} className="text-[#ff6f61] font-medium cursor-pointer">
-                                                Resend OTP
-                                            </button>
-                                        ) : (
-                                            <>Resend OTP in {timer}s</>
-                                        )}
-                                    </p>
-                                    {serverError && <p className="text-red-500 text-sm mt-2 text-center">{serverError}</p>}
+                                    {serverError && <p className={errorCls}>{serverError}</p>}
+                                </form>
+                            </>
+                        ) : (
+                            <>
+                                <h2 className="font-Poppins text-3xl font-semibold text-black">Verify your email</h2>
+                                <p className="mt-2 text-[15px] text-[#00000099]">
+                                    Enter the 4-digit code we sent to <span className="font-medium text-black">{sellerData?.email}</span>.
+                                </p>
+
+                                <div className="mt-7 flex gap-3">
+                                    {otp.map((digit, index) => (
+                                        <input
+                                            key={index}
+                                            ref={(element) => {
+                                                inputRefs.current[index] = element;
+                                            }}
+                                            type="text"
+                                            inputMode="numeric"
+                                            autoComplete="one-time-code"
+                                            maxLength={1}
+                                            value={digit}
+                                            onChange={(event) => handleOtpChange(index, event.target.value)}
+                                            onKeyDown={(event) => handleOtpKeyDown(index, event)}
+                                            aria-label={`OTP digit ${index + 1}`}
+                                            className="h-14 w-14 rounded-lg border border-gray-200 bg-white text-center text-2xl font-semibold outline-0 transition-colors focus:border-[#ff6f61] focus:ring-2 focus:ring-[#ff6f61]/15"
+                                        />
+                                    ))}
                                 </div>
-                            )}
-                        </>
+
+                                <button
+                                    type="button"
+                                    onClick={verifyOtp}
+                                    disabled={verifyOtpMutation.isPending || otp.some((d) => d === '')}
+                                    className={submitCls + ' mt-6'}
+                                >
+                                    {verifyOtpMutation.isPending ? 'Verifying…' : 'Verify email'}
+                                </button>
+
+                                <p className="mt-4 text-center text-sm text-[#00000099]">
+                                    {canResend ? (
+                                        <button type="button" onClick={resendOtp} className="font-medium text-[#ff6f61] hover:underline">
+                                            Resend code
+                                        </button>
+                                    ) : (
+                                        <>Resend code in {timer}s</>
+                                    )}
+                                </p>
+                                {serverError && <p className={`${errorCls} text-center`}>{serverError}</p>}
+                            </>
+                        )
                     )}
 
                     {/* STEP 2 — Register Shop */}
                     {activeStep === 2 && (
                         <>
-                            <h3 className="text-3xl font-semibold text-center mb-2">
-                                Register Shop
-                            </h3>
-                            <p className="text-center text-[#00000099] mb-6">
-                                Tell customers about your shop
+                            <h2 className="font-Poppins text-3xl font-semibold text-black">Register your shop</h2>
+                            <p className="mt-2 text-[15px] text-[#00000099]">
+                                Tell customers who you are.
                             </p>
-                            <form onSubmit={handleSubmitShop(onSubmitShop)}>
-                                <label className="block text-gray-700 mb-1"> Shop Name</label>
-                                <input
-                                    type="text"
-                                    placeholder="Dark King Store"
-                                    className="w-full p-2 border border-gray-300 outline-0 !rounded mb-1"
-                                    {...registerShop('shopName', {
-                                        required: 'Shop name is required',
-                                    })}
-                                />
-                                {shopErrors.shopName &&
-                                    (<p className="text-red-500 text-sm mb-1">{shopErrors.shopName.message}</p>)}
-                                <label className="block text-gray-700 mb-1"> Bio (max 100 words)</label>
-                                <input
-                                    type="text"
-                                    placeholder="A short description of your shop"
-                                    className="w-full p-2 border border-gray-300 outline-0 !rounded mb-1"
-                                    {...registerShop('bio', {
-                                        required: 'Shop bio is required',
-                                        validate: (value) =>
-                                            value.trim().split(/\s+/).length <= 100 || 'Bio must be 100 words or less',
-                                    })}
-                                />
-                                {shopErrors.bio &&
-                                    (<p className="text-red-500 text-sm mb-1">{shopErrors.bio.message}</p>)}
-                                <label className="block text-gray-700 mb-1"> Address</label>
-                                <input
-                                    type="text"
-                                    placeholder="Shop address"
-                                    className="w-full p-2 border border-gray-300 outline-0 !rounded mb-1"
-                                    {...registerShop('address', {
-                                        required: 'Shop address is required',
-                                    })}
-                                />
-                                {shopErrors.address &&
-                                    (<p className="text-red-500 text-sm mb-1">{shopErrors.address.message}</p>)}
-                                <label className="block text-gray-700 mb-1"> Opening Hours</label>
-                                <input
-                                    type="text"
-                                    placeholder="Mon - Fri, 9:00 AM - 6:00 PM"
-                                    className="w-full p-2 border border-gray-300 outline-0 !rounded mb-1"
-                                    {...registerShop('openingHours', {
-                                        required: 'Opening hours are required',
-                                    })}
-                                />
-                                {shopErrors.openingHours &&
-                                    (<p className="text-red-500 text-sm mb-1">{shopErrors.openingHours.message}</p>)}
-                                <label className="block text-gray-700 mb-1"> Website</label>
-                                <input
-                                    type="text"
-                                    placeholder="https://darkking.com"
-                                    className="w-full p-2 border border-gray-300 outline-0 !rounded mb-1"
-                                    {...registerShop('website', {
-                                        pattern: {
-                                            value: /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&/=]*)$/,
-                                            message: 'Enter a valid URL (e.g. https://darkking.com)',
-                                        },
-                                    })}
-                                />
-                                {shopErrors.website &&
-                                    (<p className="text-red-500 text-sm mb-1">{shopErrors.website.message}</p>)}
-                                <label className="block text-gray-700 mb-1"> Category</label>
-                                <div className="relative mb-1" ref={categoryRef}>
-                                    {/* registered hidden field so react-hook-form tracks + validates the value */}
+
+                            <form onSubmit={handleSubmitShop(onSubmitShop)} className="mt-7 space-y-4">
+                                <div>
+                                    <label htmlFor="shopName" className={labelCls}>Shop name</label>
                                     <input
-                                        type="hidden"
-                                        {...registerShop('category', { required: 'Category is required' })}
+                                        id="shopName"
+                                        type="text"
+                                        placeholder="Dark King Store"
+                                        className={inputCls}
+                                        {...registerShop('shopName', {
+                                            required: 'Shop name is required',
+                                        })}
                                     />
-                                    <button
-                                        type="button"
-                                        onClick={toggleCategory}
-                                        className="w-full flex items-center justify-between p-2 border border-gray-300 !rounded bg-white text-left outline-0 focus:border-[#ff6f61]"
-                                    >
-                                        <span className={selectedCategory ? 'text-black' : 'text-gray-400'}>
-                                            {selectedCategory
-                                                ? categories.find((c) => c.value === selectedCategory)?.name
-                                                : 'Select a category'}
-                                        </span>
-                                        <ChevronDown
-                                            size={18}
-                                            className={`text-gray-500 transition-transform duration-200 ${categoryOpen ? 'rotate-180' : ''}`}
-                                        />
-                                    </button>
-                                    {categoryOpen && (
-                                        <ul
-                                            className={`absolute z-20 w-full max-h-60 overflow-auto rounded-xl border border-white/50 bg-white/70 backdrop-blur-xl shadow-[0_20px_40px_-12px_rgba(0,0,0,0.25)] ring-1 ring-black/5 bg-gradient-to-b from-white/90 to-white/60
-                                            ${categoryDropUp ? 'bottom-full mb-2' : 'top-full mt-2'}`}
-                                        >
-                                            {categories.map((c) => (
-                                                <li key={c.value}>
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => {
-                                                            setValueShop('category', c.value, { shouldValidate: true });
-                                                            setCategoryOpen(false);
-                                                        }}
-                                                        className={`w-full text-left px-4 py-2 text-sm transition-colors duration-150 hover:bg-[#ff6f61]/10 hover:text-[#ff6f61]
-                                                        ${selectedCategory === c.value ? 'bg-[#ff6f61]/15 text-[#ff6f61] font-medium' : 'text-gray-700'}`}
-                                                    >
-                                                        {c.name}
-                                                    </button>
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    )}
+                                    {shopErrors.shopName &&
+                                        (<p className={errorCls}>{shopErrors.shopName.message}</p>)}
                                 </div>
-                                {shopErrors.category &&
-                                    (<p className="text-red-500 text-sm mb-1">{shopErrors.category.message}</p>)}
-                                {selectedCategory === 'other' && (
-                                    <>
-                                        <label className="block text-gray-700 mb-1"> Your Category</label>
+
+                                <div>
+                                    <label htmlFor="bio" className={labelCls}>Bio (max 100 words)</label>
+                                    <input
+                                        id="bio"
+                                        type="text"
+                                        placeholder="A short description of your shop"
+                                        className={inputCls}
+                                        {...registerShop('bio', {
+                                            required: 'Shop bio is required',
+                                            validate: (value) =>
+                                                value.trim().split(/\s+/).length <= 100 || 'Bio must be 100 words or less',
+                                        })}
+                                    />
+                                    {shopErrors.bio &&
+                                        (<p className={errorCls}>{shopErrors.bio.message}</p>)}
+                                </div>
+
+                                <div>
+                                    <label htmlFor="address" className={labelCls}>Address</label>
+                                    <input
+                                        id="address"
+                                        type="text"
+                                        placeholder="Shop address"
+                                        className={inputCls}
+                                        {...registerShop('address', {
+                                            required: 'Shop address is required',
+                                        })}
+                                    />
+                                    {shopErrors.address &&
+                                        (<p className={errorCls}>{shopErrors.address.message}</p>)}
+                                </div>
+
+                                <div>
+                                    <label htmlFor="openingHours" className={labelCls}>Opening hours</label>
+                                    <input
+                                        id="openingHours"
+                                        type="text"
+                                        placeholder="Mon - Fri, 9:00 AM - 6:00 PM"
+                                        className={inputCls}
+                                        {...registerShop('openingHours', {
+                                            required: 'Opening hours are required',
+                                        })}
+                                    />
+                                    {shopErrors.openingHours &&
+                                        (<p className={errorCls}>{shopErrors.openingHours.message}</p>)}
+                                </div>
+
+                                <div>
+                                    <label htmlFor="website" className={labelCls}>Website</label>
+                                    <input
+                                        id="website"
+                                        type="text"
+                                        placeholder="https://darkking.com"
+                                        className={inputCls}
+                                        {...registerShop('website', {
+                                            pattern: {
+                                                value: /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&/=]*)$/,
+                                                message: 'Enter a valid URL (e.g. https://darkking.com)',
+                                            },
+                                        })}
+                                    />
+                                    {shopErrors.website &&
+                                        (<p className={errorCls}>{shopErrors.website.message}</p>)}
+                                </div>
+
+                                <div>
+                                    <label className={labelCls}>Category</label>
+                                    <div className="relative" ref={categoryRef}>
+                                        {/* registered hidden field so react-hook-form tracks + validates the value */}
                                         <input
+                                            type="hidden"
+                                            {...registerShop('category', { required: 'Category is required' })}
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={toggleCategory}
+                                            className={triggerCls}
+                                        >
+                                            <span className={selectedCategory ? 'text-black' : 'text-gray-400'}>
+                                                {selectedCategory
+                                                    ? categories.find((c) => c.value === selectedCategory)?.name
+                                                    : 'Select a category'}
+                                            </span>
+                                            <ChevronDown
+                                                size={18}
+                                                className={`text-gray-400 transition-transform duration-200 ${categoryOpen ? 'rotate-180' : ''}`}
+                                            />
+                                        </button>
+                                        {categoryOpen && (
+                                            <ul className={`${menuCls} ${categoryDropUp ? 'bottom-full mb-2' : 'top-full mt-2'}`}>
+                                                {categories.map((c) => (
+                                                    <li key={c.value}>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => {
+                                                                setValueShop('category', c.value, { shouldValidate: true });
+                                                                setCategoryOpen(false);
+                                                            }}
+                                                            className={`w-full text-left px-4 py-2 text-sm transition-colors duration-150 hover:bg-[#ff6f61]/10 hover:text-[#ff6f61]
+                                                            ${selectedCategory === c.value ? 'bg-[#ff6f61]/15 text-[#ff6f61] font-medium' : 'text-gray-700'}`}
+                                                        >
+                                                            {c.name}
+                                                        </button>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        )}
+                                    </div>
+                                    {shopErrors.category &&
+                                        (<p className={errorCls}>{shopErrors.category.message}</p>)}
+                                </div>
+
+                                {selectedCategory === 'other' && (
+                                    <div>
+                                        <label htmlFor="customCategory" className={labelCls}>Your category</label>
+                                        <input
+                                            id="customCategory"
                                             type="text"
                                             placeholder="e.g. Handmade Candles"
-                                            className="w-full p-2 border border-gray-300 outline-0 !rounded mb-1"
+                                            className={inputCls}
                                             {...registerShop('customCategory', {
                                                 validate: (value) =>
                                                     selectedCategory !== 'other' ||
@@ -601,17 +705,18 @@ const Signup = () => {
                                             })}
                                         />
                                         {shopErrors.customCategory &&
-                                            (<p className="text-red-500 text-sm mb-1">{shopErrors.customCategory.message}</p>)}
-                                    </>
+                                            (<p className={errorCls}>{shopErrors.customCategory.message}</p>)}
+                                    </div>
                                 )}
+
                                 <button
                                     type="submit"
                                     disabled={createShopMutation.isPending}
-                                    className="w-full bg-[#ff6f61] text-white py-2 px-4 rounded font-semibold hover:bg-[#e05a4d] active:scale-[0.99] transition-all duration-200 mt-4 disabled:opacity-60"
+                                    className={submitCls}
                                 >
-                                    {createShopMutation.isPending ? 'Saving...' : 'Register Shop'}
+                                    {createShopMutation.isPending ? 'Saving…' : 'Register shop'}
                                 </button>
-                                {serverError && <p className="text-red-500 text-sm mt-2">{serverError}</p>}
+                                {serverError && <p className={errorCls}>{serverError}</p>}
                             </form>
                         </>
                     )}
@@ -619,33 +724,43 @@ const Signup = () => {
                     {/* STEP 3 — Connect to Bank */}
                     {activeStep === 3 && (
                         <>
-                            <h3 className="text-3xl font-semibold text-center mb-2">
-                                Connect to Bank
-                            </h3>
-                            <p className="text-center text-[#00000099] mb-6">
-                                Connect your bank account to receive payouts from your sales.
+                            <h2 className="font-Poppins text-3xl font-semibold text-black">Connect payouts</h2>
+                            <p className="mt-2 text-[15px] text-[#00000099]">
+                                Link a bank account through Stripe so your sales reach you.
                             </p>
+
+                            <div className="mt-7 rounded-xl border border-gray-100 bg-[#fff8f6] p-4">
+                                <div className="flex items-start gap-3">
+                                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#ff6f61]/12 text-[#ff6f61]">
+                                        <Landmark size={18} />
+                                    </span>
+                                    <p className="text-[13px] leading-relaxed text-[#00000099]">
+                                        You&apos;ll be taken to Stripe to add your bank details securely. Eshop never sees or stores them.
+                                    </p>
+                                </div>
+                            </div>
+
                             <button
                                 type="button"
                                 onClick={() => connectBankMutation.mutate()}
                                 disabled={connectBankMutation.isPending}
-                                className="w-full bg-[#ff6f61] text-white py-2 px-4 rounded font-semibold hover:bg-[#e05a4d] active:scale-[0.99] transition-all duration-200 disabled:opacity-60"
+                                className={submitCls + ' mt-5'}
                             >
-                                {connectBankMutation.isPending ? 'Connecting...' : 'Connect with Stripe'}
+                                {connectBankMutation.isPending ? 'Connecting…' : 'Connect with Stripe'}
                             </button>
                             <button
                                 type="button"
                                 onClick={() => router.push('/login')}
-                                className="w-full text-[#00000099] py-2 px-4 rounded font-medium mt-3 hover:text-black transition-all duration-200"
+                                className="mt-3 w-full rounded-lg py-2.5 font-medium text-[#00000099] transition-colors duration-200 hover:text-black"
                             >
                                 Skip for now
                             </button>
-                            {serverError && <p className="text-red-500 text-sm mt-2 text-center">{serverError}</p>}
+                            {serverError && <p className={`${errorCls} text-center`}>{serverError}</p>}
                         </>
                     )}
 
                 </div>
-            </div>
+            </main>
         </div>
     )
 }
