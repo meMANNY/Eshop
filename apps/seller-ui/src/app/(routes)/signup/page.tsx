@@ -31,7 +31,7 @@ const steps = ['Create Account', 'Register Shop', 'Connect to Bank'];
 
 const Signup = () => {
 
-    const [activeStep, setActiveStep] = useState(3);
+    const [activeStep, setActiveStep] = useState(1);
     const [passwordVisible, setPasswordVisible] = useState(false);
     const [serverError, setServerError] = useState('');
     const [showOtp, setShowOtp] = useState(false);

@@ -506,6 +506,15 @@ export const createShop = async (
                 sellerId: !sellerId ? "Seller ID is required" : undefined
             }));
 
+        const seller = await prisma.sellers.findUnique({
+            where: { id: sellerId }
+        });
+
+        if (!seller)
+            return next(new ValidationError("Invalid request data", {
+                sellerId: "Seller not found"
+            }));
+
         const shopData: any = {
             name,
             bio,
@@ -513,7 +522,8 @@ export const createShop = async (
             opening_hours,
             website,
             category,
-            sellerId
+            sellerId,
+            country: seller.country
         }
 
         if (website && website.trim() !== "") {
