@@ -181,9 +181,14 @@ export const refreshToken = async (
     next: NextFunction
 ) => {
     try {
-        const refreshToken = req.cookies.refresh_token;
+        const refreshToken =
+            req.cookies["refreshToken"] ||
+            req.cookies["seller-refresh-token"];
+
         if (!refreshToken) {
-            throw new ValidationError("Invalid request data")
+            return next(new ValidationError("Invalid request data", {
+                refreshToken: "Refresh token is required"
+            }));
         }
 
         const decoded = jwt.verify(
@@ -192,16 +197,16 @@ export const refreshToken = async (
         ) as { id: string; role: string };
 
         if (!decoded || !decoded.id || !decoded.role) {
-            return new JsonWebTokenError("Forbidden! Invalid token")
+            return next(new JsonWebTokenError("Forbidden! Invalid refresh token"));
         }
-        const user = await prisma.users.findUnique({
-            where: {
-                id: decoded.id
-            }
-        });
 
-        if (!user) {
-            return new AuthError("Forbidden! No User found")
+        const account =
+            decoded.role === "seller"
+                ? await prisma.sellers.findUnique({ where: { id: decoded.id } })
+                : await prisma.users.findUnique({ where: { id: decoded.id } });
+
+        if (!account) {
+            return next(new AuthError("Forbidden! User/Seller not found"));
         }
 
         const newAccessToken = jwt.sign(
@@ -210,12 +215,23 @@ export const refreshToken = async (
             { expiresIn: "15m" }
         );
 
-        setCookie(res, "accessToken", newAccessToken, {
+        if (decoded.role === "seller") {
+            setCookie(res, "seller-access-token", newAccessToken, {
+                httpOnly: true,
+                secure: true,
+                sameSite: "none",
+                maxAge: 15 * 60 * 1000,
+            }); // 15 minutes
+        } else {
+            setCookie(res, "accessToken", newAccessToken, {
+                httpOnly: true,
+                secure: true,
+                sameSite: "none",
+                maxAge: 15 * 60 * 1000,
+            }); // 15 minutes
+        }
 
-        })
-        return res.status(200).json({ success: true })
-
-
+        return res.status(200).json({ success: true });
     }
     catch (error) {
         return next(error);

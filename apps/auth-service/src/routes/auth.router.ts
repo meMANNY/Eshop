@@ -27,7 +27,7 @@ router.post("/login-user", loginUser);
 router.post("/forgot-password-user", userForgotPassword);
 router.post("/reset-password-user", resetUserPassword);
 router.post("/verify-forgot-password-otp", verifyUserForgotPassword);
-router.post("/refresh-token-user", refreshToken);
+router.post("/refresh-token", refreshToken);
 router.get("/logged-in-user", isAuthenticated, authorizeRoles("user"), getUser);
 router.post("/seller-registration", registerSeller);
 router.post("/verify-seller", verifySeller);
