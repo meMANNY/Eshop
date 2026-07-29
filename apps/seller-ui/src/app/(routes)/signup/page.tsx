@@ -31,7 +31,7 @@ const steps = ['Create Account', 'Register Shop', 'Connect to Bank'];
 
 const Signup = () => {
 
-    const [activeStep, setActiveStep] = useState(2);
+    const [activeStep, setActiveStep] = useState(3);
     const [passwordVisible, setPasswordVisible] = useState(false);
     const [serverError, setServerError] = useState('');
     const [showOtp, setShowOtp] = useState(false);
@@ -201,7 +201,7 @@ const Signup = () => {
     const connectBankMutation = useMutation({
         mutationFn: async () => {
             const response = await axios.post(`${process.env.NEXT_PUBLIC_SERVER_URI}/api/create-stripe-link`, {
-                email: sellerData?.email,
+                sellerId
             });
             return response.data;
         },
