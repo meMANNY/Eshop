@@ -35,6 +35,9 @@ export const isSeller = async (
         const seller = await prisma.sellers.findUnique({
             where: {
                 id: decoded.id
+            },
+            include: {
+                shop: true
             }
         });
 
