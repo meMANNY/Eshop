@@ -24,6 +24,7 @@ type ShopData = {
     openingHours: string;
     website: string;
     category: string;
+    customCategory?: string;
 }
 
 const steps = ['Create Account', 'Register Shop', 'Connect to Bank'];
@@ -75,8 +76,20 @@ const Signup = () => {
     } = useForm<ShopData>();
 
     const [categoryOpen, setCategoryOpen] = useState(false);
+    const [categoryDropUp, setCategoryDropUp] = useState(false);
     const categoryRef = React.useRef<HTMLDivElement | null>(null);
     const selectedCategory = watchShop('category');
+
+    // open the category dropdown upward when there isn't enough room below
+    const toggleCategory = () => {
+        if (!categoryOpen && categoryRef.current) {
+            const rect = categoryRef.current.getBoundingClientRect();
+            const spaceBelow = window.innerHeight - rect.bottom;
+            const dropdownHeight = 240; // matches max-h-60
+            setCategoryDropUp(spaceBelow < dropdownHeight && rect.top > spaceBelow);
+        }
+        setCategoryOpen((prev) => !prev);
+    };
 
     // close the category dropdown when clicking outside of it
     React.useEffect(() => {
@@ -168,7 +181,9 @@ const Signup = () => {
                 address: data.address,
                 opening_hours: data.openingHours,
                 website: data.website,
-                category: data.category,
+                category: data.category === 'other'
+                    ? (data.customCategory?.trim() || 'other')
+                    : data.category,
                 sellerId,
             });
             return response.data;
@@ -533,7 +548,7 @@ const Signup = () => {
                                     />
                                     <button
                                         type="button"
-                                        onClick={() => setCategoryOpen((prev) => !prev)}
+                                        onClick={toggleCategory}
                                         className="w-full flex items-center justify-between p-2 border border-gray-300 !rounded bg-white text-left outline-0 focus:border-[#ff6f61]"
                                     >
                                         <span className={selectedCategory ? 'text-black' : 'text-gray-400'}>
@@ -548,7 +563,8 @@ const Signup = () => {
                                     </button>
                                     {categoryOpen && (
                                         <ul
-                                            className="absolute z-20 mt-2 w-full max-h-60 overflow-auto rounded-xl border border-white/50 bg-white/70 backdrop-blur-xl shadow-[0_20px_40px_-12px_rgba(0,0,0,0.25)] ring-1 ring-black/5 bg-gradient-to-b from-white/90 to-white/60"
+                                            className={`absolute z-20 w-full max-h-60 overflow-auto rounded-xl border border-white/50 bg-white/70 backdrop-blur-xl shadow-[0_20px_40px_-12px_rgba(0,0,0,0.25)] ring-1 ring-black/5 bg-gradient-to-b from-white/90 to-white/60
+                                            ${categoryDropUp ? 'bottom-full mb-2' : 'top-full mt-2'}`}
                                         >
                                             {categories.map((c) => (
                                                 <li key={c.value}>
@@ -570,6 +586,24 @@ const Signup = () => {
                                 </div>
                                 {shopErrors.category &&
                                     (<p className="text-red-500 text-sm mb-1">{shopErrors.category.message}</p>)}
+                                {selectedCategory === 'other' && (
+                                    <>
+                                        <label className="block text-gray-700 mb-1"> Your Category</label>
+                                        <input
+                                            type="text"
+                                            placeholder="e.g. Handmade Candles"
+                                            className="w-full p-2 border border-gray-300 outline-0 !rounded mb-1"
+                                            {...registerShop('customCategory', {
+                                                validate: (value) =>
+                                                    selectedCategory !== 'other' ||
+                                                    (!!value && value.trim().length > 0) ||
+                                                    'Please enter your category',
+                                            })}
+                                        />
+                                        {shopErrors.customCategory &&
+                                            (<p className="text-red-500 text-sm mb-1">{shopErrors.customCategory.message}</p>)}
+                                    </>
+                                )}
                                 <button
                                     type="submit"
                                     disabled={createShopMutation.isPending}
