@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { Eye, EyeOff, Check, ChevronDown } from 'lucide-react';
 import { useMutation } from '@tanstack/react-query';
 import countries from '@/utils/countries';
+import categories from '@/utils/categories';
 import axios, { AxiosError } from 'axios';
 
 type AccountData = {
@@ -29,7 +30,7 @@ const steps = ['Create Account', 'Register Shop', 'Connect to Bank'];
 
 const Signup = () => {
 
-    const [activeStep, setActiveStep] = useState(1);
+    const [activeStep, setActiveStep] = useState(2);
     const [passwordVisible, setPasswordVisible] = useState(false);
     const [serverError, setServerError] = useState('');
     const [showOtp, setShowOtp] = useState(false);
@@ -68,8 +69,25 @@ const Signup = () => {
     const {
         register: registerShop,
         handleSubmit: handleSubmitShop,
+        setValue: setValueShop,
+        watch: watchShop,
         formState: { errors: shopErrors },
     } = useForm<ShopData>();
+
+    const [categoryOpen, setCategoryOpen] = useState(false);
+    const categoryRef = React.useRef<HTMLDivElement | null>(null);
+    const selectedCategory = watchShop('category');
+
+    // close the category dropdown when clicking outside of it
+    React.useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (categoryRef.current && !categoryRef.current.contains(event.target as Node)) {
+                setCategoryOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
 
     const handleOtpChange = (index: number, value: string) => {
         if (/^\d*$/.test(value)) {
@@ -145,8 +163,13 @@ const Signup = () => {
     const createShopMutation = useMutation({
         mutationFn: async (data: ShopData) => {
             const response = await axios.post(`${process.env.NEXT_PUBLIC_SERVER_URI}/api/create-shop`, {
-                ...data,
-                email: sellerData?.email,
+                name: data.shopName,
+                bio: data.bio,
+                address: data.address,
+                opening_hours: data.openingHours,
+                website: data.website,
+                category: data.category,
+                sellerId,
             });
             return response.data;
         },
@@ -494,29 +517,57 @@ const Signup = () => {
                                     className="w-full p-2 border border-gray-300 outline-0 !rounded mb-1"
                                     {...registerShop('website', {
                                         pattern: {
-                                            value: /^https?:\/\/.+\..+/,
-                                            message: 'Enter a valid URL (https://...)',
+                                            value: /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&/=]*)$/,
+                                            message: 'Enter a valid URL (e.g. https://darkking.com)',
                                         },
                                     })}
                                 />
                                 {shopErrors.website &&
                                     (<p className="text-red-500 text-sm mb-1">{shopErrors.website.message}</p>)}
                                 <label className="block text-gray-700 mb-1"> Category</label>
-                                <select
-                                    className="w-full p-2 border border-gray-300 outline-0 !rounded mb-1 bg-white"
-                                    defaultValue=""
-                                    {...registerShop('category', {
-                                        required: 'Category is required',
-                                    })}
-                                >
-                                    <option value="" disabled>Select a category</option>
-                                    <option value="electronics">Electronics</option>
-                                    <option value="fashion">Fashion</option>
-                                    <option value="groceries">Groceries</option>
-                                    <option value="home">Home & Living</option>
-                                    <option value="beauty">Beauty</option>
-                                    <option value="other">Other</option>
-                                </select>
+                                <div className="relative mb-1" ref={categoryRef}>
+                                    {/* registered hidden field so react-hook-form tracks + validates the value */}
+                                    <input
+                                        type="hidden"
+                                        {...registerShop('category', { required: 'Category is required' })}
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => setCategoryOpen((prev) => !prev)}
+                                        className="w-full flex items-center justify-between p-2 border border-gray-300 !rounded bg-white text-left outline-0 focus:border-[#ff6f61]"
+                                    >
+                                        <span className={selectedCategory ? 'text-black' : 'text-gray-400'}>
+                                            {selectedCategory
+                                                ? categories.find((c) => c.value === selectedCategory)?.name
+                                                : 'Select a category'}
+                                        </span>
+                                        <ChevronDown
+                                            size={18}
+                                            className={`text-gray-500 transition-transform duration-200 ${categoryOpen ? 'rotate-180' : ''}`}
+                                        />
+                                    </button>
+                                    {categoryOpen && (
+                                        <ul
+                                            className="absolute z-20 mt-2 w-full max-h-60 overflow-auto rounded-xl border border-white/50 bg-white/70 backdrop-blur-xl shadow-[0_20px_40px_-12px_rgba(0,0,0,0.25)] ring-1 ring-black/5 bg-gradient-to-b from-white/90 to-white/60"
+                                        >
+                                            {categories.map((c) => (
+                                                <li key={c.value}>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            setValueShop('category', c.value, { shouldValidate: true });
+                                                            setCategoryOpen(false);
+                                                        }}
+                                                        className={`w-full text-left px-4 py-2 text-sm transition-colors duration-150 hover:bg-[#ff6f61]/10 hover:text-[#ff6f61]
+                                                        ${selectedCategory === c.value ? 'bg-[#ff6f61]/15 text-[#ff6f61] font-medium' : 'text-gray-700'}`}
+                                                    >
+                                                        {c.name}
+                                                    </button>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    )}
+                                </div>
                                 {shopErrors.category &&
                                     (<p className="text-red-500 text-sm mb-1">{shopErrors.category.message}</p>)}
                                 <button
