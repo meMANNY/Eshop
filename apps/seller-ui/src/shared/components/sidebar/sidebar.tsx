@@ -25,9 +25,9 @@ const SidebarBarWrapper = ()=>{
         setActiveSidebar(pathName)
     },[pathName,setActiveSidebar])
 
-    const getIconColor = (route: string) => {
-        activeSidebar === route ? "text-primary" : "text-slate-300"
-    }
+    // const getIconColor = (route: string) => {
+    //     activeSidebar === route ? "text-primary" : "text-slate-300"
+    // }
     return (
         <Box css={{
             height: "100vh",
@@ -139,7 +139,7 @@ const SidebarBarWrapper = ()=>{
                             title = "Logout"
                             icon = {<LogOut size = {20}/>}
                             isActive = {activeSidebar === "/dashboard/logout"}
-                            href="/dashboard/logout"
+                            href="/login"
                             />
                         </SidebarMenu>
                     </div>
