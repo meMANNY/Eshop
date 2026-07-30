@@ -4,6 +4,7 @@ import { ChevronRight } from "lucide-react";
 import React, {useState} from "react";
 import {useForm} from "react-hook-form"
 import Input from "../../../../../../../packages/components/input";
+import ColorSelector from "../../../../../../../packages/components/color-selector";
 
 function Page() {
 
@@ -106,12 +107,82 @@ function Page() {
                         {/*Product Title Input*/}
                         <div className="w-2/4">
                             <Input
-                                label="Product Title"
+                                label="Product Title*"
                                 {...register("title",{required: "Title is required"})}
                                 placeholder="Enter Product Title"
                             />
                             {errors.title && (<p className="text-red-500 text-xs mt-1">{errors.title.message as string}</p>)}
                         </div>
+                    </div>
+                    {/*Product Description Input*/}
+                    <div className="w-full mt-2">
+                        <Input
+                            type="textarea"
+                            rows={7}
+                            cols={10}
+                            label="Short Description* (Max 150 words)"
+                            {...register("description",{
+                                required: "Description is required",
+                                validate: (value) => {
+                                    const wordCount = value.trim().split(/\s+/).filter(Boolean).length;
+                                    return wordCount <= 150 || `Description cannot exceed 150 words (Current: ${wordCount})`;
+                                }
+                            })}
+                            placeholder="Enter Product Description"
+                        />
+                        {errors.description && (<p className="text-red-500 text-xs mt-1">{errors.description.message as string}</p>)}
+                    </div>
+                    {/*Product Tags Input*/}
+                    <div className="w-full mt-2">
+                        <Input
+                            label="Tags*"
+                            {...register("tags",{required: "Separate related products tags with a comma"})}
+                            placeholder="apple,flagship"
+                        />
+                        {errors.tags && (<p className="text-red-500 text-xs mt-1">{errors.tags.message as string}</p>)}
+                    </div>
+                    {/*Product Brand Input*/}
+                    <div className="w-full mt-2">
+                        <Input
+                            label="Brand"
+                            {...register("brand")}
+                            placeholder="Apple"
+                        />
+                        {errors.brand && (<p className="text-red-500 text-xs mt-1">{errors.brand.message as string}</p>)}
+                    </div>
+                    {/*Product Colors Selector*/}
+                    <ColorSelector control={control} errors={errors} />
+                    {/*Product Warranty Input*/}
+                    <div className="w-full mt-2">
+                        <Input
+                            label="Warranty*"
+                            {...register("warranty",{required: "Warranty is required"})}
+                            placeholder="1 Year / No Warranty"
+                        />
+                        {errors.warranty && (<p className="text-red-500 text-xs mt-1">{errors.warranty.message as string}</p>)}
+                    </div>
+                    {/*Product Slug Input*/}
+                    <div className="w-full mt-2">
+                        <Input
+                            label="Slug*"
+                            {...register("slug",{
+                                required: "Slug is required!",
+                                pattern: {
+                                    value: /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
+                                    message: "Invalid slug format! Use only lowercase letters, numbers and hyphens.",
+                                },
+                                minLength: {
+                                    value: 3,
+                                    message: "Slug must be at least 3 characters long.",
+                                },
+                                maxLength: {
+                                    value: 50,
+                                    message: "Slug cannot be longer than 50 characters.",
+                                },
+                            })}
+                            placeholder="product-slug"
+                        />
+                        {errors.slug && (<p className="text-red-500 text-xs mt-1">{errors.slug.message as string}</p>)}
                     </div>
                  </div>
             </div>
