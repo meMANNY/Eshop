@@ -61,8 +61,10 @@ const ImagePlaceHolder = ({
 
                 <Image
                 fill
+                unoptimized
                 sizes='(max-width: 768px) 100vw, 50vw'
                 src={imagePreview}
+                
                 alt='Uploaded product image'
                 className='object-cover'/>
             </>

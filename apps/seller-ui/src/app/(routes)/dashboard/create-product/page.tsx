@@ -3,6 +3,7 @@ import ImagePlaceHolder from "@/shared/components/image-placeholder";
 import { ChevronRight } from "lucide-react";
 import React, {useState} from "react";
 import {useForm} from "react-hook-form"
+import Input from "../../../../../../../packages/components/input";
 
 function Page() {
 
@@ -73,16 +74,49 @@ function Page() {
             <div className="py-4 w-full flex gap-6">
                 {/*Left side- Image Upload section */}
                 <div className="w-[35%]">
-                    <ImagePlaceHolder
-                    size="760*850"
-                    setOpenImageModal={setOpenImageModal}
-                    index={0}
-                    onImageChange = {handleImageChange}
-                    onRemove={handleRemoveImage}
+                    {images?.length > 0 && (
+                        <ImagePlaceHolder
+                        size="760*850"
+                        setOpenImageModal={setOpenImageModal}
+                        index={0}
+                        small={false}
+                        onImageChange = {handleImageChange}
+                        onRemove={handleRemoveImage}
                     />
-
+                    )}
+                    <div className="grid grid-cols-2 gap-3 mt-4 flex-1">
+                        {images.slice(1).map((_,index) => (
+                            
+                                <ImagePlaceHolder
+                                size="760*850"
+                                key = {index+1}
+                                small = {true}
+                                setOpenImageModal={setOpenImageModal}
+                                index={index+1}
+                                onImageChange = {handleImageChange}
+                                onRemove={handleRemoveImage}
+                                />
+                            
+                        ))}
+                    </div>
                 </div>
+                {/*Right side - form inputs*/}
+                <div className="md: w-[65%] ">
+                    <div className="w-full flex gap-6">
+                        {/*Product Title Input*/}
+                        <div className="w-2/4">
+                            <Input
+                                label="Product Title"
+                                {...register("title",{required: "Title is required"})}
+                                placeholder="Enter Product Title"
+                            />
+                            {errors.title && (<p className="text-red-500 text-xs mt-1">{errors.title.message as string}</p>)}
+                        </div>
+                    </div>
+                 </div>
             </div>
+
+            
         </form>
     );
 }
