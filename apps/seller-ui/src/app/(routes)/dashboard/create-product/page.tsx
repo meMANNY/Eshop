@@ -5,6 +5,8 @@ import React, {useState} from "react";
 import {useForm} from "react-hook-form"
 import Input from "../../../../../../../packages/components/input";
 import ColorSelector from "../../../../../../../packages/components/color-selector";
+import CustomSpecifications from "../../../../../../../packages/components/custom-specifications";
+import CustomProperties from "../../../../../../../packages/components/custom-properties";
 
 function Page() {
 
@@ -152,6 +154,10 @@ function Page() {
                     </div>
                     {/*Product Colors Selector*/}
                     <ColorSelector control={control} errors={errors} />
+                    {/*Custom Specifications*/}
+                    <CustomSpecifications control={control} errors={errors} />
+                    {/*Custom Properties*/}
+                    <CustomProperties control={control} errors={errors} />
                     {/*Product Warranty Input*/}
                     <div className="w-full mt-2">
                         <Input
