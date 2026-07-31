@@ -7,6 +7,7 @@ import Input from "../../../../../../../packages/components/input";
 import ColorSelector from "../../../../../../../packages/components/color-selector";
 import CustomSpecifications from "../../../../../../../packages/components/custom-specifications";
 import CustomProperties from "../../../../../../../packages/components/custom-properties";
+import RichTextEditor from "../../../../../../../packages/components/rich-text-editor";
 import { useQuery } from "@tanstack/react-query";
 import axiosInstance from "@/utils/axiosInstance";
 
@@ -311,8 +312,26 @@ function Page() {
                                 )}/>
                                 {errors.subCategory && (<p className="text-red-500 text-xs mt-1">{errors.subCategory.message as string}</p>)}
                             </div>
+                            {/*Detailed Description*/}
                             <div className="mt-2">
-
+                                <label className="block font-semibold text-gray-300 mb-1">
+                                    Detailed Description* (Min 100 words)
+                                </label>
+                                <Controller
+                                name="detailed_description"
+                                control={control}
+                                rules={{
+                                    required: "Detailed description is required",
+                                    validate: (value) => {
+                                        const text = value ? value.replace(/<[^>]*>/g, "").trim() : "";
+                                        const wordCount = text.split(/\s+/).filter(Boolean).length;
+                                        return wordCount >= 100 || `Detailed description must be at least 100 words (Current: ${wordCount})`;
+                                    },
+                                }}
+                                render={({field})=>(
+                                    <RichTextEditor value={field.value} onChange={field.onChange} />
+                                )}/>
+                                {errors.detailed_description && (<p className="text-red-500 text-xs mt-1">{errors.detailed_description.message as string}</p>)}
                             </div>
 
                         </div>
