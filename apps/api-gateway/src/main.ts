@@ -11,6 +11,7 @@ import morgan from "morgan";
 import rateLimit from 'express-rate-limit';
 //import swaggerUi from "swagger-ui-express";
 import cookieParser from 'cookie-parser';
+import { initializeSiteConfig } from './libs/initializeSiteConfig';
 //import axios from 'axios';
 
 
@@ -49,10 +50,16 @@ app.get('/gateway-health', (req, res) => {
 
 app.use("/", proxy("http://localhost:6001"));
 
-
+app.use("/product",proxy("http://localhost:6002"));
 
 const port = process.env.PORT || 8080;
 const server = app.listen(port, () => {
   console.log(`Listening at http://localhost:${port}/api`);
+  try {
+    initializeSiteConfig();
+    console.log("Site Config Initialized");
+  } catch (error) {
+    console.error("Failed to initialize site config:",error);
+  }
 });
 server.on('error', console.error);

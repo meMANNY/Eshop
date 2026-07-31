@@ -114,8 +114,8 @@ function Page() {
                                 placeholder="Enter Product Title"
                             />
                             {errors.title && (<p className="text-red-500 text-xs mt-1">{errors.title.message as string}</p>)}
-                        </div>
-                    </div>
+                        
+                    
                     {/*Product Description Input*/}
                     <div className="w-full mt-2">
                         <Input
@@ -158,6 +158,24 @@ function Page() {
                     <CustomSpecifications control={control} errors={errors} />
                     {/*Custom Properties*/}
                     <CustomProperties control={control} errors={errors} />
+                    {/*Mode of Payment*/}
+                    <div className="w-full mt-2">
+                        <label className="block font-semibold text-gray-300 mb-1">Mode of Payment*</label>
+                        <select
+                            defaultValue=""
+                            {...register("payment_mode",{required: "Please select a mode of payment"})}
+                            className="w-full rounded-md border border-slate-700 bg-transparent p-2 text-white outline-none transition-colors focus:border-[#ff6f61] [&>option]:bg-[#141922] [&>option]:text-white"
+                        >
+                            <option value="" disabled>Select a payment mode</option>
+                            <option value="card">Credit / Debit Card</option>
+                            <option value="upi">UPI</option>
+                            <option value="net_banking">Net Banking</option>
+                            <option value="wallet">Wallet</option>
+                            <option value="cod">Cash on Delivery</option>
+                            <option value="emi">EMI</option>
+                        </select>
+                        {errors.payment_mode && (<p className="text-red-500 text-xs mt-1">{errors.payment_mode.message as string}</p>)}
+                    </div>
                     {/*Product Warranty Input*/}
                     <div className="w-full mt-2">
                         <Input
@@ -190,7 +208,12 @@ function Page() {
                         />
                         {errors.slug && (<p className="text-red-500 text-xs mt-1">{errors.slug.message as string}</p>)}
                     </div>
-                 </div>
+                        </div>
+                        <div className="w-2/4">
+                            hi
+                        </div>
+                    </div>
+                </div>
             </div>
 
             
