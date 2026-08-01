@@ -43,6 +43,14 @@ function Page() {
         
     })
 
+     const {data: discountCodes = [],isLoading: discountLoading} = useQuery({
+        queryKey: ["shop-discounts"],
+        queryFn: async () => {
+            const res = await axiosInstance.get("/product/api/get-discount-codes");
+            return res?.data?.discount_codes || [];
+        }
+    });
+
     const categories = data?.categories || [];
     const subCategoriesData = data?.subCategories || {};
 
@@ -98,7 +106,7 @@ function Page() {
         });
 
         setValue("images",images);
-    }
+    } 
 
     return (
         <form className="w-full mx-auto p-8 shadow-md rounded-lg text-white" 
@@ -415,7 +423,28 @@ function Page() {
                                 <label className="block font-semibold text-gray-300 mb-1">
                                     Select Discount Codes (Optional)
                                 </label>
-
+                                {discountLoading ? (
+                                    <p className="text-gray-400">
+                                        Loading discount codes ...
+                                    </p>
+                                ): (
+                                    <div className="flex flex-wrap gap-2">
+                                        {discountCodes?.map((code: any) => (
+                                            <button key={code.id}
+                                            type="button"
+                                            onClick={()=>{
+                                                const currentSelection = watch("discountCodes") || [];
+                                                const updatedSelection = currentSelection?.includes(
+                                                    code.id
+                                                ) ? currentSelection.filter((id: string)=> id !== code.id) : [...currentSelection, code.id];
+                                                setValue("discountCodes",updatedSelection);
+                                            }}
+                                            className={`px-3 py-1 rounded-md font-semibold border ${watch("discountCodes")?.includes(code.id) ? "bg-blue-500/20 border-blue-500 text-blue-400" : "border-gray-700 text-gray-300 hover:border-gray-500"}`}>
+                                                {code?.public_name} ({code.discountValue}{code.discountType === "percentage" ? "%" : "$"})
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
                         </div>
                         
