@@ -247,6 +247,7 @@ export const createProduct = async(
                 subCategory:"Sub category is required",
                 description:"Description is required"
             })
+        }
 
         if(!req.seller.id){
             return next(
@@ -255,7 +256,23 @@ export const createProduct = async(
                 })
             )
         }
-        } 
+
+        const slugChecking = await prisma.products.findUnique({
+            where:{
+                slug
+            }
+        });
+        if(slugChecking){
+            return next(
+                new ValidationError("Invalid request data", {
+                    slug: "Slug already exists"
+                })
+            )
+        }
+        
+
+
+    
         
     } catch (error) {
         
