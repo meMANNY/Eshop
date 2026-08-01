@@ -204,4 +204,62 @@ export const deleteProductImage = async(
 }
 
 
+//create product
+export const createProduct = async(
+    req:Request,
+    res:Response,
+    next:NextFunction
+) =>{
+    try {
+        const {
+            title,
+            description,
+            detailed_description,
+            warranty,
+            custom_specification,
+            slug,
+            tags,
+            cash_on_delivery,
+            brand,
+            video_url,
+            category,
+            colors = [],
+            sizes = [],
+            discountCodes,
+            stock,
+            sale_price,
+            regular_price,
+            subCategory,
+            customProperties = {},
+            images=[],
+        } = req.body;
+
+        if(!title || !slug || !category || !sale_price || !regular_price || !images || !tags || !stock || !subCategory || !description){
+            return new ValidationError("Invalid request data",{
+                title:"Title is required",
+                slug:"Slug is required",
+                category:"Category is required",
+                sale_price:"Sale price is required",
+                regular_price:"Regular price is required",
+                images:"Images are required",
+                tags:"Tags are required",
+                stock:"Stock is required",
+                subCategory:"Sub category is required",
+                description:"Description is required"
+            })
+
+        if(!req.seller.id){
+            return next(
+                new ValidationError("Invalid request data", {
+                    sellerId: "Seller id is required"
+                })
+            )
+        }
+        } 
+        
+    } catch (error) {
+        
+    }
+}
+
 
