@@ -213,7 +213,7 @@ export const createProduct = async(
     try {
         const {
             title,
-            description,
+            short_description,
             detailed_description,
             warranty,
             custom_specification,
@@ -234,7 +234,7 @@ export const createProduct = async(
             images=[],
         } = req.body;
 
-        if(!title || !slug || !category || !sale_price || !regular_price || !images || !tags || !stock || !subCategory || !description){
+        if(!title || !slug || !category || !sale_price || !regular_price || !images || !tags || !stock || !subCategory || !short_description){
             return new ValidationError("Invalid request data",{
                 title:"Title is required",
                 slug:"Slug is required",
@@ -245,7 +245,7 @@ export const createProduct = async(
                 tags:"Tags are required",
                 stock:"Stock is required",
                 subCategory:"Sub category is required",
-                description:"Description is required"
+                short_description:"Short description is required"
             })
         }
 
@@ -269,14 +269,73 @@ export const createProduct = async(
                 })
             )
         }
-        
 
+        const newProduct = await prisma.products.create({
+            data:{
+                title,
+                short_description,
+                detailed_description,
+                warranty,
+                cashOnDelivery: cash_on_delivery,
+                slug,
+                shopId: req.seller?.shop?.id,
+                tags: Array.isArray(tags) ? tags : tags.split(","),
+                brand,
+                video_url,
+                category,
+                subCategory,
+                colors: colors || [],
+                discount_codes: discountCodes.map((codeId: string)=>codeId),
+                sizes: sizes || [],
+                stock: parseInt(stock),
+                sale_price: parseFloat(sale_price),
+                regular_price: parseFloat(regular_price),
+                custom_properties: customProperties || {},
+                custom_specification: custom_specification || {},
+                images: {
+                    create: images
+                        .filter((img: any) => img && img.fileId)
+                        .map((img: any) => ({ file_id: img.fileId, url: img.file_url })),
+                }
+            },
+            include: {images: true}
+        });
 
-    
-        
+        return res.status(201).json({
+            success: true,
+            message: "Product created successfully",
+            newProduct
+        })
+
     } catch (error) {
-        
+        next(error)
     }
 }
+
+export const getShopProducts = async (
+    req:Request,
+    res:Response,
+    next:NextFunction
+) => {
+    try {
+        const products = await prisma.products.findMany({
+            where:{
+                shopId: req?.seller?.shop?.id,
+
+            },
+            include:{
+                images: true
+            }
+        });
+        res.status(201).json({
+            success: true,
+            products
+        })
+    } catch (error) {
+        next(error)
+    }
+}
+
+
 
 

@@ -13,9 +13,13 @@ import axiosInstance from "@/utils/axiosInstance";
 import SizeSelector from "../../../../../../../packages/components/size-selector";
 import Image from "next/image";
 import { aiEnhancements, applyEnhancement } from "@/utils/AI.enhancements";
+import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 
 
 function Page() {
+
+    const router = useRouter();
 
     const {
         register,
@@ -123,8 +127,18 @@ function Page() {
             setUploadingIndex(null);
         }
     }
-    const onSubmit = (data: any) => {
-        console.log(data)
+    const onSubmit = async(data: any) => {
+
+        try {
+            await axiosInstance.post("/product/api/create-product",data);
+            router.push("/dashboard/all-products");
+        } catch (error:any) {
+            toast.error(error?.data?.message);
+        }
+        finally{
+            setLoading(true);
+        }
+        
     }
 
     const handleRemoveImage = async(index: number) =>{
@@ -255,7 +269,7 @@ function Page() {
                             rows={7}
                             cols={10}
                             label="Short Description* (Max 150 words)"
-                            {...register("description",{
+                            {...register("short_description",{ 
                                 required: "Description is required",
                                 validate: (value) => {
                                     const wordCount = value.trim().split(/\s+/).filter(Boolean).length;
@@ -417,7 +431,13 @@ function Page() {
                                 rules={{
                                     required: "Detailed description is required",
                                     validate: (value) => {
-                                        const text = value ? value.replace(/<[^>]*>/g, "").trim() : "";
+                                        const text = value
+                                            ? value
+                                                .replace(/<[^>]*>/g, " ")   // tags -> space so blocks don't merge
+                                                .replace(/&nbsp;/g, " ")     // decode non-breaking spaces
+                                                .replace(/&[a-z]+;/gi, " ")  // other entities -> space
+                                                .trim()
+                                            : "";
                                         const wordCount = text.split(/\s+/).filter(Boolean).length;
                                         return wordCount >= 100 || `Detailed description must be at least 100 words (Current: ${wordCount})`;
                                     },

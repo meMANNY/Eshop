@@ -118,10 +118,11 @@ model products {
   subCategory          String
   short_description    String
   detailed_description String
-  tags                 String?
+  tags                 String[]
   stock                Int
   sale_price           Float
   regular_price        Float
+  brand                String?
   images               images[]
   //customProperties Json
   colors               String[]
@@ -134,6 +135,7 @@ model products {
   ratings              Float         @default(5)
   custom_specification Json
   custom_properties    Json
+  warranty             String?
   isDeleted            Boolean?      @default(false)
   cashOnDelivery       String?
   status               productStatus @default(Active)
