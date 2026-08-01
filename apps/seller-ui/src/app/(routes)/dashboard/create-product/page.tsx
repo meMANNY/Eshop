@@ -1,6 +1,6 @@
 'use client'
 import ImagePlaceHolder, { UploadedImage } from "@/shared/components/image-placeholder";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Loader2, WandSparkles, X } from "lucide-react";
 import React, {useEffect, useState} from "react";
 import {Controller, useForm} from "react-hook-form"
 import Input from "../../../../../../../packages/components/input";
@@ -11,6 +11,8 @@ import RichTextEditor from "../../../../../../../packages/components/rich-text-e
 import { useQuery } from "@tanstack/react-query";
 import axiosInstance from "@/utils/axiosInstance";
 import SizeSelector from "../../../../../../../packages/components/size-selector";
+import Image from "next/image";
+import { aiEnhancements, applyEnhancement } from "@/utils/AI.enhancements";
 
 
 function Page() {
@@ -25,6 +27,9 @@ function Page() {
     } = useForm()
 
     const [openImageModal,setOpenImageModal] = useState(false);
+    const [selectedImageIndex,setSelectedImageIndex] = useState<number | null>(null);
+    const [activeEffect,setActiveEffect] = useState<string | null>(null);
+    const [enhancing,setEnhancing] = useState(false);
     const [isChanged,setIsChanged] = useState(true);
     const [images,setImages] = useState<(UploadedImage | null)[]>([null]);
     const [uploadingIndex,setUploadingIndex] = useState<number | null>(null);
@@ -147,8 +152,41 @@ function Page() {
         }
     }
 
+    const openEnhanceModal = (index: number) => {
+        if(!images[index]) return;
+        setSelectedImageIndex(index);
+        setActiveEffect(null);
+        setOpenImageModal(true);
+    }
+
+    const selectedImage = selectedImageIndex !== null ? images[selectedImageIndex] : null;
+
+    // The image shown in the modal — with the currently chosen effect previewed.
+    const previewUrl = selectedImage
+        ? (activeEffect ? applyEnhancement(selectedImage.file_url, activeEffect) : selectedImage.file_url)
+        : "";
+
+    // Persist the previewed enhancement onto the stored image (the transformed
+    // ImageKit URL is what gets saved with the product).
+    const handleApplyEnhancement = () => {
+        if(selectedImageIndex === null || !activeEffect) return;
+        setImages((prev) => {
+            const updated = [...prev];
+            const img = updated[selectedImageIndex];
+            if(img){
+                updated[selectedImageIndex] = {
+                    ...img,
+                    file_url: applyEnhancement(img.file_url, activeEffect),
+                };
+            }
+            setValue("images", updated);
+            return updated;
+        });
+        setOpenImageModal(false);
+    }
+
     return (
-        <form className="w-full mx-auto p-8 shadow-md rounded-lg text-white" 
+        <form className="w-full mx-auto p-8 shadow-md rounded-lg text-white"
         onSubmit={handleSubmit(onSubmit)}>
             {/*Heading and Breadcrumbs*/}
             <h2 className="text-2xl py-2 font-semibold font-Poppins text-white">
@@ -171,6 +209,7 @@ function Page() {
                         file={images[0]}
                         uploading={uploadingIndex === 0}
                         setOpenImageModal={setOpenImageModal}
+                        onEnhance={()=>openEnhanceModal(0)}
                         index={0}
                         small={false}
                         onImageChange = {handleImageChange}
@@ -187,6 +226,7 @@ function Page() {
                                 uploading={uploadingIndex === index+1}
                                 small = {true}
                                 setOpenImageModal={setOpenImageModal}
+                                onEnhance={()=>openEnhanceModal(index+1)}
                                 index={index+1}
                                 onImageChange = {handleImageChange}
                                 onRemove={handleRemoveImage}
@@ -495,6 +535,78 @@ function Page() {
                     </div>
                 </div>
             </div>
+            {
+                openImageModal && selectedImage && (
+                    <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-60 z-50">
+                        {/*Modal Content*/}
+                        <div className="bg-gray-800 p-6 rounded-lg w-[500px] text-white">
+                            <div className="flex justify-between items-center pb-3 mb-4">
+                                <h2 className="font-semibold text-lg">Enhance Product Image</h2>
+                                <X size={20} className="cursor-pointer" onClick={()=>setOpenImageModal(false)} />
+                            </div>
+                            {/*Image Viewer*/}
+                            <div className="relative w-full h-[300px] rounded-md overflow-hidden border border-gray-600 bg-[#0f172a]">
+                                <Image
+                                    key={previewUrl}
+                                    src={previewUrl}
+                                    alt="product-image"
+                                    fill
+                                    unoptimized
+                                    sizes="500px"
+                                    className="object-contain"
+                                    onLoad={()=>setEnhancing(false)}
+                                />
+                                {enhancing && (
+                                    <div className="absolute inset-0 z-10 flex items-center justify-center bg-slate-950/60 backdrop-blur-sm">
+                                        <Loader2 size={30} className="animate-spin text-[#ff6f61]"/>
+                                    </div>
+                                )}
+                            </div>
+                            {/*AI IMAGE ENHANCEMENT*/}
+                            <div className="mt-5">
+                                <h3 className="text-sm font-semibold text-gray-300 mb-2">AI Enhancements</h3>
+                                <div className="grid grid-cols-2 gap-2">
+                                    {aiEnhancements.map(({label, transformation})=>(
+                                        <button
+                                        key={transformation}
+                                        type="button"
+                                        disabled={enhancing}
+                                        onClick={()=>{
+                                            if(activeEffect === transformation) return;
+                                            setEnhancing(true);
+                                            setActiveEffect(transformation);
+                                        }}
+                                        className={`flex items-center gap-1.5 px-3 py-2 rounded-md text-sm font-medium border transition disabled:cursor-not-allowed ${
+                                            activeEffect === transformation
+                                                ? "border-[#ff6f61] bg-[#ff6f61]/10 text-[#ff8a7d]"
+                                                : "border-gray-700 text-gray-300 hover:border-gray-500"
+                                        }`}>
+                                            <WandSparkles size={15}/> {label}
+                                        </button>
+                                    ))}
+                                </div>
+                                <div className="mt-5 flex justify-end gap-3">
+                                    <button
+                                    type="button"
+                                    onClick={()=>{setActiveEffect(null); setEnhancing(false);}}
+                                    disabled={!activeEffect}
+                                    className="px-4 py-2 rounded-md text-sm text-gray-300 bg-gray-700 hover:bg-gray-600 transition disabled:opacity-50 disabled:cursor-not-allowed">
+                                        Reset
+                                    </button>
+                                    <button
+                                    type="button"
+                                    onClick={handleApplyEnhancement}
+                                    disabled={!activeEffect}
+                                    className="px-4 py-2 rounded-md text-sm text-white bg-[#ff6f61] hover:bg-[#e05a4d] transition disabled:opacity-50 disabled:cursor-not-allowed">
+                                        Apply Enhancement
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                )
+            }
             <div className="mt-6 flex justify-end gap-3">
                 {isChanged && (
                     <button 

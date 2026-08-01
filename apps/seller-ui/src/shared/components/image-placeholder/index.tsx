@@ -14,6 +14,7 @@ const ImagePlaceHolder = ({
     uploading = false,
     onImageChange,
     onRemove,
+    onEnhance,
     defaultImage = null,
     index = null,
     setOpenImageModal
@@ -24,6 +25,7 @@ const ImagePlaceHolder = ({
     uploading?: boolean;
     onImageChange: (file: File | null, index: number) => void;
     onRemove?: (index: number) => void;
+    onEnhance?: () => void;
     defaultImage?: string | null;
     index?: any;
     setOpenImageModal: (openImageModal: boolean) => void;
@@ -63,7 +65,7 @@ const ImagePlaceHolder = ({
             <>
                 {/* Actions — revealed on hover so they never fight the image for attention */}
                 <div className='absolute right-3 top-3 z-10 flex gap-2 opacity-0 transition-opacity duration-200 group-hover:opacity-100 focus-within:opacity-100'>
-                    <button type='button' onClick={() => setOpenImageModal(true)}
+                    <button type='button' onClick={() => onEnhance ? onEnhance() : setOpenImageModal(true)}
                         aria-label='Enhance image'
                         className='flex h-9 w-9 items-center justify-center rounded-lg bg-slate-900/80 text-slate-200 shadow-lg ring-1 ring-white/10 backdrop-blur-sm transition-colors duration-150 hover:bg-[#ff6f61] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff6f61]'>
                         <WandSparkles size={16}/>
