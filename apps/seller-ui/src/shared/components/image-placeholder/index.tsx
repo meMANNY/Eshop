@@ -1,11 +1,17 @@
-import { ImagePlus, Pencil, WandSparkles, X } from 'lucide-react';
-import React, { useEffect, useState } from 'react'
+import { ImagePlus, Loader2, Pencil, WandSparkles, X } from 'lucide-react';
+import React from 'react'
 import Image from 'next/image';
+
+export interface UploadedImage {
+    fileId: string;
+    file_url: string;
+}
 
 const ImagePlaceHolder = ({
     size,
     small,
     file = null,
+    uploading = false,
     onImageChange,
     onRemove,
     defaultImage = null,
@@ -14,28 +20,17 @@ const ImagePlaceHolder = ({
 }:{
     size : string;
     small?: boolean;
-    file?: File | null;
+    file?: UploadedImage | null;
+    uploading?: boolean;
     onImageChange: (file: File | null, index: number) => void;
     onRemove?: (index: number) => void;
     defaultImage?: string | null;
     index?: any;
     setOpenImageModal: (openImageModal: boolean) => void;
 }) => {
-    // Preview is DERIVED from the `file` prop (the parent owns the images array),
-    // so removing/replacing an image in the parent is reflected here immediately.
-    const [objectUrl, setObjectUrl] = useState<string | null>(null);
-
-    useEffect(() => {
-        if (file) {
-            const url = URL.createObjectURL(file);
-            setObjectUrl(url);
-            // Revoke the previous blob URL when the file changes/unmounts to avoid leaks.
-            return () => URL.revokeObjectURL(url);
-        }
-        setObjectUrl(null);
-    }, [file]);
-
-    const imagePreview = objectUrl ?? defaultImage;
+    // The parent owns the images array; we render the hosted ImageKit URL it
+    // stores, so removing/replacing an image upstream is reflected immediately.
+    const imagePreview = file?.file_url ?? defaultImage;
 
     const inputId = `image-upload-${index ?? 'main'}`;
 
@@ -57,6 +52,12 @@ const ImagePlaceHolder = ({
         id={inputId}
         onChange={handleFileChange}
         />
+
+        {uploading && (
+            <div className='absolute inset-0 z-20 flex items-center justify-center bg-slate-950/60 backdrop-blur-sm'>
+                <Loader2 size={small ? 22 : 30} className='animate-spin text-[#ff6f61]'/>
+            </div>
+        )}
 
         {imagePreview ? (
             <>

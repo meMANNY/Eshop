@@ -1,5 +1,5 @@
 'use client'
-import ImagePlaceHolder from "@/shared/components/image-placeholder";
+import ImagePlaceHolder, { UploadedImage } from "@/shared/components/image-placeholder";
 import { ChevronRight } from "lucide-react";
 import React, {useEffect, useState} from "react";
 import {Controller, useForm} from "react-hook-form"
@@ -11,6 +11,7 @@ import RichTextEditor from "../../../../../../../packages/components/rich-text-e
 import { useQuery } from "@tanstack/react-query";
 import axiosInstance from "@/utils/axiosInstance";
 import SizeSelector from "../../../../../../../packages/components/size-selector";
+
 
 function Page() {
 
@@ -25,7 +26,8 @@ function Page() {
 
     const [openImageModal,setOpenImageModal] = useState(false);
     const [isChanged,setIsChanged] = useState(true);
-    const [images,setImages] = useState<(File | null)[]>([null]);
+    const [images,setImages] = useState<(UploadedImage | null)[]>([null]);
+    const [uploadingIndex,setUploadingIndex] = useState<number | null>(null);
     const [loading, setLoading] = useState(false);
 
     const {data, isLoading,isError} = useQuery({
@@ -86,44 +88,63 @@ function Page() {
     const handleImageChange = async(file: File | null, index: number) =>{
         if(!file)
             return;
+        setUploadingIndex(index);
         try {
             const base64 = await convertFileToBase64(file);
-            console.log(base64);
+
+            const response = await axiosInstance.post(
+                "/product/api/upload-product-image",
+                { fileName: base64 }
+            );
+
+            const uploaded: UploadedImage = {
+                fileId: response.data.fileId,
+                file_url: response.data.file_url,
+            };
+
+            setImages((prevImages) => {
+                const updatedImages = [...prevImages];
+                updatedImages[index] = uploaded;
+                // Keep a trailing empty slot for the next upload (max 8).
+                if(index === updatedImages.length - 1 && updatedImages.length < 8){
+                    updatedImages.push(null);
+                }
+                setValue("images",updatedImages);
+                return updatedImages;
+            });
         } catch (error) {
-            
+            console.log(error)
+        } finally {
+            setUploadingIndex(null);
         }
-        const updatedImages = [...images];
-        updatedImages[index] = file;
-        if(index === images.length - 1 && images.length < 8){
-            updatedImages.push(null);
-        }
-        setImages(updatedImages);
-        setValue("images",updatedImages);
     }
     const onSubmit = (data: any) => {
         console.log(data)
     }
 
-    const handleRemoveImage = (index: number) =>{
+    const handleRemoveImage = async(index: number) =>{
+        try {
+            const imageToDelete = images[index];
 
-        setImages((prevImages) =>{
-            let updatedImages = [...prevImages];
+            if(imageToDelete && typeof imageToDelete === "object" && imageToDelete.fileId){
+                // Remove the asset from ImageKit so we don't leak orphaned uploads.
+                await axiosInstance.delete("/product/api/delete-product-image", {
+                    data: { fileId: imageToDelete.fileId },
+                });
+            }
 
-            if(index === -1){
-                updatedImages[0] = null;
-            }else{
+            setImages((prevImages) => {
+                const updatedImages = [...prevImages];
                 updatedImages.splice(index,1);
-            }
-
-            if(!updatedImages.includes(null) && updatedImages.length < 8){
-                updatedImages.push(null);
-            }
-
-            // Keep the form value in sync with the freshly computed array,
-            // not the stale `images` from this render's closure.
-            setValue("images",updatedImages);
-            return updatedImages;
-        });
+                if(!updatedImages.includes(null) && updatedImages.length < 8){
+                    updatedImages.push(null);
+                }
+                setValue("images",updatedImages);
+                return updatedImages;
+            });
+        } catch (error) {
+            console.log(error);
+        }
     }
 
     return (
@@ -148,6 +169,7 @@ function Page() {
                         <ImagePlaceHolder
                         size="760*850"
                         file={images[0]}
+                        uploading={uploadingIndex === 0}
                         setOpenImageModal={setOpenImageModal}
                         index={0}
                         small={false}
@@ -162,6 +184,7 @@ function Page() {
                                 size="760*850"
                                 key = {index+1}
                                 file={images[index+1]}
+                                uploading={uploadingIndex === index+1}
                                 small = {true}
                                 setOpenImageModal={setOpenImageModal}
                                 index={index+1}

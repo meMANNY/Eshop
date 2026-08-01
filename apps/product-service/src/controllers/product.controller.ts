@@ -1,5 +1,6 @@
 import { ValidationError } from "../../../../packages/error-handler";
 import prisma from "../../../../packages/libs/primsa";
+import { uploadFile, deleteFile } from "../../../../packages/libs/imagekit";
 import { Request, Response, NextFunction } from "express";
 
 export const getCategories = async(
@@ -140,4 +141,67 @@ export const deleteDiscountCode = async(
         next(error)
     }
 }
+
+export const uploadProductImage = async(
+    req:Request,
+    res:Response,
+    next:NextFunction
+)=>{
+    try {
+        // `fileName` carries the base64-encoded image sent from the client.
+        const {fileName} = req.body;
+
+        if(!fileName){
+            return next(
+                new ValidationError("Invalid request data", {
+                    fileName: "Image data is required"
+                })
+            )
+        }
+
+        const uploaded = await uploadFile({
+            file: fileName,
+            fileName: `product-${Date.now()}.jpg`,
+            folder: "/products",
+        });
+
+        return res.status(201).json({
+            success: true,
+            fileId: uploaded.fileId,
+            file_url: uploaded.url,
+        });
+    } catch (error) {
+        next(error)
+    }
+}
+
+//Delete a product image (ImageKit)
+export const deleteProductImage = async(
+    req:Request,
+    res:Response,
+    next:NextFunction
+)=>{
+    try {
+        const {fileId} = req.body;
+
+        if(!fileId){
+            return next(
+                new ValidationError("Invalid request data", {
+                    fileId: "fileId is required"
+                })
+            )
+        }
+
+        await deleteFile(fileId);
+
+        return res.status(200).json({
+            success: true,
+            message: "Image deleted successfully",
+        });
+    } catch (error) {
+        next(error)
+    }
+}
+
+
 
