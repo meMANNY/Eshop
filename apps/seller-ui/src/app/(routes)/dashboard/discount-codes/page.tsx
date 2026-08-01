@@ -1,5 +1,5 @@
 "use client";
-import { ChevronRight, Plus, Trash } from 'lucide-react'
+import { ChevronRight, Plus, Trash, X } from 'lucide-react'
 import React, { useState } from 'react'
 import Link from 'next/link'
 import { useQuery } from '@tanstack/react-query';
@@ -27,7 +27,7 @@ const Page = () => {
             <h2 className='text-2xl text-white font-semibold'>
                 Discount Codes
             </h2>
-            <button className='flex items-center gap-1.5 px-4 py-2 text-base rounded-md shadow-md bg-indigo-600 hover:bg-indigo-700 text-white hover:text-white '>
+            <button onClick={()=>setShowModal(true)} className='flex items-center gap-1.5 px-4 py-2 text-base rounded-md shadow-md bg-indigo-600 hover:bg-indigo-700 text-white hover:text-white '>
                 <Plus size={18}/> Create Discount
             </button>
         </div>
@@ -62,7 +62,7 @@ const Page = () => {
 
                         </thead>
                         <tbody>
-                            {discountCodes?.map((discount: any)=>{
+                            {discountCodes?.map((discount: any)=>(
                                 <tr key={discount?.id}
                                 className='border-b border-gray-800 hover:bg-gray-800 transition'>
                                     <td className='p-3'>{discount?.public_name}</td>
@@ -85,7 +85,7 @@ const Page = () => {
                                         </button>
                                     </td>
                                 </tr>
-                            })}
+                            ))}
                         </tbody>
                     </table>
                 )
@@ -96,6 +96,20 @@ const Page = () => {
                 </p>
             )}
         </div>
+
+        {/* Show Discount Modal */}
+        {showModal && (
+            <div className='fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center z-50'>
+                <div className='bg-gray-800 p-6 rounded-lg w-[450px] shadow-lg'>
+                    <div className='flex justify-between items-center border-b border-gray-700 pb-3 '>
+                        <h3 className='text-xl text-white'>Create Discount Code</h3>
+                        <button onClick={()=>setShowModal(false)}>
+                            <X size={22}/>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        )}
 
     </div>
   )
