@@ -34,7 +34,7 @@ function Page() {
     const [selectedImageIndex,setSelectedImageIndex] = useState<number | null>(null);
     const [activeEffect,setActiveEffect] = useState<string | null>(null);
     const [enhancing,setEnhancing] = useState(false);
-    const [isChanged,setIsChanged] = useState(true);
+    const [isChanged] = useState(true);
     const [images,setImages] = useState<(UploadedImage | null)[]>([null]);
     const [uploadingIndex,setUploadingIndex] = useState<number | null>(null);
     const [loading, setLoading] = useState(false);
