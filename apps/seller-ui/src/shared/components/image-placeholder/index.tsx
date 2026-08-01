@@ -1,10 +1,11 @@
 import { ImagePlus, Pencil, WandSparkles, X } from 'lucide-react';
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Image from 'next/image';
 
 const ImagePlaceHolder = ({
     size,
     small,
+    file = null,
     onImageChange,
     onRemove,
     defaultImage = null,
@@ -13,21 +14,35 @@ const ImagePlaceHolder = ({
 }:{
     size : string;
     small?: boolean;
+    file?: File | null;
     onImageChange: (file: File | null, index: number) => void;
     onRemove?: (index: number) => void;
     defaultImage?: string | null;
     index?: any;
     setOpenImageModal: (openImageModal: boolean) => void;
 }) => {
-    const [imagePreview, setImagePreview] = useState<string | null>(defaultImage);
+    // Preview is DERIVED from the `file` prop (the parent owns the images array),
+    // so removing/replacing an image in the parent is reflected here immediately.
+    const [objectUrl, setObjectUrl] = useState<string | null>(null);
+
+    useEffect(() => {
+        if (file) {
+            const url = URL.createObjectURL(file);
+            setObjectUrl(url);
+            // Revoke the previous blob URL when the file changes/unmounts to avoid leaks.
+            return () => URL.revokeObjectURL(url);
+        }
+        setObjectUrl(null);
+    }, [file]);
+
+    const imagePreview = objectUrl ?? defaultImage;
 
     const inputId = `image-upload-${index ?? 'main'}`;
 
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const file = event.target.files?.[0] ;
-        if (file) {
-            setImagePreview(URL.createObjectURL(file));
-            onImageChange(file,index!);
+        const selected = event.target.files?.[0] ;
+        if (selected) {
+            onImageChange(selected,index!);
         }
     };
 

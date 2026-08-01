@@ -71,11 +71,27 @@ function Page() {
 
     };
 
+    
+    const convertFileToBase64 = (file: File) => {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = error => reject(error);
+        });
+    }
 
 
 
-    const handleImageChange = (file: File | null, index: number) =>{
-
+    const handleImageChange = async(file: File | null, index: number) =>{
+        if(!file)
+            return;
+        try {
+            const base64 = await convertFileToBase64(file);
+            console.log(base64);
+        } catch (error) {
+            
+        }
         const updatedImages = [...images];
         updatedImages[index] = file;
         if(index === images.length - 1 && images.length < 8){
@@ -102,11 +118,13 @@ function Page() {
             if(!updatedImages.includes(null) && updatedImages.length < 8){
                 updatedImages.push(null);
             }
+
+            // Keep the form value in sync with the freshly computed array,
+            // not the stale `images` from this render's closure.
+            setValue("images",updatedImages);
             return updatedImages;
         });
-
-        setValue("images",images);
-    } 
+    }
 
     return (
         <form className="w-full mx-auto p-8 shadow-md rounded-lg text-white" 
@@ -129,6 +147,7 @@ function Page() {
                     {images?.length > 0 && (
                         <ImagePlaceHolder
                         size="760*850"
+                        file={images[0]}
                         setOpenImageModal={setOpenImageModal}
                         index={0}
                         small={false}
@@ -142,6 +161,7 @@ function Page() {
                                 <ImagePlaceHolder
                                 size="760*850"
                                 key = {index+1}
+                                file={images[index+1]}
                                 small = {true}
                                 setOpenImageModal={setOpenImageModal}
                                 index={index+1}
