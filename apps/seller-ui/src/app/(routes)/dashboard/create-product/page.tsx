@@ -203,20 +203,24 @@ function Page() {
         <form className="w-full mx-auto p-8 shadow-md rounded-lg text-white"
         onSubmit={handleSubmit(onSubmit)}>
             {/*Heading and Breadcrumbs*/}
-            <h2 className="text-2xl py-2 font-semibold font-Poppins text-white">
-                Create Product
-            </h2>
-            <div className="flex items-center">
-                <span className="text-[#80Deea] cursor-pointer">
-                    DashBoard
+            <div className="flex items-center gap-3 py-2">
+                {/* Coral marker — echoes the sidebar's "you are here" accent. */}
+                <span aria-hidden="true" className="h-7 w-[3px] rounded-full bg-[#ff6f61] shadow-[0_0_10px_rgba(255,111,97,0.6)]"/>
+                <h2 className="text-2xl font-semibold font-Poppins text-white">
+                    Create Product
+                </h2>
+            </div>
+            <div className="mt-1 flex items-center text-sm">
+                <span className="cursor-pointer text-slate-400 transition-colors hover:text-[#ff8a7d]">
+                    Dashboard
                 </span>
-                <ChevronRight size={20} className="opacity-[.8]"/>
-                <span>Create Product</span>
+                <ChevronRight size={16} className="mx-1 text-slate-600"/>
+                <span className="text-slate-200">Create Product</span>
             </div>
             {/*Content Layout */}
-            <div className="py-4 w-full flex gap-6">
+            <div className="py-4 w-full flex flex-col lg:flex-row gap-6">
                 {/*Left side- Image Upload section */}
-                <div className="w-[35%]">
+                <div className="w-full lg:w-[35%]">
                     {images?.length > 0 && (
                         <ImagePlaceHolder
                         size="760*850"
@@ -250,10 +254,10 @@ function Page() {
                     </div>
                 </div>
                 {/*Right side - form inputs*/}
-                <div className="md: w-[65%] ">
-                    <div className="w-full flex gap-6">
+                <div className="w-full lg:w-[65%] rounded-xl border border-slate-800 bg-[#141922] p-6">
+                    <div className="w-full flex flex-col md:flex-row gap-6">
                         {/*Product Title Input*/}
-                        <div className="w-2/4">
+                        <div className="w-full md:w-2/4">
                             <Input
                                 label="Product Title*"
                                 {...register("title",{required: "Title is required"})}
@@ -355,13 +359,13 @@ function Page() {
                         {errors.slug && (<p className="text-red-500 text-xs mt-1">{errors.slug.message as string}</p>)}
                     </div>
                     </div>
-                        <div className="w-2/4">
+                        <div className="w-full md:w-2/4">
                             <label className="block font-semibold text-gray-300 mb-1">
                                 Category*
                             </label>
                             {
                                 isLoading ? (
-                                    <p className="text-gray-400">
+                                    <p className="text-slate-400">
                                         Loading Categories...
 
                                     </p>
@@ -375,13 +379,13 @@ function Page() {
                                     control={control}
                                     rules={{required: "Category is required"}}
                                     render={({field})=>(
-                                        <select {...field} className="w-full border outline-none border-gray-700 bg-transparent">
+                                        <select {...field} className="w-full rounded-md border border-slate-700 bg-transparent p-2 text-white outline-none transition-colors focus:border-[#ff6f61] [&>option]:bg-[#141922] [&>option]:text-white">
                                             {" "}
-                                            <option value="" className="bg-black">
+                                            <option value="">
                                                 Select Category
                                             </option>
                                             {categories?.map((category: string) => (
-                                                <option key={category} value={category} className="bg-black">
+                                                <option key={category} value={category}>
                                                     {category}
                                                 </option>
                                             ))}
@@ -405,13 +409,13 @@ function Page() {
                                     <select
                                     {...field}
                                     disabled={!selectedCategory || subCategories.length === 0}
-                                    className="w-full border outline-none border-gray-700 bg-transparent disabled:cursor-not-allowed disabled:opacity-50">
+                                    className="w-full rounded-md border border-slate-700 bg-transparent p-2 text-white outline-none transition-colors focus:border-[#ff6f61] disabled:cursor-not-allowed disabled:opacity-50 [&>option]:bg-[#141922] [&>option]:text-white">
                                         {" "}
-                                        <option value="" className="bg-black">
+                                        <option value="">
                                             {selectedCategory ? "Select Subcategory" : "Select a category first"}
                                         </option>
                                         {subCategories?.map((subCategory: string) => (
-                                            <option key={subCategory} value={subCategory} className="bg-black">
+                                            <option key={subCategory} value={subCategory}>
                                                 {subCategory}
                                             </option>
                                         ))}
@@ -527,7 +531,7 @@ function Page() {
                                     Select Discount Codes (Optional)
                                 </label>
                                 {discountLoading ? (
-                                    <p className="text-gray-400">
+                                    <p className="text-slate-400">
                                         Loading discount codes ...
                                     </p>
                                 ): (
@@ -542,7 +546,7 @@ function Page() {
                                                 ) ? currentSelection.filter((id: string)=> id !== code.id) : [...currentSelection, code.id];
                                                 setValue("discountCodes",updatedSelection);
                                             }}
-                                            className={`px-3 py-1 rounded-md font-semibold border ${watch("discountCodes")?.includes(code.id) ? "bg-blue-500/20 border-blue-500 text-blue-400" : "border-gray-700 text-gray-300 hover:border-gray-500"}`}>
+                                            className={`px-3 py-1 rounded-md font-semibold border transition-colors ${watch("discountCodes")?.includes(code.id) ? "bg-[#ff6f61]/10 border-[#ff6f61] text-[#ff8a7d]" : "border-slate-700 text-slate-300 hover:border-slate-500 hover:text-slate-100"}`}>
                                                 {code?.public_name} ({code.discountValue}{code.discountType === "percentage" ? "%" : "$"})
                                             </button>
                                         ))}
@@ -557,12 +561,12 @@ function Page() {
             </div>
             {
                 openImageModal && selectedImage && (
-                    <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-60 z-50">
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
                         {/*Modal Content*/}
-                        <div className="bg-gray-800 p-6 rounded-lg w-[500px] text-white">
-                            <div className="flex justify-between items-center pb-3 mb-4">
+                        <div className="w-[500px] max-w-full rounded-xl border border-slate-800 bg-[#141922] p-6 text-white shadow-2xl">
+                            <div className="flex justify-between items-center border-b border-slate-800 pb-3 mb-4">
                                 <h2 className="font-semibold text-lg">Enhance Product Image</h2>
-                                <X size={20} className="cursor-pointer" onClick={()=>setOpenImageModal(false)} />
+                                <X size={20} className="cursor-pointer text-slate-400 transition-colors hover:text-white" onClick={()=>setOpenImageModal(false)} />
                             </div>
                             {/*Image Viewer*/}
                             <div className="relative w-full h-[300px] rounded-md overflow-hidden border border-gray-600 bg-[#0f172a]">
@@ -610,7 +614,7 @@ function Page() {
                                     type="button"
                                     onClick={()=>{setActiveEffect(null); setEnhancing(false);}}
                                     disabled={!activeEffect}
-                                    className="px-4 py-2 rounded-md text-sm text-gray-300 bg-gray-700 hover:bg-gray-600 transition disabled:opacity-50 disabled:cursor-not-allowed">
+                                    className="px-4 py-2 rounded-lg text-sm text-slate-200 border border-slate-700 bg-white/[0.04] hover:bg-white/[0.08] transition disabled:opacity-50 disabled:cursor-not-allowed">
                                         Reset
                                     </button>
                                     <button
@@ -629,16 +633,16 @@ function Page() {
             }
             <div className="mt-6 flex justify-end gap-3">
                 {isChanged && (
-                    <button 
+                    <button
                     type="button"
                     onClick={handleSaveDraft}
-                    className="px-4 py-2 bg-gray-700 text-white rounded-md">
+                    className="rounded-lg border border-slate-700 bg-white/[0.04] px-5 py-2 text-slate-200 transition-colors hover:bg-white/[0.08]">
                         Save Draft
                     </button>
                 )}
                 <button
                 type="submit"
-                className="px-4 py-2 bg-blue-600 text-white rounded-md"
+                className="rounded-lg bg-[#ff6f61] px-6 py-2 font-medium text-white shadow-lg shadow-[#ff6f61]/20 transition-colors hover:bg-[#e05a4d] disabled:cursor-not-allowed disabled:opacity-60"
                 disabled = {loading}>
                     {loading? "Creating..." : "Create"}
                 </button>

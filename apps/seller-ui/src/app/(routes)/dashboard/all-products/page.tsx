@@ -73,24 +73,24 @@ const ProductList = () => {
                 width={48}
                 height={48}
                 unoptimized
-                className='w-12 h-12 rounded-md object-cover'
+                className='h-12 w-12 rounded-md object-cover ring-1 ring-slate-700/60'
                 />
             ) : (
-                <div className='w-12 h-12 rounded-md bg-gray-800'/>
+                <div className='h-12 w-12 rounded-md bg-slate-800 ring-1 ring-slate-700/60'/>
             );
         },
     }, {
         accessorKey: "name",
         header: "Product Name",
         cell: ({row}: any) => {
-            const truncatedTitle = row.original.title.length > 25 ? 
+            const truncatedTitle = row.original.title.length > 25 ?
             row.original.title.substring(0,25) + "..." :
             row.original.title;
 
             return (
-                <Link 
+                <Link
                 href={`${process.env.NEXT_PUBLIC_USER_UI_LINK}/product/${row.original.slug}`}
-                className='text-blue-400 hover:underline'
+                className='font-medium text-[#ff8a7d] transition-colors hover:text-[#ff6f61] hover:underline'
                 title={row.original.title}
                 >
                     {truncatedTitle}
@@ -105,9 +105,9 @@ const ProductList = () => {
             const { sale_price, regular_price } = row.original;
             return (
                 <div className='flex items-center gap-2'>
-                    <span>${sale_price}</span>
+                    <span className='font-medium text-white'>${sale_price}</span>
                     {regular_price > sale_price && (
-                        <span className='text-gray-500 line-through text-xs'>${regular_price}</span>
+                        <span className='text-xs text-slate-500 line-through'>${regular_price}</span>
                     )}
                 </div>
             )
@@ -118,7 +118,7 @@ const ProductList = () => {
         header: "Stock",
         cell: ({row}: any) => {
             return (
-                <span className={row.original.stock < 10 ? 'text-red-500' : 'text-white'}>{row.original.stock} left</span>
+                <span className={row.original.stock < 10 ? 'text-red-400' : 'text-slate-200'}>{row.original.stock} left</span>
             )
         }
 
@@ -127,7 +127,7 @@ const ProductList = () => {
         header: "Category",
         cell: ({row}: any) => {
             return (
-                <span className='text-gray-300'>{row.original.category}</span>
+                <span className='text-slate-300'>{row.original.category}</span>
             )
         }
     },{
@@ -135,9 +135,9 @@ const ProductList = () => {
         header: "Rating",
         cell: ({row}: any) => {
             return (
-                <div className='flex items-center gap-2'>
-                    <Star size={16} className='text-yellow-400'/>
-                    <span>{row.original.ratings ?? 5}</span>
+                <div className='flex items-center gap-1.5'>
+                    <Star size={16} className='fill-amber-400 text-amber-400'/>
+                    <span className='text-slate-200'>{row.original.ratings ?? 5}</span>
                 </div>
             )
         }
@@ -149,14 +149,14 @@ const ProductList = () => {
                 <div className='flex items-center gap-3'>
                     <Link
                     href={`${process.env.NEXT_PUBLIC_USER_UI_LINK}/product/${row.original.slug}`}
-                    className='text-gray-400 transition-colors hover:text-blue-400'
+                    className='text-slate-400 transition-colors hover:text-[#ff6f61]'
                     title='View product'
                     >
                         <Eye size={18}/>
                     </Link>
                     <Link
                     href={`/dashboard/edit-product/${row.original.id}`}
-                    className='text-gray-400 transition-colors hover:text-green-400'
+                    className='text-slate-400 transition-colors hover:text-[#ff6f61]'
                     title='Edit product'
                     >
                         <Pencil size={18}/>
@@ -167,7 +167,7 @@ const ProductList = () => {
                         setSelectedProduct(row.original);
                         setShowAnalytics(true);
                     }}
-                    className='text-gray-400 transition-colors hover:text-indigo-400'
+                    className='text-slate-400 transition-colors hover:text-[#ff6f61]'
                     title='View analytics'
                     >
                         <BarChart size={18}/>
@@ -178,7 +178,7 @@ const ProductList = () => {
                         setSelectedProduct(row.original);
                         setShowDeleteModal(true);
                     }}
-                    className='text-gray-400 transition-colors hover:text-red-500'
+                    className='text-slate-400 transition-colors hover:text-red-400'
                     title='Delete product'
                     >
                         <Trash size={18}/>
@@ -200,47 +200,51 @@ const table = useReactTable({
 
 })
     return (
-        <div className='w-full min-h-screen p-8'>
-            <div className='flex justify-between items-center mb-1'>
-                <h2 className='text-2xl text-white font-semibold'>
-                    All Products
-                </h2>
-                <Link href="/dashboard/create-product" className='flex items-center gap-1.5 px-4 py-2 text-base rounded-md shadow-md bg-indigo-600 hover:bg-indigo-700 text-white hover:text-white '>
+        <div className='min-h-screen w-full p-8'>
+            <div className='mb-1 flex items-center justify-between'>
+                <div className='flex items-center gap-3'>
+                    {/* Coral marker — echoes the sidebar's "you are here" accent. */}
+                    <span aria-hidden='true' className='h-7 w-[3px] rounded-full bg-[#ff6f61] shadow-[0_0_10px_rgba(255,111,97,0.6)]'/>
+                    <h2 className='text-2xl font-semibold text-white'>
+                        All Products
+                    </h2>
+                </div>
+                <Link href="/dashboard/create-product" className='flex items-center gap-1.5 rounded-lg bg-[#ff6f61] px-4 py-2 text-base font-medium text-white shadow-lg shadow-[#ff6f61]/20 transition-colors hover:bg-[#e05a4d]'>
                     <Plus size={18}/> Add Product
                 </Link>
             </div>
-            <div className="flex items-center text-white">
-                            <Link href="/dashboard" className="text-[#80Deea] cursor-pointer">
-                                DashBoard
+            <div className='mt-1 flex items-center text-sm'>
+                            <Link href="/dashboard" className='text-slate-400 transition-colors hover:text-[#ff8a7d]'>
+                                Dashboard
                             </Link>
-                            <ChevronRight size={20} className="opacity-[.8]"/>
-                            <span className='text-white'>All Products</span>
+                            <ChevronRight size={16} className='mx-1 text-slate-600'/>
+                            <span className='text-slate-200'>All Products</span>
             </div>
-        
-        
-            <div className='mt-6 mb-4 flex items-center bg-gray-900 p-2 rounded-md flex-1'>
-                <Search size={18} className='text-gray-400 mr-2'/>
+
+
+            <div className='mb-4 mt-6 flex flex-1 items-center rounded-lg border border-slate-800 bg-[#141922] p-2.5 transition-colors focus-within:border-[#ff6f61]/70'>
+                <Search size={18} className='mr-2 text-slate-400'/>
                 <input
                 type='text'
-                placeholder='Search Products...'
-                className='w-full bg-transparent text-white outline-none'
+                placeholder='Search products...'
+                className='w-full bg-transparent text-white placeholder:text-slate-500 outline-none'
                 value={globalFilter}
                 onChange={(e)=>setGlobalFilter(e.target.value)}
                 />
             </div>
         {/* Table */}
-            <div className='overflow-x-auto rounded-md bg-gray-900 p-4 shadow-md'>
+            <div className='overflow-x-auto rounded-xl border border-slate-800 bg-[#141922] p-4 shadow-md'>
                 {isLoading ? (
-                    <p className='text-center text-gray-400'>Loading products...</p>
+                    <p className='py-6 text-center text-slate-400'>Loading products...</p>
                 ) : products.length === 0 ? (
-                    <p className='text-center text-gray-400'>No products found!</p>
+                    <p className='py-6 text-center text-slate-400'>No products found!</p>
                 ) : (
                     <table className='w-full text-white'>
                         <thead>
                             {table.getHeaderGroups().map((headerGroup) => (
-                                <tr key={headerGroup.id} className='border-b border-gray-800'>
+                                <tr key={headerGroup.id} className='border-b border-slate-800'>
                                     {headerGroup.headers.map((header) => (
-                                        <th key={header.id} className='p-3 text-left'>
+                                        <th key={header.id} className='p-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-400'>
                                             {header.isPlaceholder
                                                 ? null
                                                 : flexRender(
@@ -254,7 +258,7 @@ const table = useReactTable({
                         </thead>
                         <tbody>
                             {table.getRowModel().rows.map((row) => (
-                                <tr key={row.id} className='border-b border-gray-800 transition hover:bg-gray-800'>
+                                <tr key={row.id} className='border-b border-slate-800 transition-colors hover:bg-white/[0.03]'>
                                     {row.getVisibleCells().map((cell) => (
                                         <td key={cell.id} className='p-3'>
                                             {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -278,7 +282,7 @@ const table = useReactTable({
         </div>
 
     )
-  
-}   
+
+}
 
 export default ProductList

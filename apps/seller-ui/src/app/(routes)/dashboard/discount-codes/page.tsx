@@ -32,7 +32,7 @@ const Page = () => {
         }
         createDiscountCodeMutation.mutate(data);
     }
-    
+
     const {data: discountCodes = [],isLoading} = useQuery({
         queryKey: ["shop-discounts"],
         queryFn: async () => {
@@ -55,7 +55,7 @@ const Page = () => {
         },
         onSuccess: () => {
             toast.success("Discount code created successfully");
-            
+
             queryClient.invalidateQueries({ queryKey: ["shop-discounts"] });
             reset();
             setShowModal(false);
@@ -71,7 +71,7 @@ const Page = () => {
         },
         onSuccess: () => {
             toast.success("Discount code deleted successfully");
-            
+
             queryClient.invalidateQueries({ queryKey: ["shop-discounts"] });
             setShowDeleteModal(false);
             setSelectedDiscount(null);
@@ -84,64 +84,74 @@ const Page = () => {
 
   return (
     <div className='w-full min-h-screen p-8'>
-        <div className='flex justify-between items-center mb-1'>
-            <h2 className='text-2xl text-white font-semibold'>
-                Discount Codes
-            </h2>
-            <button onClick={()=>setShowModal(true)} className='flex items-center gap-1.5 px-4 py-2 text-base rounded-md shadow-md bg-indigo-600 hover:bg-indigo-700 text-white hover:text-white '>
+        <div className='flex items-center justify-between mb-1'>
+            <div className='flex items-center gap-3'>
+                {/* Coral marker — echoes the sidebar's "you are here" accent. */}
+                <span aria-hidden='true' className='h-7 w-[3px] rounded-full bg-[#ff6f61] shadow-[0_0_10px_rgba(255,111,97,0.6)]'/>
+                <h2 className='text-2xl font-semibold text-white'>
+                    Discount Codes
+                </h2>
+            </div>
+            <button onClick={()=>setShowModal(true)} className='flex items-center gap-1.5 rounded-lg bg-[#ff6f61] px-4 py-2 text-base font-medium text-white shadow-lg shadow-[#ff6f61]/20 transition-colors hover:bg-[#e05a4d]'>
                 <Plus size={18}/> Create Discount
             </button>
         </div>
-        <div className="flex items-center text-white">
-                        <Link href="/dashboard" className="text-[#80Deea] cursor-pointer">
-                            DashBoard
+        <div className='mt-1 flex items-center text-sm'>
+                        <Link href="/dashboard" className='text-slate-400 transition-colors hover:text-[#ff8a7d]'>
+                            Dashboard
                         </Link>
-                        <ChevronRight size={20} className="opacity-[.8]"/>
-                        <span>Discount Codes</span>
+                        <ChevronRight size={16} className='mx-1 text-slate-600'/>
+                        <span className='text-slate-200'>Discount Codes</span>
         </div>
-        
-        <div className='mt-8 bg-gray-900 p-6 rounded-lg shadow-md'>
-            <h3 className='text-xl font-semibold mb-4 text-white'>
+
+        <div className='mt-8 rounded-xl border border-slate-800 bg-[#141922] p-6 shadow-md'>
+            <h3 className='mb-4 text-lg font-semibold text-white'>
                 Your Discount Codes
             </h3>
             {
                 isLoading ? (
-                    <p className='text-gray-400 text-center'>
+                    <p className='py-6 text-center text-slate-400'>
                         Loading discount codes...
                     </p>
 
                 ):(
+                    <div className='overflow-x-auto'>
                     <table className='w-full text-white'>
-                        <thead >
-                            <tr className='border-b border-gray-800'>
-                                <th className='p-3 text-left'>Title</th>
-                                <th className='p-3 text-left'>Type</th>
-                                <th className='p-3 text-left'>Value</th>
-                                <th className='p-3 text-left'>Code</th>
-                                <th className='p-3 text-left'>Action</th>
+                        <thead>
+                            <tr className='border-b border-slate-800'>
+                                <th className='p-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-400'>Title</th>
+                                <th className='p-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-400'>Type</th>
+                                <th className='p-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-400'>Value</th>
+                                <th className='p-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-400'>Code</th>
+                                <th className='p-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-400'>Action</th>
                             </tr>
 
                         </thead>
                         <tbody>
                             {discountCodes?.map((discount: any)=>(
                                 <tr key={discount?.id}
-                                className='border-b border-gray-800 hover:bg-gray-800 transition'>
-                                    <td className='p-3'>{discount?.public_name}</td>
-                                    <td className='p-3 capitalize'> 
-                                        {discount.discountType === "percentage" ? "Percentage(%)" : "Flat (USD)"}
-                                    </td>
+                                className='border-b border-slate-800 transition-colors hover:bg-white/[0.03]'>
+                                    <td className='p-3 font-medium text-slate-100'>{discount?.public_name}</td>
                                     <td className='p-3'>
-                                        {discount.discountType === "percentage" ? 
+                                        <span className='inline-flex items-center rounded-full border border-slate-700 bg-white/[0.04] px-2.5 py-0.5 text-xs font-medium text-slate-300'>
+                                            {discount.discountType === "percentage" ? "Percentage (%)" : "Flat (USD)"}
+                                        </span>
+                                    </td>
+                                    <td className='p-3 font-semibold text-white'>
+                                        {discount.discountType === "percentage" ?
                                             `${discount.discountValue}%` :
                                             `$${discount.discountValue}`}
                                     </td>
-                                    <td className="p-3 font-mono">
-                                        {discount.discountCode}
+                                    <td className='p-3'>
+                                        <span className='inline-block rounded border border-slate-800 bg-white/[0.03] px-2 py-0.5 font-mono text-sm text-[#ff8a7d]'>
+                                            {discount.discountCode}
+                                        </span>
                                     </td>
                                     <td className='p-3'>
                                         <button
                                         onClick={()=>handleDeleteClick(discount)}
-                                        className='text-red-400 hover:text-red-300 transition'>
+                                        aria-label='Delete discount code'
+                                        className='text-slate-400 transition-colors hover:text-red-400'>
                                             <Trash size={18} />
                                         </button>
                                     </td>
@@ -149,10 +159,11 @@ const Page = () => {
                             ))}
                         </tbody>
                     </table>
+                    </div>
                 )
             }
             {!isLoading && discountCodes?.length === 0 && (
-                <p className='text-gray-400 w-full pt-4 block text-center'>
+                <p className='block w-full pt-6 text-center text-slate-400'>
                     No discount codes found!
                 </p>
             )}
@@ -160,23 +171,23 @@ const Page = () => {
 
         {/* Show Discount Modal */}
         {showModal && (
-            <div className='fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center z-50'>
-                <div className='bg-gray-800 p-6 rounded-lg w-[450px] shadow-lg'>
-                    <div className='flex justify-between items-center border-b border-gray-700 pb-3 '>
-                        <h3 className='text-xl text-white'>Create Discount Code</h3>
-                        <button onClick={()=>setShowModal(false)}>
+            <div className='fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4'>
+                <div className='w-[450px] max-w-full rounded-xl border border-slate-800 bg-[#141922] p-6 shadow-2xl'>
+                    <div className='flex items-center justify-between border-b border-slate-800 pb-3'>
+                        <h3 className='text-xl font-semibold text-white'>Create Discount Code</h3>
+                        <button onClick={()=>setShowModal(false)} aria-label='Close' className='text-slate-400 transition-colors hover:text-white'>
                             <X size={22}/>
                         </button>
                     </div>
                     <form onSubmit={handleSubmit(onSubmit)} className='mt-4'>
-                        <Input 
+                        <Input
                         label='Discount Title'
                         {...register("public_name",{required: "Title is required"})}
-                        /> 
-                        {errors.public_name && <p className='text-red-400 text-xs mt-1'>{errors.public_name.message}</p>}
+                        />
+                        {errors.public_name && <p className='mt-1 text-xs text-red-400'>{errors.public_name.message}</p>}
                         {/*Discount Type*/}
                         <div className='mt-4'>
-                            <label className='block mb-1 text-sm text-gray-300'>Discount Type</label>
+                            <label className='mb-1 block text-sm font-semibold text-slate-300'>Discount Type</label>
                             <Controller
                                 control={control}
                                 name='discountType'
@@ -184,14 +195,14 @@ const Page = () => {
                                 render={({ field }) => (
                                     <select
                                         {...field}
-                                        className='w-full rounded-md p-2 border border-gray-700 outline-none bg-transparent text-white transition-colors focus:border-[#ff6f61]'
+                                        className='w-full rounded-md border border-slate-700 bg-transparent p-2 text-white outline-none transition-colors focus:border-[#ff6f61] [&>option]:bg-[#141922] [&>option]:text-white'
                                     >
-                                        <option value='percentage' className='bg-gray-800'>Percentage (%)</option>
-                                        <option value='flat' className='bg-gray-800'>Flat Amount ($)</option>
+                                        <option value='percentage'>Percentage (%)</option>
+                                        <option value='flat'>Flat Amount ($)</option>
                                     </select>
                                 )}
                             />
-                            {errors.discountType && <p className='text-red-400 text-xs mt-1'>{errors.discountType.message}</p>}
+                            {errors.discountType && <p className='mt-1 text-xs text-red-400'>{errors.discountType.message}</p>}
                         </div>
                         {/* Discount Value */}
                         <div className='mt-4'>
@@ -205,7 +216,7 @@ const Page = () => {
                                     min: { value: 1, message: "Value must be greater than 0" },
                                 })}
                             />
-                            {errors.discountValue && <p className='text-red-400 text-xs mt-1'>{errors.discountValue.message}</p>}
+                            {errors.discountValue && <p className='mt-1 text-xs text-red-400'>{errors.discountValue.message}</p>}
                         </div>
                         {/*Discount Code*/}
                         <div className='mt-4'>
@@ -216,16 +227,16 @@ const Page = () => {
                                     minLength: { value: 3, message: "Code must be at least 3 characters"},
                                 })}
                             />
-                            {errors.discountCode && <p className='text-red-400 text-xs mt-1'>{errors.discountCode.message}</p>}
+                            {errors.discountCode && <p className='mt-1 text-xs text-red-400'>{errors.discountCode.message}</p>}
                         </div>
                         <button type='submit'
                         disabled = {createDiscountCodeMutation.isPending}
-                        className='mt-4 w-full flex items-center gap-2 py-2 justify-center text-base rounded-md shadow-md bg-indigo-600 hover:bg-indigo-700 text-white hover:text-white disabled:bg-indigo-400 disabled:cursor-not-allowed'>
+                        className='mt-5 flex w-full items-center justify-center gap-2 rounded-lg bg-[#ff6f61] py-2 text-base font-medium text-white shadow-lg shadow-[#ff6f61]/20 transition-colors hover:bg-[#e05a4d] disabled:cursor-not-allowed disabled:opacity-60'>
                             <Plus size={18}/>
                             {createDiscountCodeMutation.isPending ? "Creating..." : "Create Discount Code"}
                         </button>
                         {createDiscountCodeMutation.isError && (
-                            <p className='text-red-400 text-sm mt-1 text-center'>
+                            <p className='mt-2 text-center text-sm text-red-400'>
                                 {(createDiscountCodeMutation.error as AxiosError <{
                                     message: string;
                                 }>)?.response?.data?.message || "Something Went Wrong"}
