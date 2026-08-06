@@ -14,7 +14,7 @@ router.post("/create-product",isSeller,createProduct);
 router.get("/get-shop-products",isSeller,getShopProducts);
 router.delete("/delete-product/:productId",isSeller,deleteProduct);
 router.put("/restore-product/:productId",isSeller,restoreProduct);
-router.get("/get-products",getAllProducts)
+router.get("/get-all-products",getAllProducts)
 
 
 export default router;
