@@ -133,6 +133,7 @@ model products {
   ending_date          DateTime?
   video_url            String?
   ratings              Float         @default(5)
+  totalSales  Int   @default(0)
   custom_specification Json
   custom_properties    Json
   warranty             String?
