@@ -1,6 +1,8 @@
 import React,{useState,useEffect} from 'react'
 import Link from 'next/link'
 import { Ratings } from '../ratings'
+import { Eye, Heart, ShoppingBag } from 'lucide-react';
+import ProductDetailsCard from './product-details.card';
 
 // Inline SVG placeholder — renders instantly, never hotlink-blocked, no network needed.
 
@@ -8,6 +10,7 @@ import { Ratings } from '../ratings'
 const ProductCard = ({product,isEvent}: {product:any,isEvent?:boolean}) => {
 
     const [timeLeft, setTimeLeft] = useState("");
+    const [open, setOpen] = useState(false);
 
     useEffect(() => {
     if (isEvent && product?.ending_date) {
@@ -75,9 +78,52 @@ const ProductCard = ({product,isEvent}: {product:any,isEvent?:boolean}) => {
           </span>
         </div>
       )}
+    
+    <div className="absolute flex flex-col gap-3 right-3 top-10 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-3 group-hover:translate-x-0">
+        <div className="bg-white rounded-full p-[6px] shadow-lg hover:shadow-xl transition-all hover:scale-110">
+          <Heart 
+            // onClick={() =>
+            //   isWishlisted
+            //     ? removeFromWishlist(product.id, user, location, deviceInfo)
+            //     : addToWishlist(
+            //         { ...product, quantity: 1 },
+            //         user,
+            //         location,
+            //         deviceInfo
+            //       )
+            // }
+            className="cursor-pointer"
+            size={22}
+            //fill={isWishlisted ? "red" : "transparent"}
+            //stroke={isWishlisted ? "red" : "#4B5563"}
+          />
+        </div>
+        <div className="bg-white rounded-full p-[6px] shadow-lg hover:shadow-xl transition-all hover:scale-110">
+          <Eye
+            className="cursor-pointer text-[#4b5563]"
+            size={22}
+            onClick={() => setOpen(!open)}
+          />
+        </div>
+
+         <div className="bg-white rounded-full p-[6px] shadow-lg hover:shadow-xl transition-all hover:scale-110">
+          <ShoppingBag
+            // onClick={() =>
+            //   !isInCart &&
+            //   addToCart({ ...product, quantity: 1 }, user, location, deviceInfo)
+            // }
+            className="cursor-pointer text-[#4b5563]"
+            size={22}
+          />
+        </div>
+    
+
+        {open && <ProductDetailsCard data={product} setOpen={setOpen} />}
+        </div>
 
     </div>
-  )
+)
 }
+
 
 export default ProductCard
