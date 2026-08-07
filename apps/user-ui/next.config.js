@@ -11,6 +11,14 @@ const nextConfig = {
   // Use this to set Nx-specific options
   // See: https://nx.dev/recipes/next/next-config-setup
   nx: {},
+  images: {
+    // next/image only loads remote images from hosts listed here.
+    remotePatterns: [
+      { protocol: 'https', hostname: 'ik.imagekit.io' }, // product images
+      { protocol: 'https', hostname: 'images.unsplash.com' }, // placeholder fallbacks
+      { protocol: 'https', hostname: 'picsum.photos' },
+    ],
+  },
 };
 
 const plugins = [

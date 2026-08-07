@@ -139,9 +139,9 @@ const ProductCard = ({product,isEvent}: {product:any,isEvent?:boolean}) => {
         </div>
     
 
-        {open && <ProductDetailsCard data={product} setOpen={setOpen} />}
+        
         </div>
-
+        {open && <ProductDetailsCard data={product} setOpen={setOpen} />}
     </div>
 )
 }
