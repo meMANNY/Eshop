@@ -471,16 +471,14 @@ export const getAllProducts = async(
         const type = req.query.type;
 
 
-        const baseFilter = {
-            OR:[
-                {
-                    starting_date: null,
-                },
-                {
-                    ending_date: null,
-                }
-            ]
-
+        const baseFilter: Prisma.productsWhereInput = {
+            isDeleted: { not: true },
+            NOT: {
+                AND: [
+                    { starting_date: { not: undefined } },
+                    { ending_date: { not: undefined } },
+                ],
+            },
         };
 
         const orderBy: Prisma.productsOrderByWithRelationInput = type === "latest" ? {createdAt: "desc" as Prisma.SortOrder} : {totalSales: "desc" as Prisma.SortOrder};
@@ -495,7 +493,7 @@ export const getAllProducts = async(
                 },
                 where: baseFilter,
                 orderBy:{
-                    totalSales: "desc"
+                    totalSales: "desc" as Prisma.SortOrder
                 },
             }),
             prisma.products.count({where: baseFilter}),

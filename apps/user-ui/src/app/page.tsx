@@ -15,6 +15,7 @@ const Page = () => {
     queryKey: ['products'],
     queryFn: async () => {
       const res = await axiosInstance.get("/product/api/get-all-products?page=1&limit=10")
+      console.log(res);
       return res.data.products;
     },
     staleTime: 1000*60*2,
@@ -47,7 +48,10 @@ const Page = () => {
         )}
         { (
           <div className='m-auto grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 2xl:grid-cols-5 gap-5'>
-            {products?.map((product: any) => (
+            {/* {
+              <ProductCard product={{ title: "Test", slug: "test", images: [] }} />
+            } */}
+             {products?.map((product: any) => (
               <ProductCard key={product.id} product={product} isEvent={true}/>
             ))}
             

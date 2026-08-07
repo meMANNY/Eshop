@@ -23,7 +23,7 @@ model images {
   shopId    String?   @unique @db.ObjectId
   shops     shops?    @relation(fields: [shopId], references: [id])
   productId String?   @unique @db.ObjectId
-  products  products? @relation(fields: [productId], references: [id])
+  products  products? @relation(name: "ProductImages", fields: [productId], references: [id])
 }
 
 model users {
@@ -123,9 +123,11 @@ model products {
   sale_price           Float
   regular_price        Float
   brand                String?
-  images               images[]
+  images               images[] @relation(name: "ProductImages")
   //customProperties Json
   colors               String[]
+  
+
   sizes                String[]
   discount_codes       String[]      @db.ObjectId
   //sellerId    String   @db.ObjectId

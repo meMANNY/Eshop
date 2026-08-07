@@ -34,7 +34,7 @@ const ProductCard = ({product,isEvent}: {product:any,isEvent?:boolean}) => {
 
 
   return (
-    <div className='w-full min-h-[350px] h-max bg-white rounded-lg relative'>
+    <div className='w-full min-h-[350px] h-max bg-white rounded-lg relative overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 group py-2'>
         {
             isEvent && (
                 <div className='absolute top-2 left-2 bg-red-600 text-white text-[10px] font-semibold px-2 py-1 rounded-sm shadow-md '>
@@ -48,28 +48,49 @@ const ProductCard = ({product,isEvent}: {product:any,isEvent?:boolean}) => {
             </div>
         )}
         <Link href={`/product/${product?.slug}`}>
-        <img src={product?.images?.[0]?.url || 'https://images.unsplash.com/photo-1635405074683-96d6921a2a68?w=500&auto=format&fit=crop&q=80'} alt={product?.title} width={300} height={200} className='w-full h-[200px] object-cover rounded-t-lg'/>
+        <img src={product.images[0]?.url || 'https://images.unsplash.com/photo-1749716491521-af90e3b6feb6?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8cGhvbmV8ZW58MHx8MHx8fDA%3D'} alt={product?.title} width={300} height={200} className='w-full h-[200px] object-cover rounded-t-md transition-transform duration-500 group-hover:scale-105'/>
         </Link>
         <Link href = {`/shop/${product?.Shop?.slug}`} className = "absolute top-2 left-2 bg-[#ff6f61] text-white text-[10px] font-semibold px-2 py-1 rounded-sm shadow-md hover:bg-[#e05a4d] transition-all duration-200">
             {product?.Shop?.name}
         </Link>
         <Link href={`/product/${product?.slug}`}>
             
-                <h3 className='text-lg font-semibold text-gray-800 mb-2'>{product?.title}</h3>
+                <h3 className='text-base text-gray-800 font-semibold px-3 line-clamp-1 group-hover:text-black transition'>{product?.title}</h3>
             
         </Link>
-        <div>
+        <div className = "px-3 mt-2">
             <Ratings rating={product?.ratings} />
         </div>
-        <div className = "mt-3 flex justify-between items-center px-2">
-            <div className = "flex items-center gap-2">
-                <span className='text-lg font-semibold text-gray-800'>${product?.sale_price}</span>
-                <span className='text-sm line-through text-gray-500'>${product?.regular_price}</span>
-            </div>
-            <span className = "text-green-500 text-sm font-semibold">{product?.totalSales} sold
-
+              <div className="mt-3 flex justify-between items-center px-3">
+        <div className="flex flex-col">
+          <div className="flex items-center gap-2">
+            <span className="text-lg font-extrabold text-gray-900">
+              ${product?.sale_price}
             </span>
+
+            {product?.regular_price &&
+              product?.regular_price > product?.sale_price && (
+                <>
+                  <span className="text-sm line-through text-gray-400">
+                    ${product?.regular_price}
+                  </span>
+                  <span className="bg-green-100 text-green-700 text-[10px] font-bold px-1.5 py-0.5 rounded">
+                    -
+                    {Math.round(
+                      (100 * (product?.regular_price - product?.sale_price)) /
+                        product?.regular_price
+                    )}
+                    %
+                  </span>
+                </>
+              )}
+          </div>
+          <span className="text-[11px] text-gray-500 mt-1">
+            {product?.totalSales} sold ✅
+          </span>
         </div>
+      </div>
+
 
         {isEvent && timeLeft && (
         <div className="mt-2 px-3">
