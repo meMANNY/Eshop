@@ -3,6 +3,11 @@ import Link from 'next/link'
 import { Ratings } from '../ratings'
 import { Eye, Heart, ShoppingBag } from 'lucide-react';
 import ProductDetailsCard from './product-details.card';
+import { useStore } from '@/store';
+import useUser from '@/hooks/useUser';
+import useLocationTracking from '@/hooks/useLocationTracking';
+import useDeviceTracking from '@/hooks/useDeviceTracking';
+
 
 // Inline SVG placeholder — renders instantly, never hotlink-blocked, no network needed.
 
@@ -10,7 +15,17 @@ import ProductDetailsCard from './product-details.card';
 const ProductCard = ({product,isEvent}: {product:any,isEvent?:boolean}) => {
 
     const [timeLeft, setTimeLeft] = useState("");
+    const {user} = useUser();
+    const location = useLocationTracking();
+    const deviceInfo = useDeviceTracking();
     const [open, setOpen] = useState(false);
+    const addToWishlist = useStore((state) => state.addToWishlist);
+    const removeFromWishlist = useStore((state) => state.removeFromWishlist);
+    const addToCart = useStore((state) => state.addToCart);
+    const wishlist = useStore((state) => state.wishlist);
+    const isWishlisted = wishlist.some((item: any) => item.id === product.id);
+    const cart = useStore((state) => state.cart);
+    const isInCart = cart.some((item: any) => item.id === product.id);
 
     useEffect(() => {
     if (isEvent && product?.ending_date) {
@@ -103,20 +118,20 @@ const ProductCard = ({product,isEvent}: {product:any,isEvent?:boolean}) => {
     <div className="absolute flex flex-col gap-3 right-3 top-10 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-3 group-hover:translate-x-0">
         <div className="bg-white rounded-full p-[6px] shadow-lg hover:shadow-xl transition-all hover:scale-110">
           <Heart 
-            // onClick={() =>
-            //   isWishlisted
-            //     ? removeFromWishlist(product.id, user, location, deviceInfo)
-            //     : addToWishlist(
-            //         { ...product, quantity: 1 },
-            //         user,
-            //         location,
-            //         deviceInfo
-            //       )
-            // }
+            onClick={() =>
+              isWishlisted
+                ? removeFromWishlist(product.id, user, location, deviceInfo)
+                : addToWishlist(
+                    { ...product, quantity: 1 },
+                    user,
+                    location,
+                    deviceInfo
+                  )
+            }
             className="cursor-pointer"
             size={22}
-            //fill={isWishlisted ? "red" : "transparent"}
-            //stroke={isWishlisted ? "red" : "#4B5563"}
+            fill={isWishlisted ? "red" : "transparent"}
+            stroke={isWishlisted ? "red" : "#4B5563"}
           />
         </div>
         <div className="bg-white rounded-full p-[6px] shadow-lg hover:shadow-xl transition-all hover:scale-110">
@@ -129,10 +144,10 @@ const ProductCard = ({product,isEvent}: {product:any,isEvent?:boolean}) => {
 
          <div className="bg-white rounded-full p-[6px] shadow-lg hover:shadow-xl transition-all hover:scale-110">
           <ShoppingBag
-            // onClick={() =>
-            //   !isInCart &&
-            //   addToCart({ ...product, quantity: 1 }, user, location, deviceInfo)
-            // }
+            onClick={() =>
+              !isInCart &&
+              addToCart({ ...product, quantity: 1 }, user, location, deviceInfo)
+            }
             className="cursor-pointer text-[#4b5563]"
             size={22}
           />
