@@ -54,3 +54,4 @@ test-output
 .next
 out
 /apps/product-service-e2e
+/apps/kafka-service-e2e
