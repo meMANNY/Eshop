@@ -36,6 +36,8 @@ model users {
   reviews   shopReviews[]
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt
+  role     String        @default("user")
+  orders   orders[]
 }
 
 model sellers {
@@ -83,6 +85,7 @@ model shops {
   sellerId      String        @unique @db.ObjectId
   sellers       sellers       @relation(fields: [sellerId], references: [id])
   products      products[]
+  orders orders[]
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
 }
@@ -179,4 +182,32 @@ model productAnalytics{
   
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model orders{
+  id      String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  user      users    @relation(fields: [userId], references: [id])
+  shopId    String   @db.ObjectId
+  shop      shops    @relation(fields: [shopId], references: [id])
+  total Float
+  shippingAddressId String?
+  couponCode String?
+  discountAmount Float?
+  status String @default("shipped")
+  deliveryStatus String @default("Ordered")
+  items orderItems[] @relation("OrderItemsRelation")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+model orderItems{
+  id     String   @id @default(auto()) @map("_id") @db.ObjectId
+  orderId    String   @db.ObjectId
+  orders      orders    @relation(fields: [orderId], references: [id], name: "OrderItemsRelation")
+  productId    String   @db.ObjectId
+  selectedOptions Json?
+  quantity Int
+  price Float
+  createdAt DateTime @default(now())
+  
 }
