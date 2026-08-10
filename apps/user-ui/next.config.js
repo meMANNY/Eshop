@@ -17,6 +17,7 @@ const nextConfig = {
       { protocol: 'https', hostname: 'ik.imagekit.io' }, // product images
       { protocol: 'https', hostname: 'images.unsplash.com' }, // placeholder fallbacks
       { protocol: 'https', hostname: 'picsum.photos' },
+      { protocol: 'https', hostname: 'cdn-icons-png.flaticon.com' }, // icon placeholders
     ],
   },
 };
