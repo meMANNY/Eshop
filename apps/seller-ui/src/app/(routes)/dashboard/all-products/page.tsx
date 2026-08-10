@@ -20,8 +20,8 @@ const fetchProducts = async() =>{
 const ProductList = () => {
 
     const [globalFilter,setGlobalFilter] = useState('');
-    const [analyticsData,setAnalyticsData] = useState(null);
-    const [showAnalytics,setShowAnalytics] = useState(false);
+    
+    //const [showAnalytics,setShowAnalytics] = useState(false);
     const [showDeleteModal,setShowDeleteModal] = useState(false);
     const [selectedProduct,setSelectedProduct] = useState(null);
 
@@ -165,7 +165,7 @@ const ProductList = () => {
                     type='button'
                     onClick={()=>{
                         setSelectedProduct(row.original);
-                        setShowAnalytics(true);
+                        //setShowAnalytics(true);
                     }}
                     className='text-slate-400 transition-colors hover:text-[#ff6f61]'
                     title='View analytics'

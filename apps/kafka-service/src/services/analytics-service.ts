@@ -12,7 +12,7 @@ export const updateUserAnalytics = async (event: any) => {
 
         let updatedActions:any = existingData?.actions || [];
 
-        const actionExists = updatedActions.some((entry: any) => entry.productId === event.productId && event.action === entry.action);
+        const actionExists = updatedActions.some((entry: any) => entry.productId === event.productId && entry.action === event.action);
 
         if(event.action === "product_view")
             updatedActions.push({
