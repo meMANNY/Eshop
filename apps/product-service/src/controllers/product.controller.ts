@@ -737,7 +737,7 @@ export const getFilteredShops = async (
         take: parsedLimit,
         include: {
           sellers: true,
-          followers: true,
+          //followers: true,
           products: true,
         },
       }),
@@ -877,7 +877,7 @@ export const getTopShops = async (
         coverBanner: true,
         address: true,
         ratings: true,
-        followers: true,
+        //followers: true,
         category: true,
       },
     });
