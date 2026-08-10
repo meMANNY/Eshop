@@ -51,6 +51,14 @@ axiosInstance.interceptors.response.use(
     (response) => response,
     async (error) => {
         const originalRequest = error.config;
+
+        // No `response` means the request never reached the server at all —
+        // connection refused, CORS rejection, timeout, or an aborted request.
+        // There is no token to refresh in that case, so surface the real error.
+        if (!error.response || !originalRequest) {
+            return Promise.reject(error);
+        }
+
         if (error.response.status === 401 && !originalRequest._retry) {
             if (isRefreshing) {
                 return new Promise((resolve) => {
@@ -66,7 +74,10 @@ axiosInstance.interceptors.response.use(
             //const refreshToken = localStorage.getItem('refresh_token');
 
             try {
-                await axiosInstance.post(
+                // Plain `axios`, not `axiosInstance`: if the refresh call itself
+                // returns 401 it would re-enter this interceptor as a fresh
+                // request (no `_retry` flag) and recurse until the stack blows.
+                await axios.post(
                     `${process.env.NEXT_PUBLIC_SERVER_URI}/api/refresh-token`,
                     {},
                     { withCredentials: true }
@@ -76,11 +87,13 @@ axiosInstance.interceptors.response.use(
                 onRefreshSuccess();
 
                 return axiosInstance(originalRequest);
-            } catch (error) {
+            } catch (refreshError) {
                 isRefreshing = false;
                 refreshSubscribers = [];
                 handleLogout();
-
+                // Without this the interceptor resolves with `undefined`, so
+                // callers reading `res.data` crash instead of seeing the error.
+                return Promise.reject(refreshError);
             }
         }
 

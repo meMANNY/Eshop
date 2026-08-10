@@ -3,7 +3,6 @@
 import { Suspense, useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 
-
 import ShippingAddressSection from "../../../shared/components/shippingAddress";
 
 import {
@@ -11,7 +10,6 @@ import {
   Bell,
   CheckCircle,
   CircleDot,
-  Clock,
   ExternalLink,
   Gift,
   Inbox,
@@ -19,6 +17,7 @@ import {
   Lock,
   LogOut,
   MapPin,
+  Package,
   Pencil,
   PhoneCall,
   Receipt,
@@ -26,6 +25,7 @@ import {
   ShoppingCart,
   Truck,
   User,
+  Wrench,
 } from "lucide-react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -42,7 +42,11 @@ import useRequireAuth from "@/hooks/useRequiredAuth";
 export default function Page() {
   return (
     <Suspense
-      fallback={<div className="flex justify-center p-10">Loading...</div>}
+      fallback={
+        <div className="flex min-h-[60vh] items-center justify-center bg-[#f5f5f5]">
+          <Loader2 className="h-6 w-6 animate-spin text-[#ff6f61]" />
+        </div>
+      }
     >
       <ProfileContent />
     </Suspense>
@@ -79,7 +83,6 @@ function ProfileContent() {
     if (activeTab !== queryTab) {
       const newParams = new URLSearchParams(searchParams);
       newParams.set("active", activeTab);
-      if (activeTab === "inbox") router.replace(`/inbox`);
       router.replace(`/profile?${newParams.toString()}`);
     }
   }, [activeTab]);
@@ -100,24 +103,37 @@ function ProfileContent() {
   });
 
   return (
-    <div className="bg-gray-50 p-6 pb-14">
-      <div className="md:max-w-7xl mx-auto">
-        <div className="text-center mb-10">
-          <h1 className="text-3xl font-bold text-gray-800">
-            Welcome back,{" "}
-            <span className="text-blue-600">
+    <div className="w-full bg-[#f5f5f5] pb-14">
+      <div className="mx-auto w-[90%] lg:w-[80%]">
+        {/* HEADER */}
+        <div className="pb-10">
+          <div className="mb-3 flex items-center gap-3 pt-8 md:pt-10">
+            {/* Coral marker — the same "you are here" accent used across the app. */}
+            <span
+              aria-hidden="true"
+              className="h-10 w-[4px] rounded-full bg-[#ff6f61] shadow-[0_0_10px_rgba(255,111,97,0.5)]"
+            />
+            <h1 className="font-jost text-[40px] font-semibold leading-tight text-slate-900 sm:text-[44px]">
+              Welcome back,{" "}
               {isLoading ? (
-                <Loader2 className="inline animate-spin w-5 h-5" />
+                <span className="inline-block h-8 w-40 animate-pulse rounded-md bg-slate-200 align-middle" />
               ) : (
-                `${user?.name || "User"}`
+                <span className="text-[#ff6f61]">{user?.name || "there"}</span>
               )}
-            </span>{" "}
-            👋
-          </h1>
+            </h1>
+          </div>
+          <div className="flex items-center gap-2 text-sm text-slate-500">
+            <Link href={"/"} className="transition-colors hover:text-[#ff6f61]">
+              Home
+            </Link>
+            <span className="text-slate-300">/</span>
+            <span className="text-slate-900">My account</span>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-          <StatCard title="Total Orders" count={totalOrders} Icon={Clock} />
+        {/* ORDER STATS */}
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
+          <StatCard title="Total Orders" count={totalOrders} Icon={ShoppingCart} />
           <StatCard
             title="Processing Orders"
             count={processingOrders}
@@ -130,10 +146,10 @@ function ProfileContent() {
           />
         </div>
 
-        <div className="mt-10 flex flex-col md:flex-row gap-6">
+        <div className="mt-10 flex w-full flex-col gap-6 lg:flex-row">
           {/* LEFT NAV */}
-          <div className="bg-white p-4 rounded-md shadow-md border border-gray-100 w-full md:w-1/5">
-            <nav className="space-y-2">
+          <aside className="h-max w-full shrink-0 rounded-xl border border-slate-200 bg-white p-4 shadow-sm lg:w-[230px]">
+            <nav className="space-y-1">
               <NavItem
                 label="Profile"
                 Icon={User}
@@ -142,7 +158,7 @@ function ProfileContent() {
               />
               <NavItem
                 label="My Orders"
-                Icon={ShoppingCart}
+                Icon={Package}
                 active={activeTab === "My Orders"}
                 onClick={() => setActiveTab("My Orders")}
               />
@@ -170,184 +186,220 @@ function ProfileContent() {
                 active={activeTab === "Change Password"}
                 onClick={() => setActiveTab("Change Password")}
               />
-              <NavItem
-                label="Logout"
-                Icon={LogOut}
-                danger
-                onClick={logOutHandler}
-              />
+
+              <div className="!mt-3 border-t border-slate-200 pt-3">
+                <NavItem
+                  label="Logout"
+                  Icon={LogOut}
+                  danger
+                  onClick={logOutHandler}
+                />
+              </div>
             </nav>
-          </div>
+          </aside>
 
           {/* MAIN CONTENT */}
-          <div className="bg-white p-6 rounded-md shadow-sm border border-gray-100 w-full md:w-[55%]">
-            <h2 className="text-xl font-semibold text-gray-800 mb-4">
+          <section className="min-w-0 flex-1 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+            <h2 className="mb-5 border-b border-slate-200 pb-3 text-xl font-semibold text-slate-900">
               {activeTab}
             </h2>
-            {activeTab === "Profile" && !isLoading && user ? (
-              <div className="space-y-4 text-sm text-gray-700">
-                <div className="flex items-center gap-3">
-                  <Image
-                    src={
-                      user?.avatar ||
-                      "https://cdn-icons-png.flaticon.com/512/847/847969.png"
-                    }
-                    alt="profile_image"
-                    width={60}
-                    height={60}
-                    className="w-16 h-16 rounded-full border border-gray-200"
-                  />
-                  <button className="flex items-center gap-1 text-blue-500 text-xs font-medium">
-                    <Pencil className="w-4 h-4" />
-                    Change Photo
-                  </button>
-                </div>
-                <p>
-                  <span className="font-semibold">Name:</span> {user?.name}
-                </p>
-                <p>
-                  <span className="font-semibold">Email:</span> {user?.email}
-                </p>
-                <p>
-                  <span className="font-semibold">Joined:</span>{" "}
-                  {new Date(user?.createdAt).toLocaleDateString()}
-                </p>
-                <p>
-                  <span className="font-semibold">Earned Points:</span>{" "}
-                  {user?.points || 0}
-                </p>
-              </div>
-            ) : 
-            activeTab === "Shipping Address" ? (
-              <ShippingAddressSection />
-            ) : 
-            // activeTab === "My Orders" ? (
-            //   <OrdersTable />
-            // ) : 
-            // activeTab === "Change Password" ? (
-            //   <ChangePassword />
-            // ) :
-             activeTab === "Notifications" ? (
-              <div className="space-y-4">
-                {/* Loading */}
-                {notificationsLoading && (
-                  <div className="flex justify-center py-10">
-                    <Loader2 className="w-6 h-6 animate-spin text-blue-600" />
+
+            {activeTab === "Profile" ? (
+              isLoading ? (
+                <ProfileSkeleton />
+              ) : user ? (
+                <div className="space-y-6">
+                  {/* IDENTITY */}
+                  <div className="flex items-center gap-4">
+                    <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-full ring-2 ring-[#ff6f61]/30 ring-offset-2">
+                      <Image
+                        src={
+                          user?.avatar ||
+                          "https://cdn-icons-png.flaticon.com/512/847/847969.png"
+                        }
+                        alt="Profile photo"
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      className="inline-flex items-center gap-1.5 rounded-md border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-700 transition-colors hover:border-[#ff6f61] hover:text-[#ff6f61] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff6f61]"
+                    >
+                      <Pencil className="h-3.5 w-3.5" />
+                      Change photo
+                    </button>
                   </div>
-                )}
 
-                {/* Empty */}
-                {!notificationsLoading && notifications?.length === 0 && (
-                  <p className="text-center py-10 text-gray-500">
-                    No Notifications available yet!
-                  </p>
-                )}
+                  {/* DETAILS */}
+                  <dl className="divide-y divide-slate-100 border-t border-slate-100">
+                    <DetailRow label="Name" value={user?.name} />
+                    <DetailRow label="Email" value={user?.email} />
+                    <DetailRow
+                      label="Joined"
+                      value={
+                        user?.createdAt
+                          ? new Date(user.createdAt).toLocaleDateString(
+                              undefined,
+                              { day: "numeric", month: "long", year: "numeric" }
+                            )
+                          : "—"
+                      }
+                    />
+                    <div className="flex items-center justify-between gap-4 py-3">
+                      <dt className="text-sm text-slate-500">Earned points</dt>
+                      <dd>
+                        <span className="rounded-full bg-[#ff6f61]/10 px-2.5 py-1 text-sm font-semibold text-[#ff6f61]">
+                          {user?.points || 0}
+                        </span>
+                      </dd>
+                    </div>
+                  </dl>
+                </div>
+              ) : (
+                <PanelMessage
+                  Icon={User}
+                  title="We couldn't load your profile"
+                  description="Refresh the page, or sign in again to continue."
+                />
+              )
+            ) : activeTab === "Shipping Address" ? (
+              <ShippingAddressSection />
+            ) : (
+              // activeTab === "My Orders" ? (
+              //   <OrdersTable />
+              // ) :
+              // activeTab === "Change Password" ? (
+              //   <ChangePassword />
+              // ) :
+              activeTab === "Notifications" ? (
+                <div className="space-y-4">
+                  {notificationsLoading && (
+                    <div className="flex justify-center py-10">
+                      <Loader2 className="h-6 w-6 animate-spin text-[#ff6f61]" />
+                    </div>
+                  )}
 
-                {/* SORTED + Animated List */}
-                {!notificationsLoading &&
-                  notifications &&
-                  [...notifications]
-                    .sort((a, b) =>
-                      a.isRead === b.isRead ? 0 : a.isRead ? 1 : -1
-                    )
-                    .map((not, idx) => (
-                      <div
-                        key={not.id}
-                        style={{ animationDelay: `${idx * 80}ms` }}
-                        className={`group border border-gray-200 rounded-xl p-5 shadow-sm
-              opacity-0 animate-fadeSlideUp transition-all duration-300 ease-out
-              hover:shadow-md hover:border-blue-400
-              ${!not.isRead ? "bg-blue-50 border-blue-300" : "bg-white"}
-            `}
-                      >
-                        <div className="flex justify-between items-start">
-                          {/* LEFT SIDE */}
-                          <div className="flex flex-col gap-1">
-                            <div className="flex items-center gap-2">
-                              <h3 className="text-gray-800 font-semibold text-base">
-                                {not.title}
-                              </h3>
+                  {!notificationsLoading && notifications?.length === 0 && (
+                    <PanelMessage
+                      Icon={Bell}
+                      title="No notifications yet"
+                      description="Updates about your orders and rewards will show up here."
+                    />
+                  )}
 
-                              {!not.isRead && (
-                                <span className="px-2 py-0.5 text-[10px] rounded-full bg-blue-600 text-white">
-                                  NEW
+                  {!notificationsLoading &&
+                    notifications &&
+                    [...notifications]
+                      .sort((a, b) =>
+                        a.isRead === b.isRead ? 0 : a.isRead ? 1 : -1
+                      )
+                      .map((not, idx) => (
+                        <div
+                          key={not.id}
+                          style={{ animationDelay: `${idx * 80}ms` }}
+                          className={`group animate-fadeSlideUp rounded-xl border p-5 opacity-0 shadow-sm transition-all duration-300 ease-out hover:border-[#ff6f61]/40 hover:shadow-md motion-reduce:animate-none motion-reduce:opacity-100 motion-reduce:transition-none ${
+                            !not.isRead
+                              ? "border-[#ff6f61]/30 bg-[#ff6f61]/5"
+                              : "border-slate-200 bg-white"
+                          }`}
+                        >
+                          <div className="flex items-start justify-between gap-4">
+                            {/* LEFT SIDE */}
+                            <div className="flex flex-col gap-1">
+                              <div className="flex items-center gap-2">
+                                <h3 className="text-base font-semibold text-slate-900">
+                                  {not.title}
+                                </h3>
+
+                                {!not.isRead && (
+                                  <span className="rounded-full bg-[#ff6f61] px-2 py-0.5 text-[10px] font-medium tracking-wide text-white">
+                                    NEW
+                                  </span>
+                                )}
+                              </div>
+
+                              <p className="text-sm text-slate-600">
+                                {not.message}
+                              </p>
+
+                              {/* Creator */}
+                              <p className="mt-1 flex items-center gap-1 text-xs text-slate-400">
+                                <User className="h-3 w-3" /> Created by:{" "}
+                                {not.creatorId}
+                              </p>
+
+                              {/* Dates */}
+                              <div className="mt-1 flex flex-wrap gap-4 text-xs text-slate-400">
+                                <span>
+                                  Created:&nbsp;
+                                  <span className="text-slate-500">
+                                    {new Date(not.createdAt).toLocaleString()}
+                                  </span>
                                 </span>
+
+                                <span>
+                                  Updated:&nbsp;
+                                  <span className="text-slate-500">
+                                    {new Date(not.updatedAt).toLocaleString()}
+                                  </span>
+                                </span>
+                              </div>
+
+                              {/* Redirect link */}
+                              {not.redirect_link && (
+                                <Link
+                                  href={not.redirect_link}
+                                  className="mt-2 flex items-center gap-1 text-xs font-medium text-[#ff6f61] hover:underline"
+                                >
+                                  View details
+                                  <ExternalLink className="h-3 w-3" />
+                                </Link>
                               )}
                             </div>
 
-                            <p className="text-gray-600 text-sm">
-                              {not.message}
-                            </p>
+                            {/* ACTION BUTTON */}
+                            {!not.isRead ? (
+                              <button
+                                type="button"
+                                onClick={async () => {
+                                  await axiosInstance.post(
+                                    "/seller/api/mark-notification-as-read",
+                                    { notificationId: not.id }
+                                  );
 
-                            {/* Creator */}
-                            <p className="text-gray-400 text-xs flex items-center gap-1 mt-1">
-                              <User className="w-3 h-3" /> Created by:{" "}
-                              {not.creatorId}
-                            </p>
-
-                            {/* Dates */}
-                            <div className="flex gap-4 text-xs text-gray-400 mt-1">
-                              <span>
-                                Created:&nbsp;
-                                <span className="text-gray-500">
-                                  {new Date(not.createdAt).toLocaleString()}
-                                </span>
-                              </span>
-
-                              <span>
-                                Updated:&nbsp;
-                                <span className="text-gray-500">
-                                  {new Date(not.updatedAt).toLocaleString()}
-                                </span>
-                              </span>
-                            </div>
-
-                            {/* Redirect link */}
-                            {not.redirect_link && (
-                              <Link
-                                href={not.redirect_link}
-                                className="mt-2 text-blue-600 text-xs font-medium flex items-center gap-1 hover:underline"
+                                  queryClient.invalidateQueries({
+                                    queryKey: ["notifications"],
+                                  });
+                                  toast.success("Notification marked as read");
+                                }}
+                                className="flex shrink-0 items-center gap-1 text-sm font-medium text-[#ff6f61] transition-colors hover:text-[#e05a4d] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff6f61]"
                               >
-                                View Details
-                                <ExternalLink className="w-3 h-3" />
-                              </Link>
+                                <CheckCircle className="h-4 w-4" />
+                                Mark as read
+                              </button>
+                            ) : (
+                              <CircleDot
+                                className="h-4 w-4 shrink-0 text-slate-300"
+                                aria-label="Read"
+                              />
                             )}
                           </div>
-
-                          {/* ACTION BUTTON */}
-                          {!not.isRead ? (
-                            <button
-                              onClick={async () => {
-                                await axiosInstance.post(
-                                  "/seller/api/mark-notification-as-read",
-                                  { notificationId: not.id }
-                                );
-
-                                queryClient.invalidateQueries({
-                                  queryKey: ["notifications"],
-                                });
-                                toast.success("Notification marked as read");
-                              }}
-                              className="text-blue-600 hover:text-blue-700
-                  text-sm flex items-center gap-1 font-medium"
-                            >
-                              <CheckCircle className="w-4 h-4" />
-                              Mark as read
-                            </button>
-                          ) : (
-                            <CircleDot className="w-4 h-4 text-gray-400" />
-                          )}
                         </div>
-                      </div>
-                    ))}
-              </div>
-            ) : (
-              <p>Not Found</p>
+                      ))}
+                </div>
+              ) : (
+                <PanelMessage
+                  Icon={Wrench}
+                  title={`${activeTab} isn't ready yet`}
+                  description="This section is still being built. Pick another item from the menu in the meantime."
+                />
+              )
             )}
-          </div>
+          </section>
 
           {/* QUICK PANEL */}
-          <div className="w-full md:w-1/4 space-y-4">
+          <div className="w-full shrink-0 space-y-4 lg:w-[270px]">
             <QuickActionCard
               Icon={Gift}
               title="Referral Program"
@@ -356,7 +408,7 @@ function ProfileContent() {
             <QuickActionCard
               Icon={BadgeCheck}
               title="Your Badges"
-              description="View your earned achievements"
+              description="View your earned achievements."
             />
             <QuickActionCard
               Icon={Settings}
@@ -382,16 +434,63 @@ function ProfileContent() {
 
 const NavItem = ({ label, Icon, active, danger, onClick }: any) => (
   <button
-    className={`w-full flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition ${
-      active
-        ? "bg-blue-100 text-blue-600"
-        : danger
-        ? "text-red-500 hover:bg-red-50"
-        : "text-gray-700 hover:bg-gray-100"
-    }`}
+    type="button"
     onClick={onClick}
+    aria-current={active ? "page" : undefined}
+    className={`relative flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff6f61] ${
+      active
+        ? "bg-[#ff6f61]/10 text-[#ff6f61]"
+        : danger
+        ? "text-red-600 hover:bg-red-50"
+        : "text-slate-700 hover:bg-slate-100 hover:text-slate-900"
+    }`}
   >
-    <Icon className="w-4 h-4" />
+    {/* Same coral marker as the page headers — here it marks the current section. */}
+    <span
+      aria-hidden="true"
+      className={`absolute left-0 top-1/2 w-[3px] -translate-y-1/2 rounded-full bg-[#ff6f61] transition-all duration-300 motion-reduce:transition-none ${
+        active
+          ? "h-6 opacity-100 shadow-[0_0_10px_rgba(255,111,97,0.5)]"
+          : "h-0 opacity-0"
+      }`}
+    />
+    <Icon className="h-4 w-4 shrink-0" />
     {label}
   </button>
+);
+
+const DetailRow = ({ label, value }: { label: string; value?: string }) => (
+  <div className="flex items-center justify-between gap-4 py-3">
+    <dt className="text-sm text-slate-500">{label}</dt>
+    <dd className="truncate text-sm font-medium text-slate-900">
+      {value || "—"}
+    </dd>
+  </div>
+);
+
+const PanelMessage = ({ Icon, title, description }: any) => (
+  <div className="flex flex-col items-center justify-center px-6 py-14 text-center">
+    <span className="flex h-14 w-14 items-center justify-center rounded-full bg-[#ff6f61]/10 text-[#ff6f61]">
+      <Icon size={24} />
+    </span>
+    <h3 className="mt-4 text-base font-semibold text-slate-900">{title}</h3>
+    <p className="mt-1.5 max-w-sm text-sm text-slate-500">{description}</p>
+  </div>
+);
+
+const ProfileSkeleton = () => (
+  <div className="space-y-6">
+    <div className="flex items-center gap-4">
+      <div className="h-16 w-16 animate-pulse rounded-full bg-slate-200" />
+      <div className="h-7 w-32 animate-pulse rounded-md bg-slate-200" />
+    </div>
+    <div className="space-y-4 border-t border-slate-100 pt-4">
+      {[...Array(4)].map((_, i) => (
+        <div key={i} className="flex items-center justify-between gap-4">
+          <div className="h-4 w-24 animate-pulse rounded bg-slate-200" />
+          <div className="h-4 w-40 animate-pulse rounded bg-slate-200" />
+        </div>
+      ))}
+    </div>
+  </div>
 );
