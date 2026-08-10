@@ -5,6 +5,7 @@ import axiosInstance from "@/utils/axiosInstance";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { Store } from "lucide-react";
 import ShopCard from "@/shared/components/cards/shop.card";
 
 export default function Page() {
@@ -59,7 +60,7 @@ export default function Page() {
   useEffect(() => {
     updateURL();
     fetchFilteredShops();
-  }, [selectedCategories, page]);
+  }, [selectedCategories, selectedCountries, page]);
 
   const toggleCategory = (label: string) => {
     setSelectedCategories((prev) =>
@@ -78,70 +79,66 @@ export default function Page() {
   };
 
   return (
-    <div className="w-full bg-gradient-to-b from-white via-gray-50 to-gray-100 pb-14 transition-all duration-500 ease-in-out">
+    <div className="w-full bg-[#f5f5f5] pb-14">
       <div className="w-[90%] lg:w-[80%] mx-auto">
         {/* Header */}
-        <div className="pb-[50px] text-center">
-          <h1 className="md:pt-[40px] font-semibold text-[40px] sm:text-[44px] leading-tight mb-[10px] font-jost text-gray-800 transition-all duration-500 hover:text-blue-600">
-            All Shops
-          </h1>
-          <div className="flex justify-center items-center text-gray-500 text-sm sm:text-base">
-            <Link
-              href={"/"}
-              className="hover:text-blue-600 hover:underline transition-all"
-            >
+        <div className="pb-10">
+          <div className="md:pt-10 pt-8 flex items-center gap-3 mb-3">
+            {/* Coral marker — the same "you are here" accent used across the app. */}
+            <span
+              aria-hidden="true"
+              className="h-10 w-[4px] rounded-full bg-[#ff6f61] shadow-[0_0_10px_rgba(255,111,97,0.5)]"
+            />
+            <h1 className="font-semibold text-[40px] sm:text-[44px] leading-tight font-jost text-slate-900">
+              All Shops
+            </h1>
+          </div>
+          <div className="flex items-center text-sm text-slate-500 gap-2">
+            <Link href={"/"} className="hover:text-[#ff6f61] transition-colors">
               Home
             </Link>
-            <span className="inline-block w-[5px] h-[5px] bg-gray-400 rounded-full mx-2" />
-            <span className="text-gray-600">All Shops</span>
+            <span className="text-slate-300">/</span>
+            <span className="text-slate-900">All Shops</span>
           </div>
         </div>
 
         <div className="w-full flex flex-col lg:flex-row gap-8">
           {/* SIDEBAR */}
-          <aside className="w-full lg:w-[270px] rounded-2xl bg-white p-6 space-y-6 shadow-lg hover:shadow-xl transition-shadow duration-300 border border-gray-100">
+          <aside className="w-full lg:w-[270px] shrink-0 rounded-xl bg-white p-6 shadow-sm border border-slate-200 h-max">
             {/* CATEGORY FILTER */}
-            <div className="">
-              <h3 className="text-lg font-semibold text-gray-800 mb-2 pb-2 border-b border-b-slate-200">
+            <div>
+              <h3 className="text-base font-semibold text-slate-900 mb-3 pb-2 border-b border-slate-200">
                 Categories
               </h3>
-              <ul className="space-y-2 mt-2">
+              <ul className="space-y-1">
                 {shopCategories?.map((category: any) => (
-                  <li
-                    key={category.value}
-                    className="flex items-center px-2 py-[3px] rounded-md hover:bg-blue-50 transition-all"
-                  >
-                    <label className="flex items-center gap-3 text-sm text-gray-700 cursor-pointer w-full">
+                  <li key={category.value}>
+                    <label className="flex items-center gap-3 text-sm text-slate-700 cursor-pointer w-full rounded-md px-2 py-1.5 transition-colors hover:bg-[#ff6f61]/5 hover:text-slate-900">
                       <input
                         type="checkbox"
                         checked={selectedCategories.includes(category.value)}
                         onChange={() => toggleCategory(category.value)}
-                        className="accent-blue-600 cursor-pointer"
+                        className="accent-[#ff6f61] cursor-pointer"
                       />
-                      <span className="transition-all hover:text-blue-700">
-                        {category.label}
-                      </span>
+                      <span>{category.label}</span>
                     </label>
                   </li>
                 ))}
               </ul>
 
               {/* COUNTRIES FILTER */}
-              <h3 className="text-xl font-Poppins font-medium border-b border-b-slate-200 mt-2 pb-2">
+              <h3 className="text-base font-semibold text-slate-900 mt-6 mb-3 pb-2 border-b border-slate-200">
                 Countries
               </h3>
-              <ul className="space-y-2 !mt-3">
+              <ul className="space-y-1">
                 {countries?.map((country: any) => (
-                  <li
-                    key={country.code}
-                    className="flex items-center justify-between"
-                  >
-                    <label className="flex items-center gap-3 text-sm text-gray-700 cursor-pointer w-full">
+                  <li key={country.code}>
+                    <label className="flex items-center gap-3 text-sm text-slate-700 cursor-pointer w-full rounded-md px-2 py-1.5 transition-colors hover:bg-[#ff6f61]/5 hover:text-slate-900">
                       <input
                         type="checkbox"
-                        checked={selectedCategories.includes(country.code)}
+                        checked={selectedCountries.includes(country.code)}
                         onChange={() => toggleCountry(country.code)}
-                        className="accent-blue-600"
+                        className="accent-[#ff6f61] cursor-pointer"
                       />
                       {country.name}
                     </label>
@@ -152,12 +149,12 @@ export default function Page() {
           </aside>
 
           {/* GRID */}
-          <div className="flex-1 px-2 lg:px-3">
+          <div className="flex-1">
             {isShopLoading ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-5 animate-fadeIn">
                 {Array.from({ length: 10 }).map((_, i) => (
                   <div
-                    className="h-[250px] bg-gray-300 rounded-xl animate-pulse shadow-sm"
+                    className="h-[250px] bg-slate-200 rounded-xl animate-pulse"
                     key={i}
                   />
                 ))}
@@ -169,9 +166,17 @@ export default function Page() {
                 ))}
               </div>
             ) : (
-              <p className="text-gray-500 text-center animate-fadeIn mt-8">
-                No Shops Found!
-              </p>
+              <div className="flex flex-col items-center justify-center rounded-xl border border-slate-200 bg-white py-20 px-6 text-center animate-fadeIn">
+                <span className="flex h-16 w-16 items-center justify-center rounded-full bg-[#ff6f61]/10 text-[#ff6f61]">
+                  <Store size={28} />
+                </span>
+                <h2 className="mt-5 text-xl font-semibold text-slate-900">
+                  No shops match these filters
+                </h2>
+                <p className="mt-2 max-w-sm text-slate-500">
+                  Try clearing a category or country to widen the search.
+                </p>
+              </div>
             )}
 
             {/* PAGINATION */}
@@ -181,10 +186,11 @@ export default function Page() {
                   <button
                     key={i + 1}
                     onClick={() => setPage(i + 1)}
-                    className={`px-4 py-2 rounded-lg border border-gray-200 text-sm font-medium shadow-sm transition-all duration-300 ${
+                    aria-current={page === i + 1 ? "page" : undefined}
+                    className={`px-4 py-2 rounded-lg border text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff6f61] ${
                       page === i + 1
-                        ? "bg-gradient-to-r from-blue-500 to-blue-700 text-white shadow-md scale-105"
-                        : "bg-white text-gray-800 hover:bg-blue-50 hover:scale-105"
+                        ? "border-[#ff6f61] bg-[#ff6f61] text-white shadow-sm"
+                        : "border-slate-200 bg-white text-slate-700 hover:border-[#ff6f61] hover:text-[#ff6f61]"
                     }`}
                   >
                     {i + 1}
