@@ -1,3 +1,4 @@
+import { sendKafkaEvent } from "@/actions/track-user";
 import {create } from "zustand";
 import { persist } from "zustand/middleware";
 
@@ -68,6 +69,17 @@ export const useStore = create<Store>()(
                     }
                 });
 
+                if(user?.id && location && deviceInfo){
+                    sendKafkaEvent({
+                        userId: user?.id,
+                        productId: product?.id,
+                        shopId: product?.shopId,
+                        action: "add_to_cart",
+                        country: location?.country || "Unknown",
+                        city: location?.city || "Unknown",
+                        device: deviceInfo?.device || "Unknown device",
+                    });
+                }
 
             },
             removeFromCart: async(id,user,location,deviceInfo) => {
@@ -77,6 +89,17 @@ export const useStore = create<Store>()(
                 set((state) => ({
                     cart: state.cart.filter((i) => i.id !== id)
                 }));
+                if(user?.id && location && deviceInfo && removeProduct){
+                    sendKafkaEvent({
+                        userId: user?.id,
+                        productId: removeProduct?.id,
+                        shopId: removeProduct?.shopId,
+                        action: "remove_from_cart",
+                        country: location?.country || "Unknown",
+                        city: location?.city || "Unknown",
+                        device: deviceInfo?.device || "Unknown device",
+                    });
+                }
                 if (!removeProduct) {
                     console.warn("CLIENT SKIP track remove_from_cart (no product)", {
                         productId: id,
@@ -94,6 +117,17 @@ export const useStore = create<Store>()(
                         wishlist: [...state.wishlist, product],
                     };
                 });
+                if(user?.id && location && deviceInfo){
+                    sendKafkaEvent({
+                        userId: user?.id,
+                        productId: product?.id,
+                        shopId: product?.shopId,
+                        action: "add_to_wishlist",
+                        country: location?.country || "Unknown",
+                        city: location?.city || "Unknown",
+                        device: deviceInfo?.device || "Unknown device",
+                    });
+                }
             },
 
             removeFromWishlist: async(id,user,location,deviceInfo) => {
@@ -101,6 +135,17 @@ export const useStore = create<Store>()(
                  set((state) => ({
                     wishlist: state.wishlist.filter((i) => i.id !== id),
                     }));
+                    if(user?.id && location && deviceInfo && removeProduct){
+                    sendKafkaEvent({
+                        userId: user?.id,
+                        productId: removeProduct?.id,
+                        shopId: removeProduct?.shopId,
+                        action: "remove_from_wishlist",
+                        country: location?.country || "Unknown",
+                        city: location?.city || "Unknown",
+                        device: deviceInfo?.device || "Unknown device",
+                    });
+                }
 
                     if (!removeProduct) {
                     console.warn("CLIENT SKIP track remove_from_wishlist (no product)", {
