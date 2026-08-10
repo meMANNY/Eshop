@@ -532,7 +532,7 @@ export const getProductDetails = async (
       where: { slug: req.params?.slug },
       include: {
         images: true,
-        shop: true,
+        Shop: true,
       },
     });
 
