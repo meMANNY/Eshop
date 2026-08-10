@@ -14,9 +14,10 @@ const fetchProductDetails = async (slug: string) => {
 export const generateMetadata = async ({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }): Promise<Metadata> => {
-  const product = await fetchProductDetails(params?.slug);
+  const { slug } = await params;
+  const product = await fetchProductDetails(slug);
   return {
     title: `${product?.title} | Zoz Marketplace`,
     description:
