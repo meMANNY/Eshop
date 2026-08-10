@@ -91,6 +91,8 @@ model site_config {
   id            String   @id @default(auto()) @map("_id") @db.ObjectId
   categories    String[]
   subCategories Json
+  logo          String?
+  banner        String?
 }
 
 model discount_codes {
@@ -147,4 +149,34 @@ model products {
   updatedAt            DateTime      @updatedAt
   shopId               String        @db.ObjectId
   Shop                 shops         @relation(fields: [shopId], references: [id])
+}
+
+model userAnalytics{
+  id       String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId @unique
+  
+  country  String?
+  city     String?
+  device   String?
+  lastVisited DateTime?
+  actions  Json?
+  recommendations Json?
+  lastTrained DateTime @default(now())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model productAnalytics{
+  id       String   @id @default(auto()) @map("_id") @db.ObjectId
+  productId    String   @db.ObjectId @unique
+  shopId    String?
+  views Int @default(0)
+  cardAdds  Int @default(0)
+  wishlistAdds  Int @default(0)
+  lastViewedAt DateTime?
+  purchases  Int @default(0)
+  
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

@@ -3,7 +3,7 @@ import {Kafka, logLevel} from "kafkajs";
 export const kafka  = new Kafka({
     clientId: "kafka-service",
 
-    brokers: ["localhost:9092"],
+    brokers: ["pkc-41p56.asia-south1.gcp.confluent.cloud:9092"],
     ssl: true,
     sasl:{
         mechanism: "plain",
