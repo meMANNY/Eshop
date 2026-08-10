@@ -35,6 +35,14 @@ jobs:
        
       - run: npm ci
 
+      # @prisma/client ships as an empty stub — the model types (productsWhereInput,
+      # SortOrder, ...) only exist once the client is generated from schema.prisma.
+      # node_modules isn't committed, so this must run on every CI job before typecheck.
+      # generate reads the schema offline; the URL is only validated for its protocol.
+      - run: npx prisma generate
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL || 'mongodb://localhost:27017/placeholder' }}
+
 
       # Prepend any command with "nx record --" to record its logs to Nx Cloud
       # - run: npx nx record -- echo Hello World
