@@ -11,13 +11,13 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import {  useState } from "react";
 import useUser from "@/hooks/useUser";
 import useLocationTracking from "@/hooks/useLocationTracking";
 import useDeviceTracking from "@/hooks/useDeviceTracking";
 import { useStore } from "@/store";
 import axiosInstance from "@/utils/axiosInstance";
-import ReactImageMagnify from "react-image-magnify";
+import ImageMagnifier from "../../components/image-magnifier";
 import Link from "next/link";
 import { Ratings } from "../../components/ratings";
 import {CartIcon} from "../../../assets/svgs/cart-icon";
@@ -41,16 +41,16 @@ export default function ProductDetails({
     productDetails?.sizes?.[0] || ""
   );
   const [quantity, setQuantity] = useState(1);
-  const [priceRange, _setPriceRange] = useState([
+  const [, _setPriceRange] = useState([
     productDetails?.sale_price,
     1199,
   ]);
   const [isLoading, setIsLoading] = useState(false);
-  const [recommendedProducts, setRecommendedProducts] = useState([]);
+  const [recommendedProducts,] = useState([]);
 
   const router = useRouter();
 
-  const user = useUser();
+  const { user } = useUser();
   const location = useLocationTracking();
   const deviceInfo = useDeviceTracking();
 
@@ -70,13 +70,13 @@ export default function ProductDetails({
   const prevImage = () => {
     if (currentIndex > 0) {
       setCurrentIndex(currentIndex - 1);
-      setCurrentImage(productDetails?.images?.[currentIndex - 1]);
+      setCurrentImage(productDetails?.images?.[currentIndex - 1]?.url);
     }
   };
   const nextImage = () => {
     if (currentIndex < productDetails?.images?.length - 1) {
       setCurrentIndex(currentIndex + 1);
-      setCurrentImage(productDetails?.images?.[currentIndex + 1]);
+      setCurrentImage(productDetails?.images?.[currentIndex + 1]?.url);
     }
   };
 
@@ -86,26 +86,26 @@ export default function ProductDetails({
       100
   );
 
-  const fetchFilteredProducts = async () => {
-    try {
-      const query = new URLSearchParams();
+//   const fetchFilteredProducts = async () => {
+//     try {
+//       const query = new URLSearchParams();
 
-      query.set("priceRange", priceRange.join(","));
-      query.set("page", "1");
-      query.set("limit", "5");
+//       query.set("priceRange", priceRange.join(","));
+//       query.set("page", "1");
+//       query.set("limit", "5");
 
-      const res = await axiosInstance.get(
-        `/product/api/get-filtered-products?${query.toString()}`
-      );
-      setRecommendedProducts(res.data.products);
-    } catch (err) {
-      console.error("Failed to fetch filtered products", err);
-    }
-  };
+//       const res = await axiosInstance.get(
+//         `/product/api/get-filtered-products?${query.toString()}`
+//       );
+//       setRecommendedProducts(res.data.products);
+//     } catch (err) {
+//       console.error("Failed to fetch filtered products", err);
+//     }
+//   };
 
-  useEffect(() => {
-    fetchFilteredProducts();
-  }, [priceRange]);
+//   useEffect(() => {
+//     fetchFilteredProducts();
+//   }, [priceRange]);
 
   const handleChat = async () => {
     if (isLoading) return;
@@ -114,7 +114,7 @@ export default function ProductDetails({
     try {
       const res = await axiosInstance.post(
         "/chatting/api/create-user-conversationGroup",
-        { sellerId: productDetails?.shop?.sellerId },
+        { sellerId: productDetails?.Shop?.sellerId },
         //isProtected
       );
       router.push(`/inbox?conversationId=${res?.data?.conversation.id}`);
@@ -133,32 +133,11 @@ export default function ProductDetails({
           <div className="relative w-full overflow-visible">
             {/* FIXED IMAGE ZOOM */}
             <div className="rounded-lg shadow-md">
-              <ReactImageMagnify
-                {...{
-                  smallImage: {
-                    alt: "Product Image",
-                    isFluidWidth: true,
-                    src:
-                      currentImage ||
-                      "https://ik.imagekit.io/fz0xzwtey/products/product-1741207782553-0_-RWfpGzfHt.jpg",
-                  },
-                  largeImage: {
-                    src:
-                      currentImage ||
-                      "https://ik.imagekit.io/fz0xzwtey/products/product-1741207782553-0_-RWfpGzfHt.jpg",
-                    width: 1200,
-                    height: 1800,
-                  },
-                  enlargedImagePosition: "beside",
-                  enlargedImageContainerStyle: {
-                    background: "#fff",
-                    border: "1px solid #ddd",
-                    boxShadow: "0 4px 15px rgba(0,0,0,0.1)",
-                    zIndex: 50,
-                  },
-                  isHintEnabled: true,
-                  shouldHideHintAfterFirstActivation: false,
-                }}
+              <ImageMagnifier
+                src={currentImage}
+                alt={productDetails?.title}
+                fluid
+                zoom={2.5}
               />
             </div>
           </div>
@@ -186,8 +165,8 @@ export default function ProductDetails({
                   width={60}
                   height={60}
                   className={`cursor-pointer border rounded-lg p-1 ${
-                    currentImage === image
-                      ? "border-blue-500"
+                    currentImage === image?.url
+                      ? "border-[#ff6f61]"
                       : "border-gray-300"
                   }`}
                   onClick={() => {
@@ -407,7 +386,7 @@ export default function ProductDetails({
                     Sold by
                   </span>
                   <span className="block max-w-[150px] truncate font-medium text-lg">
-                    {productDetails?.shop?.name}
+                    {productDetails?.Shop?.name}
                   </span>
                 </div>
                 <button
@@ -441,7 +420,7 @@ export default function ProductDetails({
               {/* STORE LINK */}
               <div className="text-center mt-4 border-t border-t-gray-200 pt-2">
                 <Link
-                  href={`/shop/${productDetails?.shop?.id}`}
+                  href={`/shop/${productDetails?.Shop?.id}`}
                   className="text-blue-500 font-medium text-sm hover:underline"
                 >
                   GO TO STORE

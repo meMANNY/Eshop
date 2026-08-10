@@ -1,4 +1,5 @@
 import Image from 'next/image'
+import ImageMagnifier from '../image-magnifier'
 import React, { useState } from 'react'
 import { Heart, X } from 'lucide-react'
 import { CartIcon } from '../../../assets/svgs/cart-icon'
@@ -57,12 +58,11 @@ const ProductDetailsCard = ({data,setOpen}: {data:any,setOpen:(open: boolean) =>
             <div className = "w-full flex flex-col md:flex-row gap-6">
                 <div className = "w-full md:w-1/2 flex flex-col items-center animate-fadeUp">
                     
-                    <Image
-                    src={data?.images?.[activeImage]?.url}
-                    alt={data?.images?.[activeImage]?.url}
+                    <ImageMagnifier
+                        src={data?.images?.[activeImage]?.url}
+                        alt={data?.title}
                         width={400}
                         height={400}
-                        className = "rounded-lg object-contain h-[400px] w-[400px] transition-transform duration-300 hover:scale-105 animate-float"
                     />
                     <div className="flex flex-wrap gap-2 justify-center mt-4 max-w-[400px]">
                             {data?.images?.map((image: any, i: number) => (
@@ -70,7 +70,7 @@ const ProductDetailsCard = ({data,setOpen}: {data:any,setOpen:(open: boolean) =>
                                 key={i}
                                 className={`cursor-pointer border rounded-md transition-all duration-200 ${
                                     activeImage === i
-                                    ? "border-blue-500 shadow-md scale-105"
+                                    ? "border-[#ff6f61] shadow-md scale-105"
                                     : "border-transparent opacity-70 hover:opacity-100"
                                 }`}
                                 onClick={() => setActiveImage(i)}
