@@ -76,13 +76,22 @@ function CheckoutContent() {
 
         setClientSecret(intentRes.data.clientSecret);
 
-        const pk = process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY!;
+        const pk = process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY;
+        if (!pk) {
+          throw new Error(
+            "NEXT_PUBLIC_STRIPE_PUBLIC_KEY is not set. Add it to apps/user-ui/.env and restart the dev server."
+          );
+        }
 
-        const sp =
+        // Stripe.js has to run in the same account context the PaymentIntent was
+        // created in, which createPaymentIntent reports back as `scope`:
+        //   "connected" → direct charge on the seller's account  → pass stripeAccount
+        //   "platform"  → destination charge on the platform     → omit it
+        setStripePromise(
           intentRes.data.scope === "connected"
-            ? loadStripe(pk)
-            : loadStripe(pk, { stripeAccount: sellerStripeAccountId });
-        setStripePromise(sp);
+            ? loadStripe(pk, { stripeAccount: sellerStripeAccountId })
+            : loadStripe(pk)
+        );
       } catch (err) {
         console.error(err);
         setError("Something went wrong while processing your payment!");

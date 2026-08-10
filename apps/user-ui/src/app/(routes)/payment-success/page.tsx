@@ -68,9 +68,15 @@ function PaymentSuccessContent() {
           setOrderStatus("failed");
         }
       } catch (err: any) {
+        // Log the pieces separately — an axios error object collapses to `{}`
+        // in the Next overlay, which hides the server's actual message.
         console.error(
           "Order creation failed:",
-          err.response?.data || err.message
+          err.response?.status,
+          err.response?.data?.details ??
+            err.response?.data?.message ??
+            JSON.stringify(err.response?.data) ??
+            err.message
         );
         setOrderStatus("failed");
       }

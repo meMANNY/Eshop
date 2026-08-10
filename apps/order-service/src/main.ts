@@ -26,14 +26,10 @@ app.use(
 );
 
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser());
-app.get("/", (req, res) => {
-  res.send({ message: "Welcome to order-service!" });
-});
-app.use("/api", router);
-app.use(errorMiddleware);
+// Stripe signs the exact bytes of the request body, so this route MUST be
+// registered before express.json(). Once the JSON parser consumes the stream it
+// sets req._body, which makes bodyParser.raw() below skip as a no-op — leaving
+// req.body a parsed object that can no longer be signature-verified.
 app.post(
   "/api/create-order",
   bodyParser.raw({ type: "application/json" }),
@@ -44,6 +40,17 @@ app.post(
   },
   createOrder
 );
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
+app.get("/", (req, res) => {
+  res.send({ message: "Welcome to order-service!" });
+});
+app.use("/api", router);
+
+// Error handlers run only if registered after every route they should cover.
+app.use(errorMiddleware);
 
 const port = process.env.PORT || 6004;
 const server = app.listen(port, () => {

@@ -10,28 +10,69 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2026-06-24.dahlia'
 });
 
+
+async function getAccountCapabilities(accountId: string) {
+  const acct = await stripe.accounts.retrieve(accountId);
+  return {
+    acct,
+    transfersStatus: acct.capabilities?.transfers,
+    cardPaymentsStatus: acct.capabilities?.card_payments,
+  };
+}
+
+async function createPIWithFallback({
+  amountInCents,
+  sellerAccountId,
+  platformFeeInCents,
+  metadata,
+}: {
+  amountInCents: number;
+  sellerAccountId: string;
+  platformFeeInCents: number;
+  metadata?: Record<string, string>;
+}) {
+  const { transfersStatus } = await getAccountCapabilities(sellerAccountId);
+  if (transfersStatus === "active") {
+    // Destination charge: the intent lives on the PLATFORM account, so Stripe.js
+    // must run in the platform context (no stripeAccount option on the client).
+    const pi = await stripe.paymentIntents.create({
+      amount: amountInCents,
+      currency: "usd",
+      automatic_payment_methods: { enabled: true },
+      application_fee_amount: platformFeeInCents,
+      transfer_data: { destination: sellerAccountId },
+      on_behalf_of: sellerAccountId,
+      metadata,
+    });
+    return { pi, scope: "platform" as const };
+  }
+  // Direct charge: the intent lives on the CONNECTED account, so the client must
+  // pass `stripeAccount` or it will look for the intent in the wrong place.
+  const pi = await stripe.paymentIntents.create(
+    {
+      amount: amountInCents,
+      currency: "usd",
+      automatic_payment_methods: { enabled: true },
+      application_fee_amount: platformFeeInCents,
+      metadata,
+    },
+    { stripeAccount: sellerAccountId }
+  );
+  return { pi, scope: "connected" as const };
+}
+
 export const createPaymentIntent = async (req: Request, res: Response, next: NextFunction) => {
  const { amount, sellerStripeAccountId, sessionId } = req.body;
   const customerAmount = Math.round(amount * 100);
   const platformFee = Math.floor(customerAmount * 0.1);
   try {
-    const paymentIntent = await stripe.paymentIntents.create({
-        amount: customerAmount,
-        currency: "usd",
-        payment_method_types: ["card"],
-        application_fee_amount: platformFee,
-        transfer_data: {
-            destination: sellerStripeAccountId,
-        },
-        metadata: {
-            sessionId,
-            userId: req.user.id,
-        }
-
+    const { pi, scope } = await createPIWithFallback({
+      amountInCents: customerAmount,
+      sellerAccountId: sellerStripeAccountId,
+      platformFeeInCents: platformFee,
+      metadata: { sessionId, userId: String(req.user.id) },
     });
-    res.send({
-        clientSecret: paymentIntent.client_secret,
-    })
+    res.send({ clientSecret: pi.client_secret, scope });
   } catch (err) {
     return next(err);
   }
