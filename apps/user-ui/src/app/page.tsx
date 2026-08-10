@@ -21,7 +21,7 @@ const Page = () => {
     staleTime: 1000*60*2,
   });
 
-  const {data: latestProducts} = useQuery({
+  const {} = useQuery({
     queryKey: ['latest-products'],
     queryFn: async () => {
       const res = await axiosInstance.get("/product/api/get-all-products?page=1&limit=10&type=latest")
@@ -46,7 +46,7 @@ const Page = () => {
             ))}
           </div>
         )}
-        { (
+        {!isLoading && !isError && (
           <div className='m-auto grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 2xl:grid-cols-5 gap-5'>
             {/* {
               <ProductCard product={{ title: "Test", slug: "test", images: [] }} />
