@@ -39,7 +39,7 @@ jobs:
       # SortOrder, ...) only exist once the client is generated from schema.prisma.
       # node_modules isn't committed, so this must run on every CI job before typecheck.
       # generate reads the schema offline; the URL is only validated for its protocol.
-      - run: npx prisma generate
+      - run: npx nx run-many -t lint test build typecheck
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
@@ -50,3 +50,39 @@ jobs:
       # Nx Cloud recommends fixes for failures to help you get CI green faster. Learn more: https://nx.dev/ci/features/self-healing-ci
       - run: npx nx fix-ci
         if: always()
+
+  # Files a GitHub issue when CI breaks on master. PR failures are skipped —
+  # they're already visible on the PR itself and would just create noise.
+  report-failure:
+    needs: [main]
+    if: failure() && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - name: Open or update the CI failure issue
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          COMMIT: ${{ github.sha }}
+          ACTOR: ${{ github.actor }}
+        run: |
+          # gh issue create fails on a label that doesn't exist yet, so ensure it.
+          gh label create ci-failure \
+            --color B60205 \
+            --description "Automated CI failure report" 2>/dev/null || true
+
+          # Reuse the open issue if there is one, so repeated breakage doesn't
+          # pile up a new issue per run.
+          existing=$(gh issue list --label ci-failure --state open \
+            --limit 1 --json number --jq '.[0].number')
+
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" --body "$(printf 'Failed again on `%s` (@%s) — [run log](%s)' "${COMMIT:0:7}" "$ACTOR" "$RUN_URL")"
+          else
+            gh issue create \
+              --title "CI failing on master" \
+              --label ci-failure \
+              --body "$(printf 'CI failed on `master`.\n\n- Commit: `%s`\n- Triggered by: @%s\n- [Run log](%s)\n\nThis issue collects each new failure as a comment. Close it once CI is green.' "${COMMIT:0:7}" "$ACTOR" "$RUN_URL")"
+          fi
