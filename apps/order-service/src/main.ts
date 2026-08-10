@@ -9,6 +9,7 @@ import cookieParser from 'cookie-parser';
 import bodyParser from 'body-parser';
 import {errorMiddleware } from "../../../packages/error-handler/error-middleware";
 import router from "./routes/order.routes";
+import { createOrder } from './controllers/order.controller';
 
 const app = express();
 app.use(
@@ -28,15 +29,9 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
-
 app.get("/", (req, res) => {
   res.send({ message: "Welcome to order-service!" });
 });
-
-app.get("/", (req, res) => {
-  res.send({ message: "Welcome to order-service!" });
-});
-
 app.use("/api", router);
 app.use(errorMiddleware);
 app.post(
@@ -47,7 +42,7 @@ app.post(
     console.log("🟡 Stripe webhook received at:", new Date().toISOString());
     next();
   },
-  //createOrder
+  createOrder
 );
 
 const port = process.env.PORT || 6004;
