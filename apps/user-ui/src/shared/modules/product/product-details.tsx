@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import {  useState } from "react";
+import {  useState,useEffect } from "react";
 import useUser from "@/hooks/useUser";
 import useLocationTracking from "@/hooks/useLocationTracking";
 import useDeviceTracking from "@/hooks/useDeviceTracking";
@@ -41,12 +41,12 @@ export default function ProductDetails({
     productDetails?.sizes?.[0] || ""
   );
   const [quantity, setQuantity] = useState(1);
-  const [, _setPriceRange] = useState([
+  const [priceRange] = useState([
     productDetails?.sale_price,
     1199,
   ]);
   const [isLoading, setIsLoading] = useState(false);
-  const [recommendedProducts,] = useState([]);
+  const [recommendedProducts, setRecommendedProducts] = useState([]);
 
   const router = useRouter();
 
@@ -86,26 +86,26 @@ export default function ProductDetails({
       100
   );
 
-//   const fetchFilteredProducts = async () => {
-//     try {
-//       const query = new URLSearchParams();
+  const fetchFilteredProducts = async () => {
+    try {
+      const query = new URLSearchParams();
 
-//       query.set("priceRange", priceRange.join(","));
-//       query.set("page", "1");
-//       query.set("limit", "5");
+      query.set("priceRange", priceRange.join(","));
+      query.set("page", "1");
+      query.set("limit", "5");
 
-//       const res = await axiosInstance.get(
-//         `/product/api/get-filtered-products?${query.toString()}`
-//       );
-//       setRecommendedProducts(res.data.products);
-//     } catch (err) {
-//       console.error("Failed to fetch filtered products", err);
-//     }
-//   };
+      const res = await axiosInstance.get(
+        `/product/api/get-filtered-products?${query.toString()}`
+      );
+      setRecommendedProducts(res.data.products);
+    } catch (err) {
+      console.error("Failed to fetch filtered products", err);
+    }
+  };
 
-//   useEffect(() => {
-//     fetchFilteredProducts();
-//   }, [priceRange]);
+  useEffect(() => {
+    fetchFilteredProducts();
+  }, [priceRange]);
 
   const handleChat = async () => {
     if (isLoading) return;
