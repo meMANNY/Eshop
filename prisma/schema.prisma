@@ -211,3 +211,23 @@ model orderItems{
   createdAt DateTime @default(now())
   
 }
+
+enum addressType {
+  Home
+  Work
+  Other
+}
+
+model address{
+  id    String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  label addressType
+  name String
+  street String
+  city String
+  zip String
+  country String
+  isDefault Boolean @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

@@ -13,7 +13,10 @@ import {
     createShop,
     loginSeller,
     createStripeAccountLink,
-    getSeller
+    getSeller,
+    getUserAddresses,
+    addUserAddress,
+    deleteUserAddress
 } from "../controller/auth.controller";
 import { isAuthenticated } from "../../../../packages/middleware/isAuthenticated";
 import { isSeller } from "../../../../packages/middleware/isSeller";
@@ -35,4 +38,7 @@ router.post("/create-shop", createShop);
 router.post("/login-seller", loginSeller);
 router.post("/create-stripe-link", createStripeAccountLink);
 router.get("/logged-in-seller", isSeller, authorizeRoles("seller"), getSeller);
+router.get("/shipping-addresses",isAuthenticated,getUserAddresses)
+router.post("/add-address",isAuthenticated,addUserAddress)
+router.delete("/delete-address/:addressId", isAuthenticated, deleteUserAddress);
 export default router;
