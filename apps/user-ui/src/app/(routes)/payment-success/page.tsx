@@ -18,7 +18,7 @@ import {
 function PaymentSuccessContent() {
   const searchParams = useSearchParams();
   const sessionId = useMemo(
-    () => searchParams.get("sessionId") || "12424124",
+    () => searchParams.get("sessionId"),
     [searchParams]
   );
   const router = useRouter();
@@ -47,42 +47,61 @@ function PaymentSuccessContent() {
     burst(90, 120, 70, 1);
   }, []);
 
+  // The Stripe webhook is what actually creates the order, and it lands
+  // independently of this redirect — so the page waits for the order to appear
+  // rather than creating it. Creating it here too would race the webhook over
+  // the same redis payment-session and make one of them fail spuriously.
   useEffect(() => {
-    const createOrder = async () => {
-      if (!sessionId) {
+    if (!sessionId) {
+      setOrderStatus("failed");
+      return;
+    }
+
+    let cancelled = false;
+    let attempts = 0;
+    const MAX_ATTEMPTS = 14; // ~21s at 1.5s intervals
+    let timer: ReturnType<typeof setTimeout>;
+
+    const poll = async () => {
+      if (cancelled) return;
+      attempts += 1;
+
+      try {
+        const res = await axiosInstance.get(
+          `order/api/get-order-by-session/${sessionId}`
+        );
+
+        if (cancelled) return;
+
+        if (res.data?.orders?.length > 0) {
+          setOrderStatus("success");
+          return;
+        }
+      } catch (err: any) {
+        // A failed poll isn't fatal — the webhook may simply not have landed
+        // yet. Keep retrying until the attempt budget runs out.
+        console.warn(
+          "Order lookup failed:",
+          err.response?.status,
+          err.response?.data?.details ?? err.message
+        );
+      }
+
+      if (cancelled) return;
+
+      if (attempts >= MAX_ATTEMPTS) {
         setOrderStatus("failed");
         return;
       }
-
-      try {
-        const res = await axiosInstance.post(
-          "order/api/create-order",
-          { sessionId },
-          { withCredentials: true }
-        );
-
-        if (res.data?.received) {
-          setOrderStatus("success");
-        } else {
-          console.warn("Unexpected order creation response:", res.data);
-          setOrderStatus("failed");
-        }
-      } catch (err: any) {
-        // Log the pieces separately — an axios error object collapses to `{}`
-        // in the Next overlay, which hides the server's actual message.
-        console.error(
-          "Order creation failed:",
-          err.response?.status,
-          err.response?.data?.details ??
-            err.response?.data?.message ??
-            JSON.stringify(err.response?.data) ??
-            err.message
-        );
-        setOrderStatus("failed");
-      }
+      timer = setTimeout(poll, 1500);
     };
 
-    createOrder();
+    poll();
+
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
   }, [sessionId]);
 
   const onCopy = async () => {
@@ -109,14 +128,14 @@ function PaymentSuccessContent() {
                     ? "Payment Successful"
                     : orderStatus === "success"
                     ? "Order Confirmed 🎉"
-                    : "Payment Successful, but Order Failed"}
+                    : "Still confirming your order"}
                 </h1>
                 <p className="text-white/90 text-sm">
                   {orderStatus === "creating"
                     ? "Finalizing your order..."
                     : orderStatus === "success"
                     ? "Thank you! Your order has been placed."
-                    : "Please contact support — your order couldn't be created automatically."}
+                    : "Your payment went through. Confirmation is taking longer than usual — your order will appear in Profile › My Orders shortly."}
                 </p>
               </div>
             </div>

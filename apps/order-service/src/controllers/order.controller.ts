@@ -199,6 +199,41 @@ export const verifyPaymentSession = async (
   }
 };
 
+// Orders are created asynchronously by the Stripe webhook, so the success page
+// polls this until they show up (or until it gives up and tells the user to
+// check their profile). Scoped to req.user so one customer can't read another's
+// order by guessing a session id.
+export const getOrderBySession = async (
+  req: any,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { sessionId } = req.params;
+    const userId = req.user?.id;
+
+    if (!sessionId)
+      throw new ValidationError("Invalid request data", "Session ID is required");
+
+    const orders = await prisma.orders.findMany({
+      where: { sessionId, userId },
+      select: {
+        id: true,
+        total: true,
+        status: true,
+        deliveryStatus: true,
+        shopId: true,
+        createdAt: true,
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+    return res.status(200).json({ success: true, orders });
+  } catch (err) {
+    return next(err);
+  }
+};
+
 export const createOrder = async (
   req: any,
   res: Response,
@@ -295,6 +330,7 @@ export const createOrder = async (
           userId,
           shopId,
           total: orderTotal,
+          sessionId,
           status: "Paid",
           shippingAddressId: shippingAddressId || null,
           couponCode: coupon?.code || null,

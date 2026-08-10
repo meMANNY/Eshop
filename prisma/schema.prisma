@@ -191,6 +191,7 @@ model orders{
   shopId    String   @db.ObjectId
   shop      shops    @relation(fields: [shopId], references: [id])
   total Float
+  sessionId String?
   shippingAddressId String?
   couponCode String?
   discountAmount Float?
@@ -199,6 +200,8 @@ model orders{
   items orderItems[] @relation("OrderItemsRelation")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([sessionId])
 }
 model orderItems{
   id     String   @id @default(auto()) @map("_id") @db.ObjectId
