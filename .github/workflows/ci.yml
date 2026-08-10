@@ -41,7 +41,7 @@ jobs:
       # generate reads the schema offline; the URL is only validated for its protocol.
       - run: npx prisma generate
         env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL || 'mongodb://localhost:27017/placeholder' }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
 
       # Prepend any command with "nx record --" to record its logs to Nx Cloud
