@@ -2,7 +2,7 @@
 
 import { Suspense, useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-
+import ChangePassword from "@/shared/components/changePassword";
 import ShippingAddressSection from "../../../shared/components/shippingAddress";
 
 import {
@@ -30,7 +30,6 @@ import {
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import OrdersTable from "@/shared/components/tables/orders-table";
-//import ChangePassword from "apps/user-ui/src/shared/components/changePassword";
 
 import Link from "next/link";
 import toast from "react-hot-toast";
@@ -268,9 +267,9 @@ function ProfileContent() {
             ) : activeTab === "My Orders" ? (
               <OrdersTable />
             ) : (
-              // activeTab === "Change Password" ? (
-              //   <ChangePassword />
-              // ) :
+              activeTab === "Change Password" ? (
+                <ChangePassword />
+              ) :
               activeTab === "Notifications" ? (
                 <div className="space-y-4">
                   {notificationsLoading && (
