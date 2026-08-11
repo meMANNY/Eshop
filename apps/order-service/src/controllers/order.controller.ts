@@ -460,3 +460,44 @@ export const createOrder = async (
     return next(err);
   }
 };
+
+export const getSellerOrders = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const shop = await prisma.shops.findUnique({
+      where: { sellerId: (req as any)?.seller?.id },
+    });
+
+    // Without a shop there is nothing to scope the query to, and passing
+    // `shopId: undefined` would make Prisma drop the filter and return every
+    // order in the database.
+    if (!shop) {
+      return res.status(200).json({ success: true, orders: [] });
+    }
+
+    const orders = await prisma.orders.findMany({
+      where: { shopId: shop.id },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            avatar: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    res.status(200).json({ success: true, orders });
+  } catch (err) {
+    return next(err);
+  }
+};
+
