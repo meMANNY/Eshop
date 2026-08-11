@@ -13,5 +13,6 @@ router.get("/get-order-by-session/:sessionId", isAuthenticated, getOrderBySessio
 router.get("/get-seller-orders",isSeller, getSellerOrders);
 router.get("/get-user-orders",isAuthenticated, getUserOrders);
 router.get("/get-order-details/:orderId",isAuthenticated,getOrderDetails);
+router.get("/get-seller-order-details/:orderId",isSeller,getOrderDetails);
 
 export default router;
