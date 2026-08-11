@@ -732,3 +732,125 @@ export const getUserAddresses = async (
   }
 };
 
+
+// The seller homepage lets a seller edit both their own contact details and
+// their shop's public profile from one form, so this writes to both tables in a
+// single transaction and returns the reshaped seller the page already renders.
+export const updateSellerProfile = async (
+  req: any,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const sellerId = req.seller?.id;
+    const shopId = req.seller?.shop?.id;
+
+    if (!sellerId) {
+      return next(new AuthError("Unauthorized! No seller in token context"));
+    }
+
+    const { seller = {}, shop = {} } = req.body ?? {};
+
+    if (typeof seller.name === "string" && !seller.name.trim()) {
+      return next(
+        new ValidationError("Invalid request data", { name: "Name is required" })
+      );
+    }
+
+    if (typeof shop.name === "string" && !shop.name.trim()) {
+      return next(
+        new ValidationError("Invalid request data", {
+          shopName: "Shop name is required",
+        })
+      );
+    }
+
+    // Whitelisting the writable columns keeps a client from setting `stripeId`,
+    // `ratings`, or any other field it has no business touching.
+    const sellerData = pick(seller, [
+      "name",
+      "phone_number",
+      "country",
+      "address",
+    ]);
+
+    const shopData = pick(shop, [
+      "name",
+      "bio",
+      "category",
+      "address",
+      "opening_hours",
+      "closing_hours",
+      "website",
+      "phone_number",
+      "coverBanner",
+    ]);
+
+    await prisma.$transaction(async (tx) => {
+      if (Object.keys(sellerData).length > 0) {
+        await tx.sellers.update({ where: { id: sellerId }, data: sellerData });
+      }
+      if (shopId && Object.keys(shopData).length > 0) {
+        await tx.shops.update({ where: { id: shopId }, data: shopData });
+      }
+    });
+
+    const updated = await prisma.sellers.findUnique({
+      where: { id: sellerId },
+      include: { shop: { include: { avatar: true } } },
+    });
+
+    return res.status(200).json({ success: true, seller: updated });
+  } catch (err) {
+    return next(err);
+  }
+};
+
+function pick(source: Record<string, any>, keys: string[]) {
+  const out: Record<string, any> = {};
+  for (const key of keys) {
+    // `undefined` means "not sent"; an empty string is a deliberate clear.
+    if (source?.[key] !== undefined) out[key] = source[key];
+  }
+  return out;
+}
+
+// Reviews belong to the shop, so a seller may only read their own.
+export const getShopReviews = async (
+  req: any,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const shopId = req.seller?.shop?.id;
+
+    if (!shopId) {
+      return res
+        .status(200)
+        .json({ success: true, reviews: [], ratings: 0, totalRating: 0 });
+    }
+
+    const [reviews, shop] = await Promise.all([
+      prisma.shopReviews.findMany({
+        where: { shopId },
+        include: {
+          user: { select: { id: true, name: true, avatar: true } },
+        },
+        orderBy: { createdAt: "desc" },
+      }),
+      prisma.shops.findUnique({
+        where: { id: shopId },
+        select: { ratings: true, totalRating: true },
+      }),
+    ]);
+
+    return res.status(200).json({
+      success: true,
+      reviews,
+      ratings: shop?.ratings ?? 0,
+      totalRating: shop?.totalRating ?? 0,
+    });
+  } catch (err) {
+    return next(err);
+  }
+};

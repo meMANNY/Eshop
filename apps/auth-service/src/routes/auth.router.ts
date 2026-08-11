@@ -16,7 +16,9 @@ import {
     getSeller,
     getUserAddresses,
     addUserAddress,
-    deleteUserAddress
+    deleteUserAddress,
+    updateSellerProfile,
+    getShopReviews
 } from "../controller/auth.controller";
 import { isAuthenticated } from "../../../../packages/middleware/isAuthenticated";
 import { isSeller } from "../../../../packages/middleware/isSeller";
@@ -38,6 +40,8 @@ router.post("/create-shop", createShop);
 router.post("/login-seller", loginSeller);
 router.post("/create-stripe-link", createStripeAccountLink);
 router.get("/logged-in-seller", isSeller, authorizeRoles("seller"), getSeller);
+router.put("/update-seller-profile", isSeller, authorizeRoles("seller"), updateSellerProfile);
+router.get("/get-shop-reviews", isSeller, authorizeRoles("seller"), getShopReviews);
 router.get("/shipping-addresses",isAuthenticated,getUserAddresses)
 router.post("/add-address",isAuthenticated,addUserAddress)
 router.delete("/delete-address/:addressId", isAuthenticated, deleteUserAddress);

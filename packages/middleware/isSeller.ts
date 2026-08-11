@@ -37,7 +37,11 @@ export const isSeller = async (
                 id: decoded.id
             },
             include: {
-                shop: true
+                // The shop's avatar is a relation, so `shop: true` alone would
+                // omit it and every seller-facing page would render a fallback.
+                shop: {
+                    include: { avatar: true }
+                }
             }
         });
 
