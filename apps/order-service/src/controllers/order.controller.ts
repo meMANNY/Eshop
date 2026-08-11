@@ -2,7 +2,7 @@ import {NextFunction, Request, Response} from "express";
 import Stripe from "stripe";
 import redis from "../../../../packages/libs/redis";
 import prisma from "../../../../packages/libs/primsa";
-import { ValidationError } from "../../../../packages/error-handler";
+import { NotFoundError, ValidationError } from "../../../../packages/error-handler";
 import { Prisma } from "@prisma/client";
 import { sendEmail } from "../utils/send-email/index";
 
@@ -461,6 +461,42 @@ export const createOrder = async (
   }
 };
 
+export const getUserOrders = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const userId = (req as any)?.user?.id;
+
+    if (!userId) {
+      return next(
+        new ValidationError("Invalid request data", "User ID missing in token context")
+      );
+    }
+
+    const orders = await prisma.orders.findMany({
+      where: { userId },
+      include: {
+        shop: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        items: true,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    res.status(200).json({ success: true, orders });
+  } catch (err) {
+    return next(err);
+  }
+};
+
 export const getSellerOrders = async (
   req: Request,
   res: Response,
@@ -500,4 +536,68 @@ export const getSellerOrders = async (
     return next(err);
   }
 };
+
+export const getOrderDetails = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const orderId = req.params.orderId;
+    const order = await prisma.orders.findUnique({
+      where: { id: orderId },
+      include: { items: true },
+    });
+    if (!order) return next(new NotFoundError("Order not found with the id!"));
+
+    // Any signed-in user could otherwise read any order by guessing its id.
+    // Answer 404 rather than 403 so the endpoint doesn't confirm the id exists.
+    if (order.userId !== (req as any)?.user?.id) {
+      return next(new NotFoundError("Order not found with the id!"));
+    }
+
+    const shippingAddress = order.shippingAddressId
+      ? await prisma.address.findUnique({
+          where: { id: order?.shippingAddressId },
+        })
+      : null;
+
+    const coupon = order.couponCode
+      ? await prisma.discount_codes.findUnique({
+          where: { discountCode: order?.couponCode },
+        })
+      : null;
+
+    const productIds = order.items.map((item) => item.productId);
+    const products = await prisma.products.findMany({
+      where: { id: { in: productIds } },
+      select: {
+        id: true,
+        title: true,
+        images: true,
+      },
+    });
+
+    const productMap = new Map(products.map((p) => [p.id, p]));
+
+    const items: any = order.items.map((item) => ({
+      ...item,
+      selectedOptions: item.selectedOptions,
+      product: productMap.get(item.productId) || null,
+    }));
+
+    res.status(200).json({
+      success: true,
+      order: {
+        ...order,
+        items,
+        shippingAddress,
+        couponCode: coupon,
+      },
+    });
+  } catch (err) {
+    return next(err);
+  }
+};
+
 

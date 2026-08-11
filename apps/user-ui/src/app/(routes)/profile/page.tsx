@@ -29,7 +29,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
-//import OrdersTable from "apps/user-ui/src/shared/components/tables/orders-table";
+import OrdersTable from "@/shared/components/tables/orders-table";
 //import ChangePassword from "apps/user-ui/src/shared/components/changePassword";
 
 import Link from "next/link";
@@ -265,10 +265,9 @@ function ProfileContent() {
               )
             ) : activeTab === "Shipping Address" ? (
               <ShippingAddressSection />
+            ) : activeTab === "My Orders" ? (
+              <OrdersTable />
             ) : (
-              // activeTab === "My Orders" ? (
-              //   <OrdersTable />
-              // ) :
               // activeTab === "Change Password" ? (
               //   <ChangePassword />
               // ) :
