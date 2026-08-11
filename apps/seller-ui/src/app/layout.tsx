@@ -1,3 +1,4 @@
+// @ts-ignore -- Next.js bundles this global stylesheet at build time.
 import './global.css';
 import Providers from './providers'
 
