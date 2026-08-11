@@ -601,3 +601,53 @@ export const getOrderDetails = async (
 };
 
 
+export const updateDeliveryStatus = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { orderId } = req.params;
+    const { deliveryStatus } = req.body;
+
+    if (!orderId || !deliveryStatus)
+      return res
+        .status(400)
+        .json({ error: "Missin order ID or delivery status!" });
+
+    const allowedStatuses = [
+      "Ordered",
+      "Packed",
+      "Shipped",
+      "Out for Delivery",
+      "Delivered",
+    ];
+
+    if (!allowedStatuses.includes(deliveryStatus))
+      return next(new ValidationError("Invalid request data", {
+        deliveryStatus: "Invalid delivery status",
+      }));
+
+    const existingOrder = await prisma.orders.findUnique({
+      where: { id: orderId },
+    });
+
+    if (!existingOrder) return next(new NotFoundError("Order not found!"));
+
+    const updatedOrder = await prisma.orders.update({
+      where: { id: orderId },
+      data: {
+        deliveryStatus,
+        updatedAt: new Date(),
+      },
+    });
+    return res.status(200).json({
+      success: true,
+      message: "Delivery status updated successfully!",
+      order: updatedOrder,
+    });
+  } catch (err) {
+    return next(err);
+  }
+};
+

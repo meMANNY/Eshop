@@ -1,5 +1,5 @@
 import express, { Router } from "express";
-import { createPaymentIntent, createPaymentSession, verifyPaymentSession, getOrderBySession, getSellerOrders, getUserOrders, getOrderDetails } from "../controllers/order.controller";
+import { createPaymentIntent, createPaymentSession, verifyPaymentSession, getOrderBySession, getSellerOrders, getUserOrders, getOrderDetails, updateDeliveryStatus } from "../controllers/order.controller";
 import { isAuthenticated } from "../../../../packages/middleware/isAuthenticated";
 import { isSeller } from "../../../../packages/middleware/isSeller";
 
@@ -14,5 +14,6 @@ router.get("/get-seller-orders",isSeller, getSellerOrders);
 router.get("/get-user-orders",isAuthenticated, getUserOrders);
 router.get("/get-order-details/:orderId",isAuthenticated,getOrderDetails);
 router.get("/get-seller-order-details/:orderId",isSeller,getOrderDetails);
+router.put("/update-status/:orderId",isSeller, updateDeliveryStatus);
 
 export default router;
