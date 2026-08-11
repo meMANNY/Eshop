@@ -18,7 +18,8 @@ import {
     addUserAddress,
     deleteUserAddress,
     updateSellerProfile,
-    getShopReviews
+    getShopReviews,
+    updateUserPassword
 } from "../controller/auth.controller";
 import { isAuthenticated } from "../../../../packages/middleware/isAuthenticated";
 import { isSeller } from "../../../../packages/middleware/isSeller";
@@ -45,4 +46,5 @@ router.get("/get-shop-reviews", isSeller, authorizeRoles("seller"), getShopRevie
 router.get("/shipping-addresses",isAuthenticated,getUserAddresses)
 router.post("/add-address",isAuthenticated,addUserAddress)
 router.delete("/delete-address/:addressId", isAuthenticated, deleteUserAddress);
+router.post("/change-password", isAuthenticated, updateUserPassword);
 export default router;

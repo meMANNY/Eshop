@@ -17,7 +17,7 @@ export const navItems: NavItem[] = [
     },
     {
         title: "Become a Seller",
-        href: "/become-seller"
+        href: `${process.env.NEXT_PUBLIC_SELLER_SERVER_URI}/signup`
     }
     
 ];
