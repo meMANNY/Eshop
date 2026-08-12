@@ -905,3 +905,95 @@ export const updateUserPassword = async (
     return next(err);
   }
 };
+
+export const loginAdmin = async (
+  req: any,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password)
+      return next(new ValidationError("Invalid request data", "Email and Password are required!"));
+
+    const user = await prisma.users.findUnique({
+      where: { email },
+    });
+
+    if (!user) return next(new AuthError("User doesn't exist!"));
+
+    // if (user.isBanned) {
+    //   return res.status(403).json({
+    //     message: "Your account has been banned!",
+    //     bannedAt: user.bannedAt,
+    //     reason: user.banReason,
+    //   });
+    // }
+    const isMatch = await bcrypt.compare(password, user.password!);
+    if (!isMatch) return next(new AuthError("Invalid email or password"));
+
+    //const isAdmin = user.role === "admin";
+    // if (!isAdmin) {
+    //   sendLog({
+    //     type: "error",
+    //     message: `Admin login failed for ${email} - not an admin`,
+    //     source: "auth-service",
+    //   });
+    //   return next(new AuthError("Invalid Access!"));
+    // }
+
+    // sendLog({
+    //   type: "success",
+    //   message: `Admin login successful for: ${email}`,
+    //   source: "auth-service",
+    // });
+
+    res.clearCookie("seller-access-token");
+    res.clearCookie("seller-refresh-token");
+
+    const accessToken = jwt.sign(
+      { id: user.id, role: "admin" },
+      process.env.ACCESS_TOKEN_SECRET as string,
+      {
+        expiresIn: "15m",
+      }
+    );
+    const refreshToken = jwt.sign(
+      { id: user.id, role: "admin" },
+      process.env.REFRESH_TOKEN_SECRET as string,
+      {
+        expiresIn: "7d",
+      }
+    );
+
+    setCookie(res, "refresh_token", refreshToken);
+    setCookie(res, "access_token", accessToken);
+
+    res.status(200).json({
+      message: "Login Successful!",
+      user: { id: user.id, email: user.email, name: user.name },
+    });
+  } catch (err) {
+    return next(err);
+  }
+};
+
+export const getAdmin = async (req: any, res: Response, next: NextFunction) => {
+  try {
+    const admin = req.admin;
+
+    // await sendLog({
+    //   type: "success",
+    //   message: `Admin data retrived ${admin?.email}`,
+    //   source: "auth-service",
+    // });
+
+    res.status(201).json({
+      success: true,
+      admin,
+    });
+  } catch (err) {
+    return next(err);
+  }
+};

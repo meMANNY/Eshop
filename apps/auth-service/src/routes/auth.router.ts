@@ -19,8 +19,11 @@ import {
     deleteUserAddress,
     updateSellerProfile,
     getShopReviews,
-    updateUserPassword
+    updateUserPassword,
+    loginAdmin,
+    getAdmin
 } from "../controller/auth.controller";
+import { isAdmin } from "../../../../packages/middleware/isAdmin";
 import { isAuthenticated } from "../../../../packages/middleware/isAuthenticated";
 import { isSeller } from "../../../../packages/middleware/isSeller";
 import { authorizeRoles } from "../../../../packages/middleware/authorizeRoles";
@@ -47,4 +50,6 @@ router.get("/shipping-addresses",isAuthenticated,getUserAddresses)
 router.post("/add-address",isAuthenticated,addUserAddress)
 router.delete("/delete-address/:addressId", isAuthenticated, deleteUserAddress);
 router.post("/change-password", isAuthenticated, updateUserPassword);
+router.post("/login-admin",loginAdmin);
+router.get("/logged-in-admin",isAdmin,getAdmin);
 export default router;

@@ -7,7 +7,7 @@ declare global {
     namespace Express {
         interface Request {
             user?: any;
-            role?: "user" | "seller";
+            role?: "user" | "seller" | "admin";
         }
     }
 }
