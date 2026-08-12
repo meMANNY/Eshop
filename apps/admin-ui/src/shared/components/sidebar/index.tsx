@@ -2,18 +2,14 @@
 
 import useAdmin from "@/hooks/useAdmin";
 import useSidebar from "@/hooks/useSidebar";
-import { usePathname, useRouter } from "next/navigation";
-import Box from "../box";
-import { Sidebar } from "./sidebar.styles";
-import Link from "next/link";
 import Logo from "@/app/assests/svgs/logo";
-import SidebarItem from "./sidebar.items";
-import { Home } from "@/app/assests/icons/home";
-import SidebarMenu from "./sidebar.menu";
+import axiosInstance from "@/utils/axiosInstance";
 import {
   BellPlus,
   BellRing,
+  CreditCard,
   FileClock,
+  LayoutDashboard,
   ListOrdered,
   LogOut,
   PackageSearch,
@@ -22,16 +18,57 @@ import {
   Store,
   Users,
 } from "lucide-react";
-import { Payment } from "../../../app/assests/icons/payment";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
-import axiosInstance from "@/utils/axiosInstance";
 import toast from "react-hot-toast";
+import SidebarItem from "./sidebar.items";
+import SidebarMenu from "./sidebar.menu";
+
+/*
+  The nav is data, not markup. It was twelve near-identical JSX blocks, each
+  repeating its own route string three times — once for the href, once for the
+  active test and once for the icon colour — which is exactly the shape a typo
+  hides in.
+*/
+const NAV: { group: string; items: { title: string; href: string; icon: React.ReactNode }[] }[] = [
+  {
+    group: "Main menu",
+    items: [
+      { title: "Orders", href: "/dashboard/orders", icon: <ListOrdered /> },
+      { title: "Payments", href: "/dashboard/payments", icon: <CreditCard /> },
+      { title: "Products", href: "/dashboard/products", icon: <PackageSearch /> },
+      { title: "Events", href: "/dashboard/events", icon: <BellPlus /> },
+      { title: "Users", href: "/dashboard/users", icon: <Users /> },
+      { title: "Sellers", href: "/dashboard/sellers", icon: <Store /> },
+    ],
+  },
+  {
+    group: "Controllers",
+    items: [
+      { title: "Loggers", href: "/dashboard/loggers", icon: <FileClock /> },
+      { title: "Management", href: "/dashboard/management", icon: <Settings /> },
+      { title: "Notifications", href: "/dashboard/notifications", icon: <BellRing /> },
+    ],
+  },
+  {
+    group: "Customization",
+    items: [
+      {
+        title: "All customization",
+        href: "/dashboard/customization",
+        icon: <PencilRuler />,
+      },
+    ],
+  },
+];
 
 export default function SidebarWrapper() {
   const { activeSidebar, setActiveSidebar } = useSidebar();
   const pathName = usePathname();
   const { admin } = useAdmin();
   const router = useRouter();
+
   useEffect(() => {
     setActiveSidebar(pathName);
   }, [pathName, setActiveSidebar]);
@@ -39,199 +76,93 @@ export default function SidebarWrapper() {
   const handleLogout = async () => {
     try {
       await axiosInstance.get("/api/logout");
-      toast.success("Logged out successfully!");
+      toast.success("Logged out");
       router.push("/");
-    } catch (error) {
-      toast.error("Logout failed!");
+    } catch {
+      toast.error("Couldn't log out. Try again.");
     }
   };
 
-  const getIconColor = (route: string) =>
-    activeSidebar === route ? "#0085ff" : "#969696";
   return (
-    <Box
-      css={{
-        height: "100vh",
-        zIndex: 202,
-        position: "sticky",
-        padding: "8px",
-        top: "0",
-        overflowY: "scroll",
-        scrollbarWidth: "none",
-      }}
-    >
-      <Sidebar.Header>
-        <Box>
-          <Link
-            href={"/"}
-            className="flex justify-center items-center text-center gap-2"
-          >
-            <Logo />
-            <Box>
-              <h3 className="text-xl font-medium text-[#ecedee]">
-                {admin?.name.split(" ")[0]}
-              </h3>
-              <h5 className="font-medium pl-2 text-xs text-[#ecedeecf] whitespace-nowrap overflow-hidden text-ellipsis max-w-[170px]">
-                {admin?.email}
-              </h5>
-            </Box>
-          </Link>
-        </Box>
-      </Sidebar.Header>
+    <div className="flex h-full flex-col">
+      {/* Wordmark — says which console you are in before it says who you are. */}
+      <Link
+        href="/dashboard"
+        className="flex items-center gap-2.5 rounded-lg px-3 py-2 transition-colors hover:bg-white/[0.04]"
+      >
+        <Logo className="h-[18px] w-[18px] text-coral" />
+        <span className="leading-none">
+          <span className="block font-display text-base font-bold tracking-[-0.01em] text-white">
+            Zshop
+          </span>
+          <span className="mt-0.5 block text-label font-semibold uppercase text-[var(--faint)]">
+            Ops console
+          </span>
+        </span>
+      </Link>
 
-      <div className="block my-3 h-full">
-        <Sidebar.Body>
-          {/* DASHBOARD */}
+      <nav className="scroll-none mt-6 flex-1 overflow-y-auto pb-4">
+        <SidebarMenu title="Overview">
           <SidebarItem
             title="Dashboard"
-            icon={<Home fill={getIconColor("/dashboard")} />}
+            icon={<LayoutDashboard />}
             isActive={activeSidebar === "/dashboard"}
             href="/dashboard"
           />
+        </SidebarMenu>
 
-          <div className="mt-2 block">
-            {/* MAIN MENU */}
-            <SidebarMenu title="Main Menu">
-              {/* LIST OF ORDERS */}
+        {NAV.map((section) => (
+          <SidebarMenu key={section.group} title={section.group}>
+            {section.items.map((item) => (
               <SidebarItem
-                title="Orders"
-                icon={
-                  <ListOrdered
-                    size={26}
-                    color={getIconColor("/dashboard/orders")}
-                  />
-                }
-                isActive={activeSidebar === "/dashboard/orders"}
-                href="/dashboard/orders"
+                key={item.href}
+                title={item.title}
+                icon={item.icon}
+                isActive={activeSidebar === item.href}
+                href={item.href}
               />
+            ))}
+          </SidebarMenu>
+        ))}
+      </nav>
 
-              {/* PAYMENTS */}
-              <SidebarItem
-                title="Payments"
-                icon={<Payment fill={getIconColor("/dashboard/payments")} />}
-                isActive={activeSidebar === "/dashboard/payments"}
-                href="/dashboard/payments"
-              />
-
-              {/* Products */}
-              <SidebarItem
-                title="Products"
-                icon={
-                  <PackageSearch
-                    size={22}
-                    color={getIconColor("/dashboard/products")}
-                  />
-                }
-                isActive={activeSidebar === "/dashboard/products"}
-                href="/dashboard/products"
-              />
-
-              {/* Events */}
-              <SidebarItem
-                title="Events"
-                icon={
-                  <BellPlus
-                    size={24}
-                    color={getIconColor("/dashboard/events")}
-                  />
-                }
-                isActive={activeSidebar === "/dashboard/events"}
-                href="/dashboard/events"
-              />
-
-              {/* USERS */}
-              <SidebarItem
-                title="Users"
-                icon={
-                  <Users size={24} color={getIconColor("/dashboard/users")} />
-                }
-                isActive={activeSidebar === "/dashboard/users"}
-                href="/dashboard/users"
-              />
-
-              {/* SELLERS */}
-              <SidebarItem
-                title="Sellers"
-                icon={
-                  <Store size={22} color={getIconColor("/dashboard/sellers")} />
-                }
-                isActive={activeSidebar === "/dashboard/sellers"}
-                href="/dashboard/sellers"
-              />
-            </SidebarMenu>
-
-            {/* CONTROLLERS MENU */}
-            <SidebarMenu title="Controllers">
-              {/* LOGGERS */}
-              <SidebarItem
-                title="Loggers"
-                icon={
-                  <FileClock
-                    size={22}
-                    color={getIconColor("/dashboard/loggers")}
-                  />
-                }
-                isActive={activeSidebar === "/dashboard/loggers"}
-                href="/dashboard/loggers"
-              />
-
-              {/* MANAGEMENT */}
-              <SidebarItem
-                title="Management"
-                icon={
-                  <Settings
-                    size={22}
-                    color={getIconColor("/dashboard/management")}
-                  />
-                }
-                isActive={activeSidebar === "/dashboard/management"}
-                href="/dashboard/management"
-              />
-
-              {/* NOTIFICATIONS */}
-              <SidebarItem
-                title="Notifications"
-                icon={
-                  <BellRing
-                    size={24}
-                    color={getIconColor("/dashboard/notifications")}
-                  />
-                }
-                isActive={activeSidebar === "/dashboard/notifications"}
-                href="/dashboard/notifications"
-              />
-            </SidebarMenu>
-
-            {/* CUSTOMIZATION MENU */}
-            <SidebarMenu title="Customization">
-              {/* CUSTOMIZATION */}
-              <SidebarItem
-                title="All Customization"
-                icon={
-                  <PencilRuler
-                    size={22}
-                    color={getIconColor("/dashboard/customization")}
-                  />
-                }
-                isActive={activeSidebar === "/dashboard/customization"}
-                href="/dashboard/customization"
-              />
-            </SidebarMenu>
-
-            {/* EXTRAS MENU */}
-            <SidebarMenu title="Extras">
-              {/* LOGOUT */}
-              <button
-                onClick={handleLogout}
-                className=" flex gap-2 w-full min-h-12 h-full items-center px-[13px] rounded-lg cursor-pointer transition my-2 text-left py-2  hover:bg-[#2b2f31] "
-              >
-                <LogOut size={24} color="#969696" />
-                <span className="text-lg  text-slate-200">Logout</span>
-              </button>
-            </SidebarMenu>
+      {/*
+        Identity sits at the foot of the rail, next to the control that ends the
+        session — you check who you are signed in as at the moment you consider
+        signing out, not while you are reading a table.
+      */}
+      <div className="mt-auto border-t border-rule pt-3">
+        {admin ? (
+          <div className="flex items-center gap-2.5 px-3 py-2">
+            <span
+              className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-coral-soft text-sm font-semibold text-coral"
+              aria-hidden="true"
+            >
+              {admin.name?.[0]?.toUpperCase() ?? "A"}
+            </span>
+            <span className="min-w-0">
+              <span className="block truncate text-sm font-medium text-[var(--text)]">
+                {admin.name}
+              </span>
+              <span className="block truncate text-xs text-[var(--faint)]">
+                {admin.email}
+              </span>
+            </span>
           </div>
-        </Sidebar.Body>
+        ) : (
+          <div className="px-3 py-2">
+            <div className="h-8 w-full animate-pulse rounded bg-raised motion-reduce:animate-none" />
+          </div>
+        )}
+
+        <button
+          onClick={handleLogout}
+          className="mt-1 flex w-full items-center gap-3 rounded-lg py-2.5 pl-3 pr-3 text-sm text-[var(--muted)] transition-colors hover:bg-neg/10 hover:text-neg"
+        >
+          <LogOut size={18} className="shrink-0" />
+          Log out
+        </button>
       </div>
-    </Box>
+    </div>
   );
 }

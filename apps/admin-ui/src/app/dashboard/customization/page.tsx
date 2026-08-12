@@ -1,19 +1,34 @@
 "use client";
 
-import { useState, useEffect } from "react";
-
+import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
-import { UploadCloud } from "lucide-react";
+import { ImageIcon, Layers, Tag, UploadCloud } from "lucide-react";
 import axiosInstance from "@/utils/axiosInstance";
+import {
+  Button,
+  Crumbs,
+  EmptyState,
+  Figure,
+  PageShell,
+  PageTitle,
+  Panel,
+  PanelHead,
+  Select,
+  TextField,
+} from "@/shared/components/ui";
+
+type Tab = "categories" | "logo" | "banner";
+
+const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
+  { id: "categories", label: "Categories", icon: <Tag size={15} /> },
+  { id: "logo", label: "Logo", icon: <Layers size={15} /> },
+  { id: "banner", label: "Banner", icon: <ImageIcon size={15} /> },
+];
 
 export default function CustomizationPage() {
-  const [tab, setTab] = useState<"categories" | "logo" | "banner">(
-    "categories"
-  );
+  const [tab, setTab] = useState<Tab>("categories");
   const [categories, setCategories] = useState<string[]>([]);
-  const [subCategories, setSubCategories] = useState<Record<string, string[]>>(
-    {}
-  );
+  const [subCategories, setSubCategories] = useState<Record<string, string[]>>({});
   const [newCategory, setNewCategory] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [newSubCategory, setNewSubCategory] = useState("");
@@ -22,34 +37,19 @@ export default function CustomizationPage() {
   const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
-    axiosInstance.get("/admin/api/get-site-config").then((res) => {
-      const data = res.data.data;
-      setCategories(data.categories || []);
-      setSubCategories(data.subCategories || {});
-      setLogo(data.logo || "");
-      setBanner(data.banner || "");
-    });
+    axiosInstance
+      .get("/admin/api/get-site-config")
+      .then((res) => {
+        const data = res.data.data ?? res.data;
+        setCategories(data.categories || []);
+        setSubCategories(data.subCategories || {});
+        setLogo(data.logo || "");
+        setBanner(data.banner || "");
+      })
+      // Without this the request failing threw an unhandled rejection and the
+      // page just sat there empty with no indication anything had gone wrong.
+      .catch(() => toast.error("Couldn't load the site configuration."));
   }, []);
-
-  const handleAddCategory = async () => {
-    if (!newCategory.trim()) return;
-    const updated = [...categories, newCategory];
-    await saveChanges(updated, subCategories);
-    setNewCategory("");
-  };
-
-  const handleAddSubCategory = async () => {
-    if (!selectedCategory || !newSubCategory.trim()) return;
-    const updatedSubs = {
-      ...subCategories,
-      [selectedCategory]: [
-        ...(subCategories[selectedCategory] || []),
-        newSubCategory,
-      ],
-    };
-    await saveChanges(categories, updatedSubs);
-    setNewSubCategory("");
-  };
 
   const saveChanges = async (
     cats: string[],
@@ -62,10 +62,28 @@ export default function CustomizationPage() {
       });
       setCategories(cats);
       setSubCategories(subs);
-      toast.success("Categories updated!");
+      toast.success("Categories updated");
     } catch {
-      toast.error("Failed to update categories!");
+      toast.error("Couldn't update categories. Try again.");
     }
+  };
+
+  const handleAddCategory = async () => {
+    if (!newCategory.trim()) return;
+    await saveChanges([...categories, newCategory.trim()], subCategories);
+    setNewCategory("");
+  };
+
+  const handleAddSubCategory = async () => {
+    if (!selectedCategory || !newSubCategory.trim()) return;
+    await saveChanges(categories, {
+      ...subCategories,
+      [selectedCategory]: [
+        ...(subCategories[selectedCategory] || []),
+        newSubCategory.trim(),
+      ],
+    });
+    setNewSubCategory("");
   };
 
   const convertFileToBase64 = (file: File) =>
@@ -85,15 +103,11 @@ export default function CustomizationPage() {
         fileName,
       });
       const uploadedUrl = res.data.file_url;
-
       if (type === "logo") setLogo(uploadedUrl);
       else setBanner(uploadedUrl);
-
-      toast.success(
-        `${type === "logo" ? "Logo" : "Banner"} uploaded successfully!`
-      );
+      toast.success(`${type === "logo" ? "Logo" : "Banner"} uploaded`);
     } catch {
-      toast.error(`Failed to upload ${type}!`);
+      toast.error(`Couldn't upload the ${type}. Try again.`);
     } finally {
       setUploading(false);
     }
@@ -101,146 +115,199 @@ export default function CustomizationPage() {
 
   const renderUploadBox = (type: "logo" | "banner") => {
     const currentImage = type === "logo" ? logo : banner;
-    const label = type === "logo" ? "Upload Site Logo" : "Upload Banner Image";
-    const description =
+    const copy =
       type === "logo"
-        ? "Recommended size: 150x150px, PNG or JPG"
-        : "Recommended size: 1920x500px, JPG or WebP";
+        ? { label: "Upload a site logo", hint: "150 × 150px, PNG or JPG" }
+        : { label: "Upload a banner", hint: "1920 × 500px, JPG or WebP" };
 
     return (
-      <div className="flex flex-col items-start gap-4 w-full max-w-3xl">
-        {currentImage && (
-          <img
-            src={currentImage}
-            alt={type}
-            className={`rounded-lg border border-gray-700 ${
-              type === "logo"
-                ? "w-32 h-32 object-contain"
-                : "w-full h-56 object-contain"
-            }`}
-          />
-        )}
+      <Panel>
+        <PanelHead
+          title={type === "logo" ? "Site logo" : "Storefront banner"}
+          note={
+            currentImage
+              ? "Replacing this takes effect on the storefront immediately."
+              : "Nothing uploaded yet."
+          }
+        />
+        <div className="space-y-5 p-5">
+          {currentImage ? (
+            <div className="rounded-lg border border-rule bg-ink p-4">
+              <img
+                src={currentImage}
+                alt={`Current ${type}`}
+                className={
+                  type === "logo"
+                    ? "h-28 w-28 object-contain"
+                    : "h-48 w-full object-contain"
+                }
+              />
+            </div>
+          ) : null}
 
-        <label
-          htmlFor={`${type}-upload`}
-          className="w-full border-2 border-dashed border-gray-700 rounded-lg p-8 flex flex-col items-center justify-center gap-3 cursor-pointer hover:border-blue-500 hover:bg-gray-800/50 transition"
-        >
-          <UploadCloud size={40} className="text-blue-400" />
-          <span className="text-gray-300 font-medium">{label}</span>
-          <span className="text-gray-500 text-sm">{description}</span>
-          <div className="mt-3">
-            <span className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-md text-sm font-semibold text-white transition">
-              Choose File
+          <label
+            htmlFor={`${type}-upload`}
+            className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-rule px-6 py-10 text-center transition-colors hover:border-coral/50 hover:bg-white/[0.02]"
+          >
+            <UploadCloud size={26} className="text-[var(--faint)]" aria-hidden="true" />
+            <span className="text-sm font-medium text-[var(--text)]">
+              {copy.label}
             </span>
-          </div>
-          <input
-            id={`${type}-upload`}
-            type="file"
-            accept="image/*"
-            onChange={(e) => handleUpload(e.target.files?.[0] || null, type)}
-            className="hidden"
-          />
-        </label>
-
-        {uploading && (
-          <p className="text-sm text-gray-400 animate-pulse">Uploading...</p>
-        )}
-      </div>
+            <Figure className="text-xs text-[var(--muted)]">{copy.hint}</Figure>
+            <span className="mt-2 rounded-lg bg-coral px-3.5 py-2 text-sm font-medium text-[#1a0d0b]">
+              {uploading ? "Uploading…" : "Choose file"}
+            </span>
+            <input
+              id={`${type}-upload`}
+              type="file"
+              accept="image/*"
+              disabled={uploading}
+              onChange={(e) => handleUpload(e.target.files?.[0] || null, type)}
+              className="hidden"
+            />
+          </label>
+        </div>
+      </Panel>
     );
   };
 
   return (
-    <div className="p-8 bg-gray-950 min-h-screen text-white">
-      <h2 className="text-2xl font-semibold mb-6">Customization</h2>
+    <PageShell>
+      <Crumbs trail={["Customization"]} />
+      <PageTitle
+        title="Customization"
+        meta="What buyers see on the storefront: the category tree, the logo and the banner."
+      />
 
-      <div className="border-b border-gray-800 mb-4 flex gap-6">
-        <button
-          onClick={() => setTab("categories")}
-          className={`pb-2 ${
-            tab === "categories" ? "border-b-2 border-blue-500" : ""
-          }`}
-        >
-          Categories
-        </button>
-        <button
-          onClick={() => setTab("logo")}
-          className={`pb-2 ${
-            tab === "logo" ? "border-b-2 border-blue-500" : ""
-          }`}
-        >
-          Logo
-        </button>
-        <button
-          onClick={() => setTab("banner")}
-          className={`pb-2 ${
-            tab === "banner" ? "border-b-2 border-blue-500" : ""
-          }`}
-        >
-          Banner
-        </button>
+      {/* Tabs. `role="tablist"` plus the pressed state is what makes these read
+          as one control rather than three unrelated buttons. */}
+      <div role="tablist" className="mb-6 flex gap-1 border-b border-rule">
+        {TABS.map((t) => (
+          <button
+            key={t.id}
+            role="tab"
+            aria-selected={tab === t.id}
+            onClick={() => setTab(t.id)}
+            className={`-mb-px flex items-center gap-2 border-b-2 px-3.5 py-2.5 text-sm transition-colors ${
+              tab === t.id
+                ? "border-coral font-medium text-coral"
+                : "border-transparent text-[var(--muted)] hover:text-[var(--text)]"
+            }`}
+          >
+            {t.icon}
+            {t.label}
+          </button>
+        ))}
       </div>
 
-      {tab === "categories" && (
-        <div>
-          <div className="space-y-4 mb-6">
-            {categories.map((cat) => (
-              <div key={cat}>
-                <h3 className="font-semibold text-lg">{cat}</h3>
-                <ul className="ml-6 list-disc text-gray-400">
-                  {(subCategories[cat] || []).map((sub) => (
-                    <li key={sub}>{sub}</li>
-                  ))}
-                </ul>
+      {tab === "categories" ? (
+        <div className="grid gap-5 lg:grid-cols-[1.4fr_1fr]">
+          <Panel>
+            <PanelHead
+              title="Category tree"
+              note={
+                <>
+                  <Figure>{categories.length}</Figure> categor
+                  {categories.length === 1 ? "y" : "ies"}
+                </>
+              }
+            />
+            {categories.length === 0 ? (
+              <EmptyState
+                icon={<Tag size={26} />}
+                title="No categories yet"
+                hint="Add your first category on the right. Buyers browse the storefront by these."
+              />
+            ) : (
+              <ul className="divide-y divide-rule">
+                {categories.map((cat) => (
+                  <li key={cat} className="px-5 py-4">
+                    <p className="text-sm font-medium text-[var(--text)]">{cat}</p>
+                    {(subCategories[cat] || []).length > 0 ? (
+                      <div className="mt-2 flex flex-wrap gap-1.5">
+                        {subCategories[cat].map((sub) => (
+                          <span
+                            key={sub}
+                            className="rounded-full bg-raised px-2.5 py-0.5 text-xs text-[var(--muted)]"
+                          >
+                            {sub}
+                          </span>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="mt-1 text-xs text-[var(--faint)]">
+                        No subcategories
+                      </p>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </Panel>
+
+          <div className="space-y-5">
+            <Panel>
+              <PanelHead title="Add a category" />
+              <div className="space-y-3 p-5">
+                <TextField
+                  label="Category name"
+                  placeholder="Footwear"
+                  value={newCategory}
+                  onChange={(e) => setNewCategory(e.target.value)}
+                />
+                <Button
+                  variant="primary"
+                  onClick={handleAddCategory}
+                  disabled={!newCategory.trim()}
+                  className="w-full"
+                >
+                  Add category
+                </Button>
               </div>
-            ))}
-          </div>
+            </Panel>
 
-          <div className="flex items-center gap-3 mb-4">
-            <input
-              value={newCategory}
-              onChange={(e) => setNewCategory(e.target.value)}
-              placeholder="New category"
-              className="px-3 py-2 bg-gray-800 border border-gray-700 rounded-md"
-            />
-            <button
-              onClick={handleAddCategory}
-              className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-md text-sm"
-            >
-              Add Category
-            </button>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <select
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-              className="px-3 py-2 bg-gray-800 border border-gray-700 rounded-md"
-            >
-              <option value="">Select category</option>
-              {categories.map((c) => (
-                <option key={c} value={c}>
-                  {c}
-                </option>
-              ))}
-            </select>
-            <input
-              value={newSubCategory}
-              onChange={(e) => setNewSubCategory(e.target.value)}
-              placeholder="New subcategory"
-              className="px-3 py-2 bg-gray-800 border border-gray-700 rounded-md"
-            />
-            <button
-              onClick={handleAddSubCategory}
-              className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-md text-sm"
-            >
-              Add Subcategory
-            </button>
+            <Panel>
+              <PanelHead title="Add a subcategory" />
+              <div className="space-y-3 p-5">
+                <div>
+                  <span className="mb-1.5 block text-label font-semibold uppercase text-[var(--muted)]">
+                    Parent category
+                  </span>
+                  <Select
+                    label="Parent category"
+                    value={selectedCategory}
+                    onChange={(e) => setSelectedCategory(e.target.value)}
+                    className="w-full"
+                  >
+                    <option value="">Select a category</option>
+                    {categories.map((c) => (
+                      <option key={c} value={c}>
+                        {c}
+                      </option>
+                    ))}
+                  </Select>
+                </div>
+                <TextField
+                  label="Subcategory name"
+                  placeholder="Running shoes"
+                  value={newSubCategory}
+                  onChange={(e) => setNewSubCategory(e.target.value)}
+                />
+                <Button
+                  variant="primary"
+                  onClick={handleAddSubCategory}
+                  disabled={!selectedCategory || !newSubCategory.trim()}
+                  className="w-full"
+                >
+                  Add subcategory
+                </Button>
+              </div>
+            </Panel>
           </div>
         </div>
+      ) : (
+        <div className="max-w-3xl">{renderUploadBox(tab)}</div>
       )}
-
-      {tab === "logo" && renderUploadBox("logo")}
-      {tab === "banner" && renderUploadBox("banner")}
-    </div>
+    </PageShell>
   );
 }

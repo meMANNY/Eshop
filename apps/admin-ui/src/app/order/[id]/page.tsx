@@ -1,31 +1,38 @@
 "use client";
 
-
 import axiosInstance from "@/utils/axiosInstance";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { ArrowLeft, PackageX } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import {
+  Bar,
+  EmptyState,
+  Figure,
+  PageShell,
+  PageTitle,
+  Panel,
+  PanelHead,
+  StatusPill,
+  money,
+  paymentTone,
+  shortDate,
+  shortId,
+} from "@/shared/components/ui";
 
-const statuses = [
-  "Ordered",
-  "Packed",
-  "Shipped",
-  "Out for Delivery",
-  "Delivered",
-];
+const STAGES = ["Ordered", "Packed", "Shipped", "Out for Delivery", "Delivered"];
 
 export default function Page() {
   const params = useParams();
   const orderId = params.id as string;
+  const router = useRouter();
 
   const [order, setOrder] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const router = useRouter();
 
-  const fetchOrder = async () => {
+  const fetchOrder = useCallback(async () => {
     try {
       const res = await axiosInstance.get(
-        `order/api/get-order-details/${orderId}`
+        `/order/api/get-order-details/${orderId}`
       );
       setOrder(res.data.order);
     } catch (err) {
@@ -33,213 +40,261 @@ export default function Page() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [orderId]);
 
   useEffect(() => {
     if (orderId) fetchOrder();
-  }, [orderId]);
+  }, [orderId, fetchOrder]);
 
-  if (loading)
-    return (
-      <div className="flex justify-center items-center h-[40vh]">
-        <Loader2 className="animate-spin w-6 h-6 text-gray-400" />
-      </div>
-    );
-
-  if (!order)
-    return (
-      <p className="text-center text-sm text-red-500 mt-10 font-medium">
-        Order not found.
-      </p>
-    );
-
+  /*
+    This route sits outside /dashboard, so it inherits neither the rail nor its
+    canvas — it has to carry its own. That is why the page used to render as dark
+    text on the browser's default white.
+  */
   return (
-    <div className="max-w-5xl mx-auto px-4 py-10 text-gray-100">
-      {/* Back Button */}
-      <div className="mb-6">
+    <div className="min-h-screen bg-ink">
+      <PageShell>
         <button
           onClick={() => router.push("/dashboard/orders")}
-          className="flex items-center gap-2 text-blue-400 hover:text-blue-300 font-medium transition"
+          className="mb-5 inline-flex items-center gap-2 text-sm text-[var(--muted)] transition-colors hover:text-coral"
         >
-          <ArrowLeft size={18} />
-          Go Back to Dashboard
+          <ArrowLeft size={16} aria-hidden="true" />
+          Back to orders
         </button>
-      </div>
 
-      {/* Header */}
-      <h1 className="text-2xl font-bold mb-6 text-white">
-        Order <span className="text-blue-400">#{order.id.slice(-6)}</span>
-      </h1>
+        {loading ? (
+          <OrderSkeleton />
+        ) : !order ? (
+          <Panel>
+            <EmptyState
+              icon={<PackageX size={28} />}
+              title="Order not found"
+              hint="It may have been removed, or the id in the address is wrong."
+            />
+          </Panel>
+        ) : (
+          <>
+            <PageTitle
+              title={`Order ${shortId(order.id)}`}
+              meta={
+                <>
+                  Placed{" "}
+                  <Figure>{shortDate(order.createdAt)}</Figure> ·{" "}
+                  <Figure className="text-white">{money(order.total)}</Figure>
+                </>
+              }
+              actions={
+                <StatusPill tone={paymentTone(order.status)}>
+                  {order.status ?? "Unknown"}
+                </StatusPill>
+              }
+            />
 
-      {/* Delivery Progress Tracker */}
-      <div className="mb-10">
-        {/* Labels */}
-        <div className="flex justify-between text-xs font-medium mb-3 text-gray-400">
-          {statuses.map((status, i) => {
-            const activeIndex = statuses.indexOf(order.deliveryStatus);
-            const isReached = i <= activeIndex;
-            return (
-              <span
-                key={status}
-                className={`${
-                  isReached ? "text-blue-400 font-semibold" : "text-gray-500"
-                }`}
-              >
-                {status}
-              </span>
-            );
-          })}
-        </div>
-
-        {/* Progress Bar + Dots */}
-        <div className="relative flex justify-between items-center mt-4">
-          {/* Full gray line */}
-          <div className="absolute top-1/2 left-0 right-0 h-[3px] bg-gray-700 rounded-full transform -translate-y-1/2"></div>
-
-          {/* Blue progress line */}
-          <div
-            className="absolute top-1/2 left-0 h-[3px] bg-blue-500 rounded-full transform -translate-y-1/2 transition-all duration-500 ease-in-out"
-            style={{
-              width: `${
-                (statuses.indexOf(order.deliveryStatus) /
-                  (statuses.length - 1)) *
-                100
-              }%`,
-            }}
-          />
-
-          {/* Steps */}
-          {statuses.map((status, i) => {
-            const reached = i <= statuses.indexOf(order.deliveryStatus);
-            const current = i === statuses.indexOf(order.deliveryStatus);
-            return (
-              <div
-                key={status}
-                className={`relative z-10 w-5 h-5 flex items-center justify-center rounded-full transition-all duration-500 ${
-                  current
-                    ? "bg-blue-600 shadow-lg shadow-blue-500/40 scale-110"
-                    : reached
-                    ? "bg-blue-500"
-                    : "bg-gray-700"
-                }`}
-              >
-                <div
-                  className={`w-2 h-2 rounded-full ${
-                    reached ? "bg-white" : "bg-gray-400"
-                  }`}
-                ></div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Order Info */}
-      <div className="border border-gray-800 rounded-xl p-6 mb-8 bg-gray-900/70">
-        <h2 className="text-lg font-semibold mb-4 text-white">Order Summary</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-2 text-sm text-gray-300">
-          <p>
-            <span className="font-medium text-gray-400">Payment Status:</span>{" "}
-            <span
-              className={`${
-                order.status === "Paid" ? "text-green-400" : "text-yellow-400"
-              }`}
-            >
-              {order.status}
-            </span>
-          </p>
-          <p>
-            <span className="font-medium text-gray-400">Total Paid:</span>{" "}
-            <span className="text-green-400">${order.total.toFixed(2)}</span>
-          </p>
-          {order.discountAmount > 0 && (
-            <p>
-              <span className="font-medium text-gray-400">Discount:</span>{" "}
-              <span className="text-teal-400">
-                -${order.discountAmount.toFixed(2)}
-              </span>
-            </p>
-          )}
-          {order.couponCode && (
-            <p>
-              <span className="font-medium text-gray-400">Coupon:</span>{" "}
-              <span className="text-blue-400">
-                {order.couponCode.public_name}
-              </span>
-            </p>
-          )}
-          <p>
-            <span className="font-medium text-gray-400">Date:</span>{" "}
-            {new Date(order.createdAt).toLocaleDateString()}
-          </p>
-        </div>
-      </div>
-
-      {/* Shipping Address */}
-      {order.shippingAddress && (
-        <div className="border border-gray-800 rounded-xl p-6 mb-8 bg-gray-900/70">
-          <h2 className="text-lg font-semibold mb-3 text-white">
-            Shipping Address
-          </h2>
-          <div className="space-y-1 text-sm text-gray-300">
-            <p>{order.shippingAddress.name}</p>
-            <p>
-              {order.shippingAddress.street}, {order.shippingAddress.city},{" "}
-              {order.shippingAddress.zip}
-            </p>
-            <p>{order.shippingAddress.country}</p>
-          </div>
-        </div>
-      )}
-
-      {/* Order Items */}
-      <div className="border border-gray-800 rounded-xl p-6 bg-gray-900/70">
-        <h2 className="text-lg font-semibold mb-4 text-white">Order Items</h2>
-        <div className="space-y-4">
-          {order.items.map((item: any) => (
-            <div
-              key={item.productId}
-              className="flex items-center gap-5 border border-gray-800 bg-gray-800/50 rounded-lg p-4 hover:bg-gray-800/70 transition-all duration-200"
-            >
-              <img
-                src={
-                  item.product?.images[0]?.url ||
-                  "https://images.unsplash.com/photo-1635405074683-96d6921a2a68?w=500&auto=format&fit=crop&q=80"
-                }
-                alt={item.product?.title || "Product Image"}
-                className="w-16 h-16 object-cover rounded-md border border-gray-700"
+            <Panel className="mb-5">
+              <PanelHead
+                title="Delivery"
+                note={order.deliveryStatus ?? "Not started"}
               />
-              <div className="flex-1">
-                <p className="font-medium text-gray-100">
-                  {item?.product?.title || "Unnamed Product"}
-                </p>
-                <p className="text-sm text-gray-400">
-                  Quantity: {item?.quantity}
-                </p>
-                {item?.selectedOptions &&
-                  Object.keys(item.selectedOptions).length > 0 && (
-                    <div className="text-xs text-gray-400 mt-1">
-                      {Object.entries(item.selectedOptions).map(
-                        ([key, value]: [string, any]) =>
-                          value && (
-                            <span key={key} className="mr-3">
-                              <span className="font-medium capitalize text-gray-300">
-                                {key}:{" "}
-                              </span>
-                              {value}
-                            </span>
-                          )
-                      )}
-                    </div>
-                  )}
+              <div className="px-5 py-6">
+                <ProgressTracker current={order.deliveryStatus} />
               </div>
-              <p className="text-sm font-semibold text-gray-200">
-                ${item?.price?.toFixed(2)}
-              </p>
+            </Panel>
+
+            <div className="mb-5 grid gap-5 lg:grid-cols-2">
+              <Panel>
+                <PanelHead title="Summary" />
+                <dl className="divide-y divide-rule">
+                  <Row label="Payment">
+                    <StatusPill tone={paymentTone(order.status)}>
+                      {order.status ?? "Unknown"}
+                    </StatusPill>
+                  </Row>
+                  <Row label="Total paid">
+                    <Figure className="font-medium text-white">
+                      {money(order.total)}
+                    </Figure>
+                  </Row>
+                  {order.discountAmount > 0 ? (
+                    <Row label="Discount">
+                      <Figure className="text-pos">
+                        −{money(order.discountAmount)}
+                      </Figure>
+                    </Row>
+                  ) : null}
+                  {order.couponCode ? (
+                    <Row label="Coupon">{order.couponCode.public_name}</Row>
+                  ) : null}
+                  <Row label="Placed">
+                    <Figure className="text-[var(--muted)]">
+                      {shortDate(order.createdAt)}
+                    </Figure>
+                  </Row>
+                </dl>
+              </Panel>
+
+              <Panel>
+                <PanelHead title="Shipping address" />
+                {order.shippingAddress ? (
+                  <div className="space-y-1 p-5 text-sm text-[var(--muted)]">
+                    <p className="font-medium text-[var(--text)]">
+                      {order.shippingAddress.name}
+                    </p>
+                    <p>
+                      {order.shippingAddress.street}, {order.shippingAddress.city}{" "}
+                      {order.shippingAddress.zip}
+                    </p>
+                    <p>{order.shippingAddress.country}</p>
+                  </div>
+                ) : (
+                  <p className="p-5 text-sm text-[var(--faint)]">
+                    No address recorded for this order.
+                  </p>
+                )}
+              </Panel>
             </div>
+
+            <Panel>
+              <PanelHead
+                title="Items"
+                note={
+                  <>
+                    <Figure>{order.items?.length ?? 0}</Figure> line
+                    {order.items?.length === 1 ? "" : "s"}
+                  </>
+                }
+              />
+              <ul className="divide-y divide-rule">
+                {(order.items ?? []).map((item: any) => (
+                  <li
+                    key={item.productId}
+                    className="flex items-center gap-4 px-5 py-4"
+                  >
+                    <img
+                      /*
+                        The optional chain was on the wrong link: `images[0]?.url`
+                        still throws when `images` itself is undefined.
+                      */
+                      src={
+                        item.product?.images?.[0]?.url ||
+                        "/placeholder.png"
+                      }
+                      alt=""
+                      className="h-14 w-14 shrink-0 rounded-md border border-rule object-cover"
+                    />
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate font-medium text-[var(--text)]">
+                        {item.product?.title ?? "Unnamed product"}
+                      </p>
+                      <p className="mt-0.5 text-sm text-[var(--muted)]">
+                        Quantity <Figure>{item.quantity}</Figure>
+                      </p>
+                      {item.selectedOptions &&
+                      Object.keys(item.selectedOptions).length > 0 ? (
+                        <div className="mt-1.5 flex flex-wrap gap-1.5">
+                          {Object.entries(item.selectedOptions).map(
+                            ([key, value]: [string, any]) =>
+                              value ? (
+                                <span
+                                  key={key}
+                                  className="rounded-full bg-raised px-2.5 py-0.5 text-xs text-[var(--muted)]"
+                                >
+                                  <span className="capitalize">{key}</span>:{" "}
+                                  {value}
+                                </span>
+                              ) : null
+                          )}
+                        </div>
+                      ) : null}
+                    </div>
+                    <Figure className="shrink-0 font-medium text-white">
+                      {money(item.price)}
+                    </Figure>
+                  </li>
+                ))}
+              </ul>
+            </Panel>
+          </>
+        )}
+      </PageShell>
+    </div>
+  );
+}
+
+function Row({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="flex items-center justify-between gap-4 px-5 py-3">
+      <dt className="text-label font-semibold uppercase text-[var(--muted)]">
+        {label}
+      </dt>
+      <dd className="text-sm text-[var(--text)]">{children}</dd>
+    </div>
+  );
+}
+
+function ProgressTracker({ current }: { current?: string }) {
+  const index = STAGES.indexOf(current ?? "");
+  /*
+    An unrecognised status makes `indexOf` return -1, which turned the width into
+    a negative percentage — and into NaN once it was divided. Clamping to 0 keeps
+    an unknown status showing as "not started" instead of breaking the bar.
+  */
+  const reached = Math.max(index, 0);
+  const percent = (reached / (STAGES.length - 1)) * 100;
+
+  return (
+    <div>
+      <div className="relative mb-4 h-1 rounded-full bg-raised">
+        <div
+          className="absolute inset-y-0 left-0 rounded-full bg-coral transition-[width] duration-500 motion-reduce:transition-none"
+          style={{ width: `${percent}%` }}
+        />
+        <div className="absolute inset-0 flex items-center justify-between">
+          {STAGES.map((stage, i) => (
+            <span
+              key={stage}
+              className={`h-3 w-3 rounded-full ring-4 ring-panel transition-colors ${
+                i <= reached ? "bg-coral" : "bg-rule"
+              }`}
+              aria-hidden="true"
+            />
           ))}
         </div>
       </div>
+      <ol className="flex justify-between gap-2">
+        {STAGES.map((stage, i) => (
+          <li
+            key={stage}
+            aria-current={i === reached ? "step" : undefined}
+            className={`flex-1 text-center text-xs ${
+              i <= reached
+                ? "font-medium text-[var(--text)]"
+                : "text-[var(--faint)]"
+            }`}
+          >
+            {stage}
+          </li>
+        ))}
+      </ol>
+    </div>
+  );
+}
+
+function OrderSkeleton() {
+  return (
+    <div className="space-y-5" role="status" aria-label="Loading order">
+      <Bar className="h-8 w-56" />
+      <Bar className="h-28 w-full" />
+      <div className="grid gap-5 lg:grid-cols-2">
+        <Bar className="h-48 w-full" />
+        <Bar className="h-48 w-full" />
+      </div>
+      <Bar className="h-40 w-full" />
     </div>
   );
 }

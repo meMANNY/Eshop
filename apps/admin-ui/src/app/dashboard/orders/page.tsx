@@ -5,12 +5,24 @@ import axiosInstance from "@/utils/axiosInstance";
 import {
   getCoreRowModel,
   getFilteredRowModel,
-  flexRender,
   useReactTable,
 } from "@tanstack/react-table";
-import BreadCrumbs from "@/shared/components/breadCrumbs";
-
-import { Eye, Search } from "lucide-react";
+import { DataTable } from "@/shared/components/ui/data-table";
+import {
+  Crumbs,
+  EmptyState,
+  Figure,
+  PageShell,
+  PageTitle,
+  SearchField,
+  StatusPill,
+  deliveryTone,
+  money,
+  paymentTone,
+  shortDate,
+  shortId,
+} from "@/shared/components/ui";
+import { Eye, Inbox, SearchX } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 
@@ -30,91 +42,84 @@ export default function Page() {
     () => [
       {
         accessorKey: "id",
-        header: "Order ID",
+        header: "Order",
         cell: ({ row }: any) => (
-          <span className="text-white text-sm font-medium truncate">
-            #{row.original.id.slice(-6).toUpperCase()}
-          </span>
+          <Figure className="font-medium text-white">
+            {shortId(row.original.id)}
+          </Figure>
         ),
       },
       {
         accessorKey: "shop.name",
         header: "Shop",
-        cell: ({ row }: any) => (
-          <span className="text-gray-200">
-            {row.original.shop?.name ?? "Unknown Shop"}
-          </span>
-        ),
+        cell: ({ row }: any) =>
+          row.original.shop?.name ?? (
+            <span className="text-[var(--faint)]">Unknown shop</span>
+          ),
       },
       {
         accessorKey: "user.name",
         header: "Buyer",
         cell: ({ row }: any) => (
-          <span className="text-gray-200">
-            {row.original.user?.name ?? "Guest"}
-          </span>
+          <div className="flex items-center gap-2.5">
+            <span
+              className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-raised text-xs font-semibold text-[var(--muted)]"
+              aria-hidden="true"
+            >
+              {row.original.user?.name?.[0]?.toUpperCase() ?? "G"}
+            </span>
+            <span className="truncate">{row.original.user?.name ?? "Guest"}</span>
+          </div>
         ),
       },
       {
         accessorKey: "total",
         header: "Total",
+        meta: { align: "right" },
         cell: ({ row }: any) => (
-          <span className="text-white font-semibold">
-            ${row.original.total.toFixed(2)}
-          </span>
+          <Figure className="font-medium text-white">
+            {money(row.original.total)}
+          </Figure>
         ),
       },
       {
         accessorKey: "status",
-        header: "Payment Status",
+        header: "Payment",
         cell: ({ row }: any) => (
-          <span
-            className={`px-2 py-1 rounded-full text-xs font-medium ${
-              row.original.status === "Paid"
-                ? "bg-green-600 text-white"
-                : row.original.status === "Pending"
-                ? "bg-yellow-500 text-white"
-                : "bg-gray-600 text-gray-100"
-            }`}
-          >
-            {row.original.status}
-          </span>
+          <StatusPill tone={paymentTone(row.original.status)}>
+            {row.original.status ?? "Unknown"}
+          </StatusPill>
         ),
       },
       {
         accessorKey: "deliveryStatus",
         header: "Delivery",
         cell: ({ row }: any) => (
-          <span
-            className={`text-sm font-medium ${
-              row.original.deliveryStatus === "Delivered"
-                ? "text-green-400"
-                : row.original.deliveryStatus === "Processing"
-                ? "text-yellow-400"
-                : "text-gray-400"
-            }`}
-          >
-            {row.original.deliveryStatus}
-          </span>
+          <StatusPill tone={deliveryTone(row.original.deliveryStatus)}>
+            {row.original.deliveryStatus ?? "Unknown"}
+          </StatusPill>
         ),
       },
       {
         accessorKey: "createdAt",
-        header: "Date",
-        cell: ({ row }: any) => {
-          const date = new Date(row.original.createdAt).toLocaleDateString();
-          return <span className="text-gray-300 text-sm">{date}</span>;
-        },
+        header: "Placed",
+        cell: ({ row }: any) => (
+          <Figure className="text-[var(--muted)]">
+            {shortDate(row.original.createdAt)}
+          </Figure>
+        ),
       },
       {
-        header: "Actions",
+        id: "actions",
+        header: "",
+        meta: { align: "right" },
         cell: ({ row }: any) => (
           <Link
             href={`/order/${row.original.id}`}
-            className="text-blue-400 hover:text-blue-500 transition"
-            title="View Order"
+            className="inline-flex items-center gap-1.5 text-sm text-[var(--muted)] transition-colors hover:text-coral"
           >
-            <Eye size={18} />
+            <Eye size={16} aria-hidden="true" />
+            View
           </Link>
         ),
       },
@@ -132,85 +137,55 @@ export default function Page() {
     onGlobalFilterChange: setGlobalFilter,
   });
 
+  const shown = table.getRowModel().rows.length;
+
   return (
-    <div className="w-full min-h-screen p-8 bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950 text-white">
-      {/* HEADER */}
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-semibold tracking-wide">All Orders</h2>
-      </div>
+    <PageShell>
+      <Crumbs trail={["Orders"]} />
+      <PageTitle
+        title="Orders"
+        meta={
+          isLoading ? (
+            "Loading…"
+          ) : (
+            <>
+              <Figure>{shown}</Figure>
+              {shown === orders.length
+                ? ` order${orders.length === 1 ? "" : "s"} across all shops`
+                : ` of ${orders.length} matching your search`}
+            </>
+          )
+        }
+      />
 
-      {/* BREADCRUMBS */}
-      <BreadCrumbs title="Orders" />
+      <SearchField
+        label="Search orders"
+        placeholder="Search by order id, shop, buyer or status…"
+        value={globalFilter}
+        onChange={setGlobalFilter}
+      />
 
-      {/* SEARCH BAR */}
-      <div className="mb-6 flex items-center bg-gray-800/70 px-3 py-2 rounded-md border border-gray-700 focus-within:ring-2 focus-within:ring-blue-600 transition-all duration-200">
-        <Search size={18} className="text-gray-400 mr-2" />
-        <input
-          type="text"
-          placeholder="Search orders..."
-          className="w-full bg-transparent text-white outline-none placeholder-gray-400"
-          value={globalFilter}
-          onChange={(e) => setGlobalFilter(e.target.value)}
-        />
-      </div>
-
-      {/* TABLE */}
-      <div className="overflow-x-auto bg-gray-900/80 p-4 rounded-lg border border-gray-800 shadow-inner animate-fadeIn">
-        {isLoading ? (
-          <p className="text-center text-gray-400 py-6 italic">
-            Loading Orders...
-          </p>
-        ) : orders.length === 0 ? (
-          <p className="text-center text-gray-500 py-6 italic">
-            No orders found.
-          </p>
-        ) : (
-          <table className="w-full text-white border-collapse">
-            <thead>
-              {table.getHeaderGroups().map((headerGroup) => (
-                <tr
-                  key={headerGroup.id}
-                  className="border-b border-gray-800/80 bg-gray-800/40"
-                >
-                  {headerGroup.headers.map((header) => (
-                    <th
-                      key={header.id}
-                      className="p-3 text-left text-gray-300 font-medium uppercase tracking-wide text-xs"
-                    >
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                    </th>
-                  ))}
-                </tr>
-              ))}
-            </thead>
-            <tbody>
-              {table.getRowModel().rows.map((row) => (
-                <tr
-                  key={row.id}
-                  className="border-b border-gray-800/60 hover:bg-gray-800/70 transition-all duration-200 hover:scale-[1.01]"
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <td
-                      key={cell.id}
-                      className="p-3 text-sm text-gray-200 whitespace-nowrap"
-                    >
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </div>
-    </div>
+      <DataTable
+        table={table}
+        columnCount={columns.length}
+        isLoading={isLoading}
+        isEmpty={shown === 0}
+        empty={
+          globalFilter ? (
+            <EmptyState
+              icon={<SearchX size={28} />}
+              title="No orders match that search"
+              hint="Try a shorter term, or the last six characters of an order id."
+            />
+          ) : (
+            <EmptyState
+              icon={<Inbox size={28} />}
+              title="No orders yet"
+              hint="Orders appear here as soon as buyers start checking out."
+            />
+          )
+        }
+      />
+    </PageShell>
   );
 }

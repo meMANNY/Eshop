@@ -2,16 +2,42 @@
 
 import axiosInstance from "@/utils/axiosInstance";
 import { useQuery } from "@tanstack/react-query";
+import { getCoreRowModel, useReactTable } from "@tanstack/react-table";
+import { DataTable } from "@/shared/components/ui/data-table";
 import {
-  useReactTable,
-  getCoreRowModel,
-  flexRender,
-} from "@tanstack/react-table";
-
-import { Search, Star, ChevronRight, Download } from "lucide-react";
+  Button,
+  Crumbs,
+  EmptyState,
+  Figure,
+  PageShell,
+  PageTitle,
+  Pagination,
+  SearchField,
+  StatusPill,
+  type Tone,
+  downloadCsv,
+  shortDate,
+} from "@/shared/components/ui";
+import { shopOf } from "@/utils/shop";
+import { CalendarClock, Download, SearchX, Star } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useDeferredValue, useMemo, useState } from "react";
+
+/**
+ * An event is a product with a promo window, so the only thing worth knowing
+ * about it that a product row can't tell you is where "now" sits inside that
+ * window. That, not the price, is what this page is for.
+ */
+function windowState(start?: string, end?: string): { label: string; tone: Tone } {
+  const now = Date.now();
+  const from = start ? new Date(start).getTime() : null;
+  const to = end ? new Date(end).getTime() : null;
+
+  if (from && now < from) return { label: "Scheduled", tone: "neutral" };
+  if (to && now > to) return { label: "Ended", tone: "neg" };
+  return { label: "Live", tone: "pos" };
+}
 
 export default function EventList() {
   const [globalFilter, setGlobalFilter] = useState("");
@@ -31,149 +57,130 @@ export default function EventList() {
     staleTime: 1000 * 60 * 5,
   });
 
-  const products = data?.data ?? [];
+  const events = data?.data ?? [];
   const totalPages = data?.meta?.totalPages ?? 1;
 
-  const filteredProducts = useMemo(() => {
+  const filteredEvents = useMemo(() => {
     const filter = deferredFilter.toLowerCase();
-    return products.filter(
+    return events.filter(
       (p: any) =>
-        p.title.toLowerCase().includes(filter) ||
+        p.title?.toLowerCase().includes(filter) ||
         p.category?.toLowerCase().includes(filter) ||
-        p.shop?.name?.toLowerCase().includes(filter)
+        shopOf(p)?.name?.toLowerCase().includes(filter)
     );
-  }, [products, deferredFilter]);
+  }, [events, deferredFilter]);
+
+  const liveCount = useMemo(
+    () =>
+      filteredEvents.filter(
+        (e: any) => windowState(e.starting_date, e.ending_date).label === "Live"
+      ).length,
+    [filteredEvents]
+  );
 
   const handleExportCSV = () => {
-    if (!filteredProducts.length) {
-      alert("No Events to export!");
-      return;
-    }
-
-    const headers = [
-      "Title",
-      "Category",
-      "Price",
-      "Stock",
-      "Rating",
-      "Shop Name",
-      "Created At",
-    ];
-
-    const rows = filteredProducts.map((p: any) => [
-      `"${p.title}"`,
-      `"${p.category ?? ""}"`,
-      p.sale_price,
-      p.stock,
-      p.ratings ?? 5,
-      `"${p.shop?.name ?? ""}"`,
-      new Date(p.createdAt).toLocaleDateString(),
-    ]);
-
-    const csvContent =
-      headers.join(",") + "\n" + rows.map((r: any) => r.join(",")).join("\n");
-
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `products_page_${page}.csv`;
-    link.click();
-    URL.revokeObjectURL(url);
+    downloadCsv(
+      `events_page_${page}.csv`,
+      ["Title", "Category", "Price", "Stock", "Shop", "Starts", "Ends", "State"],
+      filteredEvents.map((p: any) => [
+        p.title,
+        p.category ?? "",
+        p.sale_price,
+        p.stock,
+        shopOf(p)?.name ?? "",
+        p.starting_date ? new Date(p.starting_date).toLocaleDateString() : "",
+        p.ending_date ? new Date(p.ending_date).toLocaleDateString() : "",
+        windowState(p.starting_date, p.ending_date).label,
+      ])
+    );
   };
 
   const columns = useMemo(
     () => [
       {
-        header: "Image",
+        id: "event",
+        header: "Event",
         cell: ({ row }: any) => (
-          <Image
-            src={row.original.images?.[0]?.url || "/placeholder.png"}
-            alt={row.original.title}
-            width={48}
-            height={48}
-            className="w-12 h-12 rounded-md object-cover shadow-sm"
-          />
-        ),
-      },
-      {
-        header: "Title",
-        cell: ({ row }: any) => (
-          <Link
-            href={`${process.env.NEXT_PUBLIC_USER_UI_LINK}/product/${row.original.slug}`}
-            className="text-blue-400 hover:underline hover:text-blue-300 transition"
-            title={row.original.title}
-          >
-            {row.original.title.length > 25
-              ? `${row.original.title.slice(0, 25)}...`
-              : row.original.title}
-          </Link>
-        ),
-      },
-      {
-        header: "Price",
-        cell: ({ row }: any) => <span>${row.original.sale_price}</span>,
-      },
-      {
-        header: "Stock",
-        cell: ({ row }: any) => (
-          <span
-            className={`font-medium ${
-              row.original.stock < 10
-                ? "text-red-500"
-                : "text-green-400 hover:text-green-300"
-            }`}
-          >
-            {row.original.stock} left
-          </span>
-        ),
-      },
-      {
-        accessorKey: "starting_date",
-        header: "Start",
-        cell: ({ row }: any) => (
-          <span className="text-gray-300 text-sm">
-            {new Date(row.original.starting_date).toLocaleDateString()}
-          </span>
-        ),
-      },
-      {
-        accessorKey: "ending_date",
-        header: "End",
-        cell: ({ row }: any) => (
-          <span className="text-gray-300 text-sm">
-            {new Date(row.original.ending_date).toLocaleDateString()}
-          </span>
-        ),
-      },
-      {
-        header: "Category",
-        cell: ({ row }: any) => (
-          <span className="text-gray-300">{row.original.category}</span>
-        ),
-      },
-      {
-        header: "Rating",
-        cell: ({ row }: any) => (
-          <div className="flex items-center gap-1 text-yellow-400">
-            <Star fill="#fde047" size={16} />
-            <span className="text-white">{row.original.ratings ?? 5}</span>
+          <div className="flex items-center gap-3">
+            <Image
+              src={row.original.images?.[0]?.url || "/placeholder.png"}
+              alt=""
+              width={40}
+              height={40}
+              className="h-10 w-10 shrink-0 rounded-md border border-rule object-cover"
+            />
+            <Link
+              href={`${process.env.NEXT_PUBLIC_USER_UI_LINK}/product/${row.original.slug}`}
+              className="max-w-[260px] truncate font-medium text-[var(--text)] transition-colors hover:text-coral"
+              title={row.original.title}
+            >
+              {row.original.title}
+            </Link>
           </div>
         ),
       },
       {
-        header: "Shop",
+        id: "state",
+        header: "State",
+        cell: ({ row }: any) => {
+          const state = windowState(
+            row.original.starting_date,
+            row.original.ending_date
+          );
+          return <StatusPill tone={state.tone}>{state.label}</StatusPill>;
+        },
+      },
+      {
+        id: "window",
+        header: "Promo window",
         cell: ({ row }: any) => (
-          <span className="text-gray-300">
-            {row.original.shop?.name ?? "-"}
-          </span>
+          <Figure className="text-[var(--muted)]">
+            {shortDate(row.original.starting_date)} →{" "}
+            {shortDate(row.original.ending_date)}
+          </Figure>
         ),
       },
       {
-        header: "Created",
+        id: "shop",
+        header: "Shop",
+        cell: ({ row }: any) =>
+          shopOf(row.original)?.name ?? (
+            <span className="text-[var(--faint)]">—</span>
+          ),
+      },
+      {
+        accessorKey: "sale_price",
+        header: "Price",
+        meta: { align: "right" },
         cell: ({ row }: any) => (
-          <span className="text-gray-300 text-sm">
-            {new Date(row.original.createdAt).toLocaleDateString()}
+          <Figure className="text-white">
+            ${Number(row.original.sale_price ?? 0).toFixed(2)}
+          </Figure>
+        ),
+      },
+      {
+        accessorKey: "stock",
+        header: "Stock",
+        meta: { align: "right" },
+        cell: ({ row }: any) =>
+          row.original.stock < 10 ? (
+            <StatusPill tone="warn">
+              Low · <Figure>{row.original.stock}</Figure>
+            </StatusPill>
+          ) : (
+            <Figure className="text-[var(--muted)]">{row.original.stock}</Figure>
+          ),
+      },
+      {
+        accessorKey: "ratings",
+        header: "Rating",
+        meta: { align: "right" },
+        cell: ({ row }: any) => (
+          <span className="inline-flex items-center gap-1.5">
+            <Star size={13} className="fill-warn text-warn" aria-hidden="true" />
+            <Figure className="text-[var(--muted)]">
+              {(row.original.ratings ?? 5).toFixed(1)}
+            </Figure>
           </span>
         ),
       },
@@ -182,135 +189,69 @@ export default function EventList() {
   );
 
   const table = useReactTable({
-    data: filteredProducts,
+    data: filteredEvents,
     columns,
     getCoreRowModel: getCoreRowModel(),
   });
+
   return (
-    <div className="w-full min-h-screen p-8 bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl text-white font-semibold tracking-wide">
-          All Events
-        </h2>
-        <div className="flex items-center gap-3">
-          <button
+    <PageShell>
+      <Crumbs trail={["Events"]} />
+      <PageTitle
+        title="Events"
+        meta={
+          isLoading ? (
+            "Loading…"
+          ) : (
+            <>
+              <Figure>{filteredEvents.length}</Figure> event
+              {filteredEvents.length === 1 ? "" : "s"} on this page ·{" "}
+              <Figure className="text-pos">{liveCount}</Figure> running now
+            </>
+          )
+        }
+        actions={
+          <Button
+            variant="ghost"
             onClick={handleExportCSV}
-            className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 shadow-sm transition-transform duration-200 hover:scale-[1.03]"
+            disabled={!filteredEvents.length}
           >
-            <Download size={20} /> Export CSV
-          </button>
-        </div>
-      </div>
-
-      <div className="flex items-center mb-6 text-sm text-gray-400">
-        <Link href="/dashboard" className="text-blue-400 hover:underline">
-          Dashboard
-        </Link>
-        <ChevronRight size={18} className="mx-1 text-gray-400" />
-        <span className="text-gray-300">All Events</span>
-      </div>
-
-      <div className="mb-6 flex items-center bg-gray-800/70 px-3 py-2 rounded-md border border-gray-700 focus-within:ring-2 focus-within:ring-blue-600 transition-all duration-200">
-        <Search size={18} className="text-gray-400 mr-2" />
-        <input
-          type="text"
-          placeholder="Search products..."
-          className="w-full bg-transparent text-white outline-none placeholder-gray-400"
-          value={globalFilter}
-          onChange={(e) => setGlobalFilter(e.target.value)}
-        />
-      </div>
-
-      <div className="overflow-x-auto bg-gray-900/80 p-4 rounded-lg border border-gray-800 shadow-inner animate-fadeIn">
-        {isLoading ? (
-          <p className="text-center text-gray-400 py-6 italic">
-            Loading Events...
-          </p>
-        ) : filteredProducts.length === 0 ? (
-          <p className="text-center text-gray-500 py-6 italic">
-            No events found.
-          </p>
-        ) : (
-          <table className="w-full text-white border-collapse">
-            <thead>
-              {table.getHeaderGroups().map((headerGroup) => (
-                <tr
-                  key={headerGroup.id}
-                  className="border-b border-gray-800/80 bg-gray-800/40"
-                >
-                  {headerGroup.headers.map((header) => (
-                    <th
-                      key={header.id}
-                      className="p-3 text-left text-gray-300 font-medium uppercase tracking-wide text-xs"
-                    >
-                      {flexRender(
-                        header.column.columnDef.header,
-                        header.getContext()
-                      )}
-                    </th>
-                  ))}
-                </tr>
-              ))}
-            </thead>
-            <tbody>
-              {table.getRowModel().rows.map((row) => (
-                <tr
-                  key={row.id}
-                  className="border-b border-gray-800/60 hover:bg-gray-800/70 transition-all duration-200 hover:scale-[1.01]"
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <td
-                      key={cell.id}
-                      className="p-3 text-sm text-gray-200 whitespace-nowrap"
-                    >
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </div>
-
-      <div className="flex justify-center items-center gap-4 mt-6">
-        <button
-          disabled={page === 1}
-          onClick={() => setPage((p) => p - 1)}
-          className="px-3 py-1 rounded-md bg-gray-800 text-white hover:bg-blue-700 disabled:opacity-40 transition"
-        >
-          Prev
-        </button>
-        <span className="text-gray-300">
-          Page {page} of {totalPages}
-        </span>
-        <button
-          disabled={page === totalPages}
-          onClick={() => setPage((p) => p + 1)}
-          className="px-3 py-1 rounded-md bg-gray-800 text-white hover:bg-blue-700 disabled:opacity-40 transition"
-        >
-          Next
-        </button>
-      </div>
-
-      <style jsx>{`
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-            transform: translateY(5px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
+            <Download size={16} aria-hidden="true" />
+            Export CSV
+          </Button>
         }
-        .animate-fadeIn {
-          animation: fadeIn 0.3s ease-in-out;
+      />
+
+      <SearchField
+        label="Search events"
+        placeholder="Search by title, category or shop…"
+        value={globalFilter}
+        onChange={setGlobalFilter}
+      />
+
+      <DataTable
+        table={table}
+        columnCount={columns.length}
+        isLoading={isLoading}
+        isEmpty={filteredEvents.length === 0}
+        empty={
+          globalFilter ? (
+            <EmptyState
+              icon={<SearchX size={28} />}
+              title="No events match that search"
+              hint="Search covers the title, the category and the shop name on this page only."
+            />
+          ) : (
+            <EmptyState
+              icon={<CalendarClock size={28} />}
+              title="No events yet"
+              hint="A product becomes an event when a seller gives it a start and end date. Products without one are listed under Products."
+            />
+          )
         }
-      `}</style>
-    </div>
+      />
+
+      <Pagination page={page} totalPages={totalPages} onChange={setPage} />
+    </PageShell>
   );
 }
