@@ -47,6 +47,24 @@
     },
     {
       "path": "./apps/admin-ui"
+    },
+    {
+      "path": "./apps/chatting-service-e2e"
+    },
+    {
+      "path": "./apps/chatting-service"
+    },
+    {
+      "path": "./apps/logger-service-e2e"
+    },
+    {
+      "path": "./apps/logger-service"
+    },
+    {
+      "path": "./apps/recommendation-service-e2e"
+    },
+    {
+      "path": "./apps/recommendation-service"
     }
   ]
 }
