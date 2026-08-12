@@ -704,3 +704,25 @@ export const verifyCouponCode = async (
     return next(err);
   }
 };
+
+export const getAdminOrders = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const orders = await prisma.orders.findMany({
+      include: { user: true, shop: true },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    res.status(200).json({
+      success: true,
+      orders,
+    });
+  } catch (err) {
+    return next(err);
+  }
+};
