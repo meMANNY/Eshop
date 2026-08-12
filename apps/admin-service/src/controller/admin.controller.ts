@@ -14,17 +14,21 @@ export const getAllProducts = async (
     const limit = parseInt(req.query.limit as string) || 20;
     const skip = (page - 1) * limit;
 
+    // Two MongoDB/Prisma traps here, both of which returned zero rows:
+    //  1. Prisma drops conditions whose value is `undefined`, so the previous
+    //     `NOT: { AND: [{ starting_date: { not: undefined } }, ...] }` collapsed
+    //     to `NOT: {}` and matched nothing.
+    //  2. Products created without a promo window have no `starting_date` key at
+    //     all, and Prisma's `field: null` does not match an absent field on
+    //     Mongo — that needs `isSet: false`. Both cases mean "not an event".
+    const where = {
+      isDeleted: { not: true },
+      OR: [{ starting_date: null }, { starting_date: { isSet: false } }],
+    };
+
     const [products, totalProducts] = await Promise.all([
       prisma.products.findMany({
-        where: {
-          isDeleted: { not: true },
-          NOT: {
-            AND: [
-              { starting_date: { not: undefined } },
-              { ending_date: { not: undefined } },
-            ],
-          },
-        },
+        where,
         skip,
         take: limit,
         orderBy: { createdAt: "desc" },
@@ -46,17 +50,7 @@ export const getAllProducts = async (
           },
         },
       }),
-      prisma.products.count({
-        where: {
-          isDeleted: { not: true },
-          NOT: {
-            AND: [
-              { starting_date: { not: undefined } },
-              { ending_date: { not: undefined } },
-            ],
-          },
-        },
-      }),
+      prisma.products.count({ where }),
     ]);
     const totalPages = Math.ceil(totalProducts / limit);
     res.status(200).json({
@@ -83,12 +77,19 @@ export const getAllEvents = async (
     const limit = parseInt(req.query.limit as string) || 20;
     const skip = (page - 1) * limit;
 
+    // `NOT: { starting_date: null }` matched nothing: a product with no promo
+    // window has no `starting_date` key at all, and on Mongo that is "unset"
+    // rather than null, so neither the null test nor its negation hit. An event
+    // is a product whose promo window is actually present.
+    // Kept as one object so the page query and the count can't drift apart.
+    const where = {
+      isDeleted: { not: true },
+      starting_date: { isSet: true, not: null },
+    };
+
     const [products, totalProducts] = await Promise.all([
       prisma.products.findMany({
-        where: {
-          isDeleted: { not: true },
-          NOT: { starting_date: null },
-        },
+        where,
         skip,
         take: limit,
         orderBy: { createdAt: "desc" },
@@ -112,12 +113,7 @@ export const getAllEvents = async (
           },
         },
       }),
-      prisma.products.count({
-        where: {
-          isDeleted: { not: true },
-          NOT: { starting_date: null },
-        },
-      }),
+      prisma.products.count({ where }),
     ]);
     const totalPages = Math.ceil(totalProducts / limit);
     res.status(200).json({
@@ -239,7 +235,7 @@ export const getAllUsers = async (
           email: true,
           createdAt: true,
           role: true,
-          isBanned: true,
+          //isBanned: true,
         },
       }),
       prisma.users.count(),
