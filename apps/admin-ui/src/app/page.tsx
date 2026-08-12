@@ -113,7 +113,7 @@ export default function Page() {
         </form>
 
         <div className="mt-6 text-center text-xs text-gray-400 animate-fadeIn delay-300">
-          © {new Date().getFullYear()} Zshop Admin Portal
+          © {new Date().getFullYear()} Eshop Admin Portal
         </div>
       </div>
     </div>
