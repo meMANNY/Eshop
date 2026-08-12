@@ -41,7 +41,7 @@ export const getAllProducts = async (
             select: { url: true },
             take: 1,
           },
-          shop: {
+          Shop: {
             select: { name: true },
           },
         },
@@ -107,7 +107,7 @@ export const getAllEvents = async (
             select: { url: true },
             take: 1,
           },
-          shop: {
+          Shop: {
             select: { name: true },
           },
         },
