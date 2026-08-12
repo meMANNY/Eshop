@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 //import { AuthError, ValidationError } from "../../../../packages/error-handler";
-//import imagekit from "../../../../packages/libs/imagekit";
+import imagekit from "../../../../packages/libs/imagekit";
 import prisma from "../../../../packages/libs/primsa";
 import { ValidationError } from "../../../../packages/error-handler";
 
@@ -302,3 +302,109 @@ export const getAllSellers = async (
     return next(err);
   }
 };
+
+export const getSiteConfig = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const config = await prisma.site_config.findFirst();
+    return res.status(200).json({ success: true, data: config });
+  } catch (err) {
+    return next(err);
+  }
+};
+
+export const updateCategories = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { categories, subCategories } = req.body;
+    const config = await prisma.site_config.findFirst();
+    if (!config) return next(new ValidationError("Invalid request data","Site config not found!"));
+
+    const updated = await prisma.site_config.update({
+      where: { id: config.id },
+      data: { categories, subCategories },
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Categories updated successfully!",
+      data: updated,
+    });
+  } catch (err) {
+    return next(err);
+  }
+};
+
+export const uploadLogo = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { fileName } = req.body;
+    if (!fileName) return next(new ValidationError("Invalid request data","No file provided!"));
+
+    const uploadResponse = await imagekit.files.upload({
+      file: fileName,
+      fileName: `logo-${Date.now()}.jpg`,
+      folder: "/site-config/logo",
+    });
+
+    const config = await prisma.site_config.findFirst();
+    const updated = await prisma.site_config.update({
+      where: { id: config!.id },
+      data: { logo: uploadResponse.url },
+    });
+
+    res.status(201).json({
+      success: true,
+      message: "Logo uploaded successfully!",
+      file_url: uploadResponse.url,
+      fileId: uploadResponse.fileId,
+      data: { logo: updated.logo },
+    });
+  } catch (err) {
+    return next(err);
+  }
+};
+
+export const uploadBanner = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { fileName } = req.body;
+    if (!fileName) return next(new ValidationError("Invalid request data","No file provided!"));
+
+    const uploadResponse = await imagekit.files.upload({
+      file: fileName,
+      fileName: `banner-${Date.now()}.jpg`,
+      folder: "/site-config/banner",
+    });
+
+    const config = await prisma.site_config.findFirst();
+    const updated = await prisma.site_config.update({
+      where: { id: config!.id },
+      data: { banner: uploadResponse.url },
+    });
+
+    res.status(201).json({
+      success: true,
+      message: "Banner uploaded successfully!",
+      file_url: uploadResponse.url,
+      fileId: uploadResponse.fileId,
+      data: { banner: updated.banner },
+    });
+  } catch (err) {
+    return next(err);
+  }
+};
+
+

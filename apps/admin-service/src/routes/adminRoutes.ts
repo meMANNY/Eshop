@@ -1,5 +1,5 @@
 import express, { Router } from "express";
-import { addNewAdmin, getAllAdmins, getAllCustomizations, getAllEvents, getAllProducts, getAllSellers, getAllUsers } from "../controller/admin.controller";
+import { addNewAdmin, getAllAdmins, getAllCustomizations, getAllEvents, getAllProducts, getAllSellers, getAllUsers, getSiteConfig, uploadBanner, uploadLogo, updateCategories } from "../controller/admin.controller";
 import { isAdmin } from "../../../../packages/middleware/isAdmin";
 
 
@@ -13,5 +13,9 @@ router.get("/get-all-sellers",isAdmin,getAllSellers);
 router.get("/get-all-users",isAdmin,getAllUsers);
 router.put("/add-new-admin",isAdmin,addNewAdmin);
 router.get("/get-all",getAllCustomizations);
+router.get("/get-site-config",isAdmin,getSiteConfig);
+router.put("/update-categories", isAdmin, updateCategories);
+router.post("/upload-logo",isAdmin, uploadLogo);
+router.post("/upload-banner", isAdmin, uploadBanner);
 
 export default router;
