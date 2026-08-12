@@ -11,7 +11,15 @@
   },
   "include": [
     "src/**/*.ts",
-    "../../packages/**/*.ts"
+    "src/**/*.tsx",
+    "../../packages/**/*.ts",
+    "../../packages/**/*.tsx",
+    "src/**/*.js",
+    "src/**/*.jsx",
+    "../../apps/seller-ui/.next/types/**/*.ts",
+    "../../dist/apps/seller-ui/.next/types/**/*.ts",
+    "next-env.d.ts"
+
   ],
   "exclude": []
 }
