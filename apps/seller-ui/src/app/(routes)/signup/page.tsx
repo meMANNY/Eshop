@@ -237,13 +237,19 @@ const Signup = () => {
         signupMutation.mutate(sellerData);
     };
 
-    // shared field styling — kept in sync with the seller login page
-    const labelCls = 'mb-1.5 block text-[13px] font-medium text-gray-700';
-    const inputCls = 'w-full rounded-lg border border-gray-200 px-3.5 py-2.5 text-[15px] outline-0 transition-colors focus:border-[#ff6f61] focus:ring-2 focus:ring-[#ff6f61]/15';
-    const triggerCls = 'flex w-full items-center justify-between rounded-lg border border-gray-200 px-3.5 py-2.5 text-[15px] text-left outline-0 transition-colors focus:border-[#ff6f61] focus:ring-2 focus:ring-[#ff6f61]/15';
-    const menuCls = 'absolute z-20 w-full max-h-60 overflow-auto rounded-xl border border-white/50 bg-white/70 backdrop-blur-xl shadow-[0_20px_40px_-12px_rgba(0,0,0,0.25)] ring-1 ring-black/5 bg-gradient-to-b from-white/90 to-white/60';
-    const errorCls = 'mt-1 text-sm text-red-500';
-    const submitCls = 'mt-2 w-full rounded-lg bg-[#ff6f61] py-2.5 font-semibold text-white shadow-[0_8px_20px_-6px_rgba(255,111,97,0.6)] transition-all duration-200 hover:bg-[#e05a4d] active:scale-[0.99] disabled:opacity-60';
+    /*
+      Shared field styling — kept in sync with the seller login page. Both were
+      white forms with grey borders while the whole dashboard behind them is
+      near-black; signing up looked like a different product from the thing you
+      were signing up for. These six constants are where that lived, so this is
+      where it's fixed.
+    */
+    const labelCls = 'mb-1.5 block text-label font-semibold uppercase text-[var(--muted)]';
+    const inputCls = 'w-full rounded-lg border border-rule bg-raised px-3.5 py-2.5 text-sm text-[var(--text)] outline-none transition-colors placeholder:text-[var(--faint)] focus:border-coral/60';
+    const triggerCls = 'flex w-full items-center justify-between rounded-lg border border-rule bg-raised px-3.5 py-2.5 text-left text-sm text-[var(--text)] outline-none transition-colors focus:border-coral/60';
+    const menuCls = 'absolute z-20 max-h-60 w-full overflow-auto rounded-xl border border-rule bg-panel shadow-pop';
+    const errorCls = 'mt-1.5 text-xs text-neg';
+    const submitCls = 'mt-2 w-full rounded-lg bg-coral py-2.5 text-sm font-medium text-[#1a0d0b] transition-colors hover:bg-coral-dim disabled:cursor-not-allowed disabled:opacity-60';
 
     // left-rail metadata — labels + icons for the setup journey
     const stepMeta = [
@@ -253,7 +259,7 @@ const Signup = () => {
     ];
 
     return (
-        <div className="flex min-h-screen w-full bg-white">
+        <div className="flex min-h-screen w-full bg-ink">
 
             {/* ── Left: setup-rail panel (storefront at night) ──────────── */}
             <aside className="relative hidden lg:flex lg:sticky lg:top-0 h-screen w-[42%] flex-col justify-between overflow-hidden bg-[#171310] px-12 py-10 text-white">
@@ -263,7 +269,7 @@ const Signup = () => {
 
                 {/* brand */}
                 <div className="relative flex items-center gap-3">
-                    <span className="text-2xl font-semibold tracking-tight">Eshop</span>
+                    <span className="font-display text-2xl font-bold tracking-tight">Zshop</span>
                     <span className="rounded-full border border-white/20 bg-white/5 px-2.5 py-0.5 text-[11px] font-medium uppercase tracking-[0.18em] text-white/70">
                         Seller
                     </span>
@@ -271,7 +277,7 @@ const Signup = () => {
 
                 {/* signature: headline + live setup rail */}
                 <div className="relative">
-                    <h1 className="max-w-sm font-Poppins text-4xl font-semibold leading-tight">
+                    <h1 className="max-w-sm font-display text-4xl font-semibold leading-tight">
                         Let&apos;s open<br />your shop.
                     </h1>
                     <p className="mt-4 mb-10 max-w-sm text-[15px] leading-relaxed text-white/55">
@@ -329,8 +335,8 @@ const Signup = () => {
 
                     {/* mobile brand */}
                     <div className="mb-8 flex items-center gap-2 lg:hidden">
-                        <span className="text-xl font-semibold tracking-tight text-black">Eshop</span>
-                        <span className="rounded-full border border-gray-200 px-2 py-0.5 text-[10px] font-medium uppercase tracking-[0.18em] text-gray-500">
+                        <span className="font-display text-xl font-bold tracking-tight text-white">Zshop</span>
+                        <span className="rounded-full border border-rule px-2 py-0.5 text-label font-semibold uppercase text-[var(--muted)]">
                             Seller
                         </span>
                     </div>
@@ -345,12 +351,12 @@ const Signup = () => {
                                 <React.Fragment key={step.label}>
                                     <span
                                         className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border text-sm font-semibold transition-colors
-                                        ${isCompleted || isActive ? 'border-[#ff6f61] bg-[#ff6f61] text-white' : 'border-gray-300 text-gray-400'}`}
+                                        ${isCompleted || isActive ? 'border-[#ff6f61] bg-[#ff6f61] text-white' : 'border-rule text-[var(--faint)]'}`}
                                     >
                                         {isCompleted ? <Check size={16} /> : stepNumber}
                                     </span>
                                     {stepNumber < stepMeta.length && (
-                                        <span className={`h-px flex-1 ${activeStep > stepNumber ? 'bg-[#ff6f61]' : 'bg-gray-200'}`} />
+                                        <span className={`h-px flex-1 ${activeStep > stepNumber ? 'bg-[#ff6f61]' : 'bg-rule'}`} />
                                     )}
                                 </React.Fragment>
                             );
@@ -361,8 +367,8 @@ const Signup = () => {
                     {activeStep === 1 && (
                         !showOtp ? (
                             <>
-                                <h2 className="font-Poppins text-3xl font-semibold text-black">Create your account</h2>
-                                <p className="mt-2 text-[15px] text-[#00000099]">
+                                <h2 className="font-display text-3xl font-semibold text-white">Create your account</h2>
+                                <p className="mt-2 text-[15px] text-[var(--muted)]">
                                     Already selling with us? <Link href="/login" className="font-medium text-[#ff6f61] hover:underline">Sign in</Link>
                                 </p>
 
@@ -414,14 +420,14 @@ const Signup = () => {
                                                 onClick={() => setCountryOpen((prev) => !prev)}
                                                 className={triggerCls}
                                             >
-                                                <span className={selectedCountry ? 'text-black' : 'text-gray-400'}>
+                                                <span className={selectedCountry ? 'text-[var(--text)]' : 'text-[var(--faint)]'}>
                                                     {selectedCountry
                                                         ? countries.find((c) => c.code === selectedCountry)?.name
                                                         : 'Select a country'}
                                                 </span>
                                                 <ChevronDown
                                                     size={18}
-                                                    className={`text-gray-400 transition-transform duration-200 ${countryOpen ? 'rotate-180' : ''}`}
+                                                    className={`text-[var(--faint)] transition-transform duration-200 ${countryOpen ? 'rotate-180' : ''}`}
                                                 />
                                             </button>
                                             {countryOpen && (
@@ -435,7 +441,7 @@ const Signup = () => {
                                                                     setCountryOpen(false);
                                                                 }}
                                                                 className={`w-full text-left px-4 py-2 text-sm transition-colors duration-150 hover:bg-[#ff6f61]/10 hover:text-[#ff6f61]
-                                                                ${selectedCountry === c.code ? 'bg-[#ff6f61]/15 text-[#ff6f61] font-medium' : 'text-gray-700'}`}
+                                                                ${selectedCountry === c.code ? 'bg-coral-soft font-medium text-coral' : 'text-[var(--muted)]'}`}
                                                             >
                                                                 {c.name}
                                                             </button>
@@ -485,7 +491,7 @@ const Signup = () => {
                                             />
                                             <button type="button" onClick={() => setPasswordVisible(!passwordVisible)}
                                                 aria-label={passwordVisible ? 'Hide password' : 'Show password'}
-                                                className="absolute inset-y-0 right-3 flex items-center text-gray-400 hover:text-gray-600">
+                                                className="absolute inset-y-0 right-3 flex items-center text-[var(--faint)] hover:text-[var(--text)]">
                                                 {passwordVisible ? <Eye size={19} /> : <EyeOff size={19} />}
                                             </button>
                                         </div>
@@ -505,9 +511,9 @@ const Signup = () => {
                             </>
                         ) : (
                             <>
-                                <h2 className="font-Poppins text-3xl font-semibold text-black">Verify your email</h2>
-                                <p className="mt-2 text-[15px] text-[#00000099]">
-                                    Enter the 4-digit code we sent to <span className="font-medium text-black">{sellerData?.email}</span>.
+                                <h2 className="font-display text-3xl font-semibold text-white">Verify your email</h2>
+                                <p className="mt-2 text-[15px] text-[var(--muted)]">
+                                    Enter the 4-digit code we sent to <span className="font-medium text-white">{sellerData?.email}</span>.
                                 </p>
 
                                 <div className="mt-7 flex gap-3">
@@ -525,7 +531,7 @@ const Signup = () => {
                                             onChange={(event) => handleOtpChange(index, event.target.value)}
                                             onKeyDown={(event) => handleOtpKeyDown(index, event)}
                                             aria-label={`OTP digit ${index + 1}`}
-                                            className="h-14 w-14 rounded-lg border border-gray-200 bg-white text-center text-2xl font-semibold outline-0 transition-colors focus:border-[#ff6f61] focus:ring-2 focus:ring-[#ff6f61]/15"
+                                            className="figure h-14 w-14 rounded-lg border border-rule bg-raised text-center text-2xl font-semibold text-[var(--text)] outline-none transition-colors focus:border-coral/60"
                                         />
                                     ))}
                                 </div>
@@ -539,7 +545,7 @@ const Signup = () => {
                                     {verifyOtpMutation.isPending ? 'Verifying…' : 'Verify email'}
                                 </button>
 
-                                <p className="mt-4 text-center text-sm text-[#00000099]">
+                                <p className="mt-4 text-center text-sm text-[var(--muted)]">
                                     {canResend ? (
                                         <button type="button" onClick={resendOtp} className="font-medium text-[#ff6f61] hover:underline">
                                             Resend code
@@ -556,8 +562,8 @@ const Signup = () => {
                     {/* STEP 2 — Register Shop */}
                     {activeStep === 2 && (
                         <>
-                            <h2 className="font-Poppins text-3xl font-semibold text-black">Register your shop</h2>
-                            <p className="mt-2 text-[15px] text-[#00000099]">
+                            <h2 className="font-display text-3xl font-semibold text-white">Register your shop</h2>
+                            <p className="mt-2 text-[15px] text-[var(--muted)]">
                                 Tell customers who you are.
                             </p>
 
@@ -655,14 +661,14 @@ const Signup = () => {
                                             onClick={toggleCategory}
                                             className={triggerCls}
                                         >
-                                            <span className={selectedCategory ? 'text-black' : 'text-gray-400'}>
+                                            <span className={selectedCategory ? 'text-[var(--text)]' : 'text-[var(--faint)]'}>
                                                 {selectedCategory
                                                     ? categories.find((c) => c.value === selectedCategory)?.name
                                                     : 'Select a category'}
                                             </span>
                                             <ChevronDown
                                                 size={18}
-                                                className={`text-gray-400 transition-transform duration-200 ${categoryOpen ? 'rotate-180' : ''}`}
+                                                className={`text-[var(--faint)] transition-transform duration-200 ${categoryOpen ? 'rotate-180' : ''}`}
                                             />
                                         </button>
                                         {categoryOpen && (
@@ -676,7 +682,7 @@ const Signup = () => {
                                                                 setCategoryOpen(false);
                                                             }}
                                                             className={`w-full text-left px-4 py-2 text-sm transition-colors duration-150 hover:bg-[#ff6f61]/10 hover:text-[#ff6f61]
-                                                            ${selectedCategory === c.value ? 'bg-[#ff6f61]/15 text-[#ff6f61] font-medium' : 'text-gray-700'}`}
+                                                            ${selectedCategory === c.value ? 'bg-coral-soft font-medium text-coral' : 'text-[var(--muted)]'}`}
                                                         >
                                                             {c.name}
                                                         </button>
@@ -724,18 +730,18 @@ const Signup = () => {
                     {/* STEP 3 — Connect to Bank */}
                     {activeStep === 3 && (
                         <>
-                            <h2 className="font-Poppins text-3xl font-semibold text-black">Connect payouts</h2>
-                            <p className="mt-2 text-[15px] text-[#00000099]">
+                            <h2 className="font-display text-3xl font-semibold text-white">Connect payouts</h2>
+                            <p className="mt-2 text-[15px] text-[var(--muted)]">
                                 Link a bank account through Stripe so your sales reach you.
                             </p>
 
-                            <div className="mt-7 rounded-xl border border-gray-100 bg-[#fff8f6] p-4">
+                            <div className="mt-7 rounded-xl border border-rule bg-raised p-4">
                                 <div className="flex items-start gap-3">
                                     <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#ff6f61]/12 text-[#ff6f61]">
                                         <Landmark size={18} />
                                     </span>
-                                    <p className="text-[13px] leading-relaxed text-[#00000099]">
-                                        You&apos;ll be taken to Stripe to add your bank details securely. Eshop never sees or stores them.
+                                    <p className="text-[13px] leading-relaxed text-[var(--muted)]">
+                                        You&apos;ll be taken to Stripe to add your bank details securely. Zshop never sees or stores them.
                                     </p>
                                 </div>
                             </div>
@@ -751,7 +757,7 @@ const Signup = () => {
                             <button
                                 type="button"
                                 onClick={() => router.push('/login')}
-                                className="mt-3 w-full rounded-lg py-2.5 font-medium text-[#00000099] transition-colors duration-200 hover:text-black"
+                                className="mt-3 w-full rounded-lg py-2.5 font-medium text-[var(--muted)] transition-colors duration-200 hover:text-white"
                             >
                                 Skip for now
                             </button>

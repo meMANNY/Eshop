@@ -24,13 +24,20 @@ const countryData = [
 
 // User count is a sequential quantity, so the ramp is one hue at rising
 // strength. Three unrelated hues would read as three categories.
+/*
+  User count is a sequential quantity, so the ramp is one hue at rising strength.
+  It moves off coral because coral is the interface accent here — buttons, the
+  active nav, focus rings — and a shaded country should not wear the same colour
+  as a control. Every step is checked to clear 3:1 against the panel behind it, so
+  the lowest band still reads as data rather than as "no data".
+*/
 const BANDS = [
-  { min: 100, fill: "#ff6f61", label: "100+" },
-  { min: 70, fill: "#c9564b", label: "70–99" },
-  { min: 1, fill: "#8d3b34", label: "1–69" },
+  { min: 100, fill: "#6da7ec", label: "100+" },
+  { min: 70, fill: "#3987e5", label: "70–99" },
+  { min: 1, fill: "#256abf", label: "1–69" },
 ];
 
-const EMPTY_FILL = "#1e2430";
+const EMPTY_FILL = "#1c2230";
 
 function getFill(users: number) {
   return BANDS.find((band) => users >= band.min)?.fill ?? EMPTY_FILL;
@@ -89,25 +96,27 @@ export default function GeoMap() {
   );
 
   return (
-    <div className="relative rounded-xl border border-slate-800 bg-[#141922] p-6 shadow-md">
-      <h2 className="text-lg font-semibold text-white">
-        User &amp; Seller Distribution
-      </h2>
-      <p className="mt-1 text-sm text-slate-400">
-        Where your buyers and sellers are active
-      </p>
+    <section className="relative rounded-panel border border-rule bg-panel shadow-panel">
+      <header className="border-b border-rule px-5 py-4">
+        <h2 className="text-[15px] font-semibold text-white">
+          Where your buyers are
+        </h2>
+        <p className="mt-0.5 text-xs text-[var(--muted)]">
+          Buyers and sellers by country
+        </p>
+      </header>
 
       {status === "error" ? (
-        <p className="py-16 text-center text-sm text-slate-400">
+        <p className="px-5 py-16 text-center text-sm text-[var(--muted)]">
           Map data didn&apos;t load. Check your connection and refresh.
         </p>
       ) : status === "loading" ? (
-        <div className="py-16">
-          <div className="mx-auto h-3 w-40 animate-pulse rounded bg-slate-800 motion-reduce:animate-none" />
+        <div className="px-5 py-16">
+          <div className="mx-auto h-3 w-40 animate-pulse rounded bg-raised motion-reduce:animate-none" />
         </div>
       ) : (
-        <>
-          <div className="relative mt-4">
+        <div className="p-5">
+          <div className="relative">
             <svg
               viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
               className="h-auto w-full"
@@ -148,7 +157,7 @@ export default function GeoMap() {
 
             {tooltip && (
               <div
-                className="pointer-events-none fixed z-50 rounded-md border border-slate-700 bg-[#0d1117] px-3 py-2 text-xs shadow-lg"
+                className="pointer-events-none fixed z-50 rounded-lg border border-rule bg-raised px-3 py-2 text-xs shadow-pop"
                 style={{
                   left: tooltip.x + 12,
                   top: tooltip.y + 12,
@@ -156,20 +165,25 @@ export default function GeoMap() {
                 }}
               >
                 <div className="font-semibold text-white">{tooltip.name}</div>
-                <div className="mt-1 text-slate-400">
-                  Users <span className="text-slate-200">{tooltip.users}</span>
+                <div className="mt-1 text-[var(--muted)]">
+                  Users{" "}
+                  <span className="figure text-[var(--text)]">{tooltip.users}</span>
                 </div>
-                <div className="text-slate-400">
+                <div className="text-[var(--muted)]">
                   Sellers{" "}
-                  <span className="text-slate-200">{tooltip.sellers}</span>
+                  <span className="figure text-[var(--text)]">
+                    {tooltip.sellers}
+                  </span>
                 </div>
               </div>
             )}
           </div>
 
           {/* A choropleth without a legend is unreadable — the old one had none. */}
-          <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-slate-400">
-            <span className="font-medium text-slate-300">Users</span>
+          <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-[var(--muted)]">
+            <span className="text-label font-semibold uppercase text-[var(--faint)]">
+              Users
+            </span>
             {BANDS.map((band) => (
               <span key={band.label} className="flex items-center gap-1.5">
                 <span
@@ -177,20 +191,20 @@ export default function GeoMap() {
                   className="h-2.5 w-2.5 rounded-sm"
                   style={{ backgroundColor: band.fill }}
                 />
-                {band.label}
+                <span className="figure">{band.label}</span>
               </span>
             ))}
             <span className="flex items-center gap-1.5">
               <span
                 aria-hidden="true"
-                className="h-2.5 w-2.5 rounded-sm"
+                className="h-2.5 w-2.5 rounded-sm ring-1 ring-inset ring-rule"
                 style={{ backgroundColor: EMPTY_FILL }}
               />
               None
             </span>
           </div>
-        </>
+        </div>
       )}
-    </div>
+    </section>
   );
 }

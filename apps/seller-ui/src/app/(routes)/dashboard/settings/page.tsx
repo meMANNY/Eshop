@@ -1,74 +1,55 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
-import { ChevronRight } from "lucide-react";
-
-
-
+import { Globe, Store, Wallet } from "lucide-react";
 import DomainsTab from "@/shared/modules/settings/DomainsTab";
 import GeneralTab from "@/shared/modules/settings/GeneralTab";
 import WithdrawTab from "@/shared/modules/settings/WithdrawTab";
+import { Crumbs, PageShell, PageTitle } from "@/shared/components/ui";
+
+type Tab = "general" | "domains" | "withdraw";
+
+const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
+  { id: "general", label: "General", icon: <Store size={15} /> },
+  { id: "domains", label: "Custom domains", icon: <Globe size={15} /> },
+  { id: "withdraw", label: "Withdraw method", icon: <Wallet size={15} /> },
+];
 
 export default function Page() {
-  const [activeTab, setActiveTab] = useState<
-    "general" | "domains" | "withdraw"
-  >("general");
+  const [activeTab, setActiveTab] = useState<Tab>("general");
 
   return (
-    <div className="w-full min-h-screen p-8 bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl text-white font-semibold tracking-wide">
-          Settings
-        </h2>
-      </div>
+    <PageShell>
+      <Crumbs trail={["Settings"]} />
+      <PageTitle title="Settings" meta="Your shop, its domains and how you get paid." />
 
-      <div className="flex items-center mb-6 text-sm text-gray-400">
-        <Link href={"/dashboard"} className="text-blue-400 hover:underline">
-          Dashboard
-        </Link>
-        <ChevronRight size={18} className="mx-1 text-gray-400" />
-        <span className="text-gray-300">Settings</span>
-      </div>
-
-      <div className="border-b border-gray-800/70 mb-6">
-        <nav className="flex gap-6 text-sm">
+      {/*
+        `role="tablist"` plus the selected state is what makes these read as one
+        control rather than three unrelated buttons — and it replaces the blue
+        underline, which was the only blue left in a coral app.
+      */}
+      <div role="tablist" className="mb-6 flex gap-1 border-b border-rule">
+        {TABS.map((tab) => (
           <button
-            onClick={() => setActiveTab("general")}
-            className={`pb-3 border-b-2 transition-colors ${
-              activeTab === "general"
-                ? "border-blue-500 text-white"
-                : "border-transparent text-gray-400 hover:text-gray-200"
+            key={tab.id}
+            role="tab"
+            aria-selected={activeTab === tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            className={`-mb-px flex items-center gap-2 border-b-2 px-3.5 py-2.5 text-sm transition-colors ${
+              activeTab === tab.id
+                ? "border-coral font-medium text-coral"
+                : "border-transparent text-[var(--muted)] hover:text-[var(--text)]"
             }`}
           >
-            General
+            {tab.icon}
+            {tab.label}
           </button>
-          <button
-            onClick={() => setActiveTab("domains")}
-            className={`pb-3 border-b-2 transition-colors ${
-              activeTab === "domains"
-                ? "border-blue-500 text-white"
-                : "border-transparent text-gray-400 hover:text-gray-200"
-            }`}
-          >
-            Custom Domains
-          </button>
-          <button
-            onClick={() => setActiveTab("withdraw")}
-            className={`pb-3 border-b-2 transition-colors ${
-              activeTab === "withdraw"
-                ? "border-blue-500 text-white"
-                : "border-transparent text-gray-400 hover:text-gray-200"
-            }`}
-          >
-            Withdraw Method
-          </button>
-        </nav>
+        ))}
       </div>
 
       {activeTab === "general" && <GeneralTab />}
       {activeTab === "domains" && <DomainsTab />}
       {activeTab === "withdraw" && <WithdrawTab />}
-    </div>
+    </PageShell>
   );
 }

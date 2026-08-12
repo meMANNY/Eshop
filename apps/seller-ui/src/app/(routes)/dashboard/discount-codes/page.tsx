@@ -1,262 +1,354 @@
 "use client";
-import { ChevronRight, Plus, Trash, X } from 'lucide-react'
-import React, { useState } from 'react'
-import Link from 'next/link'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import axiosInstance from '@/utils/axiosInstance';
+
+import { Check, Copy, Plus, TicketPercent, Trash } from "lucide-react";
+import React, { useMemo, useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { getCoreRowModel, useReactTable } from "@tanstack/react-table";
+import axiosInstance from "@/utils/axiosInstance";
 import toast from "react-hot-toast";
-import { Controller, useForm } from 'react-hook-form';
-import Input from '../../../../../../../packages/components/input';
-import { AxiosError } from 'axios';
-import DeleteDiscountCodeModal from '../../../../shared/components/modals/delete.discount-codes'
+import { Controller, useForm } from "react-hook-form";
+import { AxiosError } from "axios";
+import DeleteDiscountCodeModal from "@/shared/components/modals/delete.discount-codes";
+import { DataTable } from "@/shared/components/ui/data-table";
+import {
+  Button,
+  Crumbs,
+  EmptyState,
+  Field,
+  Figure,
+  Modal,
+  PageShell,
+  PageTitle,
+  SelectField,
+  StatusPill,
+} from "@/shared/components/ui";
+
+/* The server caps a shop at eight codes; naming it once keeps the counter, the
+   disabled state and the guard in agreement. */
+const MAX_CODES = 8;
 
 const Page = () => {
+  const [showModal, setShowModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [selectedDiscount, setSelectedDiscount] = useState<any>(null);
+  const [copied, setCopied] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
-    const [showModal, setShowModal] = useState<boolean>(false);
-    const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
-    const [selectedDiscount, setSelectedDiscount] = useState<any>(null);
-    const queryClient = useQueryClient();
+  const { data: discountCodes = [], isLoading } = useQuery({
+    queryKey: ["shop-discounts"],
+    queryFn: async () => {
+      const res = await axiosInstance.get("/product/api/get-discount-codes");
+      return res?.data?.discount_codes || [];
+    },
+  });
 
-    const handleDeleteClick = async(discount: any) =>{
-        setSelectedDiscount(discount);
-        setShowDeleteModal(true);
+  const {
+    handleSubmit,
+    register,
+    reset,
+    control,
+    formState: { errors },
+  } = useForm({
+    defaultValues: {
+      public_name: "",
+      discountType: "percentage",
+      discountValue: "",
+      discountCode: "",
+    },
+  });
 
+  const atLimit = discountCodes.length >= MAX_CODES;
 
+  const createDiscountCodeMutation = useMutation({
+    mutationFn: async (data) => {
+      await axiosInstance.post("/product/api/create-discount-code", data);
+    },
+    onSuccess: () => {
+      toast.success("Discount code created");
+      queryClient.invalidateQueries({ queryKey: ["shop-discounts"] });
+      reset();
+      setShowModal(false);
+    },
+    onError: (error: any) => {
+      toast.error(
+        error?.response?.data?.message ?? "Couldn't create that discount code"
+      );
+    },
+  });
+
+  const deleteDiscountCodeMutation = useMutation({
+    mutationFn: async (discountId) => {
+      await axiosInstance.delete(
+        `/product/api/delete-discount-code/${discountId}`
+      );
+    },
+    onSuccess: () => {
+      toast.success("Discount code deleted");
+      queryClient.invalidateQueries({ queryKey: ["shop-discounts"] });
+      setShowDeleteModal(false);
+      setSelectedDiscount(null);
+    },
+    onError: (error: any) => {
+      toast.error(
+        error?.response?.data?.message ?? "Couldn't delete that discount code"
+      );
+    },
+  });
+
+  const onSubmit = (data: any) => {
+    // The limit is already visible in the header and disables the button, so this
+    // is the backstop rather than the only place the seller finds out.
+    if (atLimit) {
+      toast.error(`You can have at most ${MAX_CODES} codes at a time`);
+      return;
     }
+    createDiscountCodeMutation.mutate(data);
+  };
 
-
-    const onSubmit = (data: any) => {
-        if(discountCodes.length >= 8){
-            toast.error("You can only have 8 discount codes at a time");
-            return;
-        }
-        createDiscountCodeMutation.mutate(data);
+  const copyCode = async (code: string) => {
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopied(code);
+      setTimeout(() => setCopied(null), 1600);
+    } catch {
+      toast.error("Couldn't copy to the clipboard");
     }
+  };
 
-    const {data: discountCodes = [],isLoading} = useQuery({
-        queryKey: ["shop-discounts"],
-        queryFn: async () => {
-            const res = await axiosInstance.get("/product/api/get-discount-codes");
-            return res?.data?.discount_codes || [];
-        }
-    });
-
-    const {handleSubmit, register, reset, control,formState: {errors}} = useForm({
-        defaultValues:{
-            public_name: "",
-            discountType: "percentage",
-            discountValue: "",
-            discountCode: ""
-        }
-    })
-    const createDiscountCodeMutation = useMutation({
-        mutationFn: async(data) => {
-            await axiosInstance.post("/product/api/create-discount-code", data);
+  const columns = useMemo(
+    () => [
+      {
+        accessorKey: "public_name",
+        header: "Title",
+        cell: ({ row }: any) => (
+          <span className="font-medium text-[var(--text)]">
+            {row.original.public_name}
+          </span>
+        ),
+      },
+      {
+        accessorKey: "discountType",
+        header: "Type",
+        cell: ({ row }: any) => (
+          <StatusPill>
+            {row.original.discountType === "percentage" ? "Percentage" : "Flat"}
+          </StatusPill>
+        ),
+      },
+      {
+        accessorKey: "discountValue",
+        header: "Value",
+        meta: { align: "right" },
+        cell: ({ row }: any) => (
+          <Figure className="font-medium text-white">
+            {row.original.discountType === "percentage"
+              ? `${row.original.discountValue}%`
+              : `$${Number(row.original.discountValue).toFixed(2)}`}
+          </Figure>
+        ),
+      },
+      {
+        accessorKey: "discountCode",
+        header: "Code",
+        /*
+          A discount code exists to be handed to someone, so the row's job is to
+          let you take it away — copying it beats selecting it out of a table cell.
+        */
+        cell: ({ row }: any) => {
+          const code = row.original.discountCode;
+          const isCopied = copied === code;
+          return (
+            <button
+              type="button"
+              onClick={() => copyCode(code)}
+              className="group inline-flex items-center gap-2 rounded border border-rule bg-raised px-2 py-1 transition-colors hover:border-coral/50"
+              aria-label={`Copy discount code ${code}`}
+            >
+              <Figure className="text-coral-bright">{code}</Figure>
+              {isCopied ? (
+                <Check size={13} className="text-pos" aria-hidden="true" />
+              ) : (
+                <Copy
+                  size={13}
+                  className="text-[var(--faint)] group-hover:text-coral"
+                  aria-hidden="true"
+                />
+              )}
+            </button>
+          );
         },
-        onSuccess: () => {
-            toast.success("Discount code created successfully");
+      },
+      {
+        id: "actions",
+        header: "",
+        meta: { align: "right" },
+        cell: ({ row }: any) => (
+          <button
+            onClick={() => {
+              setSelectedDiscount(row.original);
+              setShowDeleteModal(true);
+            }}
+            aria-label={`Delete ${row.original.public_name}`}
+            className="text-[var(--muted)] transition-colors hover:text-neg"
+          >
+            <Trash size={16} />
+          </button>
+        ),
+      },
+    ],
+    [copied]
+  );
 
-            queryClient.invalidateQueries({ queryKey: ["shop-discounts"] });
-            reset();
-            setShowModal(false);
-        },
-        onError: (error) => {
-            toast.error(error.message);
-        }
-    })
+  const table = useReactTable({
+    data: discountCodes,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+  });
 
-    const deleteDiscountCodeMutation = useMutation({
-        mutationFn: async(discountId) => {
-            await axiosInstance.delete(`/product/api/delete-discount-code/${discountId}`);
-        },
-        onSuccess: () => {
-            toast.success("Discount code deleted successfully");
-
-            queryClient.invalidateQueries({ queryKey: ["shop-discounts"] });
-            setShowDeleteModal(false);
-            setSelectedDiscount(null);
-        },
-        onError: (error) => {
-            toast.error(error.message);
-        }
-    })
-
+  const createButton = (
+    <Button
+      variant="primary"
+      onClick={() => setShowModal(true)}
+      disabled={atLimit}
+      title={atLimit ? `You already have ${MAX_CODES} codes` : undefined}
+    >
+      <Plus size={16} aria-hidden="true" />
+      Create discount
+    </Button>
+  );
 
   return (
-    <div className='w-full min-h-screen p-8'>
-        <div className='flex items-center justify-between mb-1'>
-            <div className='flex items-center gap-3'>
-                {/* Coral marker — echoes the sidebar's "you are here" accent. */}
-                <span aria-hidden='true' className='h-7 w-[3px] rounded-full bg-[#ff6f61] shadow-[0_0_10px_rgba(255,111,97,0.6)]'/>
-                <h2 className='text-2xl font-semibold text-white'>
-                    Discount Codes
-                </h2>
-            </div>
-            <button onClick={()=>setShowModal(true)} className='flex items-center gap-1.5 rounded-lg bg-[#ff6f61] px-4 py-2 text-base font-medium text-white shadow-lg shadow-[#ff6f61]/20 transition-colors hover:bg-[#e05a4d]'>
-                <Plus size={18}/> Create Discount
-            </button>
-        </div>
-        <div className='mt-1 flex items-center text-sm'>
-                        <Link href="/dashboard" className='text-slate-400 transition-colors hover:text-[#ff8a7d]'>
-                            Dashboard
-                        </Link>
-                        <ChevronRight size={16} className='mx-1 text-slate-600'/>
-                        <span className='text-slate-200'>Discount Codes</span>
-        </div>
+    <PageShell>
+      <Crumbs trail={["Discount codes"]} />
+      <PageTitle
+        title="Discount codes"
+        meta={
+          isLoading ? (
+            "Loading…"
+          ) : (
+            <>
+              <Figure>{discountCodes.length}</Figure> of{" "}
+              <Figure>{MAX_CODES}</Figure> used
+              {atLimit ? " · delete one to add another" : ""}
+            </>
+          )
+        }
+        actions={createButton}
+      />
 
-        <div className='mt-8 rounded-xl border border-slate-800 bg-[#141922] p-6 shadow-md'>
-            <h3 className='mb-4 text-lg font-semibold text-white'>
-                Your Discount Codes
-            </h3>
-            {
-                isLoading ? (
-                    <p className='py-6 text-center text-slate-400'>
-                        Loading discount codes...
-                    </p>
+      <DataTable
+        table={table}
+        columnCount={columns.length}
+        isLoading={isLoading}
+        isEmpty={discountCodes.length === 0}
+        empty={
+          <EmptyState
+            icon={<TicketPercent size={28} />}
+            title="No discount codes yet"
+            hint="Create a code and share it with buyers — they enter it at checkout to get the discount."
+            action={createButton}
+          />
+        }
+      />
 
-                ):(
-                    <div className='overflow-x-auto'>
-                    <table className='w-full text-white'>
-                        <thead>
-                            <tr className='border-b border-slate-800'>
-                                <th className='p-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-400'>Title</th>
-                                <th className='p-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-400'>Type</th>
-                                <th className='p-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-400'>Value</th>
-                                <th className='p-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-400'>Code</th>
-                                <th className='p-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-400'>Action</th>
-                            </tr>
+      <Modal
+        open={showModal}
+        onClose={() => setShowModal(false)}
+        tone="coral"
+        title="Create a discount code"
+        footer={
+          <>
+            <Button variant="ghost" onClick={() => setShowModal(false)}>
+              Cancel
+            </Button>
+            <Button
+              variant="primary"
+              type="submit"
+              form="create-discount"
+              disabled={createDiscountCodeMutation.isPending}
+            >
+              <Plus size={16} aria-hidden="true" />
+              {createDiscountCodeMutation.isPending ? "Creating…" : "Create code"}
+            </Button>
+          </>
+        }
+      >
+        <form
+          id="create-discount"
+          onSubmit={handleSubmit(onSubmit)}
+          className="space-y-4"
+        >
+          <Field
+            label="Title"
+            required
+            hint="Buyers see this name at checkout."
+            error={errors.public_name?.message as string}
+            {...register("public_name", { required: "Give the code a title" })}
+          />
 
-                        </thead>
-                        <tbody>
-                            {discountCodes?.map((discount: any)=>(
-                                <tr key={discount?.id}
-                                className='border-b border-slate-800 transition-colors hover:bg-white/[0.03]'>
-                                    <td className='p-3 font-medium text-slate-100'>{discount?.public_name}</td>
-                                    <td className='p-3'>
-                                        <span className='inline-flex items-center rounded-full border border-slate-700 bg-white/[0.04] px-2.5 py-0.5 text-xs font-medium text-slate-300'>
-                                            {discount.discountType === "percentage" ? "Percentage (%)" : "Flat (USD)"}
-                                        </span>
-                                    </td>
-                                    <td className='p-3 font-semibold text-white'>
-                                        {discount.discountType === "percentage" ?
-                                            `${discount.discountValue}%` :
-                                            `$${discount.discountValue}`}
-                                    </td>
-                                    <td className='p-3'>
-                                        <span className='inline-block rounded border border-slate-800 bg-white/[0.03] px-2 py-0.5 font-mono text-sm text-[#ff8a7d]'>
-                                            {discount.discountCode}
-                                        </span>
-                                    </td>
-                                    <td className='p-3'>
-                                        <button
-                                        onClick={()=>handleDeleteClick(discount)}
-                                        aria-label='Delete discount code'
-                                        className='text-slate-400 transition-colors hover:text-red-400'>
-                                            <Trash size={18} />
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                    </div>
-                )
-            }
-            {!isLoading && discountCodes?.length === 0 && (
-                <p className='block w-full pt-6 text-center text-slate-400'>
-                    No discount codes found!
-                </p>
+          <Controller
+            control={control}
+            name="discountType"
+            rules={{ required: "Pick a discount type" }}
+            render={({ field }) => (
+              <SelectField
+                label="Type"
+                required
+                error={errors.discountType?.message as string}
+                {...field}
+              >
+                <option value="percentage">Percentage off</option>
+                <option value="flat">Flat amount off</option>
+              </SelectField>
             )}
-        </div>
+          />
 
-        {/* Show Discount Modal */}
-        {showModal && (
-            <div className='fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4'>
-                <div className='w-[450px] max-w-full rounded-xl border border-slate-800 bg-[#141922] p-6 shadow-2xl'>
-                    <div className='flex items-center justify-between border-b border-slate-800 pb-3'>
-                        <h3 className='text-xl font-semibold text-white'>Create Discount Code</h3>
-                        <button onClick={()=>setShowModal(false)} aria-label='Close' className='text-slate-400 transition-colors hover:text-white'>
-                            <X size={22}/>
-                        </button>
-                    </div>
-                    <form onSubmit={handleSubmit(onSubmit)} className='mt-4'>
-                        <Input
-                        label='Discount Title'
-                        {...register("public_name",{required: "Title is required"})}
-                        />
-                        {errors.public_name && <p className='mt-1 text-xs text-red-400'>{errors.public_name.message}</p>}
-                        {/*Discount Type*/}
-                        <div className='mt-4'>
-                            <label className='mb-1 block text-sm font-semibold text-slate-300'>Discount Type</label>
-                            <Controller
-                                control={control}
-                                name='discountType'
-                                rules={{ required: "Discount type is required" }}
-                                render={({ field }) => (
-                                    <select
-                                        {...field}
-                                        className='w-full rounded-md border border-slate-700 bg-transparent p-2 text-white outline-none transition-colors focus:border-[#ff6f61] [&>option]:bg-[#141922] [&>option]:text-white'
-                                    >
-                                        <option value='percentage'>Percentage (%)</option>
-                                        <option value='flat'>Flat Amount ($)</option>
-                                    </select>
-                                )}
-                            />
-                            {errors.discountType && <p className='mt-1 text-xs text-red-400'>{errors.discountType.message}</p>}
-                        </div>
-                        {/* Discount Value */}
-                        <div className='mt-4'>
-                            <Input
-                                label='Discount Value'
-                                type='number'
-                                min={0}
-                                {...register("discountValue",{
-                                    required: "Discount value is required",
-                                    valueAsNumber: true,
-                                    min: { value: 1, message: "Value must be greater than 0" },
-                                })}
-                            />
-                            {errors.discountValue && <p className='mt-1 text-xs text-red-400'>{errors.discountValue.message}</p>}
-                        </div>
-                        {/*Discount Code*/}
-                        <div className='mt-4'>
-                            <Input
-                                label='Discount Code'
-                                {...register("discountCode", {
-                                    required: "Code is required",
-                                    minLength: { value: 3, message: "Code must be at least 3 characters"},
-                                })}
-                            />
-                            {errors.discountCode && <p className='mt-1 text-xs text-red-400'>{errors.discountCode.message}</p>}
-                        </div>
-                        <button type='submit'
-                        disabled = {createDiscountCodeMutation.isPending}
-                        className='mt-5 flex w-full items-center justify-center gap-2 rounded-lg bg-[#ff6f61] py-2 text-base font-medium text-white shadow-lg shadow-[#ff6f61]/20 transition-colors hover:bg-[#e05a4d] disabled:cursor-not-allowed disabled:opacity-60'>
-                            <Plus size={18}/>
-                            {createDiscountCodeMutation.isPending ? "Creating..." : "Create Discount Code"}
-                        </button>
-                        {createDiscountCodeMutation.isError && (
-                            <p className='mt-2 text-center text-sm text-red-400'>
-                                {(createDiscountCodeMutation.error as AxiosError <{
-                                    message: string;
-                                }>)?.response?.data?.message || "Something Went Wrong"}
-                            </p>
-                        )}
-                    </form>
-                </div>
-            </div>
-        )}
-        {/**Delete Discount Modal**/}
-        {showDeleteModal && selectedDiscount && (
-           <DeleteDiscountCodeModal
-           discount={selectedDiscount}
-           onClose={()=>setShowDeleteModal(false)}
-           onConfirm={()=>deleteDiscountCodeMutation.mutate(selectedDiscount?.id)}
-           />
-        )}
+          <Field
+            label="Value"
+            type="number"
+            min={0}
+            required
+            error={errors.discountValue?.message as string}
+            {...register("discountValue", {
+              required: "Enter a discount value",
+              valueAsNumber: true,
+              min: { value: 1, message: "Must be greater than 0" },
+            })}
+          />
 
-    </div>
-  )
-}
+          <Field
+            label="Code"
+            required
+            hint="What the buyer types in. At least 3 characters."
+            className="font-mono uppercase"
+            error={errors.discountCode?.message as string}
+            {...register("discountCode", {
+              required: "Enter a code",
+              minLength: { value: 3, message: "At least 3 characters" },
+            })}
+          />
 
-export default Page
+          {createDiscountCodeMutation.isError ? (
+            <p role="alert" className="text-sm text-neg">
+              {(
+                createDiscountCodeMutation.error as AxiosError<{
+                  message: string;
+                }>
+              )?.response?.data?.message ?? "Something went wrong"}
+            </p>
+          ) : null}
+        </form>
+      </Modal>
+
+      {showDeleteModal && selectedDiscount ? (
+        <DeleteDiscountCodeModal
+          discount={selectedDiscount}
+          onClose={() => setShowDeleteModal(false)}
+          onConfirm={() => deleteDiscountCodeMutation.mutate(selectedDiscount?.id)}
+        />
+      ) : null}
+    </PageShell>
+  );
+};
+
+export default Page;

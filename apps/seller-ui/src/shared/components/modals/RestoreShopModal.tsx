@@ -1,9 +1,11 @@
 "use client";
 
+import { Button, Figure, Modal } from "@/shared/components/ui";
+
 type Props = {
   open: boolean;
   loading?: boolean;
-  purgeAt?: Date | string | null; // optional: show deadline
+  purgeAt?: Date | string | null;
   onClose: () => void;
   onConfirm: () => void;
 };
@@ -15,61 +17,36 @@ export default function RestoreShopModal({
   onClose,
   onConfirm,
 }: Props) {
-  if (!open) return null;
-
-  const deadline = purgeAt
-    ? new Date(typeof purgeAt === "string" ? purgeAt : purgeAt).toLocaleString()
-    : null;
+  const deadline = purgeAt ? new Date(purgeAt).toLocaleString() : null;
 
   return (
-    <div className="fixed inset-0 z-50 grid place-items-center bg-black/70 p-4">
-      <div className="w-full max-w-md rounded-xl border border-gray-800 bg-gray-900 text-gray-200 shadow-xl">
-        <div className="border-b border-gray-800 px-5 py-4">
-          <p className="text-lg font-semibold">Restore Shop</p>
-        </div>
-
-        <div className="px-5 py-4 space-y-4">
-          <p className="text-sm leading-relaxed">
-            You can restore your shop within{" "}
-            <strong className="text-white">28 days</strong> from the date of
-            deletion.
-          </p>
-
-          {deadline && (
-            <div className="rounded-lg border border-blue-700/60 bg-blue-900/20 p-3">
-              <p className="text-sm">
-                Deadline to restore:{" "}
-                <span className="font-medium text-blue-300">{deadline}</span>
-              </p>
-            </div>
-          )}
-
-          <p className="text-sm text-gray-400">
-            Restoring will re-enable your shop and associated products. You can
-            delete it again later if needed.
-          </p>
-        </div>
-
-        <div className="flex items-center justify-end gap-2 border-t border-gray-800 px-5 py-3">
-          <button
-            onClick={onClose}
-            className="rounded-md border border-gray-700 px-3 py-2 text-gray-300 hover:bg-gray-800"
-          >
+    <Modal
+      open={open}
+      onClose={onClose}
+      tone="pos"
+      title="Restore your shop?"
+      footer={
+        <>
+          <Button variant="ghost" onClick={onClose} disabled={loading}>
             Cancel
-          </button>
-          <button
-            disabled={loading}
-            onClick={onConfirm}
-            className={`rounded-md px-3 py-2 ${
-              loading
-                ? "bg-blue-400/60 text-white/80 cursor-not-allowed"
-                : "bg-blue-600 text-white hover:bg-blue-700"
-            }`}
-          >
-            {loading ? "Restoring..." : "Confirm Restore"}
-          </button>
-        </div>
-      </div>
-    </div>
+          </Button>
+          <Button variant="primary" disabled={loading} onClick={onConfirm}>
+            {loading ? "Restoring…" : "Restore shop"}
+          </Button>
+        </>
+      }
+    >
+      <p>
+        Your shop and its products go back on the storefront straight away. You
+        can delete it again later.
+      </p>
+
+      {deadline ? (
+        <p className="mt-4 rounded-lg border border-rule bg-raised p-3 text-sm">
+          <span className="text-[var(--muted)]">Restore before</span>{" "}
+          <Figure className="text-[var(--text)]">{deadline}</Figure>
+        </p>
+      ) : null}
+    </Modal>
   );
 }

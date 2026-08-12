@@ -206,16 +206,16 @@ function Page() {
             <div className="flex items-center gap-3 py-2">
                 {/* Coral marker — echoes the sidebar's "you are here" accent. */}
                 <span aria-hidden="true" className="h-7 w-[3px] rounded-full bg-[#ff6f61] shadow-[0_0_10px_rgba(255,111,97,0.6)]"/>
-                <h2 className="text-2xl font-semibold font-Poppins text-white">
+                <h2 className="text-2xl font-semibold font-display text-white">
                     Create Product
                 </h2>
             </div>
             <div className="mt-1 flex items-center text-sm">
-                <span className="cursor-pointer text-slate-400 transition-colors hover:text-[#ff8a7d]">
+                <span className="cursor-pointer text-[var(--muted)] transition-colors hover:text-coral-bright">
                     Dashboard
                 </span>
-                <ChevronRight size={16} className="mx-1 text-slate-600"/>
-                <span className="text-slate-200">Create Product</span>
+                <ChevronRight size={16} className="mx-1 text-[var(--faint)]"/>
+                <span className="text-[var(--text)]">Create Product</span>
             </div>
             {/*Content Layout */}
             <div className="py-4 w-full flex flex-col lg:flex-row gap-6">
@@ -254,7 +254,7 @@ function Page() {
                     </div>
                 </div>
                 {/*Right side - form inputs*/}
-                <div className="w-full lg:w-[65%] rounded-xl border border-slate-800 bg-[#141922] p-6">
+                <div className="w-full lg:w-[65%] rounded-xl border border-rule bg-panel p-6">
                     <div className="w-full flex flex-col md:flex-row gap-6">
                         {/*Product Title Input*/}
                         <div className="w-full md:w-2/4">
@@ -310,11 +310,11 @@ function Page() {
                     <CustomProperties control={control} errors={errors} />
                     {/*Mode of Payment*/}
                     <div className="w-full mt-2">
-                        <label className="block font-semibold text-gray-300 mb-1">Mode of Payment*</label>
+                        <label className="block font-semibold text-[var(--muted)] mb-1">Mode of Payment*</label>
                         <select
                             defaultValue=""
                             {...register("payment_mode",{required: "Please select a mode of payment"})}
-                            className="w-full rounded-md border border-slate-700 bg-transparent p-2 text-white outline-none transition-colors focus:border-[#ff6f61] [&>option]:bg-[#141922] [&>option]:text-white"
+                            className="w-full rounded-md border border-rule bg-transparent p-2 text-white outline-none transition-colors focus:border-coral [&>option]:bg-panel [&>option]:text-white"
                         >
                             <option value="" disabled>Select a payment mode</option>
                             <option value="card">Credit / Debit Card</option>
@@ -360,12 +360,12 @@ function Page() {
                     </div>
                     </div>
                         <div className="w-full md:w-2/4">
-                            <label className="block font-semibold text-gray-300 mb-1">
+                            <label className="block font-semibold text-[var(--muted)] mb-1">
                                 Category*
                             </label>
                             {
                                 isLoading ? (
-                                    <p className="text-slate-400">
+                                    <p className="text-[var(--muted)]">
                                         Loading Categories...
 
                                     </p>
@@ -379,7 +379,7 @@ function Page() {
                                     control={control}
                                     rules={{required: "Category is required"}}
                                     render={({field})=>(
-                                        <select {...field} className="w-full rounded-md border border-slate-700 bg-transparent p-2 text-white outline-none transition-colors focus:border-[#ff6f61] [&>option]:bg-[#141922] [&>option]:text-white">
+                                        <select {...field} className="w-full rounded-md border border-rule bg-transparent p-2 text-white outline-none transition-colors focus:border-coral [&>option]:bg-panel [&>option]:text-white">
                                             {" "}
                                             <option value="">
                                                 Select Category
@@ -398,7 +398,7 @@ function Page() {
 
                             {/*Subcategories*/}
                             <div className="w-full mt-2">
-                                <label className="block font-semibold text-gray-300 mb-1">
+                                <label className="block font-semibold text-[var(--muted)] mb-1">
                                     Subcategory*
                                 </label>
                                 <Controller
@@ -409,7 +409,7 @@ function Page() {
                                     <select
                                     {...field}
                                     disabled={!selectedCategory || subCategories.length === 0}
-                                    className="w-full rounded-md border border-slate-700 bg-transparent p-2 text-white outline-none transition-colors focus:border-[#ff6f61] disabled:cursor-not-allowed disabled:opacity-50 [&>option]:bg-[#141922] [&>option]:text-white">
+                                    className="w-full rounded-md border border-rule bg-transparent p-2 text-white outline-none transition-colors focus:border-coral disabled:cursor-not-allowed disabled:opacity-50 [&>option]:bg-panel [&>option]:text-white">
                                         {" "}
                                         <option value="">
                                             {selectedCategory ? "Select Subcategory" : "Select a category first"}
@@ -426,7 +426,7 @@ function Page() {
                             </div>
                             {/*Detailed Description*/}
                             <div className="mt-2">
-                                <label className="block font-semibold text-gray-300 mb-1">
+                                <label className="block font-semibold text-[var(--muted)] mb-1">
                                     Detailed Description* (Min 100 words)
                                 </label>
                                 <Controller
@@ -527,11 +527,11 @@ function Page() {
 
                             </div>
                             <div className="mt-3">
-                                <label className="block font-semibold text-gray-300 mb-1">
+                                <label className="block font-semibold text-[var(--muted)] mb-1">
                                     Select Discount Codes (Optional)
                                 </label>
                                 {discountLoading ? (
-                                    <p className="text-slate-400">
+                                    <p className="text-[var(--muted)]">
                                         Loading discount codes ...
                                     </p>
                                 ): (
@@ -546,7 +546,7 @@ function Page() {
                                                 ) ? currentSelection.filter((id: string)=> id !== code.id) : [...currentSelection, code.id];
                                                 setValue("discountCodes",updatedSelection);
                                             }}
-                                            className={`px-3 py-1 rounded-md font-semibold border transition-colors ${watch("discountCodes")?.includes(code.id) ? "bg-[#ff6f61]/10 border-[#ff6f61] text-[#ff8a7d]" : "border-slate-700 text-slate-300 hover:border-slate-500 hover:text-slate-100"}`}>
+                                            className={`px-3 py-1 rounded-md font-semibold border transition-colors ${watch("discountCodes")?.includes(code.id) ? "bg-[#ff6f61]/10 border-coral text-coral-bright" : "border-rule text-[var(--muted)] hover:border-rule hover:text-[var(--text)]"}`}>
                                                 {code?.public_name} ({code.discountValue}{code.discountType === "percentage" ? "%" : "$"})
                                             </button>
                                         ))}
@@ -563,13 +563,13 @@ function Page() {
                 openImageModal && selectedImage && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
                         {/*Modal Content*/}
-                        <div className="w-[500px] max-w-full rounded-xl border border-slate-800 bg-[#141922] p-6 text-white shadow-2xl">
-                            <div className="flex justify-between items-center border-b border-slate-800 pb-3 mb-4">
+                        <div className="w-[500px] max-w-full rounded-xl border border-rule bg-panel p-6 text-white shadow-2xl">
+                            <div className="flex justify-between items-center border-b border-rule pb-3 mb-4">
                                 <h2 className="font-semibold text-lg">Enhance Product Image</h2>
-                                <X size={20} className="cursor-pointer text-slate-400 transition-colors hover:text-white" onClick={()=>setOpenImageModal(false)} />
+                                <X size={20} className="cursor-pointer text-[var(--muted)] transition-colors hover:text-white" onClick={()=>setOpenImageModal(false)} />
                             </div>
                             {/*Image Viewer*/}
-                            <div className="relative w-full h-[300px] rounded-md overflow-hidden border border-gray-600 bg-[#0f172a]">
+                            <div className="relative w-full h-[300px] rounded-md overflow-hidden border border-rule bg-[#0f172a]">
                                 <Image
                                     key={previewUrl}
                                     src={previewUrl}
@@ -581,14 +581,14 @@ function Page() {
                                     onLoad={()=>setEnhancing(false)}
                                 />
                                 {enhancing && (
-                                    <div className="absolute inset-0 z-10 flex items-center justify-center bg-slate-950/60 backdrop-blur-sm">
-                                        <Loader2 size={30} className="animate-spin text-[#ff6f61]"/>
+                                    <div className="absolute inset-0 z-10 flex items-center justify-center bg-ink/70 backdrop-blur-sm">
+                                        <Loader2 size={30} className="animate-spin text-coral"/>
                                     </div>
                                 )}
                             </div>
                             {/*AI IMAGE ENHANCEMENT*/}
                             <div className="mt-5">
-                                <h3 className="text-sm font-semibold text-gray-300 mb-2">AI Enhancements</h3>
+                                <h3 className="text-sm font-semibold text-[var(--muted)] mb-2">AI Enhancements</h3>
                                 <div className="grid grid-cols-2 gap-2">
                                     {aiEnhancements.map(({label, transformation})=>(
                                         <button
@@ -602,8 +602,8 @@ function Page() {
                                         }}
                                         className={`flex items-center gap-1.5 px-3 py-2 rounded-md text-sm font-medium border transition disabled:cursor-not-allowed ${
                                             activeEffect === transformation
-                                                ? "border-[#ff6f61] bg-[#ff6f61]/10 text-[#ff8a7d]"
-                                                : "border-gray-700 text-gray-300 hover:border-gray-500"
+                                                ? "border-coral bg-coral-soft text-coral-bright"
+                                                : "border-rule text-[var(--muted)] hover:border-coral/50"
                                         }`}>
                                             <WandSparkles size={15}/> {label}
                                         </button>
@@ -614,14 +614,14 @@ function Page() {
                                     type="button"
                                     onClick={()=>{setActiveEffect(null); setEnhancing(false);}}
                                     disabled={!activeEffect}
-                                    className="px-4 py-2 rounded-lg text-sm text-slate-200 border border-slate-700 bg-white/[0.04] hover:bg-white/[0.08] transition disabled:opacity-50 disabled:cursor-not-allowed">
+                                    className="px-4 py-2 rounded-lg text-sm text-[var(--text)] border border-rule bg-white/[0.04] hover:bg-white/[0.08] transition disabled:opacity-50 disabled:cursor-not-allowed">
                                         Reset
                                     </button>
                                     <button
                                     type="button"
                                     onClick={handleApplyEnhancement}
                                     disabled={!activeEffect}
-                                    className="px-4 py-2 rounded-md text-sm text-white bg-[#ff6f61] hover:bg-[#e05a4d] transition disabled:opacity-50 disabled:cursor-not-allowed">
+                                    className="px-4 py-2 rounded-md text-sm text-white bg-coral hover:bg-coral-dim transition disabled:opacity-50 disabled:cursor-not-allowed">
                                         Apply Enhancement
                                     </button>
                                 </div>
@@ -636,7 +636,7 @@ function Page() {
                     <button
                     type="button"
                     onClick={handleSaveDraft}
-                    className="rounded-lg border border-slate-700 bg-white/[0.04] px-5 py-2 text-slate-200 transition-colors hover:bg-white/[0.08]">
+                    className="rounded-lg border border-rule bg-white/[0.04] px-5 py-2 text-[var(--text)] transition-colors hover:bg-white/[0.08]">
                         Save Draft
                     </button>
                 )}

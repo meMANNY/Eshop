@@ -1,17 +1,6 @@
 "use client";
 
 import React from "react";
-import {
-  PieChart,
-  Pie,
-  Cell,
-  ResponsiveContainer,
-  Tooltip,
-  Legend,
-} from "recharts";
-import { motion } from "framer-motion";
-
-const COLORS = ["#22c55e", "#facc15", "#3b82f6"];
 
 const staticData = [
   { name: "Phone", value: 45 },
@@ -19,62 +8,54 @@ const staticData = [
   { name: "Computer", value: 30 },
 ];
 
-const CustomTooltip = ({ active, payload }: any) => {
-  if (active && payload && payload.length) {
-    const data = payload[0];
-    return (
-      <div className="bg-[#222] text-white text-xs px-3 py-2 rounded-md shadow-md">
-        <p className="font-semibold">{data.name}</p>
-        <p>Usage: {data.value}%</p>
-      </div>
-    );
-  }
-  return null;
-};
-
+/**
+ * Three shares of one total, and the reader's question is "which is biggest, and
+ * by how much" — a length comparison against a common baseline answers that far
+ * better than three arcs, which is what this was.
+ *
+ * Because each bar carries its own name and percentage, colour encodes nothing
+ * here, so the chart needs one hue instead of the green/amber/blue trio it had.
+ * That trio was also borrowing the reserved status colours, so a device category
+ * read like a payment state.
+ */
 export default function DeviceUsagePie() {
-  return (
-    <motion.div
-      className="bg-[#111] p-4 rounded-xl"
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-    >
-      <h2 className="text-white mb-2 font-semibold">Device Usage</h2>
-      <p className="text-gray-400 text-sm mb-4">
-        How users access your platform
-      </p>
+  const total = staticData.reduce((sum, d) => sum + d.value, 0);
+  const max = Math.max(...staticData.map((d) => d.value));
 
-      <div className="w-full h-64 flex items-center justify-center">
-        <ResponsiveContainer width="100%" height="100%">
-          <PieChart>
-            <Pie
-              data={staticData}
-              dataKey="value"
-              innerRadius={60}
-              outerRadius={90}
-              paddingAngle={5}
-              label={({ name, percent }: any) =>
-                `${name} ${(percent * 100).toFixed(0)}%`
-              }
-            >
-              {staticData.map((entry, index) => (
-                <Cell
-                  key={`cell-${index}`}
-                  fill={COLORS[index % COLORS.length]}
-                  stroke="#111"
+  return (
+    <section className="rounded-panel border border-rule bg-panel shadow-panel">
+      <header className="border-b border-rule px-5 py-4">
+        <h2 className="text-[15px] font-semibold text-white">Device usage</h2>
+        <p className="mt-0.5 text-xs text-[var(--muted)]">
+          How buyers reach your shop
+        </p>
+      </header>
+
+      <div className="space-y-5 px-5 py-5">
+        {staticData.map((d) => {
+          const share = Math.round((d.value / total) * 100);
+          return (
+            <div key={d.name}>
+              <div className="mb-1.5 flex items-baseline justify-between gap-3">
+                <span className="text-sm text-[var(--text)]">{d.name}</span>
+                <span className="figure text-sm text-[var(--muted)]">{share}%</span>
+              </div>
+              {/* The track spans the full width, so every bar is read against the
+                  same baseline and the same maximum. */}
+              <div
+                className="h-2 w-full overflow-hidden rounded-full bg-raised"
+                role="img"
+                aria-label={`${d.name}: ${share} percent`}
+              >
+                <div
+                  className="h-full rounded-full bg-data transition-[width] duration-500 motion-reduce:transition-none"
+                  style={{ width: `${(d.value / max) * 100}%` }}
                 />
-              ))}
-            </Pie>
-            <Tooltip content={<CustomTooltip />} />
-            <Legend
-              verticalAlign="bottom"
-              align="center"
-              wrapperStyle={{ color: "#ccc", fontSize: "12px" }}
-            />
-          </PieChart>
-        </ResponsiveContainer>
+              </div>
+            </div>
+          );
+        })}
       </div>
-    </motion.div>
+    </section>
   );
 }

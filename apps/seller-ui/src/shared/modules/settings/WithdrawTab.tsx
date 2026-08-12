@@ -2,11 +2,17 @@
 
 import StripeSLogo from "@/assests/svgs/stripe-logo";
 import axiosInstance from "@/utils/axiosInstance";
-import { useQuery, useMutation } from "@tanstack/react-query";
-
-
-import { Loader2, ExternalLink, CheckCircle2 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { CheckCircle2, ExternalLink, Loader2 } from "lucide-react";
+import {
+  Bar,
+  Button,
+  EmptyState,
+  Figure,
+  Panel,
+  PanelHead,
+  StatusPill,
+} from "@/shared/components/ui";
 
 type StripeAccount = {
   email?: string;
@@ -20,8 +26,6 @@ type StripeAccount = {
 };
 
 export default function WithdrawMethodTab() {
-  const router = useRouter();
-
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["stripe-account"],
     queryFn: async (): Promise<StripeAccount | null> => {
@@ -60,120 +64,139 @@ export default function WithdrawMethodTab() {
 
   if (isLoading) {
     return (
-      <div className="rounded-lg border border-gray-800 bg-gray-900/70 p-6">
-        <div className="flex items-center gap-3 text-gray-300">
-          <Loader2 className="h-5 w-5 animate-spin" />
-          <span>Loading withdraw method…</span>
+      <Panel>
+        <PanelHead title="Withdraw method" />
+        <div className="space-y-3 p-5" role="status" aria-label="Loading payout details">
+          <Bar className="h-4 w-48" />
+          <Bar className="h-20 w-full" />
         </div>
-      </div>
+      </Panel>
     );
   }
+
   if (isError) {
     return (
-      <div className="rounded-lg border border-red-900/40 bg-red-900/20 p-6 text-red-200">
-        Failed to load Stripe status.
-        <button
-          onClick={() => refetch()}
-          className="ml-3 rounded-md border border-red-700/50 px-3 py-1 text-sm hover:bg-red-900/30"
-        >
-          Retry
-        </button>
-      </div>
+      <Panel>
+        <PanelHead title="Withdraw method" />
+        <EmptyState
+          title="Couldn't load your Stripe status"
+          hint="The payment service didn't respond. Your payout settings are unchanged."
+          action={
+            <Button variant="ghost" onClick={() => refetch()}>
+              Try again
+            </Button>
+          }
+        />
+      </Panel>
     );
   }
 
   if (!data || !data.connected) {
     return (
-      <div className="text-center rounded-lg border border-gray-800 bg-gray-900/70 p-8 text-gray-200">
-        <h3 className="mb-4 text-2xl font-semibold">Withdraw Method</h3>
-        <button
-          onClick={() => connectStripe()}
-          disabled={linking}
-          className="m-auto flex w-full max-w-md items-center justify-center gap-3 rounded-lg bg-[#334155] py-2 text-lg text-white transition-colors hover:bg-[#1e293b] disabled:opacity-70"
-        >
-          {linking ? (
-            <>
-              <Loader2 className="h-5 w-5 animate-spin" /> Redirecting…
-            </>
-          ) : (
-            <>
-              Connect Stripe <StripeSLogo />
-            </>
-          )}
-        </button>
-      </div>
+      <Panel>
+        <PanelHead title="Withdraw method" />
+        <EmptyState
+          title="Connect Stripe to get paid"
+          hint="Buyers pay through the marketplace and Stripe forwards your share. Nothing can be paid out until this is connected."
+          action={
+            <Button
+              variant="primary"
+              onClick={() => connectStripe()}
+              disabled={linking}
+            >
+              {linking ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                  Redirecting…
+                </>
+              ) : (
+                <>
+                  Connect Stripe
+                  <StripeSLogo />
+                </>
+              )}
+            </Button>
+          }
+        />
+      </Panel>
     );
   }
 
   return (
-    <div className="text-gray-200">
-      <h3 className="mb-4 text-2xl font-semibold">Withdraw Method</h3>
-
-      <div className="rounded-lg border border-gray-800 bg-gray-900/70 p-6 text-gray-200">
-        <div className="mb-4 flex items-center gap-3">
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-500/10">
-            <CheckCircle2 className="h-5 w-5 text-emerald-400" />
-          </div>
-          <div>
-            <p className="text-base font-medium text-gray-100">
-              Connected to Stripe
-            </p>
-            <p className="text-sm text-gray-400">{data.email ?? "—"}</p>
-          </div>
-        </div>
-
-        <div className="grid gap-y-4 sm:grid-cols-2">
-          <div className="rounded-md border border-gray-800 bg-gray-900/50 p-4">
-            <p className="text-sm text-gray-400">Business Name:</p>
-            <p className="text-base text-gray-100">
-              {data.businessName ?? "—"}
-            </p>
-          </div>
-
-          <div className="rounded-md border border-gray-800 bg-gray-900/50 p-4">
-            <p className="text-sm text-gray-400">Country:</p>
-            <p className="text-base text-gray-100">{data.country ?? "—"}</p>
-          </div>
-
-          <div className="rounded-md border border-gray-800 bg-gray-900/50 p-4">
-            <p className="text-sm text-gray-400">Payouts Enabled:</p>
-            <p
-              className={`text-base ${
-                data.payoutsEnabled ? "text-emerald-400" : "text-gray-100"
-              }`}
-            >
-              {data.payoutsEnabled ? "Yes" : "No"}
-            </p>
-          </div>
-
-          <div className="rounded-md border border-gray-800 bg-gray-900/50 p-4">
-            <p className="text-sm text-gray-400">Charges Enabled:</p>
-            <p
-              className={`text-base ${
-                data.chargesEnabled ? "text-emerald-400" : "text-gray-100"
-              }`}
-            >
-              {data.chargesEnabled ? "Yes" : "No"}
-            </p>
-          </div>
-
-          <div className="rounded-md border border-gray-800 bg-gray-900/50 p-4 sm:col-span-2">
-            <p className="text-sm text-gray-400">Last Payout:</p>
-            <p className="text-base text-gray-100">
-              {data.lastPayout ?? "No payouts yet"}
-            </p>
-          </div>
-        </div>
-
-        <div className="mt-6">
-          <button
-            onClick={() => router.push("https://dashboard.stripe.com/")}
-            className="inline-flex items-center gap-2 rounded-lg border border-slate-700 bg-slate-800 px-4 py-2 text-sm hover:bg-slate-700"
+    <Panel>
+      <PanelHead
+        title="Withdraw method"
+        note="Where your share of each order is sent."
+        actions={
+          /*
+            `router.push` was being used for an external URL, which Next treats as
+            a client-side route and cannot navigate to. An anchor is what actually
+            opens Stripe — and the account's own dashboard link is used when the
+            API returns one, rather than always the generic login page.
+          */
+          <a
+            href={data.dashboardUrl ?? "https://dashboard.stripe.com/"}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 rounded-lg border border-rule bg-raised px-3.5 py-2 text-sm font-medium text-[var(--text)] transition-colors hover:border-[#2a3547]"
           >
-            Open Stripe Dashboard <ExternalLink size={16} />
-          </button>
+            Open Stripe
+            <ExternalLink size={15} aria-hidden="true" />
+          </a>
+        }
+      />
+
+      <div className="flex items-center gap-3 border-b border-rule px-5 py-4">
+        <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-pos/10">
+          <CheckCircle2 className="h-4 w-4 text-pos" aria-hidden="true" />
+        </span>
+        <div className="min-w-0">
+          <p className="text-sm font-medium text-[var(--text)]">
+            Connected to Stripe
+          </p>
+          <p className="truncate text-xs text-[var(--faint)]">{data.email ?? "—"}</p>
         </div>
       </div>
+
+      <dl className="divide-y divide-rule">
+        <Row label="Business name">{data.businessName ?? "—"}</Row>
+        <Row label="Country">{data.country ?? "—"}</Row>
+        <Row label="Payouts">
+          {/* Yes/No in green was colour doing the work; the pill says the state. */}
+          <StatusPill tone={data.payoutsEnabled ? "pos" : "warn"}>
+            {data.payoutsEnabled ? "Enabled" : "Not enabled"}
+          </StatusPill>
+        </Row>
+        <Row label="Charges">
+          <StatusPill tone={data.chargesEnabled ? "pos" : "warn"}>
+            {data.chargesEnabled ? "Enabled" : "Not enabled"}
+          </StatusPill>
+        </Row>
+        <Row label="Last payout">
+          {data.lastPayout ? (
+            <Figure className="text-[var(--text)]">{data.lastPayout}</Figure>
+          ) : (
+            <span className="text-[var(--faint)]">No payouts yet</span>
+          )}
+        </Row>
+      </dl>
+    </Panel>
+  );
+}
+
+function Row({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="flex items-center justify-between gap-4 px-5 py-3">
+      <dt className="text-label font-semibold uppercase text-[var(--muted)]">
+        {label}
+      </dt>
+      <dd className="text-sm text-[var(--text)]">{children}</dd>
     </div>
   );
 }
