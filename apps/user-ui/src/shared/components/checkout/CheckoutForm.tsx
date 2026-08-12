@@ -102,13 +102,13 @@ export default function CheckoutForm({
     <div className="flex justify-center items-center min-h-[80vh] px-4 my-10">
       <form
         onSubmit={handleSubmit}
-        className="bg-white w-full max-w-lg p-8 rounded-md shadow space-y-6"
+        className="bg-surface w-full max-w-lg p-8 rounded-md shadow space-y-6"
       >
         <h2 className="text-3xl font-bold text-center mb-2">
           Secure Payment Checkout
         </h2>
 
-        <div className="bg-gray-100 p-4 rounded-md text-sm text-gray-700 space-y-2">
+        <div className="bg-gray-100 p-4 rounded-md text-sm text-ink-muted space-y-2">
           {(cartItems || []).map((item: any, i: number) => {
             const line = num(item?.quantity) * num(item?.sale_price);
             return (
@@ -123,7 +123,7 @@ export default function CheckoutForm({
 
           <div className="flex justify-between font-semibold pt-2 border-t border-t-gray-300 mt-2">
             <span>Discount</span>
-            <span className="text-gray-600">{fmt.format(discount)}</span>
+            <span className="text-ink-muted">{fmt.format(discount)}</span>
           </div>
 
           <div className="flex justify-between font-semibold mt-2">
@@ -143,7 +143,7 @@ export default function CheckoutForm({
         </button>
 
         {errorMsg && (
-          <div className="flex items-center gap-2 text-red-600 text-sm justify-center">
+          <div className="flex items-center gap-2 text-neg text-sm justify-center">
             <XCircle className="w-5 h-5" />
             {errorMsg}
           </div>
@@ -156,7 +156,7 @@ export default function CheckoutForm({
           </div>
         )}
         {status === "failed" && (
-          <div className="flex items-center gap-2 text-red-600 text-sm justify-center">
+          <div className="flex items-center gap-2 text-neg text-sm justify-center">
             <XCircle className="w-5 h-5" />
             Payment Failed. Please try again!
           </div>

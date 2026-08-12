@@ -40,26 +40,26 @@ export default function Page() {
 
   if (loading)
     return (
-      <div className="flex min-h-[60vh] items-center justify-center bg-[#f5f5f5]">
-        <Loader2 className="h-6 w-6 animate-spin text-[#ff6f61]" />
+      <div className="flex min-h-[60vh] items-center justify-center bg-canvas">
+        <Loader2 className="h-6 w-6 animate-spin text-coral-ink" />
       </div>
     );
 
   if (!order)
     return (
-      <div className="flex min-h-[60vh] w-full flex-col items-center justify-center bg-[#f5f5f5] px-4 text-center">
-        <span className="flex h-14 w-14 items-center justify-center rounded-full bg-[#ff6f61]/10 text-[#ff6f61]">
+      <div className="flex min-h-[60vh] w-full flex-col items-center justify-center bg-canvas px-4 text-center">
+        <span className="flex h-14 w-14 items-center justify-center rounded-full bg-coral/10 text-coral-ink">
           <PackageX size={24} />
         </span>
-        <h2 className="mt-4 text-base font-semibold text-slate-900">
+        <h2 className="mt-4 text-base font-semibold text-ink">
           We couldn&apos;t find that order
         </h2>
-        <p className="mt-1.5 max-w-sm text-sm text-slate-500">
+        <p className="mt-1.5 max-w-sm text-sm text-ink-muted">
           It may have been removed, or the link is no longer valid.
         </p>
         <Link
           href="/profile?active=My+Orders"
-          className="mt-6 rounded-lg bg-[#ff6f61] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#e05a4d] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff6f61]"
+          className="mt-6 rounded-lg bg-coral px-4 py-2 text-sm font-medium text-[#2b0f0a] transition-colors hover:bg-coral-dim focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-coral"
         >
           Back to my orders
         </Link>
@@ -71,7 +71,7 @@ export default function Page() {
     activeIndex > 0 ? (activeIndex / (statuses.length - 1)) * 100 : 0;
 
   return (
-    <div className="w-full bg-[#f5f5f5] pb-14">
+    <div className="w-full bg-canvas pb-14">
       <div className="mx-auto w-[90%] lg:w-[80%]">
         {/* HEADER */}
         <div className="pb-10">
@@ -79,28 +79,28 @@ export default function Page() {
             {/* Coral marker — the same "you are here" accent used across the app. */}
             <span
               aria-hidden="true"
-              className="h-10 w-[4px] rounded-full bg-[#ff6f61] shadow-[0_0_10px_rgba(255,111,97,0.5)]"
+              className="h-10 w-[4px] rounded-full bg-coral "
             />
-            <h1 className="font-jost text-[40px] font-semibold leading-tight text-slate-900 sm:text-[44px]">
+            <h1 className="font-jost text-[40px] font-semibold leading-tight text-ink sm:text-[44px]">
               Order{" "}
-              <span className="font-mono text-[#ff6f61]">
+              <span className="font-mono text-coral-ink">
                 #{order.id.slice(-6).toUpperCase()}
               </span>
             </h1>
           </div>
-          <div className="flex items-center gap-2 text-sm text-slate-500">
-            <Link href="/" className="transition-colors hover:text-[#ff6f61]">
+          <div className="flex items-center gap-2 text-sm text-ink-muted">
+            <Link href="/" className="transition-colors hover:text-coral-ink">
               Home
             </Link>
-            <span className="text-slate-300">/</span>
+            <span className="text-ink-faint">/</span>
             <Link
               href="/profile?active=My+Orders"
-              className="transition-colors hover:text-[#ff6f61]"
+              className="transition-colors hover:text-coral-ink"
             >
               My orders
             </Link>
-            <span className="text-slate-300">/</span>
-            <span className="text-slate-900">
+            <span className="text-ink-faint">/</span>
+            <span className="text-ink">
               #{order.id.slice(-6).toUpperCase()}
             </span>
           </div>
@@ -108,7 +108,7 @@ export default function Page() {
 
         <Link
           href="/profile?active=My+Orders"
-          className="mb-6 inline-flex items-center gap-2 text-sm font-medium text-slate-600 transition-colors hover:text-[#ff6f61] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff6f61]"
+          className="mb-6 inline-flex items-center gap-2 text-sm font-medium text-ink-muted transition-colors hover:text-coral-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-coral"
         >
           <ArrowLeft size={16} />
           Back to my orders
@@ -116,7 +116,7 @@ export default function Page() {
 
         {/* DELIVERY PROGRESS */}
         <Card>
-          <h2 className="mb-8 text-lg font-semibold text-slate-900">
+          <h2 className="mb-8 text-lg font-semibold text-ink">
             Delivery Progress
           </h2>
 
@@ -126,8 +126,8 @@ export default function Page() {
                 key={status}
                 className={`flex-1 text-center first:text-left last:text-right ${
                   i <= activeIndex
-                    ? "font-semibold text-[#ff6f61]"
-                    : "text-slate-400"
+                    ? "font-semibold text-coral-ink"
+                    : "text-ink-faint"
                 }`}
               >
                 {status}
@@ -142,7 +142,7 @@ export default function Page() {
             />
             <div
               aria-hidden="true"
-              className="absolute left-0 top-1/2 h-[3px] -translate-y-1/2 rounded-full bg-[#ff6f61] shadow-[0_0_10px_rgba(255,111,97,0.4)] transition-all duration-500 ease-in-out motion-reduce:transition-none"
+              className="absolute left-0 top-1/2 h-[3px] -translate-y-1/2 rounded-full bg-coral shadow-[0_0_10px_rgba(255,111,97,0.4)] transition-all duration-500 ease-in-out motion-reduce:transition-none"
               style={{ width: `${progressWidth}%` }}
             />
 
@@ -154,15 +154,15 @@ export default function Page() {
                   key={status}
                   className={`relative z-10 flex h-5 w-5 items-center justify-center rounded-full transition-all duration-500 motion-reduce:transition-none ${
                     current
-                      ? "scale-110 bg-[#ff6f61] shadow-lg shadow-[#ff6f61]/40"
+                      ? "scale-110 bg-coral shadow-lg shadow-[#ff6f61]/40"
                       : reached
-                      ? "bg-[#ff6f61]"
+                      ? "bg-coral"
                       : "bg-slate-300"
                   }`}
                 >
                   <span
                     className={`h-2 w-2 rounded-full ${
-                      reached ? "bg-white" : "bg-slate-400"
+                      reached ? "bg-surface" : "bg-slate-400"
                     }`}
                   />
                 </div>
@@ -173,7 +173,7 @@ export default function Page() {
 
         {/* ORDER SUMMARY */}
         <Card className="mt-6">
-          <h2 className="mb-4 text-lg font-semibold text-slate-900">
+          <h2 className="mb-4 text-lg font-semibold text-ink">
             Order Summary
           </h2>
           <dl className="grid grid-cols-1 gap-x-10 sm:grid-cols-2">
@@ -181,7 +181,7 @@ export default function Page() {
               <span
                 className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ring-1 ring-inset ${
                   order.status === "Paid"
-                    ? "bg-emerald-50 text-emerald-700 ring-emerald-200"
+                    ? "bg-pos/10 text-pos ring-emerald-200"
                     : "bg-amber-50 text-amber-700 ring-amber-200"
                 }`}
               >
@@ -190,14 +190,14 @@ export default function Page() {
             </SummaryRow>
 
             <SummaryRow label="Total paid">
-              <span className="text-base font-semibold text-slate-900">
+              <span className="text-base font-semibold text-ink">
                 ${Number(order.total).toFixed(2)}
               </span>
             </SummaryRow>
 
             {order.discountAmount > 0 && (
               <SummaryRow label="Discount applied">
-                <span className="font-medium text-emerald-700">
+                <span className="font-medium text-pos">
                   -${Number(order.discountAmount).toFixed(2)}
                   {order.couponCode?.discountType === "percentage"
                     ? ` (${order.couponCode.discountValue}%)`
@@ -210,14 +210,14 @@ export default function Page() {
 
             {order.couponCode && (
               <SummaryRow label="Coupon">
-                <span className="rounded bg-[#ff6f61]/10 px-2 py-0.5 font-mono text-sm text-[#ff6f61]">
+                <span className="rounded bg-coral/10 px-2 py-0.5 font-mono text-sm text-coral-ink">
                   {order.couponCode.public_name}
                 </span>
               </SummaryRow>
             )}
 
             <SummaryRow label="Date">
-              <span className="text-slate-900">
+              <span className="text-ink">
                 {new Date(order.createdAt).toLocaleDateString(undefined, {
                   day: "numeric",
                   month: "long",
@@ -231,11 +231,11 @@ export default function Page() {
         {/* SHIPPING ADDRESS */}
         {order.shippingAddress && (
           <Card className="mt-6">
-            <h2 className="mb-3 text-lg font-semibold text-slate-900">
+            <h2 className="mb-3 text-lg font-semibold text-ink">
               Shipping Address
             </h2>
-            <address className="space-y-1 text-sm not-italic text-slate-600">
-              <p className="font-medium text-slate-900">
+            <address className="space-y-1 text-sm not-italic text-ink-muted">
+              <p className="font-medium text-ink">
                 {order.shippingAddress.name}
               </p>
               <p>
@@ -249,9 +249,9 @@ export default function Page() {
 
         {/* ORDER ITEMS */}
         <Card className="mt-6">
-          <h2 className="mb-4 text-lg font-semibold text-slate-900">
+          <h2 className="mb-4 text-lg font-semibold text-ink">
             Order Items
-            <span className="ml-2 text-sm font-normal text-slate-400">
+            <span className="ml-2 text-sm font-normal text-ink-faint">
               ({order.items?.length ?? 0})
             </span>
           </h2>
@@ -259,7 +259,7 @@ export default function Page() {
             {order.items?.map((item: any) => (
               <div
                 key={item.id ?? item.productId}
-                className="flex items-center gap-5 rounded-lg border border-slate-100 p-4 transition-colors hover:border-slate-200 hover:bg-slate-50"
+                className="flex items-center gap-5 rounded-lg border border-rule p-4 transition-colors hover:border-rule hover:bg-slate-50"
               >
                 <img
                   src={
@@ -267,15 +267,15 @@ export default function Page() {
                     "https://images.unsplash.com/photo-1635405074683-96d6921a2a68?w=500&auto=format&fit=crop&q=80"
                   }
                   alt={item.product?.title || "Product image"}
-                  className="h-16 w-16 shrink-0 rounded-md border border-slate-200 object-cover"
+                  className="h-16 w-16 shrink-0 rounded-md border border-rule object-cover"
                 />
                 <div className="min-w-0 flex-1">
-                  <p className="truncate font-medium text-slate-900">
+                  <p className="truncate font-medium text-ink">
                     {item?.product?.title || "Unnamed Product"}
                   </p>
-                  <p className="mt-0.5 text-sm text-slate-500">
+                  <p className="mt-0.5 text-sm text-ink-muted">
                     Quantity:{" "}
-                    <span className="text-slate-700">{item?.quantity}</span>
+                    <span className="text-ink-muted">{item?.quantity}</span>
                   </p>
                   {item?.selectedOptions &&
                     Object.keys(item.selectedOptions).length > 0 && (
@@ -285,9 +285,9 @@ export default function Page() {
                             value && (
                               <span
                                 key={key}
-                                className="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-xs text-slate-600"
+                                className="inline-flex items-center rounded-full border border-rule bg-slate-50 px-2 py-0.5 text-xs text-ink-muted"
                               >
-                                <span className="capitalize text-slate-400">
+                                <span className="capitalize text-ink-faint">
                                   {key}:
                                 </span>
                                 <span className="ml-1">{value}</span>
@@ -297,7 +297,7 @@ export default function Page() {
                       </div>
                     )}
                 </div>
-                <p className="shrink-0 text-sm font-semibold text-slate-900">
+                <p className="shrink-0 text-sm font-semibold text-ink">
                   ${Number(item?.price ?? 0).toFixed(2)}
                 </p>
               </div>
@@ -317,7 +317,7 @@ const Card = ({
   className?: string;
 }) => (
   <div
-    className={`rounded-xl border border-slate-200 bg-white p-6 shadow-sm ${className}`}
+    className={`rounded-card border border-rule bg-surface p-6 shadow-sm ${className}`}
   >
     {children}
   </div>
@@ -330,8 +330,8 @@ const SummaryRow = ({
   label: string;
   children: React.ReactNode;
 }) => (
-  <div className="flex items-center justify-between gap-4 border-b border-slate-100 py-3 last:border-b-0">
-    <dt className="text-sm text-slate-500">{label}</dt>
+  <div className="flex items-center justify-between gap-4 border-b border-rule py-3 last:border-b-0">
+    <dt className="text-sm text-ink-muted">{label}</dt>
     <dd className="text-sm">{children}</dd>
   </div>
 );

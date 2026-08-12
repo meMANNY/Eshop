@@ -66,7 +66,7 @@ export default function ShippingAddressSection() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold text-gray-800 tracking-tight">
+        <h2 className="text-xl font-semibold text-ink tracking-tight">
           Saved Addresses
         </h2>
         <button
@@ -81,11 +81,11 @@ export default function ShippingAddressSection() {
       {/* Addresses */}
       <div>
         {addressesLoading ? (
-          <p className="text-sm text-gray-500 text-center py-4">
+          <p className="text-sm text-ink-muted text-center py-4">
             Loading addresses...
           </p>
         ) : !addresses || addresses.length === 0 ? (
-          <p className="text-sm text-gray-600 text-center py-4">
+          <p className="text-sm text-ink-muted text-center py-4">
             No saved addresses found.
           </p>
         ) : (
@@ -93,7 +93,7 @@ export default function ShippingAddressSection() {
             {addresses.map((address: any) => (
               <div
                 key={address.id}
-                className="relative border border-gray-200 rounded-xl p-5 shadow-sm bg-white hover:shadow-md hover:-translate-y-1 transition-all duration-300"
+                className="relative border border-rule rounded-xl p-5 shadow-sm bg-surface hover:shadow-md hover:-translate-y-1 transition-all duration-300"
               >
                 {address?.isDefault && (
                   <span className="absolute top-3 right-3 bg-blue-100 text-blue-700 text-xs font-medium px-2 py-0.5 rounded-full shadow-sm">
@@ -101,15 +101,15 @@ export default function ShippingAddressSection() {
                   </span>
                 )}
 
-                <div className="flex items-start gap-3 text-gray-700">
+                <div className="flex items-start gap-3 text-ink-muted">
                   <div className="mt-0.5 flex-shrink-0">
                     <MapPin className="w-5 h-5 text-blue-500" />
                   </div>
                   <div className="text-sm leading-relaxed">
-                    <p className="font-semibold text-gray-800">
+                    <p className="font-semibold text-ink">
                       {address?.label} — {address?.name}
                     </p>
-                    <p className="text-gray-600">
+                    <p className="text-ink-muted">
                       {address?.street}, {address?.city}, {address?.zip},{" "}
                       {address?.country}
                     </p>
@@ -118,7 +118,7 @@ export default function ShippingAddressSection() {
 
                 <div className="flex gap-3 mt-4">
                   <button
-                    className="flex items-center gap-1 text-xs text-red-600 hover:text-red-700 hover:underline transition"
+                    className="flex items-center gap-1 text-xs text-neg hover:text-red-700 hover:underline transition"
                     onClick={() => deleteAddress(address.id)}
                     disabled={idDeleting}
                   >
@@ -134,18 +134,18 @@ export default function ShippingAddressSection() {
       {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm transition-all duration-300">
-          <div className="bg-white w-full max-w-md p-6 rounded-2xl shadow-2xl relative animate-fadeIn border border-gray-100">
+          <div className="bg-surface w-full max-w-md p-6 rounded-2xl shadow-2xl relative animate-fadeIn border border-rule">
             {/* Close button */}
             <button
               onClick={() => setShowModal(false)}
-              className="absolute top-4 right-4 text-gray-400 hover:text-gray-700 transition"
+              className="absolute top-4 right-4 text-ink-faint hover:text-ink-muted transition"
             >
               <X className="w-5 h-5" />
               {""}
             </button>
 
             {/* Header */}
-            <h3 className="text-xl font-semibold text-gray-800 mb-5 text-center">
+            <h3 className="text-xl font-semibold text-ink mb-5 text-center">
               Add New Address
             </h3>
 
@@ -153,12 +153,12 @@ export default function ShippingAddressSection() {
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               {/* Address Type */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-ink-muted mb-1">
                   Address Type
                 </label>
                 <select
                   {...register("label")}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition"
+                  className="w-full border border-rule rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition"
                 >
                   <option value="Home">Home</option>
                   <option value="Work">Work</option>
@@ -171,10 +171,10 @@ export default function ShippingAddressSection() {
                 <input
                   placeholder="Full Name"
                   {...register("name", { required: "Name is required!" })}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition"
+                  className="w-full border border-rule rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition"
                 />
                 {errors.name && (
-                  <p className="text-red-500 text-xs mt-1">
+                  <p className="text-neg text-xs mt-1">
                     {errors.name.message}
                   </p>
                 )}
@@ -185,10 +185,10 @@ export default function ShippingAddressSection() {
                 <input
                   placeholder="Street Address"
                   {...register("street", { required: "Street is required!" })}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition"
+                  className="w-full border border-rule rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition"
                 />
                 {errors.street && (
-                  <p className="text-red-500 text-xs mt-1">
+                  <p className="text-neg text-xs mt-1">
                     {errors.street.message}
                   </p>
                 )}
@@ -199,10 +199,10 @@ export default function ShippingAddressSection() {
                 <input
                   placeholder="City"
                   {...register("city", { required: "City is required!" })}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition"
+                  className="w-full border border-rule rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition"
                 />
                 {errors.city && (
-                  <p className="text-red-500 text-xs mt-1">
+                  <p className="text-neg text-xs mt-1">
                     {errors.city.message}
                   </p>
                 )}
@@ -213,10 +213,10 @@ export default function ShippingAddressSection() {
                 <input
                   placeholder="ZIP / Postal Code"
                   {...register("zip", { required: "ZIP Code is required!" })}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition"
+                  className="w-full border border-rule rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition"
                 />
                 {errors.zip && (
-                  <p className="text-red-500 text-xs mt-1">
+                  <p className="text-neg text-xs mt-1">
                     {errors.zip.message}
                   </p>
                 )}
@@ -224,12 +224,12 @@ export default function ShippingAddressSection() {
 
               {/* Country */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-ink-muted mb-1">
                   Country
                 </label>
                 <select
                   {...register("country")}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition"
+                  className="w-full border border-rule rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition"
                 >
                   {countries.map((country) => (
                     <option key={country.code} value={country.name}>
@@ -241,12 +241,12 @@ export default function ShippingAddressSection() {
 
               {/* Default Option */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-ink-muted mb-1">
                   Default Setting
                 </label>
                 <select
                   {...register("isDefault")}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition"
+                  className="w-full border border-rule rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition"
                 >
                   <option value="true">Set as Default</option>
                   <option value="false">Not Default</option>

@@ -3,83 +3,100 @@
 import ProductCard from "@/shared/components/cards/product-card";
 import axiosInstance from "@/utils/axiosInstance";
 import { useQuery } from "@tanstack/react-query";
-
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { PackageSearch } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useMemo, useState } from "react";
+import { PackageSearch, SearchX, X } from "lucide-react";
 import { Range } from "react-range";
+import {
+  Button,
+  CardSkeleton,
+  Container,
+  Crumbs,
+  EmptyState,
+  Figure,
+  PageHeading,
+} from "@/shared/components/ui";
 
 const MIN = 0,
   MAX = 1199;
 
-export default function Page() {
-  const router = useRouter();
+const COLORS = [
+  { name: "Black", code: "#000000" },
+  { name: "Red", code: "#ff0000" },
+  { name: "Green", code: "#00ff00" },
+  { name: "Blue", code: "#0000ff" },
+  { name: "Yellow", code: "#ffff00" },
+  { name: "Magenta", code: "#ff00ff" },
+  { name: "Cyan", code: "#00ffff" },
+];
+const SIZES = ["XS", "S", "M", "L", "XL", "XXL"];
 
-  const [isProductLoading, setisProductLoading] = useState(false);
-  const [priceRange, setPriceRange] = useState([0, 1199]);
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+function ProductsPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  /*
+    The header's search box sends people here with `?q=`, and the departments
+    menu with `?category=`. Nothing on this page read either, so both controls
+    landed on an unfiltered list. The category seeds the real backend filter; see
+    the note on `term` below for what search can and can't do yet.
+  */
+  const term = searchParams.get("q") ?? "";
+  const categoryParam = searchParams.get("category");
+
+  const [isProductLoading, setIsProductLoading] = useState(false);
+  const [priceRange, setPriceRange] = useState([MIN, MAX]);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>(
+    categoryParam ? [categoryParam] : []
+  );
   const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
   const [selectedColors, setSelectedColors] = useState<string[]>([]);
   const [page, setPage] = useState(1);
   const [products, setProducts] = useState<any[]>([]);
   const [totalPages, setTotalPages] = useState(1);
-  const [tempPriceRange, setTempPriceRange] = useState([0, 1199]);
+  const [tempPriceRange, setTempPriceRange] = useState([MIN, MAX]);
 
-  const colors = [
-    { name: "Black", code: "#000" },
-    { name: "Red", code: "#ff0000" },
-    { name: "Green", code: "#00ff00" },
-    { name: "Blue", code: "#0000ff" },
-    { name: "Yellow", code: "#ffff00" },
-    { name: "Magenta", code: "#ff00ff" },
-    { name: "Cyan", code: "#00ffff" },
-  ];
-  const sizes = ["XS", "S", "M", "L", "XL", "XXL"];
-
-  const updateURL = () => {
-    const params = new URLSearchParams();
-    params.set("priceRange", priceRange.join(","));
-    if (selectedCategories?.length > 0)
-      params.set("categories", selectedCategories.join(","));
-    if (selectedColors?.length > 0)
-      params.set("colors", selectedColors.join(","));
-    if (selectedSizes?.length > 0) params.set("sizes", selectedSizes.join(","));
-    params.set("page", page.toString());
-    params.set("limit", "12");
-    router.replace(`/products?${decodeURIComponent(params.toString())}`);
-  };
-
-  const fetchFilteredProducts = async () => {
-    setisProductLoading(true);
-    try {
-      const query = new URLSearchParams();
-      query.set("priceRange", priceRange.join(","));
-      if (selectedCategories?.length > 0)
-        query.set("categories", selectedCategories.join(","));
-      if (selectedColors?.length > 0)
-        query.set("colors", selectedColors.join(","));
-      if (selectedSizes?.length > 0)
-        query.set("sizes", selectedSizes.join(","));
-      query.set("page", page.toString());
-      query.set("limit", "12");
-
-      const res = await axiosInstance.get(
-        `product/api/get-filtered-products?${query.toString()}`
-      );
-      setProducts(res.data.products);
-      setTotalPages(res.data.pagination.totalPages);
-    } catch (err) {
-      console.error("Failed to fetch filtered products.", err);
-    } finally {
-      setisProductLoading(false);
-    }
+  const buildQuery = () => {
+    const query = new URLSearchParams();
+    query.set("priceRange", priceRange.join(","));
+    if (selectedCategories.length) query.set("categories", selectedCategories.join(","));
+    if (selectedColors.length) query.set("colors", selectedColors.join(","));
+    if (selectedSizes.length) query.set("sizes", selectedSizes.join(","));
+    // Passed through so this filters server-side the moment the product service
+    // understands it; until then the client-side narrowing below covers it.
+    if (term) query.set("search", term);
+    query.set("page", String(page));
+    query.set("limit", "12");
+    return query;
   };
 
   useEffect(() => {
-    updateURL();
-    fetchFilteredProducts();
-  }, [priceRange, selectedCategories, selectedColors, selectedSizes, page]);
+    const query = buildQuery();
+
+    // Keep `q` in the address bar — the old updateURL rebuilt the querystring
+    // from the filters alone, so any search term was dropped on the first
+    // filter change.
+    const url = new URLSearchParams(query);
+    if (term) url.set("q", term);
+    router.replace(`/products?${decodeURIComponent(url.toString())}`);
+
+    let cancelled = false;
+    setIsProductLoading(true);
+    axiosInstance
+      .get(`product/api/get-filtered-products?${query.toString()}`)
+      .then((res) => {
+        if (cancelled) return;
+        setProducts(res.data.products);
+        setTotalPages(res.data.pagination.totalPages);
+      })
+      .catch((err) => console.error("Failed to fetch filtered products.", err))
+      .finally(() => !cancelled && setIsProductLoading(false));
+
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [priceRange, selectedCategories, selectedColors, selectedSizes, page, term]);
 
   const { data: categories, isLoading } = useQuery({
     queryKey: ["categories"],
@@ -90,82 +107,93 @@ export default function Page() {
     staleTime: 1000 * 60 * 30,
   });
 
-  const toggleCategory = (label: string) => {
-    setSelectedCategories((prev) =>
-      prev.includes(label)
-        ? prev.filter((cat: string) => cat !== label)
-        : [...prev, label]
+  const visible = useMemo(() => {
+    if (!term) return products;
+    const needle = term.toLowerCase();
+    return products.filter(
+      (p: any) =>
+        p.title?.toLowerCase().includes(needle) ||
+        p.category?.toLowerCase().includes(needle) ||
+        p.Shop?.name?.toLowerCase().includes(needle)
     );
-  };
-  const toggleColor = (color: string) => {
-    setSelectedColors((prev) =>
-      prev.includes(color)
-        ? prev.filter((c: string) => c !== color)
-        : [...prev, color]
+  }, [products, term]);
+
+  const toggle = (setter: React.Dispatch<React.SetStateAction<string[]>>) => (value: string) => {
+    setter((prev) =>
+      prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value]
     );
+    setPage(1);
   };
-  const toggleSize = (size: string) => {
-    setSelectedSizes((prev) =>
-      prev.includes(size)
-        ? prev.filter((s: string) => s !== size)
-        : [...prev, size]
-    );
+
+  const clearAll = () => {
+    setSelectedCategories([]);
+    setSelectedColors([]);
+    setSelectedSizes([]);
+    setPriceRange([MIN, MAX]);
+    setTempPriceRange([MIN, MAX]);
+    setPage(1);
+    router.replace("/products");
   };
+
+  const filterCount =
+    selectedCategories.length +
+    selectedColors.length +
+    selectedSizes.length +
+    (priceRange[0] !== MIN || priceRange[1] !== MAX ? 1 : 0) +
+    (term ? 1 : 0);
 
   return (
-    <div className="w-full bg-[#f5f5f5] pb-14">
-      <div className="w-[90%] lg:w-[80%] m-auto">
-        {/* HEADER */}
-        <div className="pb-10">
-          <div className="md:pt-10 pt-8 flex items-center gap-3 mb-3">
-            {/* Coral marker — the same "you are here" accent used across the app. */}
-            <span
-              aria-hidden="true"
-              className="h-10 w-[4px] rounded-full bg-[#ff6f61] shadow-[0_0_10px_rgba(255,111,97,0.5)]"
-            />
-            <h1 className="font-semibold text-[40px] sm:text-[44px] leading-tight font-jost text-slate-900">
-              All Products
-            </h1>
-          </div>
-          <div className="flex items-center text-sm text-slate-500 gap-2">
-            <Link href={"/"} className="hover:text-[#ff6f61] transition-colors">
-              Home
-            </Link>
-            <span className="text-slate-300">/</span>
-            <span className="text-slate-900">All Products</span>
-          </div>
+    <main className="pb-16">
+      <Container className="pt-8">
+        <Crumbs trail={[{ label: term ? `Search: ${term}` : "All products" }]} />
+        <div className="mt-4">
+          <PageHeading
+            title={term ? `Results for “${term}”` : "All products"}
+            meta={
+              isProductLoading ? (
+                "Loading…"
+              ) : (
+                <>
+                  <Figure>{visible.length}</Figure> product
+                  {visible.length === 1 ? "" : "s"}
+                  {filterCount > 0 ? " matching your filters" : ""}
+                </>
+              )
+            }
+            actions={
+              filterCount > 0 ? (
+                <Button variant="ghost" onClick={clearAll}>
+                  <X size={15} aria-hidden="true" />
+                  Clear filters
+                </Button>
+              ) : null
+            }
+          />
         </div>
 
-        <div className="w-full flex flex-col lg:flex-row gap-8">
-          {/* SIDEBAR */}
-          <aside className="w-full lg:w-[270px] shrink-0 rounded-xl bg-white p-6 space-y-6 shadow-sm border border-slate-200 h-max">
-            {/* PRICE FILTER */}
-            <div className="space-y-3">
-              <h3 className="text-base font-semibold text-slate-900">Price</h3>
-              <div className="ml-2">
+        <div className="flex w-full flex-col gap-8 lg:flex-row">
+          <aside className="h-max w-full shrink-0 space-y-6 rounded-card border border-rule bg-surface p-5 shadow-card lg:w-[260px]">
+            <FilterGroup title="Price">
+              <div className="px-1">
                 <Range
                   values={tempPriceRange}
                   step={1}
                   min={MIN}
                   max={MAX}
-                  onChange={(values) => setTempPriceRange(values)}
+                  onChange={setTempPriceRange}
                   renderTrack={({ props, children }) => {
                     const [min, max] = tempPriceRange;
-                    const percentageLeft = ((min - MIN) / (MAX - MIN)) * 100;
-                    const percentageRight = ((max - MIN) / (MAX - MIN)) * 100;
-
+                    const left = ((min - MIN) / (MAX - MIN)) * 100;
+                    const right = ((max - MIN) / (MAX - MIN)) * 100;
                     return (
                       <div
                         {...props}
-                        className="h-[6px] bg-slate-200 rounded-full relative cursor-pointer"
+                        className="relative h-1.5 cursor-pointer rounded-full bg-rule"
                         style={{ ...props.style }}
                       >
                         <div
-                          className="absolute h-full bg-[#ff6f61] rounded-full"
-                          style={{
-                            left: `${percentageLeft}%`,
-                            width: `${percentageRight - percentageLeft}%`,
-                          }}
+                          className="absolute h-full rounded-full bg-coral"
+                          style={{ left: `${left}%`, width: `${right - left}%` }}
                         />
                         {children}
                       </div>
@@ -177,120 +205,87 @@ export default function Page() {
                       <div
                         key={key}
                         {...rest}
-                        className="w-[18px] h-[18px] bg-[#ff6f61] rounded-full border-2 border-white shadow-md hover:scale-110 transform transition-transform duration-150"
-                      ></div>
+                        className="h-[18px] w-[18px] rounded-full border-2 border-surface bg-coral shadow-card"
+                      />
                     );
                   }}
                 />
               </div>
-
-              <div className="flex justify-between items-center mt-3">
-                <div className="text-sm text-slate-600 font-medium">
-                  ${tempPriceRange[0]} - ${tempPriceRange[1]}
-                </div>
-                <button
+              <div className="mt-4 flex items-center justify-between gap-2">
+                <span className="figure text-sm text-ink-muted">
+                  ${tempPriceRange[0]} – ${tempPriceRange[1]}
+                </span>
+                <Button
+                  variant="primary"
+                  className="px-3 py-1.5"
                   onClick={() => {
                     setPriceRange(tempPriceRange);
                     setPage(1);
                   }}
-                  className="text-sm px-4 py-1.5 bg-[#ff6f61] text-white font-medium rounded-md shadow-sm hover:bg-[#e05a4d] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff6f61]"
                 >
                   Apply
-                </button>
+                </Button>
               </div>
-            </div>
+            </FilterGroup>
 
-            {/* CATEGORY FILTER */}
-            <div className="pt-4 border-t border-slate-200">
-              <h3 className="text-base font-semibold text-slate-900 mb-2">
-                Category
-              </h3>
-              <ul className="space-y-1 mt-2">
-                {isLoading ? (
-                  <li className="text-center text-slate-500 animate-pulse">
-                    Loading...
-                  </li>
-                ) : (
-                  categories?.map((category: any) => (
+            <FilterGroup title="Category" bordered>
+              {isLoading ? (
+                <p className="text-sm text-ink-faint">Loading…</p>
+              ) : (
+                <ul className="space-y-0.5">
+                  {categories?.map((category: any) => (
                     <li key={category}>
-                      <label className="flex items-center gap-3 text-sm text-slate-700 cursor-pointer w-full rounded-md px-2 py-1.5 transition-colors hover:bg-[#ff6f61]/5 hover:text-slate-900">
-                        <input
-                          type="checkbox"
-                          checked={selectedCategories.includes(category)}
-                          onChange={() => toggleCategory(category)}
-                          className="accent-[#ff6f61] cursor-pointer"
-                        />
-                        <span>{category}</span>
-                      </label>
+                      <CheckRow
+                        checked={selectedCategories.includes(category)}
+                        onChange={() => toggle(setSelectedCategories)(category)}
+                        label={category}
+                      />
                     </li>
-                  ))
-                )}
-              </ul>
-            </div>
+                  ))}
+                </ul>
+              )}
+            </FilterGroup>
 
-            {/* COLOR FILTER */}
-            <div className="pt-4 border-t border-slate-200">
-              <h3 className="text-base font-semibold text-slate-900 mb-2">
-                Color
-              </h3>
-              <ul className="space-y-1 mt-2">
-                {colors?.map((color) => (
+            <FilterGroup title="Colour" bordered>
+              <ul className="space-y-0.5">
+                {COLORS.map((color) => (
                   <li key={color.name}>
-                    <label className="flex items-center gap-2 text-sm text-slate-700 cursor-pointer rounded-md px-2 py-1.5 transition-colors hover:bg-[#ff6f61]/5 hover:text-slate-900">
-                      <input
-                        type="checkbox"
-                        checked={selectedColors.includes(color.name)}
-                        onChange={() => toggleColor(color.name)}
-                        className="accent-[#ff6f61] cursor-pointer"
-                      />
-                      <span
-                        className="w-[16px] h-[16px] rounded-full ring-1 ring-slate-300"
-                        style={{ backgroundColor: color.code }}
-                      />
-                      <span>{color.name}</span>
-                    </label>
+                    <CheckRow
+                      checked={selectedColors.includes(color.name)}
+                      onChange={() => toggle(setSelectedColors)(color.name)}
+                      label={color.name}
+                      swatch={color.code}
+                    />
                   </li>
                 ))}
               </ul>
-            </div>
+            </FilterGroup>
 
-            {/* SIZE FILTER */}
-            <div className="pt-4 border-t border-slate-200">
-              <h3 className="text-base font-semibold text-slate-900 mb-2">
-                Size
-              </h3>
-              <ul className="space-y-1 mt-2">
-                {sizes?.map((size) => (
+            <FilterGroup title="Size" bordered>
+              <ul className="space-y-0.5">
+                {SIZES.map((size) => (
                   <li key={size}>
-                    <label className="flex items-center gap-2 text-sm text-slate-700 cursor-pointer rounded-md px-2 py-1.5 transition-colors hover:bg-[#ff6f61]/5 hover:text-slate-900">
-                      <input
-                        type="checkbox"
-                        checked={selectedSizes.includes(size)}
-                        onChange={() => toggleSize(size)}
-                        className="accent-[#ff6f61] cursor-pointer"
-                      />
-                      <span className="font-medium">{size}</span>
-                    </label>
+                    <CheckRow
+                      checked={selectedSizes.includes(size)}
+                      onChange={() => toggle(setSelectedSizes)(size)}
+                      label={size}
+                    />
                   </li>
                 ))}
               </ul>
-            </div>
+            </FilterGroup>
           </aside>
 
-          {/* PRODUCT GRID */}
           <div className="flex-1">
             {isProductLoading ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-5 animate-fadeIn">
-                {Array.from({ length: 10 }).map((_, i) => (
-                  <div
-                    className="h-[250px] bg-slate-200 rounded-xl animate-pulse"
-                    key={i}
-                  />
+              <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
+                {Array.from({ length: 9 }).map((_, i) => (
+                  <CardSkeleton key={i} />
                 ))}
               </div>
-            ) : products.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 3xl:grid-cols-5 gap-5 transition-all duration-500 animate-fadeIn">
-                {products?.map((product) => (
+            ) : visible.length > 0 ? (
+              <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
+                {visible.map((product) => (
                   <ProductCard
                     key={product.id}
                     product={product}
@@ -299,41 +294,165 @@ export default function Page() {
                 ))}
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center rounded-xl border border-slate-200 bg-white py-20 px-6 text-center animate-fadeIn">
-                <span className="flex h-16 w-16 items-center justify-center rounded-full bg-[#ff6f61]/10 text-[#ff6f61]">
-                  <PackageSearch size={28} />
-                </span>
-                <h2 className="mt-5 text-xl font-semibold text-slate-900">
-                  No products match these filters
-                </h2>
-                <p className="mt-2 max-w-sm text-slate-500">
-                  Try widening the price range or clearing a filter.
-                </p>
+              <div className="rounded-card border border-rule bg-surface">
+                {/* The two empties need different next steps, so they say
+                    different things. */}
+                {term ? (
+                  <EmptyState
+                    icon={<SearchX size={28} />}
+                    title={`Nothing matched “${term}”`}
+                    hint="Try a shorter or more general term, or browse by department."
+                    action={
+                      <Button variant="ghost" onClick={clearAll}>
+                        Clear search
+                      </Button>
+                    }
+                  />
+                ) : (
+                  <EmptyState
+                    icon={<PackageSearch size={28} />}
+                    title="No products match these filters"
+                    hint="Try widening the price range or clearing a filter."
+                    action={
+                      filterCount > 0 ? (
+                        <Button variant="ghost" onClick={clearAll}>
+                          Clear filters
+                        </Button>
+                      ) : null
+                    }
+                  />
+                )}
               </div>
             )}
 
-            {/* PAGINATION */}
-            {totalPages > 1 && (
-              <div className="flex justify-center mt-10 gap-2">
-                {Array.from({ length: totalPages }).map((_, i) => (
-                  <button
-                    key={i + 1}
-                    onClick={() => setPage(i + 1)}
-                    aria-current={page === i + 1 ? "page" : undefined}
-                    className={`px-4 py-2 rounded-lg border text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff6f61] ${
-                      page === i + 1
-                        ? "border-[#ff6f61] bg-[#ff6f61] text-white shadow-sm"
-                        : "border-slate-200 bg-white text-slate-700 hover:border-[#ff6f61] hover:text-[#ff6f61]"
-                    }`}
-                  >
-                    {i + 1}
-                  </button>
-                ))}
-              </div>
-            )}
+            <Pager page={page} totalPages={totalPages} onChange={setPage} />
           </div>
         </div>
-      </div>
+      </Container>
+    </main>
+  );
+}
+
+function FilterGroup({
+  title,
+  children,
+  bordered,
+}: {
+  title: string;
+  children: React.ReactNode;
+  bordered?: boolean;
+}) {
+  return (
+    <div className={bordered ? "border-t border-rule pt-5" : undefined}>
+      <h3 className="mb-3 text-label font-semibold uppercase text-ink-muted">
+        {title}
+      </h3>
+      {children}
     </div>
+  );
+}
+
+function CheckRow({
+  checked,
+  onChange,
+  label,
+  swatch,
+}: {
+  checked: boolean;
+  onChange: () => void;
+  label: string;
+  swatch?: string;
+}) {
+  return (
+    <label className="flex w-full cursor-pointer items-center gap-2.5 rounded-md px-2 py-1.5 text-sm text-ink-muted transition-colors hover:bg-sunken hover:text-ink">
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={onChange}
+        className="cursor-pointer accent-coral"
+      />
+      {swatch ? (
+        <span
+          aria-hidden="true"
+          className="h-4 w-4 shrink-0 rounded-full ring-1 ring-inset ring-rule"
+          style={{ backgroundColor: swatch }}
+        />
+      ) : null}
+      <span className="capitalize">{label}</span>
+    </label>
+  );
+}
+
+/**
+ * Windowed pagination. The old control rendered one button per page, so a
+ * catalogue of fifty pages produced a fifty-button wall under the grid.
+ */
+function Pager({
+  page,
+  totalPages,
+  onChange,
+}: {
+  page: number;
+  totalPages: number;
+  onChange: (p: number) => void;
+}) {
+  if (totalPages <= 1) return null;
+
+  const pages = new Set<number>([1, totalPages, page, page - 1, page + 1]);
+  const list = [...pages].filter((p) => p >= 1 && p <= totalPages).sort((a, b) => a - b);
+
+  return (
+    <nav aria-label="Pagination" className="mt-10 flex flex-wrap justify-center gap-2">
+      <Button variant="ghost" disabled={page <= 1} onClick={() => onChange(page - 1)}>
+        Previous
+      </Button>
+      {list.map((p, i) => (
+        <span key={p} className="flex items-center gap-2">
+          {i > 0 && p - list[i - 1] > 1 ? (
+            <span className="px-1 text-ink-faint">…</span>
+          ) : null}
+          <button
+            onClick={() => onChange(p)}
+            aria-current={page === p ? "page" : undefined}
+            className={`min-w-[40px] rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${
+              page === p
+                ? "border-coral bg-coral text-[#2b0f0a]"
+                : "border-rule bg-surface text-ink-muted hover:border-coral hover:text-coral-ink"
+            }`}
+          >
+            <span className="figure">{p}</span>
+          </button>
+        </span>
+      ))}
+      <Button
+        variant="ghost"
+        disabled={page >= totalPages}
+        onClick={() => onChange(page + 1)}
+      >
+        Next
+      </Button>
+    </nav>
+  );
+}
+
+export default function Page() {
+  /*
+    `useSearchParams` needs a Suspense boundary or Next bails out of
+    prerendering this route entirely.
+  */
+  return (
+    <Suspense
+      fallback={
+        <Container className="py-16">
+          <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <CardSkeleton key={i} />
+            ))}
+          </div>
+        </Container>
+      }
+    >
+      <ProductsPage />
+    </Suspense>
   );
 }

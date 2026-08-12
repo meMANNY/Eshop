@@ -116,12 +116,12 @@ function CheckoutContent() {
       <div className="flex justify-center items-center min-h-[60vh] px-4">
         <div className="w-full text-center">
           <div className="flex justify-center mb-4">
-            <XCircle className="text-red-500 w-10 h-10" />
+            <XCircle className="text-neg w-10 h-10" />
           </div>
-          <h2 className="text-xl font-semibold text-red-600 mb-2">
+          <h2 className="text-xl font-semibold text-neg mb-2">
             Payment Failed
           </h2>
-          <p className="text-sm text-gray-600 mb-6">
+          <p className="text-sm text-ink-muted mb-6">
             {error}
             <br className="hidden sm:block" />
             Please go back and try again

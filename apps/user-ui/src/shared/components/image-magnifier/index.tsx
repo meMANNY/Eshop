@@ -63,7 +63,7 @@ const ImageMagnifier = ({
   if (!src) {
     return (
       <div
-        className={`flex items-center justify-center rounded-lg bg-slate-100 text-sm text-slate-400 ${sizing.className} ${className}`}
+        className={`flex items-center justify-center rounded-lg bg-slate-100 text-sm text-ink-faint ${sizing.className} ${className}`}
         style={sizing.style}
       >
         No image

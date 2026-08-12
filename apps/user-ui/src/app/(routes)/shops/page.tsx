@@ -79,7 +79,7 @@ export default function Page() {
   };
 
   return (
-    <div className="w-full bg-[#f5f5f5] pb-14">
+    <div className="w-full bg-canvas pb-14">
       <div className="w-[90%] lg:w-[80%] mx-auto">
         {/* Header */}
         <div className="pb-10">
@@ -87,33 +87,33 @@ export default function Page() {
             {/* Coral marker — the same "you are here" accent used across the app. */}
             <span
               aria-hidden="true"
-              className="h-10 w-[4px] rounded-full bg-[#ff6f61] shadow-[0_0_10px_rgba(255,111,97,0.5)]"
+              className="h-10 w-[4px] rounded-full bg-coral "
             />
-            <h1 className="font-semibold text-[40px] sm:text-[44px] leading-tight font-jost text-slate-900">
+            <h1 className="font-semibold text-[40px] sm:text-[44px] leading-tight font-jost text-ink">
               All Shops
             </h1>
           </div>
-          <div className="flex items-center text-sm text-slate-500 gap-2">
-            <Link href={"/"} className="hover:text-[#ff6f61] transition-colors">
+          <div className="flex items-center text-sm text-ink-muted gap-2">
+            <Link href={"/"} className="hover:text-coral-ink transition-colors">
               Home
             </Link>
-            <span className="text-slate-300">/</span>
-            <span className="text-slate-900">All Shops</span>
+            <span className="text-ink-faint">/</span>
+            <span className="text-ink">All Shops</span>
           </div>
         </div>
 
         <div className="w-full flex flex-col lg:flex-row gap-8">
           {/* SIDEBAR */}
-          <aside className="w-full lg:w-[270px] shrink-0 rounded-xl bg-white p-6 shadow-sm border border-slate-200 h-max">
+          <aside className="w-full lg:w-[270px] shrink-0 rounded-xl bg-surface p-6 shadow-sm border border-rule h-max">
             {/* CATEGORY FILTER */}
             <div>
-              <h3 className="text-base font-semibold text-slate-900 mb-3 pb-2 border-b border-slate-200">
+              <h3 className="text-base font-semibold text-ink mb-3 pb-2 border-b border-rule">
                 Categories
               </h3>
               <ul className="space-y-1">
                 {shopCategories?.map((category: any) => (
                   <li key={category.value}>
-                    <label className="flex items-center gap-3 text-sm text-slate-700 cursor-pointer w-full rounded-md px-2 py-1.5 transition-colors hover:bg-[#ff6f61]/5 hover:text-slate-900">
+                    <label className="flex items-center gap-3 text-sm text-ink-muted cursor-pointer w-full rounded-md px-2 py-1.5 transition-colors hover:bg-coral/5 hover:text-ink">
                       <input
                         type="checkbox"
                         checked={selectedCategories.includes(category.value)}
@@ -127,13 +127,13 @@ export default function Page() {
               </ul>
 
               {/* COUNTRIES FILTER */}
-              <h3 className="text-base font-semibold text-slate-900 mt-6 mb-3 pb-2 border-b border-slate-200">
+              <h3 className="text-base font-semibold text-ink mt-6 mb-3 pb-2 border-b border-rule">
                 Countries
               </h3>
               <ul className="space-y-1">
                 {countries?.map((country: any) => (
                   <li key={country.code}>
-                    <label className="flex items-center gap-3 text-sm text-slate-700 cursor-pointer w-full rounded-md px-2 py-1.5 transition-colors hover:bg-[#ff6f61]/5 hover:text-slate-900">
+                    <label className="flex items-center gap-3 text-sm text-ink-muted cursor-pointer w-full rounded-md px-2 py-1.5 transition-colors hover:bg-coral/5 hover:text-ink">
                       <input
                         type="checkbox"
                         checked={selectedCountries.includes(country.code)}
@@ -166,14 +166,14 @@ export default function Page() {
                 ))}
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center rounded-xl border border-slate-200 bg-white py-20 px-6 text-center animate-fadeIn">
-                <span className="flex h-16 w-16 items-center justify-center rounded-full bg-[#ff6f61]/10 text-[#ff6f61]">
+              <div className="flex flex-col items-center justify-center rounded-card border border-rule bg-surface py-20 px-6 text-center animate-fadeIn">
+                <span className="flex h-16 w-16 items-center justify-center rounded-full bg-coral/10 text-coral-ink">
                   <Store size={28} />
                 </span>
-                <h2 className="mt-5 text-xl font-semibold text-slate-900">
+                <h2 className="mt-5 text-xl font-semibold text-ink">
                   No shops match these filters
                 </h2>
-                <p className="mt-2 max-w-sm text-slate-500">
+                <p className="mt-2 max-w-sm text-ink-muted">
                   Try clearing a category or country to widen the search.
                 </p>
               </div>
@@ -187,10 +187,10 @@ export default function Page() {
                     key={i + 1}
                     onClick={() => setPage(i + 1)}
                     aria-current={page === i + 1 ? "page" : undefined}
-                    className={`px-4 py-2 rounded-lg border text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff6f61] ${
+                    className={`px-4 py-2 rounded-lg border text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-coral ${
                       page === i + 1
-                        ? "border-[#ff6f61] bg-[#ff6f61] text-white shadow-sm"
-                        : "border-slate-200 bg-white text-slate-700 hover:border-[#ff6f61] hover:text-[#ff6f61]"
+                        ? "border-coral bg-coral text-[#2b0f0a] shadow-sm"
+                        : "border-rule bg-surface text-ink-muted hover:border-coral hover:text-coral-ink"
                     }`}
                   >
                     {i + 1}

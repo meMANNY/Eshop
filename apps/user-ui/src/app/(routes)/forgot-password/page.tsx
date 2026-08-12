@@ -143,15 +143,15 @@ const ForgotPassword = () => {
     };
 
     return (
-        <div className="w-full py-10 min-h-[85vh] bg-[#f1f1f1]">
-            <h1 className="text-4xl font-Poppins font-semibold text-black text-center ">
+        <div className="w-full py-10 min-h-[85vh] bg-sunken">
+            <h1 className="text-4xl font-jost font-semibold text-black text-center ">
                 Forgot Password
             </h1>
             <p className='text-center text-lg font-medium py-3 text-[#00000099]'>
                 HOME . FORGOT PASSWORD
             </p>
             <div className="w-full flex justify-center">
-                <div className="md:w-[480px] p-8 bg-white shadow rounded-lg">
+                <div className="md:w-[480px] p-8 bg-surface shadow rounded-lg">
 
                     {step === 'email' && (
                         <>
@@ -159,14 +159,14 @@ const ForgotPassword = () => {
                                 Reset your password
                             </h3>
                             <p className="text-center text-[#00000099] mb-6">
-                                Remembered it? <Link href="/login" className="text-[#ff6f61] cursor-pointer">Login</Link>
+                                Remembered it? <Link href="/login" className="text-coral-ink cursor-pointer">Login</Link>
                             </p>
                             <form onSubmit={handleSubmit(onSubmitEmail)}>
-                                <label className="block text-gray-700 mb-1"> Email</label>
+                                <label className="block text-ink-muted mb-1"> Email</label>
                                 <input
                                     type="email"
                                     placeholder="support@DarkKing.com"
-                                    className="w-full p-2 border border-gray-300 outline-0 !rounded mb-1"
+                                    className="w-full p-2 border border-rule outline-0 !rounded mb-1"
                                     {...register('email', {
                                         required: 'Email is required',
                                         pattern: {
@@ -176,15 +176,15 @@ const ForgotPassword = () => {
                                     })}
                                 />
                                 {errors.email &&
-                                    (<p className="text-red-500 text-sm mb-1">{errors.email.message}</p>)}
+                                    (<p className="text-neg text-sm mb-1">{errors.email.message}</p>)}
                                 <button
                                     type="submit"
                                     disabled={requestOtpMutation.isPending}
-                                    className="w-full bg-[#ff6f61] text-white py-2 px-4 rounded font-semibold hover:bg-[#e05a4d] active:scale-[0.99] transition-all duration-200 mt-4 disabled:opacity-60"
+                                    className="w-full bg-coral text-[#2b0f0a] py-2 px-4 rounded font-semibold hover:bg-coral-dim active:scale-[0.99] transition-all duration-200 mt-4 disabled:opacity-60"
                                 >
                                     {requestOtpMutation.isPending ? 'Sending...' : 'Send OTP'}
                                 </button>
-                                {serverError && <p className="text-red-500 text-sm mt-2">{serverError}</p>}
+                                {serverError && <p className="text-neg text-sm mt-2">{serverError}</p>}
                             </form>
                         </>
                     )}
@@ -210,7 +210,7 @@ const ForgotPassword = () => {
                                         onChange={(event) => handleOtpChange(index, event.target.value)}
                                         onKeyDown={(event) => handleOtpKeyDown(index, event)}
                                         aria-label={`OTP digit ${index + 1}`}
-                                        className="h-12 w-12 rounded border border-gray-300 bg-white text-center text-xl font-semibold outline-0 focus:border-[#ff6f61] focus:ring-2 focus:ring-[#ff6f61]/20"
+                                        className="h-12 w-12 rounded border border-rule bg-surface text-center text-xl font-semibold outline-0 focus:border-coral focus:ring-2 focus:ring-coral/20"
                                     />
                                 ))}
                             </div>
@@ -218,20 +218,20 @@ const ForgotPassword = () => {
                                 type="button"
                                 onClick={verifyOtp}
                                 disabled={verifyOtpMutation.isPending || otp.some((d) => d === '')}
-                                className="w-full bg-[#ff6f61] text-white py-2 px-4 rounded font-semibold hover:bg-[#e05a4d] active:scale-[0.99] transition-all duration-200 mt-6 disabled:opacity-60"
+                                className="w-full bg-coral text-[#2b0f0a] py-2 px-4 rounded font-semibold hover:bg-coral-dim active:scale-[0.99] transition-all duration-200 mt-6 disabled:opacity-60"
                             >
                                 {verifyOtpMutation.isPending ? 'Verifying...' : 'Verify OTP'}
                             </button>
                             <p className="text-center text-sm text-[#00000099] mt-4">
                                 {canResend ? (
-                                    <button type="button" onClick={resendOtp} className="text-[#ff6f61] font-medium cursor-pointer">
+                                    <button type="button" onClick={resendOtp} className="text-coral-ink font-medium cursor-pointer">
                                         Resend OTP
                                     </button>
                                 ) : (
                                     <>Resend OTP in {timer}s</>
                                 )}
                             </p>
-                            {serverError && <p className="text-red-500 text-sm mt-2 text-center">{serverError}</p>}
+                            {serverError && <p className="text-neg text-sm mt-2 text-center">{serverError}</p>}
                         </div>
                     )}
 
@@ -244,12 +244,12 @@ const ForgotPassword = () => {
                                 for {userEmail}
                             </p>
                             <form onSubmit={handleSubmit(onSubmitPassword)}>
-                                <label className="block text-gray-700 mb-1"> New Password</label>
+                                <label className="block text-ink-muted mb-1"> New Password</label>
                                 <div className="relative">
                                     <input
                                         type={passwordVisible ? 'text' : 'password'}
                                         placeholder="Minimum 6 characters"
-                                        className="w-full p-2 border border-gray-300 outline-0 !rounded mb-1"
+                                        className="w-full p-2 border border-rule outline-0 !rounded mb-1"
                                         {...register('password', {
                                             required: 'Password is required',
                                             minLength: {
@@ -259,20 +259,20 @@ const ForgotPassword = () => {
                                         })}
                                     />
                                     <button type="button" onClick={() => setPasswordVisible(!passwordVisible)}
-                                        className="absolute inset-y-0 right-3 flex items-center text-gray-400" >
+                                        className="absolute inset-y-0 right-3 flex items-center text-ink-faint" >
                                         {passwordVisible ? <Eye /> : <EyeOff />}
                                     </button>
                                     {errors.password &&
-                                        (<p className="text-red-500 text-sm mb-1">{errors.password.message}</p>)}
+                                        (<p className="text-neg text-sm mb-1">{errors.password.message}</p>)}
                                 </div>
                                 <button
                                     type="submit"
                                     disabled={resetPasswordMutation.isPending}
-                                    className="w-full bg-[#ff6f61] text-white py-2 px-4 rounded font-semibold hover:bg-[#e05a4d] active:scale-[0.99] transition-all duration-200 mt-4 disabled:opacity-60"
+                                    className="w-full bg-coral text-[#2b0f0a] py-2 px-4 rounded font-semibold hover:bg-coral-dim active:scale-[0.99] transition-all duration-200 mt-4 disabled:opacity-60"
                                 >
                                     {resetPasswordMutation.isPending ? 'Resetting...' : 'Reset Password'}
                                 </button>
-                                {serverError && <p className="text-red-500 text-sm mt-2">{serverError}</p>}
+                                {serverError && <p className="text-neg text-sm mt-2">{serverError}</p>}
                             </form>
                         </>
                     )}

@@ -120,21 +120,21 @@ const Signup = () => {
     };
 
   return (
-    <div className = "w-full py-10 min-h-[85vh] bg-[#f1f1f1]">
-        <h1 className = "text-4xl font-Poppins font-semibold text-black text-center ">
+    <div className = "w-full py-10 min-h-[85vh] bg-sunken">
+        <h1 className = "text-4xl font-jost font-semibold text-black text-center ">
             Signup
         </h1>
         <p className='text-center text-lg font-medium py-3 text-[#00000099]'>
             HOME . SIGNUP
         </p>
         <div className = "w-full flex justify-center">
-            <div className = "md:w-[480px] p-8 bg-white shadow rounded-lg">
+            <div className = "md:w-[480px] p-8 bg-surface shadow rounded-lg">
                 <h3 className = "text-3xl font-semibold text-center mb-2">
                     Signup to Eshop
                 </h3>
                 {!showOtp && (
                     <p className = "text-center text-[#00000099] mb-6">
-                            Already have an account? <Link href="/login" className = "text-[#ff6f61] cursor-pointer">Login</Link>
+                            Already have an account? <Link href="/login" className = "text-coral-ink cursor-pointer">Login</Link>
                     </p>
                 )}
 
@@ -142,7 +142,7 @@ const Signup = () => {
                     <>
                         <button
                             type="button"
-                            className="group w-full flex items-center justify-center gap-3 border border-[#e0e0e0] rounded-xl py-3 px-4 text-sm font-semibold text-[#000000cc] bg-white shadow-sm hover:shadow-md hover:border-[#c9c9c9] hover:bg-[#fafafa] active:scale-[0.99] transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#4285F4]/30"
+                            className="group w-full flex items-center justify-center gap-3 border border-[#e0e0e0] rounded-xl py-3 px-4 text-sm font-semibold text-[#000000cc] bg-surface shadow-sm hover:shadow-md hover:border-[#c9c9c9] hover:bg-[#fafafa] active:scale-[0.99] transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#4285F4]/30"
                         >
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" className="w-5 h-5 transition-transform duration-200 group-hover:scale-110">
                                 <path fill="#EA4335" d="M24 9.5c3.14 0 5.95 1.08 8.17 2.84l6.08-6.08C34.46 3.09 29.52 1 24 1 14.82 1 6.98 6.48 3.38 14.34l7.08 5.5C12.13 13.65 17.6 9.5 24 9.5z"/>
@@ -153,28 +153,28 @@ const Signup = () => {
                             </svg>
                             Sign up with Google
                         </button>
-                        <div className = "flex items-center my-5 text-gray-400 text-sm">
-                            <div className = "flex-1 border-t border-gray-300"/>
+                        <div className = "flex items-center my-5 text-ink-faint text-sm">
+                            <div className = "flex-1 border-t border-rule"/>
                             <span>or Sign up with Email</span>
-                            <div className = "flex-1 border-t border-gray-300"/>
+                            <div className = "flex-1 border-t border-rule"/>
                         </div>
                         <form onSubmit = {handleSubmit(onSubmit)}>
-                                <label className = "block text-gray-700 mb-1"> Name</label>
+                                <label className = "block text-ink-muted mb-1"> Name</label>
                                 <input
                                 type = "text"
                                 placeholder = "Dark King"
-                                className = "w-full p-2 border border-gray-300 outline-0 !rounded mb-1"
+                                className = "w-full p-2 border border-rule outline-0 !rounded mb-1"
                                 {...register('name', {
                                     required: 'Name is required',
                                 })}
                                 />
                                 {errors.name &&
-                                (<p className = "text-red-500 text-sm mb-1">{errors.name.message}</p>)}
-                                <label className = "block text-gray-700 mb-1"> Email</label>
+                                (<p className = "text-neg text-sm mb-1">{errors.name.message}</p>)}
+                                <label className = "block text-ink-muted mb-1"> Email</label>
                                 <input
                                 type = "email"
                                 placeholder = "support@DarkKing.com"
-                                className = "w-full p-2 border border-gray-300 outline-0 !rounded mb-1"
+                                className = "w-full p-2 border border-rule outline-0 !rounded mb-1"
                                 {...register('email', {
                                     required: 'Email is required',
                                     pattern: {
@@ -184,13 +184,13 @@ const Signup = () => {
                                 })}
                                 />
                                 {errors.email &&
-                                (<p className = "text-red-500 text-sm mb-1">{errors.email.message}</p>)}
-                                <label className = "block text-gray-700 mb-1"> Password</label>
+                                (<p className = "text-neg text-sm mb-1">{errors.email.message}</p>)}
+                                <label className = "block text-ink-muted mb-1"> Password</label>
                                 <div className = "relative">
                                     <input
                                     type = {passwordVisible ? 'text' : 'password'}
                                     placeholder = "Minimum 6 characters"
-                                    className = "w-full p-2 border border-gray-300 outline-0 !rounded mb-1"
+                                    className = "w-full p-2 border border-rule outline-0 !rounded mb-1"
                                     {...register('password', {
                                         required: 'Password is required',
                                         minLength: {
@@ -200,20 +200,20 @@ const Signup = () => {
                                     })}
                                     />
                                     <button type ="button" onClick={()=>setPasswordVisible(!passwordVisible)}
-                                    className = "absolute inset-y-0 right-3 flex items-center text-gray-400" >
+                                    className = "absolute inset-y-0 right-3 flex items-center text-ink-faint" >
                                     {passwordVisible ? <Eye/> : <EyeOff/>}
                                     </button>
                                     {errors.password &&
-                                    (<p className = "text-red-500 text-sm mb-1">{errors.password.message}</p>)}
+                                    (<p className = "text-neg text-sm mb-1">{errors.password.message}</p>)}
                                 </div>
                                 <button
                                     type="submit"
                                     disabled={signupMutation.isPending}
-                                    className="w-full bg-[#ff6f61] text-white py-2 px-4 rounded font-semibold hover:bg-[#e05a4d] active:scale-[0.99] transition-all duration-200 mt-4"
+                                    className="w-full bg-coral text-[#2b0f0a] py-2 px-4 rounded font-semibold hover:bg-coral-dim active:scale-[0.99] transition-all duration-200 mt-4"
                                 >
                                     {signupMutation.isPending ? 'Signing up...' : 'Sign Up'}
                                 </button>
-                                {serverError && <p className="text-red-500 text-sm mt-2">{serverError}</p>}
+                                {serverError && <p className="text-neg text-sm mt-2">{serverError}</p>}
                         </form>
                     </>
                 ) : (
@@ -237,7 +237,7 @@ const Signup = () => {
                                     onChange={(event) => handleOtpChange(index, event.target.value)}
                                     onKeyDown={(event) => handleOtpKeyDown(index, event)}
                                     aria-label={`OTP digit ${index + 1}`}
-                                    className="h-12 w-12 rounded border border-gray-300 bg-white text-center text-xl font-semibold outline-0 focus:border-[#ff6f61] focus:ring-2 focus:ring-[#ff6f61]/20"
+                                    className="h-12 w-12 rounded border border-rule bg-surface text-center text-xl font-semibold outline-0 focus:border-coral focus:ring-2 focus:ring-coral/20"
                                 />
                             ))}
                         </div>
@@ -245,20 +245,20 @@ const Signup = () => {
                             type="button"
                             onClick={verifyOtp}
                             disabled={verifyOtpMutation.isPending || otp.some((d) => d === '')}
-                            className="w-full bg-[#ff6f61] text-white py-2 px-4 rounded font-semibold hover:bg-[#e05a4d] active:scale-[0.99] transition-all duration-200 mt-6 disabled:opacity-60"
+                            className="w-full bg-coral text-[#2b0f0a] py-2 px-4 rounded font-semibold hover:bg-coral-dim active:scale-[0.99] transition-all duration-200 mt-6 disabled:opacity-60"
                         >
                             {verifyOtpMutation.isPending ? 'Verifying...' : 'Verify OTP'}
                         </button>
                         <p className="text-center text-sm text-[#00000099] mt-4">
                             {canResend ? (
-                                <button type="button" onClick={resendOtp} className="text-[#ff6f61] font-medium cursor-pointer">
+                                <button type="button" onClick={resendOtp} className="text-coral-ink font-medium cursor-pointer">
                                     Resend OTP
                                 </button>
                             ) : (
                                 <>Resend OTP in {timer}s</>
                             )}
                         </p>
-                        {serverError && <p className="text-red-500 text-sm mt-2 text-center">{serverError}</p>}
+                        {serverError && <p className="text-neg text-sm mt-2 text-center">{serverError}</p>}
                     </div>
                 )}
 

@@ -1,6 +1,5 @@
 "use client";
 
-
 import useDeviceTracking from "@/hooks/useDeviceTracking";
 import useLocationTracking from "@/hooks/useLocationTracking";
 import useUser from "@/hooks/useUser";
@@ -11,10 +10,21 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { Minus, Plus, ShoppingCart, X } from "lucide-react";
-
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import Loader from "@/shared/components/Loader";
+import {
+  Button,
+  ButtonLink,
+  Card,
+  Container,
+  Crumbs,
+  EmptyState,
+  Figure,
+  PageHeading,
+  StatusPill,
+  money,
+} from "@/shared/components/ui";
 
 export default function Cart() {
   const router = useRouter();
@@ -27,20 +37,24 @@ export default function Cart() {
   const [error, setError] = useState("");
   const [storedCouponCode, setStoredCouponCode] = useState("");
 
+  const { user } = useUser();
+  const location = useLocationTracking();
+  const deviceInfo = useDeviceTracking();
+
+  const removeFromCart = useStore((state: any) => state.removeFromCart);
+  const cart = useStore((state: any) => state.cart);
+
   const couponCodeApply = async () => {
     setError("");
-
     if (!couponCode.trim()) {
-      setError("Coupon code is required!");
+      setError("Enter a coupon code first.");
       return;
     }
-
     try {
       const res = await axiosInstance.post("/order/api/verify-coupon", {
         couponCode: couponCode.trim(),
         cart,
       });
-
       if (res.data.valid) {
         setStoredCouponCode(couponCode.trim());
         setDiscountAmount(parseFloat(res.data.discountAmount));
@@ -51,78 +65,59 @@ export default function Cart() {
         setDiscountAmount(0);
         setDiscountPercent(0);
         setDiscountedProductId("");
-        setError(res.data.message || "Coupon not valid for any items in cart.");
+        setError(res.data.message || "That code doesn't apply to anything in your cart.");
       }
     } catch (err: any) {
       setDiscountAmount(0);
       setDiscountPercent(0);
       setDiscountedProductId("");
-      setError(err?.response?.data?.message);
+      setError(err?.response?.data?.message ?? "Couldn't check that code. Try again.");
     }
   };
 
   const createPaymentSession = async () => {
     if (addresses?.length === 0) {
-      toast.error("Please set your delivery address to create an order!");
+      toast.error("Add a delivery address before checking out.");
       return;
     }
-
     setLoading(true);
     try {
-      const res = await axiosInstance.post(
-        "/order/api/create-payment-session",
-        {
-          cart,
-          selectedAddressId,
-          coupon: {
-            code: storedCouponCode,
-            discountAmount,
-            discountPercent,
-            discountedProductId,
-          },
-        }
-      );
-      const sessionId = res.data.sessionId;
-      router.push(`/checkout?sessionId=${sessionId}`);
-    } catch (err) {
-      toast.error("Something went wrong. Please try again.");
+      const res = await axiosInstance.post("/order/api/create-payment-session", {
+        cart,
+        selectedAddressId,
+        coupon: {
+          code: storedCouponCode,
+          discountAmount,
+          discountPercent,
+          discountedProductId,
+        },
+      });
+      router.push(`/checkout?sessionId=${res.data.sessionId}`);
+    } catch {
+      toast.error("Something went wrong. Try again.");
     } finally {
       setLoading(false);
     }
   };
 
-  const { user } = useUser();
-  const location = useLocationTracking();
-  const deviceInfo = useDeviceTracking();
-
-  const removeFromCart = useStore((state: any) => state.removeFromCart);
-  const cart = useStore((state: any) => state.cart);
-
-  const decreaseQuantity = (id: string) => {
+  const setQuantity = (id: string, delta: number) => {
     useStore.setState((state) => ({
       cart: state.cart.map((item) =>
-        item.id === id && (item.quantity ?? 1) > 1
-          ? { ...item, quantity: (item.quantity ?? 1) - 1 }
+        item.id === id
+          ? { ...item, quantity: Math.max(1, (item.quantity ?? 1) + delta) }
           : item
       ),
     }));
-  };
-  const increaseQuantity = (id: string) => {
-    useStore.setState((state) => ({
-      cart: state.cart.map((item) =>
-        item.id === id ? { ...item, quantity: (item.quantity ?? 1) + 1 } : item
-      ),
-    }));
-  };
-
-  const removeItem = (id: string) => {
-    removeFromCart(id, user, location, deviceInfo);
   };
 
   const subTotal = cart.reduce(
     (total: number, item: any) => total + (item.quantity ?? 1) * item.sale_price,
     0
   );
+  // Subtotal is what the goods cost; the total is what you pay after the coupon.
+  // Both used to render `subTotal - discountAmount`, so a cart with a discount
+  // showed a subtotal, a deduction, and a total that didn't follow from them.
+  const total = subTotal - discountAmount;
 
   const { data: addresses = [] } = useQuery<any[], Error>({
     queryKey: ["shipping-addresses"],
@@ -130,274 +125,278 @@ export default function Cart() {
       const res = await axiosInstance.get("/api/shipping-addresses");
       return res.data.addresses;
     },
-    staleTime: 3 * 60 * 60,
+    staleTime: 1000 * 60 * 5,
   });
 
   useEffect(() => {
     if (addresses.length > 0 && !selectedAddressId) {
       const defaultAddress = addresses.find((addr) => addr.isDefault);
-      if (defaultAddress) setSelectedAddressId(defaultAddress.id);
+      setSelectedAddressId((defaultAddress ?? addresses[0]).id);
     }
   }, [addresses, selectedAddressId]);
 
   return (
-    <div className="w-full bg-[#f5f5f5]">
-      <div className="md:w-[80%] w-[95%] mx-auto min-h-screen">
-        <div className="pb-10">
-          <div className="md:pt-[50px] pt-8 flex items-center gap-3 mb-4">
-            {/* Coral marker — the same "you are here" accent used across the app. */}
-            <span
-              aria-hidden="true"
-              className="h-10 w-[4px] rounded-full bg-[#ff6f61] shadow-[0_0_10px_rgba(255,111,97,0.5)]"
-            />
-            <h1 className="font-medium text-[44px] leading-[1] font-jost text-slate-900">
-              Shopping Cart
-            </h1>
-            {cart.length > 0 && (
-              <span className="ml-1 rounded-full bg-[#ff6f61]/10 px-3 py-1 text-sm font-medium text-[#ff6f61]">
-                {cart.length} {cart.length === 1 ? "item" : "items"}
-              </span>
-            )}
-          </div>
-          <div className="text-sm text-slate-500 flex items-center gap-2">
-            <Link href="/" className="hover:text-[#ff6f61] transition-colors">
-              Home
-            </Link>
-            <span className="text-slate-300">/</span>
-            <span className="text-slate-900">Cart</span>
-          </div>
+    <main className="pb-16">
+      <Container className="pt-8">
+        <Crumbs trail={[{ label: "Cart" }]} />
+        <div className="mt-4">
+          <PageHeading
+            title="Your cart"
+            meta={
+              cart.length ? (
+                <>
+                  <Figure>{cart.length}</Figure>{" "}
+                  {cart.length === 1 ? "item" : "items"} · subtotal{" "}
+                  <Figure className="text-ink">{money(subTotal)}</Figure>
+                </>
+              ) : undefined
+            }
+          />
         </div>
 
         {cart.length === 0 ? (
-          <div className="flex flex-col items-center justify-center rounded-xl border border-slate-200 bg-white py-20 px-6 text-center">
-            <span className="flex h-16 w-16 items-center justify-center rounded-full bg-[#ff6f61]/10 text-[#ff6f61]">
-              <ShoppingCart size={28} />
-            </span>
-            <h2 className="mt-5 text-xl font-semibold text-slate-900">
-              Your cart is empty
-            </h2>
-            <p className="mt-2 max-w-sm text-slate-500">
-              Add a few products and they&apos;ll show up here, ready to check
-              out.
-            </p>
-            <Link
-              href="/"
-              className="mt-6 rounded-lg bg-[#ff6f61] px-6 py-2.5 font-medium text-white shadow-sm transition-colors hover:bg-[#e05a4d] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff6f61]"
-            >
-              Browse products
-            </Link>
-          </div>
+          <Card>
+            <EmptyState
+              icon={<ShoppingCart size={28} />}
+              title="Your cart is empty"
+              hint="Add a few products and they'll show up here, ready to check out."
+              action={<ButtonLink href="/products">Browse products</ButtonLink>}
+            />
+          </Card>
         ) : (
-          <div className="lg:flex items-start gap-8 pb-16">
+          <div className="flex flex-col items-start gap-6 lg:flex-row">
             {/* Line items */}
-            <div className="w-full lg:w-[70%] overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
-              <table className="w-full border-collapse">
-                <thead className="border-b border-slate-200 text-xs font-semibold uppercase tracking-wider text-slate-500">
-                  <tr>
-                    <th className="py-4 text-left pl-6 align-middle">Product</th>
-                    <th className="py-4 text-center align-middle">Price</th>
-                    <th className="py-4 text-center align-middle">Quantity</th>
-                    <th className="py-4 text-center align-middle pr-6"></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {cart?.map((item: any) => (
-                    <tr
+            <Card className="w-full overflow-hidden lg:w-[68%]">
+              <ul className="divide-y divide-rule">
+                {cart.map((item: any) => {
+                  const discounted = item.id === discountedProductId;
+                  const unit = discounted
+                    ? (item.sale_price * (100 - discountPercent)) / 100
+                    : item.sale_price;
+                  return (
+                    <li
                       key={item.id}
-                      className="border-b border-slate-100 last:border-0 transition-colors hover:bg-[#ff6f61]/[0.04]"
+                      className="flex flex-wrap items-start gap-4 p-4 sm:flex-nowrap sm:p-5"
                     >
-                      <td className="flex items-center gap-4 py-4 pl-6">
-                        <Image
-                          src={
-                            item?.images?.[0]?.url ||
-                            "https://cdn-icons-png.flaticon.com/512/6134/6134065.png"
-                          }
-                          alt={item?.title}
-                          width={80}
-                          height={80}
-                          className="h-20 w-20 rounded-lg border border-slate-200 object-cover"
-                        />
-                        <div className="flex flex-col gap-1">
-                          <span className="font-medium text-slate-900">
-                            {item?.title}
-                          </span>
-                          {item?.selectedOptions && (
-                            <div className="flex items-center gap-3 text-sm text-slate-500">
-                              {item?.selectedOptions?.color && (
-                                <span className="flex items-center gap-1.5">
-                                  Color:
-                                  <span
-                                    className="inline-block h-3 w-3 rounded-full ring-1 ring-slate-300"
-                                    style={{
-                                      backgroundColor:
-                                        item?.selectedOptions?.color,
-                                    }}
-                                  />
-                                </span>
-                              )}
-                              {item?.selectedOptions.size && (
-                                <span>Size: {item?.selectedOptions?.size}</span>
-                              )}
-                            </div>
-                          )}
-                        </div>
-                      </td>
-                      <td className="px-6 text-center">
-                        {item?.id === discountedProductId ? (
-                          <div className="flex flex-col items-center gap-1">
-                            <span className="text-sm text-slate-400 line-through">
-                              ${item?.sale_price.toFixed(2)}
-                            </span>
-                            <span className="text-lg font-semibold text-emerald-600">
-                              $
-                              {(
-                                (item?.sale_price * (100 - discountPercent)) /
-                                100
-                              ).toFixed(2)}
-                            </span>
-                            <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700">
-                              Discount applied
-                            </span>
+                      <Image
+                        src={item?.images?.[0]?.url || "/placeholder.png"}
+                        alt=""
+                        width={88}
+                        height={88}
+                        unoptimized
+                        className="h-20 w-20 shrink-0 rounded-lg border border-rule object-cover sm:h-[88px] sm:w-[88px]"
+                      />
+
+                      <div className="min-w-0 flex-1">
+                        <Link
+                          href={`/product/${item?.slug}`}
+                          className="clamp-2 font-medium text-ink transition-colors hover:text-coral-ink"
+                        >
+                          {item?.title}
+                        </Link>
+
+                        {item?.selectedOptions ? (
+                          <div className="mt-1.5 flex flex-wrap items-center gap-3 text-sm text-ink-muted">
+                            {item.selectedOptions.color ? (
+                              <span className="flex items-center gap-1.5">
+                                Colour
+                                <span
+                                  className="inline-block h-3.5 w-3.5 rounded-full ring-1 ring-inset ring-rule"
+                                  style={{ backgroundColor: item.selectedOptions.color }}
+                                />
+                              </span>
+                            ) : null}
+                            {item.selectedOptions.size ? (
+                              <span>Size {item.selectedOptions.size}</span>
+                            ) : null}
                           </div>
-                        ) : (
-                          <span className="text-lg text-slate-900">
-                            ${item?.sale_price.toFixed(2)}
+                        ) : null}
+
+                        {discounted ? (
+                          <span className="mt-2 inline-block">
+                            <StatusPill tone="pos">
+                              Coupon applied · −{discountPercent}%
+                            </StatusPill>
                           </span>
-                        )}
-                      </td>
-                      <td>
-                        <div className="mx-auto flex items-center justify-between rounded-full border border-slate-200 w-[110px] p-1">
+                        ) : null}
+
+                        {/* Quantity stepper sits with the item on narrow screens
+                            rather than in a column that can't fit. */}
+                        <div className="mt-3 flex w-[124px] items-center justify-between rounded-full border border-rule p-1">
                           <button
                             aria-label={`Decrease quantity of ${item?.title}`}
-                            onClick={() => decreaseQuantity(item?.id)}
-                            className="flex h-7 w-7 items-center justify-center rounded-full text-slate-600 transition-colors hover:bg-[#ff6f61]/10 hover:text-[#ff6f61] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff6f61]"
+                            onClick={() => setQuantity(item.id, -1)}
+                            disabled={(item.quantity ?? 1) <= 1}
+                            className="grid h-7 w-7 place-items-center rounded-full text-ink-muted transition-colors hover:bg-coral-soft hover:text-coral-ink disabled:opacity-40"
                           >
                             <Minus size={14} />
                           </button>
-                          <span className="text-sm font-medium text-slate-900">
+                          <Figure className="text-sm font-medium text-ink">
                             {item?.quantity ?? 1}
-                          </span>
+                          </Figure>
                           <button
                             aria-label={`Increase quantity of ${item?.title}`}
-                            onClick={() => increaseQuantity(item?.id)}
-                            className="flex h-7 w-7 items-center justify-center rounded-full text-slate-600 transition-colors hover:bg-[#ff6f61]/10 hover:text-[#ff6f61] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff6f61]"
+                            onClick={() => setQuantity(item.id, 1)}
+                            className="grid h-7 w-7 place-items-center rounded-full text-ink-muted transition-colors hover:bg-coral-soft hover:text-coral-ink"
                           >
                             <Plus size={14} />
                           </button>
                         </div>
-                      </td>
-                      <td className="pr-6 text-center">
+                      </div>
+
+                      <div className="flex shrink-0 flex-col items-end gap-2">
+                        {/* Line total, not unit price — what this row adds to the
+                            bill is the number you're checking. */}
+                        <Figure className="text-base font-semibold text-ink">
+                          {money(unit * (item.quantity ?? 1))}
+                        </Figure>
+                        {(item.quantity ?? 1) > 1 || discounted ? (
+                          <span className="figure text-xs text-ink-faint">
+                            {money(unit)} each
+                          </span>
+                        ) : null}
                         <button
-                          onClick={() => removeItem(item.id)}
+                          onClick={() => removeFromCart(item.id, user, location, deviceInfo)}
                           aria-label={`Remove ${item?.title} from cart`}
-                          className="inline-flex items-center gap-1.5 text-sm text-slate-400 transition-colors hover:text-red-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-500"
+                          className="mt-1 inline-flex items-center gap-1 text-sm text-ink-faint transition-colors hover:text-neg"
                         >
-                          <X size={16} /> Remove
+                          <X size={14} /> Remove
                         </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+            </Card>
 
             {/* Order summary */}
-            <div className="mt-8 lg:mt-0 w-full lg:w-[30%] lg:sticky lg:top-6 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-              {discountAmount > 0 && (
-                <div className="flex justify-between items-center text-base font-medium pb-2">
-                  <span className="font-jost text-slate-600">
-                    Discount ({discountPercent}%)
-                  </span>
-                  <span className="text-emerald-600">
-                    − ${discountAmount.toFixed(2)}
-                  </span>
-                </div>
-              )}
-              <div className="flex justify-between items-center text-slate-900 text-[20px] font-[550] pb-3">
-                <span className="font-jost">Subtotal</span>
-                <span>${(subTotal - discountAmount).toFixed(2)}</span>
+            <Card className="w-full p-5 lg:sticky lg:top-24 lg:w-[32%]">
+              <h2 className="font-jost text-lg font-semibold text-ink">
+                Order summary
+              </h2>
+
+              <dl className="mt-4 space-y-2.5 text-sm">
+                <Row label="Subtotal" value={money(subTotal)} />
+                {discountAmount > 0 ? (
+                  <Row
+                    label={`Discount (${discountPercent}%)`}
+                    value={`−${money(discountAmount)}`}
+                    tone="pos"
+                  />
+                ) : null}
+              </dl>
+
+              <div className="mt-4 flex items-baseline justify-between border-t border-rule pt-4">
+                <span className="font-jost text-lg font-semibold text-ink">Total</span>
+                <Figure className="text-xl font-semibold text-ink">
+                  {money(total)}
+                </Figure>
               </div>
 
-              <hr className="my-4 border-slate-200" />
-
-              <div className="mb-4">
-                <h4 className="mb-[7px] font-[500] text-[15px] text-slate-900">
-                  Have a coupon?
-                </h4>
+              <div className="mt-5 border-t border-rule pt-5">
+                <label
+                  htmlFor="coupon"
+                  className="mb-1.5 block text-label font-semibold uppercase text-ink-muted"
+                >
+                  Coupon code
+                </label>
                 <div className="flex">
                   <input
+                    id="coupon"
                     type="text"
                     value={couponCode}
-                    onChange={(e: any) => setCouponCode(e.target.value)}
-                    placeholder="Enter coupon code"
-                    className="w-full p-2 border border-slate-200 rounded-l-md outline-none transition-colors focus:border-[#ff6f61] placeholder:text-slate-400"
+                    onChange={(e) => setCouponCode(e.target.value)}
+                    placeholder="Enter a code"
+                    className="w-full rounded-l-lg border border-rule px-3 py-2 text-sm text-ink outline-none transition-colors focus:border-coral placeholder:text-ink-faint"
                   />
                   <button
-                    onClick={() => couponCodeApply()}
-                    className="bg-[#ff6f61] cursor-pointer text-white font-medium rounded-r-md hover:bg-[#e05a4d] transition-colors px-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff6f61]"
+                    onClick={couponCodeApply}
+                    className="rounded-r-lg bg-coral px-4 text-sm font-medium text-[#2b0f0a] transition-colors hover:bg-coral-dim"
                   >
                     Apply
                   </button>
                 </div>
-                {error && <p className="text-sm pt-2 text-red-500">{error}</p>}
+                {error ? (
+                  <p role="alert" className="pt-2 text-sm text-neg">
+                    {error}
+                  </p>
+                ) : null}
               </div>
 
-              <hr className="my-4 border-slate-200" />
-
-              <div className="mb-4">
-                <h4 className="mb-[7px] font-medium text-[15px] text-slate-900">
-                  Shipping address
-                </h4>
-                {addresses?.length !== 0 ? (
+              <div className="mt-5 border-t border-rule pt-5">
+                <label
+                  htmlFor="address"
+                  className="mb-1.5 block text-label font-semibold uppercase text-ink-muted"
+                >
+                  Deliver to
+                </label>
+                {addresses?.length ? (
                   <select
-                    className="w-full p-2 border border-slate-200 rounded-md outline-none transition-colors focus:border-[#ff6f61] text-slate-700"
+                    id="address"
+                    className="w-full rounded-lg border border-rule px-3 py-2 text-sm text-ink outline-none transition-colors focus:border-coral"
                     value={selectedAddressId}
                     onChange={(e) => setSelectedAddressId(e.target.value)}
                   >
                     {addresses.map((address: any) => (
                       <option key={address.id} value={address.id}>
-                        {address?.label} - {address?.city} - {address?.country}
+                        {address?.label} — {address?.city}, {address?.country}
                       </option>
                     ))}
                   </select>
                 ) : (
-                  <p className="rounded-md bg-[#ff6f61]/5 px-3 py-2 text-sm text-slate-600">
-                    Add an address from your profile to place an order.
-                  </p>
+                  <div className="rounded-lg bg-coral-soft px-3 py-2.5 text-sm text-ink-muted">
+                    You need an address before you can order.{" "}
+                    <Link
+                      href="/profile"
+                      className="font-medium text-coral-ink hover:underline"
+                    >
+                      Add one
+                    </Link>
+                  </div>
                 )}
               </div>
 
-              <hr className="my-4 border-slate-200" />
+              {/*
+                A "Payment method" select used to sit here offering online payment
+                or cash on delivery. Its value was never held in state and never
+                sent with the order, so whichever option you picked, checkout went
+                to Stripe. Removed until it's wired.
+              */}
 
-              <div className="mb-4">
-                <h4 className="mb-[7px] font-medium text-[15px] text-slate-900">
-                  Payment method
-                </h4>
-                <select className="w-full p-2 border border-slate-200 rounded-md outline-none transition-colors focus:border-[#ff6f61] text-slate-700">
-                  <option value="credit_card">Online Payment</option>
-                  <option value="cash_on_delivery">Cash On Delivery</option>
-                </select>
-              </div>
-
-              <hr className="my-4 border-slate-200" />
-
-              <div className="flex justify-between items-center text-slate-900 text-[20px] font-[550] pb-4">
-                <span className="font-jost">Total</span>
-                <span>${(subTotal - discountAmount).toFixed(2)}</span>
-              </div>
-
-              <button
+              <Button
+                variant="primary"
                 onClick={createPaymentSession}
-                className="w-full flex items-center justify-center gap-2 bg-[#ff6f61] cursor-pointer text-white font-medium rounded-lg hover:bg-[#e05a4d] transition-colors px-4 py-2.5 shadow-sm disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff6f61]"
-                disabled={loading}
+                disabled={loading || !addresses?.length}
+                className="mt-6 w-full"
               >
-                {loading && <Loader size={20} color="text-white" />}
-                {loading ? "Redirecting ..." : "Proceed to checkout"}
-              </button>
-            </div>
+                {loading ? <Loader size={18} color="text-[#2b0f0a]" /> : null}
+                {loading ? "Redirecting…" : "Proceed to checkout"}
+              </Button>
+            </Card>
           </div>
         )}
-      </div>
+      </Container>
+    </main>
+  );
+}
+
+function Row({
+  label,
+  value,
+  tone,
+}: {
+  label: string;
+  value: string;
+  tone?: "pos";
+}) {
+  return (
+    <div className="flex items-center justify-between">
+      <dt className="text-ink-muted">{label}</dt>
+      <dd>
+        <span className={`figure ${tone === "pos" ? "text-pos" : "text-ink"}`}>
+          {value}
+        </span>
+      </dd>
     </div>
   );
 }

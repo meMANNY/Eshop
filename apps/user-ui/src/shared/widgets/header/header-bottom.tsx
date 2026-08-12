@@ -1,115 +1,168 @@
 'use client';
-import { navItems } from '@/configs/constants';
-import { AlignLeft, ChevronDown, HeartIcon, ShoppingCartIcon } from 'lucide-react';
-import React, { useEffect, useState } from 'react'
+
+import { navItems, shopCategories } from '@/configs/constants';
+import { AlignLeft, ChevronDown, X } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { PersonIcon } from '@/assets/svgs/profile-icon';
-import useUser from '@/hooks/useUser';
-import { useStore } from '@/store';
+import { usePathname } from 'next/navigation';
+import { Container } from '@/shared/components/ui';
+import AccountActions from './account-actions';
 
 const HeaderBottom = () => {
+  const [showDepartments, setShowDepartments] = useState(false);
+  const [showNav, setShowNav] = useState(false);
+  const [isSticky, setIsSticky] = useState(false);
+  const departmentsRef = useRef<HTMLDivElement | null>(null);
+  const pathname = usePathname();
 
-    const [show, setShow] = useState(false);
-    const [isSticky, setIsSticky] = useState(false);
-    const { user, isLoading } = useUser();
-    const wishlist = useStore((state: any) => state.wishlist);
-    const cart = useStore((state: any) => state.cart);
+  useEffect(() => {
+    const handleScroll = () => setIsSticky(window.scrollY > 100);
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
-    //track scroll position
+  // Both panels close on navigation and on Escape, and the departments menu also
+  // closes on an outside click — none of which the original did.
+  useEffect(() => {
+    setShowDepartments(false);
+    setShowNav(false);
+  }, [pathname]);
 
-    useEffect(() => {
-        const handleScroll = () => {
-            if (window.scrollY > 100) {
-                setIsSticky(true);
-            } else {
-                setIsSticky(false);
-            }
-        };
-        window.addEventListener('scroll', handleScroll);
-        return () => {
-            window.removeEventListener('scroll', handleScroll);
-        };
-    }, []);
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setShowDepartments(false);
+        setShowNav(false);
+      }
+    };
+    const onClick = (e: MouseEvent) => {
+      if (
+        departmentsRef.current &&
+        !departmentsRef.current.contains(e.target as Node)
+      ) {
+        setShowDepartments(false);
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    document.addEventListener('mousedown', onClick);
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      document.removeEventListener('mousedown', onClick);
+    };
+  }, []);
 
-    return (
-        <div className={`w-full transition-all duration-300 ${isSticky ? 'fixed top-0 left-0 z-[100] bg-white shadow-lg' : 'relative'}`}>
-            <div className={`w-[80%] relative m-auto flex items-center justify-between ${isSticky ? 'pt-3' : 'py-0'}`}>
-                {/* Add your header dropdowns here */}
-                <div className={`w-[260px] 
-                ${isSticky && '-mb-2'} cursor-pointer flex items-center justify-between px-5 h-[50px] bg-[#ff6f61]`}
-                    onClick={() => setShow(!show)}>
-                    <div className="flex items-center gap-2">
-                        <AlignLeft color="white" />
-                        <span className="text-white font-medium">All Departments</span>
-                    </div>
-                    <ChevronDown color="white" />
-                </div>
-                {/*Dropdown menu*/}
-                {show && (
-                    <div className={
-                        `absolute left-0 ${isSticky ?
-                            'top-[70px]' : "top-[50px]"
-                        } w-[260px] h-[400px] bg-[#f5f5f5]`}>
+  return (
+    <>
+      {/*
+        Going `fixed` takes the bar out of flow, so without this the page yanked
+        upward by the bar's own height the moment you scrolled past 100px. The
+        spacer holds that space open.
+      */}
+      {isSticky ? <div aria-hidden="true" className="h-[60px]" /> : null}
+      <div
+      className={
+        isSticky
+          ? 'fixed left-0 top-0 z-[100] w-full border-b border-rule bg-surface/95 shadow-card backdrop-blur transition-shadow'
+          : 'relative w-full'
+      }
+    >
+      <Container className="flex items-center gap-4 py-2">
+        {/* Departments */}
+        <div className="relative shrink-0" ref={departmentsRef}>
+          <button
+            onClick={() => setShowDepartments((s) => !s)}
+            aria-expanded={showDepartments}
+            aria-haspopup="true"
+            className="flex h-11 items-center gap-2 rounded-lg bg-coral px-4 text-sm font-medium text-[#2b0f0a] transition-colors hover:bg-coral-dim"
+          >
+            <AlignLeft size={18} aria-hidden="true" />
+            <span className="hidden sm:inline">All departments</span>
+            <ChevronDown
+              size={16}
+              aria-hidden="true"
+              className={`transition-transform ${showDepartments ? 'rotate-180' : ''}`}
+            />
+          </button>
 
-                    </div>
-                )}
-                {/*Navigation links*/}
-                <div className="flex items-center gap-5">
-                    {navItems.map((item: NavItem, index: number) => (
-                        <Link key={index} href={item.href} className="text-gray-700 hover:text-gray-900">
-                            {item.title}
-                        </Link>
-                    ))}
-                </div>
-
-                {/* Profile & actions — only shown once the bar becomes sticky */}
-                {isSticky && (
-                    <div className="flex items-center gap-8">
-                        {!isLoading && user ? (
-                            <div className="flex items-center gap-2">
-                                <Link href={"/profile"}
-                                    className="border-2 w-[50px] h-[50px] flex items-center justify-center rounded-full border-[#010f1c1a]">
-                                    <PersonIcon />
-                                </Link>
-                                <Link href={"/profile"}>
-                                    <span className='block font-medium'>Hello,</span>
-                                    <span className='font-semibold'>{user?.name}</span>
-                                </Link>
-                            </div>
-                        ) : (
-                            <div className="flex items-center gap-2">
-                                <Link href={"/login"}
-                                    className="border-2 w-[50px] h-[50px] flex items-center justify-center rounded-full border-[#010f1c1a]">
-                                    <PersonIcon />
-                                </Link>
-                                <Link href={"/login"}>
-                                    <span className='block font-medium'>Hello,</span>
-                                    <span className='font-semibold'>Sign In</span>
-                                </Link>
-                            </div>
-                        )}
-                        <div className="flex items-center gap-5">
-                            <Link href={"/wishlist"} className="relative">
-                                <HeartIcon />
-                                <div className="w-6 h-6 border-2 border-white bg-red-500 rounded-full flex items-center justify-center absolute top-[-10px] right-[-10px]">
-                                    <span className='text-white font-medium text-sm'>{wishlist?.length}</span>
-                                </div>
-                            </Link>
-                            <Link href={"/cart"} className="relative">
-                                <ShoppingCartIcon />
-                                <div className="w-6 h-6 border-2 border-white bg-red-500 rounded-full flex items-center justify-center absolute top-[-10px] right-[-10px]">
-                                    <span className='text-white font-medium text-sm'>{cart?.length}</span>
-                                </div>
-                            </Link>
-                        </div>
-                    </div>
-                )}
+          {/*
+            This used to open an empty 260×400 grey rectangle — a prominent
+            control whose panel had no contents at all. The categories were
+            already sitting in configs/constants as `shopCategories`.
+          */}
+          {showDepartments ? (
+            <div className="scroll-slim absolute left-0 top-[52px] z-50 max-h-[420px] w-[280px] overflow-y-auto rounded-card border border-rule bg-surface py-2 shadow-pop">
+              {shopCategories.map((category) => (
+                <Link
+                  key={category.value}
+                  href={`/products?category=${encodeURIComponent(category.value)}`}
+                  className="block px-4 py-2.5 text-sm text-ink-muted transition-colors hover:bg-sunken hover:text-coral-ink"
+                >
+                  {category.label}
+                </Link>
+              ))}
             </div>
+          ) : null}
         </div>
-    )
 
+        {/* Primary nav — a row on desktop, a sheet on phones. */}
+        <nav className="hidden items-center gap-6 md:flex">
+          {navItems.map((item: NavItem, index: number) => {
+            const isActive = pathname === item.href;
+            return (
+              <Link
+                key={index}
+                href={item.href}
+                aria-current={isActive ? 'page' : undefined}
+                className={`text-sm transition-colors ${
+                  isActive
+                    ? 'font-medium text-coral-ink'
+                    : 'text-ink-muted hover:text-ink'
+                }`}
+              >
+                {item.title}
+              </Link>
+            );
+          })}
+        </nav>
 
+        <button
+          onClick={() => setShowNav((s) => !s)}
+          aria-expanded={showNav}
+          aria-label="Browse menu"
+          className="ml-auto rounded-lg border border-rule p-2 text-ink-muted md:hidden"
+        >
+          {showNav ? <X size={18} /> : <AlignLeft size={18} />}
+        </button>
 
-}
+        {/*
+          The account cluster now rides along only while the bar is stuck to the
+          top — same component as the top bar rather than a second copy of it.
+        */}
+        {isSticky ? (
+          <div className="ml-auto hidden md:block">
+            <AccountActions compact />
+          </div>
+        ) : null}
+      </Container>
+
+      {showNav ? (
+        <Container className="border-t border-rule py-2 md:hidden">
+          <nav className="flex flex-col">
+            {navItems.map((item: NavItem, index: number) => (
+              <Link
+                key={index}
+                href={item.href}
+                className="py-2.5 text-sm text-ink-muted transition-colors hover:text-coral-ink"
+              >
+                {item.title}
+              </Link>
+            ))}
+          </nav>
+        </Container>
+      ) : null}
+      </div>
+    </>
+  );
+};
 
 export default HeaderBottom;

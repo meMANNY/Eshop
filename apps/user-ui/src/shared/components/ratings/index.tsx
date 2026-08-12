@@ -46,7 +46,7 @@ export function Ratings({
       </div>
 
       {showValue ? (
-        <span className="text-sm font-semibold text-gray-900">
+        <span className="text-sm font-semibold text-ink">
           {safeRating.toFixed(1)}
         </span>
       ) : null}

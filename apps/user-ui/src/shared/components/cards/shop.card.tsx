@@ -1,6 +1,7 @@
-import { ArrowUpRight, MapPin, Star } from "lucide-react";
+import { ArrowUpRight, MapPin, Store } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { Figure, Rating, StatusPill } from "../ui";
 
 interface ShopCardProps {
   shop: {
@@ -18,81 +19,87 @@ interface ShopCardProps {
 
 const ShopCard: React.FC<ShopCardProps> = ({ shop }) => {
   return (
-    <div className="group relative w-full rounded-xl cursor-pointer bg-white border border-slate-200 shadow-sm hover:shadow-lg hover:-translate-y-1 hover:border-[#ff6f61]/40 transition-all duration-300 overflow-hidden">
-      {/* COVER IMAGE */}
-      <div className="h-[130px] w-full relative bg-slate-100">
-        <Image
-          src={
-            shop?.coverBanner ||
-            "https://images.unsplash.com/photo-1635405074683-96d6921a2a68?w=500&auto=format&fit=crop&q=80"
-          }
-          alt="Cover"
-          fill
-          className="object-cover w-full h-full brightness-90 group-hover:brightness-100 transition-all duration-300"
-        />
-
-        {/* SMALL AVATAR centered at bottom */}
-        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2">
-          <div className="relative w-16 h-16 rounded-full border-4 border-white overflow-hidden shadow-lg bg-white group-hover:scale-105 transition-transform duration-300">
-            <Image
-              src={
-                shop?.avatar
-                  ? shop?.avatar
-                  : "https://cdn-icons-png.flaticon.com/512/847/847969.png"
-              }
-              alt="Avatar"
-              fill
-              className="object-cover"
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* SHOP NAME / INFO */}
-      <div className="mt-10 text-center px-4 pb-4">
-        <h3 className="text-base font-semibold text-slate-900 group-hover:text-[#ff6f61] transition-colors duration-300">
-          {shop.name}
-        </h3>
-
-        <p className="text-xs text-slate-500 mt-1">
-          {shop?.followers?.length ?? 0} followers
-        </p>
-
-        {/* ADDRESS AND RATINGS */}
-        <div className="flex items-center justify-center text-xs text-slate-500 mt-2 gap-4 flex-wrap">
-          {shop?.address && (
-            <span className="flex items-center gap-1 max-w-[130px]">
-              <MapPin className="w-4 h-4 shrink-0 text-[#ff6f61]" />
-              <span className="truncate">{shop?.address}</span>
-            </span>
-          )}
-          <span className="flex items-center gap-1">
-            <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
-            {shop?.ratings ?? "N/A"}
-          </span>
-        </div>
-
-        {/* CATEGORY BADGE */}
-        {shop?.category && (
-          <div className="mt-3">
-            <span className="inline-block bg-[#ff6f61]/10 text-[#ff6f61] px-2.5 py-0.5 rounded-full text-xs font-medium capitalize">
-              {shop?.category}
-            </span>
+    /*
+      The whole card is the link now. It already carried `cursor-pointer`, which
+      promised the card was clickable while only the small "Visit shop" line
+      actually navigated.
+    */
+    <Link
+      href={`/shop/${shop.id}`}
+      className="group relative flex h-full w-full flex-col overflow-hidden rounded-card border border-rule bg-surface shadow-card transition-all duration-300 hover:-translate-y-0.5 hover:border-coral/40 hover:shadow-lift"
+    >
+      <div className="relative h-[120px] w-full bg-sunken">
+        {shop?.coverBanner ? (
+          <Image
+            src={shop.coverBanner}
+            alt=""
+            fill
+            unoptimized
+            sizes="(max-width: 768px) 50vw, 260px"
+            className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+          />
+        ) : (
+          /* Was a hotlinked Unsplash photo — an unrelated stock image standing in
+             for a shop's own banner, and a third-party request per card. */
+          <div className="grid h-full w-full place-items-center bg-gradient-to-br from-coral/15 to-coral/5">
+            <Store size={26} className="text-coral-ink/50" aria-hidden="true" />
           </div>
         )}
 
-        {/* BUTTON LINK */}
-        <div className="mt-4">
-          <Link
-            href={`/shop/${shop.id}`}
-            className="inline-flex items-center text-sm font-medium text-[#ff6f61] hover:text-[#e05a4d] transition-colors duration-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff6f61]"
-          >
-            Visit shop
-            <ArrowUpRight className="w-4 h-4 ml-1 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-          </Link>
+        <div className="absolute -bottom-8 left-1/2 -translate-x-1/2">
+          <div className="relative grid h-16 w-16 place-items-center overflow-hidden rounded-full border-4 border-surface bg-sunken shadow-card">
+            {shop?.avatar ? (
+              <Image
+                src={shop.avatar}
+                alt=""
+                fill
+                unoptimized
+                className="object-cover"
+              />
+            ) : (
+              <span className="font-jost text-xl font-semibold text-ink-muted">
+                {shop.name?.[0]?.toUpperCase() ?? "S"}
+              </span>
+            )}
+          </div>
         </div>
       </div>
-    </div>
+
+      <div className="flex flex-1 flex-col items-center px-4 pb-4 pt-11 text-center">
+        <h3 className="clamp-1 font-jost text-base font-semibold text-ink transition-colors group-hover:text-coral-ink">
+          {shop.name}
+        </h3>
+
+        <p className="mt-1 text-xs text-ink-faint">
+          <Figure>{shop?.followers?.length ?? 0}</Figure> followers
+        </p>
+
+        <div className="mt-2.5">
+          <Rating value={shop?.ratings ?? 0} />
+        </div>
+
+        {shop?.address ? (
+          <span className="mt-2 flex max-w-full items-center gap-1 text-xs text-ink-muted">
+            <MapPin className="h-3.5 w-3.5 shrink-0 text-coral-ink" aria-hidden="true" />
+            <span className="truncate">{shop.address}</span>
+          </span>
+        ) : null}
+
+        {shop?.category ? (
+          <span className="mt-3 capitalize">
+            <StatusPill tone="coral">{shop.category}</StatusPill>
+          </span>
+        ) : null}
+
+        <span className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-coral-ink">
+          Visit shop
+          <ArrowUpRight
+            className="h-4 w-4 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+            aria-hidden="true"
+          />
+        </span>
+      </div>
+    </Link>
   );
 };
 

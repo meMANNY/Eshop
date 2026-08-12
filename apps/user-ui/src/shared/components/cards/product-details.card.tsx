@@ -45,7 +45,7 @@ const ProductDetailsCard = ({data,setOpen}: {data:any,setOpen:(open: boolean) =>
     onClick={() => setOpen(false)}
     >
         <div
-            className="w-[90%] md:w-[70%] min-h-[70vh] h-max bg-white shadow-xl rounded-2xl flex items-center p-6 relative overflow-y-scroll animate-slideDown"
+            className="w-[90%] md:w-[70%] min-h-[70vh] h-max bg-surface shadow-xl rounded-2xl flex items-center p-6 relative overflow-y-scroll animate-slideDown"
             onClick={(e) => e.stopPropagation()}
         >
                 <button
@@ -70,7 +70,7 @@ const ProductDetailsCard = ({data,setOpen}: {data:any,setOpen:(open: boolean) =>
                                 key={i}
                                 className={`cursor-pointer border rounded-md transition-all duration-200 ${
                                     activeImage === i
-                                    ? "border-[#ff6f61] shadow-md scale-105"
+                                    ? "border-coral shadow-md scale-105"
                                     : "border-transparent opacity-70 hover:opacity-100"
                                 }`}
                                 onClick={() => setActiveImage(i)}
@@ -110,7 +110,7 @@ const ProductDetailsCard = ({data,setOpen}: {data:any,setOpen:(open: boolean) =>
                                     <Ratings rating={data?.Shop?.ratings}  />
                                 </span>
                                 
-                                    <p className="text-gray-600 flex items-center gap-2">
+                                    <p className="text-ink-muted flex items-center gap-2">
                                         <MapPin size={18} />{" "}
                                         {data?.Shop?.address || "Location Not Available"}
                                     </p>
@@ -127,9 +127,9 @@ const ProductDetailsCard = ({data,setOpen}: {data:any,setOpen:(open: boolean) =>
                     </div>
 
                     <h3 className="text-xl font-semibold">{data?.title}</h3>
-                    <p className="text-gray-700">{data?.short_description}</p>
+                    <p className="text-ink-muted">{data?.short_description}</p>
                     {data?.brand && (
-                        <p className="text-gray-700">
+                        <p className="text-ink-muted">
                             <strong>Brand:</strong> {data?.brand}
                         </p>
                     )}
@@ -145,7 +145,7 @@ const ProductDetailsCard = ({data,setOpen}: {data:any,setOpen:(open: boolean) =>
                                     className={`w-8 h-8 rounded-full transition-all ${
                                     isSelected === color
                                         ? "scale-110 border-gray-600 shadow-md"
-                                        : "border border-gray-300 shadow-sm"
+                                        : "border border-rule shadow-sm"
                                     }`}
                                     style={{ backgroundColor: color }}
                                     onClick={() => setIsSelected(color)}
@@ -180,7 +180,7 @@ const ProductDetailsCard = ({data,setOpen}: {data:any,setOpen:(open: boolean) =>
                     <div className="flex items-center gap-4 mt-2">
                         <span className="text-2xl font-bold">${data?.sale_price}</span>
                         {data?.regular_price && (
-                            <span className="text-lg text-red-600 line-through">
+                            <span className="text-lg text-neg line-through">
                             ${data?.regular_price}
                             </span>
                         )}
@@ -219,7 +219,7 @@ const ProductDetailsCard = ({data,setOpen}: {data:any,setOpen:(open: boolean) =>
                                 className={`flex items-center gap-2 px-5 py-2 bg-[#ff5722] hover:bg-[#e64a19] text-white rounded-lg font-medium transition relative overflow-hidden "
                                 }`}
                             >
-                                <span className="absolute inset-0 bg-white/20 animate-shine" />
+                                <span className="absolute inset-0 bg-surface/20 animate-shine" />
                                 <CartIcon size={18} /> Add to Cart
                             </button>
                         <Heart
@@ -240,12 +240,12 @@ const ProductDetailsCard = ({data,setOpen}: {data:any,setOpen:(open: boolean) =>
                         />
                     </div>
                     <span
-                    className={data?.stock > 0 ? "text-green-600" : "text-red-600"}
+                    className={data?.stock > 0 ? "text-green-600" : "text-neg"}
                     >
                     {data?.stock > 0 ? "In Stock" : "Out of Stock"}
                     </span>
                     <div className="mt-4">
-                        <span className="text-gray-600 text-sm">
+                        <span className="text-ink-muted text-sm">
                             Estimated Delivery:{" "}
                             <strong>{estimatedDelivery.toDateString()}</strong>
                         </span>

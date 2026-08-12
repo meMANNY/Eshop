@@ -1,81 +1,96 @@
 'use client';
-import Link from 'next/link'
-import React from 'react'
-import { Search, ShoppingCartIcon } from 'lucide-react'
-import { HeartIcon } from 'lucide-react'
-import { PersonIcon } from '@/assets/svgs/profile-icon'
-import HeaderBottom from './header-bottom'
-import useUser from '@/hooks/useUser';
-import { useStore } from '@/store';
+
+import Link from 'next/link';
+import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { Search } from 'lucide-react';
+import { Container } from '@/shared/components/ui';
+import HeaderBottom from './header-bottom';
+import AccountActions from './account-actions';
 
 const Header = () => {
-    const { user, isLoading } = useUser();
-    const wishlist = useStore((state: any) => state.wishlist);
-    const cart = useStore((state: any) => state.cart);
-    return (
-        <div className='w-full bg-white'>
-            <div className='w-[80%] py-5 m-auto flex items-center justify-between'>
-                <div>
-                    <Link href={'/'} >
-                        <span className='text-3xl font-[600]'>Eshop</span>
-                    </Link>
-                </div>
-                <div className="w-[50%] relative">
-                    <input type="text "
-                        placeholder="Search..."
-                        className="w-full px-4 font-Poppins font-medium border-[2.5px] border-[#ff6f61] outline-none h-[55px]" />
-                    <div className="w-[60px] cursor-pointer flex items-center justify-center h-[55px] bg-[#ff6f61] absolute top-0 right-0">
-                        <Search color="#fff" />
-                    </div>
-                </div>
-                <div className="flex items-center gap-8" >
+  const [term, setTerm] = useState('');
+  const router = useRouter();
 
-                    {
-                        !isLoading && user ? (
-                            <div className="flex items-center gap-2">
-                                <Link href={"/profile"}
-                                    className="border-2 w-[50px] h=[50px] flex items-center justify-center rounded-full border-[#010f1c1a]">
-                                    <PersonIcon />
-                                </Link>
-                                <Link href={"/profile"}>
-                                    <span className='block font-medium'>Hello,</span>
-                                    <span className='font-semibold'>{user?.name}</span>
-                                </Link>
-                            </div>
-                        ) : (
-                            <div className="flex items-center gap-2">
-                                <Link href={"/login"}
-                                    className="border-2 w-[50px] h=[50px] flex items-center justify-center rounded-full border-[#010f1c1a]">
-                                    <PersonIcon />
-                                </Link>
-                                <Link href={"/login"}>
-                                    <span className='block font-medium'>Hello,</span>
-                                    <span className='font-semibold'>Sign In</span>
-                                </Link>
-                            </div>
-                        )
-                    }
-                    <div className="flex items-center gap-5">
-                        <Link href={"/wishlist"} className="relative">
-                            <HeartIcon />
-                            <div className="w-6 h-6 border-2 border-white bg-red-500 rounded-full flex items-center justify-center absolute top-[-10px] right-[-10px]">
-                                <span className='text-white font-medium text-sm'>{wishlist?.length}</span>
-                            </div>
-                        </Link>
-                        <Link href={"/cart"} className="relative">
-                            <ShoppingCartIcon />
-                            <div className="w-6 h-6 border-2 border-white bg-red-500 rounded-full flex items-center justify-center absolute top-[-10px] right-[-10px]">
-                                <span className='text-white font-medium text-sm'>{cart?.length}</span>
-                            </div>
-                        </Link>
-                    </div>
-                </div>
-            </div>
-            <div className="border-b border-b-slate-200" />
-            <HeaderBottom />
+  /*
+    The search box was an input with no state, no form and no handler — the most
+    prominent control on the storefront and it did nothing at all. It is a real
+    form now: submitting takes you to the products page with the term, which that
+    page reads and filters on.
+  */
+  const onSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    const q = term.trim();
+    router.push(q ? `/products?q=${encodeURIComponent(q)}` : '/products');
+  };
 
+  return (
+    <header className="w-full bg-surface">
+      <Container className="flex items-center gap-4 py-4 lg:gap-8">
+        <Link href="/" className="shrink-0">
+          <span className="font-jost text-2xl font-bold tracking-[-0.02em] text-ink lg:text-3xl">
+            Zshop
+          </span>
+        </Link>
+
+        {/* On phones the field moves to its own row below, so it isn't squeezed
+            between the wordmark and the cart. */}
+        <form
+          onSubmit={onSearch}
+          role="search"
+          className="hidden flex-1 md:block"
+        >
+          <div className="flex items-stretch overflow-hidden rounded-lg border-2 border-coral">
+            <input
+              type="search"
+              value={term}
+              onChange={(e) => setTerm(e.target.value)}
+              aria-label="Search products"
+              placeholder="Search for products, brands and shops…"
+              className="w-full bg-surface px-4 py-3 text-sm text-ink outline-none placeholder:text-ink-faint"
+            />
+            <button
+              type="submit"
+              aria-label="Search"
+              className="grid w-14 shrink-0 place-items-center bg-coral text-[#2b0f0a] transition-colors hover:bg-coral-dim"
+            >
+              <Search size={20} />
+            </button>
+          </div>
+        </form>
+
+        <div className="ml-auto shrink-0 md:ml-0">
+          <AccountActions />
         </div>
-    )
-}
+      </Container>
 
-export default Header
+      {/* Phone-width search row. */}
+      <Container className="pb-4 md:hidden">
+        <form onSubmit={onSearch} role="search">
+          <div className="flex items-stretch overflow-hidden rounded-lg border-2 border-coral">
+            <input
+              type="search"
+              value={term}
+              onChange={(e) => setTerm(e.target.value)}
+              aria-label="Search products"
+              placeholder="Search products…"
+              className="w-full bg-surface px-3.5 py-2.5 text-sm text-ink outline-none placeholder:text-ink-faint"
+            />
+            <button
+              type="submit"
+              aria-label="Search"
+              className="grid w-12 shrink-0 place-items-center bg-coral text-[#2b0f0a]"
+            >
+              <Search size={18} />
+            </button>
+          </div>
+        </form>
+      </Container>
+
+      <div className="border-b border-rule" />
+      <HeaderBottom />
+    </header>
+  );
+};
+
+export default Header;

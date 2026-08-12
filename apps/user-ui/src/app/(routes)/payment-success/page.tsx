@@ -116,10 +116,10 @@ function PaymentSuccessContent() {
   return (
     <div className="min-h-[80vh] w-full flex items-center justify-center px-4 py-12 bg-gradient-to-b from-green-50 to-white">
       <div className="w-full max-w-xl">
-        <div className="rounded-2xl bg-white border border-gray-200 shadow-sm overflow-hidden">
+        <div className="rounded-2xl bg-surface border border-rule shadow-sm overflow-hidden">
           <div className="bg-gradient-to-r from-green-500 to-emerald-500 p-6 text-white">
             <div className="flex items-center gap-3">
-              <div className="bg-white/15 rounded-full p-2">
+              <div className="bg-surface/15 rounded-full p-2">
                 <CheckCircle2 className="w-7 h-7" />
               </div>
               <div>
@@ -143,28 +143,28 @@ function PaymentSuccessContent() {
 
           <div className="p-6">
             <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
-              <li className="flex items-start gap-3 rounded-xl border border-gray-200 p-3">
+              <li className="flex items-start gap-3 rounded-xl border border-rule p-3">
                 <div className="mt-0.5">
-                  <Truck className="w-5 h-5 text-emerald-600" />
+                  <Truck className="w-5 h-5 text-pos" />
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-900">
+                  <p className="text-sm font-medium text-ink">
                     Track your shipment
                   </p>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-ink-muted">
                     See status, ETA, and courier updates.
                   </p>
                 </div>
               </li>
-              <li className="flex items-start gap-3 rounded-xl border border-gray-200 p-3">
+              <li className="flex items-start gap-3 rounded-xl border border-rule p-3">
                 <div className="mt-0.5">
-                  <ShoppingBag className="w-5 h-5 text-emerald-600" />
+                  <ShoppingBag className="w-5 h-5 text-pos" />
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-900">
+                  <p className="text-sm font-medium text-ink">
                     Continue shopping
                   </p>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-ink-muted">
                     Check new arrivals and offers.
                   </p>
                 </div>
@@ -189,16 +189,16 @@ function PaymentSuccessContent() {
             <div className="my-6 h-px bg-gray-100" />
 
             <div className="flex items-center justify-between gap-3">
-              <div className="text-xs text-gray-500">
-                <span className="block text-gray-400">Payment Session ID</span>
-                <span className="font-mono text-gray-700 break-all select-all">
+              <div className="text-xs text-ink-muted">
+                <span className="block text-ink-faint">Payment Session ID</span>
+                <span className="font-mono text-ink-muted break-all select-all">
                   {sessionId ?? "—"}
                 </span>
               </div>
               {sessionId && (
                 <button
                   onClick={onCopy}
-                  className="inline-flex items-center gap-2 rounded-lg border border-gray-200 px-3 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600/50"
+                  className="inline-flex items-center gap-2 rounded-lg border border-rule px-3 py-2 text-xs font-medium text-ink-muted hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600/50"
                 >
                   {copied ? (
                     <>
@@ -219,9 +219,9 @@ function PaymentSuccessContent() {
           </div>
         </div>
 
-        <p className="text-[11px] text-gray-400 text-center mt-3">
+        <p className="text-[11px] text-ink-faint text-center mt-3">
           You can find your invoice and order details in{" "}
-          <span className="font-medium text-gray-500">Profile › My Orders</span>
+          <span className="font-medium text-ink-muted">Profile › My Orders</span>
           .
         </p>
       </div>

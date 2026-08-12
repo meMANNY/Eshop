@@ -52,7 +52,7 @@ export default function ChangePassword() {
 
   return (
     <div className="max-w-xl">
-      <p className="text-sm text-slate-500">
+      <p className="text-sm text-ink-muted">
         Pick a password you don&apos;t use on any other site. You&apos;ll stay
         signed in on this device.
       </p>
@@ -99,14 +99,14 @@ export default function ChangePassword() {
                 <li
                   key={rule.label}
                   className={`flex items-center gap-2 text-xs transition-colors ${
-                    met ? "text-emerald-700" : "text-slate-500"
+                    met ? "text-pos" : "text-ink-muted"
                   }`}
                 >
                   <span
                     aria-hidden="true"
                     className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full transition-colors ${
                       met
-                        ? "bg-emerald-100 text-emerald-700"
+                        ? "bg-emerald-100 text-pos"
                         : "bg-slate-100 text-transparent"
                     }`}
                   >
@@ -137,7 +137,7 @@ export default function ChangePassword() {
             className={`flex items-start gap-2.5 rounded-lg border p-3 text-sm ${
               error
                 ? "border-red-200 bg-red-50 text-red-700"
-                : "border-emerald-200 bg-emerald-50 text-emerald-700"
+                : "border-emerald-200 bg-pos/10 text-pos"
             }`}
           >
             {error ? (
@@ -152,7 +152,7 @@ export default function ChangePassword() {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#ff6f61] px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#e05a4d] disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff6f61] sm:w-auto"
+          className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-coral px-5 py-2.5 text-sm font-medium text-[#2b0f0a] transition-colors hover:bg-coral-dim disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-coral sm:w-auto"
         >
           {isSubmitting && <Loader size={16} color="text-white" />}
           {isSubmitting ? "Updating" : "Update password"}
@@ -173,7 +173,7 @@ const PasswordField = React.forwardRef<HTMLInputElement, PasswordFieldProps>(
 
     return (
       <div>
-        <label className="mb-1.5 block text-sm font-medium text-slate-700">
+        <label className="mb-1.5 block text-sm font-medium text-ink-muted">
           {label}
         </label>
         <div className="relative">
@@ -181,10 +181,10 @@ const PasswordField = React.forwardRef<HTMLInputElement, PasswordFieldProps>(
             ref={ref}
             type={visible ? "text" : "password"}
             aria-invalid={Boolean(error)}
-            className={`w-full rounded-lg border px-4 py-2.5 pr-11 text-slate-900 placeholder:text-slate-400 transition-colors focus:outline-none focus:ring-2 ${
+            className={`w-full rounded-lg border px-4 py-2.5 pr-11 text-ink placeholder:text-ink-faint transition-colors focus:outline-none focus:ring-2 ${
               error
                 ? "border-red-300 focus:border-red-400 focus:ring-red-200"
-                : "border-slate-200 focus:border-[#ff6f61] focus:ring-[#ff6f61]/25"
+                : "border-rule focus:border-coral focus:ring-coral/25"
             }`}
             {...props}
           />
@@ -192,7 +192,7 @@ const PasswordField = React.forwardRef<HTMLInputElement, PasswordFieldProps>(
             type="button"
             onClick={() => setVisible((v) => !v)}
             aria-label={visible ? "Hide password" : "Show password"}
-            className="absolute right-1.5 top-1/2 -translate-y-1/2 rounded-md p-2 text-slate-400 transition-colors hover:text-slate-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff6f61]"
+            className="absolute right-1.5 top-1/2 -translate-y-1/2 rounded-md p-2 text-ink-faint transition-colors hover:text-ink-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-coral"
           >
             {visible ? (
               <EyeOff className="h-4 w-4" />
@@ -202,7 +202,7 @@ const PasswordField = React.forwardRef<HTMLInputElement, PasswordFieldProps>(
           </button>
         </div>
         {error && (
-          <p className="mt-1.5 flex items-center gap-1.5 text-xs text-red-600">
+          <p className="mt-1.5 flex items-center gap-1.5 text-xs text-neg">
             <AlertCircle className="h-3 w-3 shrink-0" />
             {error}
           </p>
