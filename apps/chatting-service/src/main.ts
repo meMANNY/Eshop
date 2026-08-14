@@ -2,8 +2,8 @@ import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 
-// import { createWebSocketServer } from "./websocket";
-// import { startConsumer } from "./chat-message-consumer";
+import { createWebSocketServer } from "./websocket";
+import { startConsumer } from "./chat-message-consumer";
 
 import router from "./routes/chatting.route";
 import { errorMiddleware } from "../../../packages/error-handler/error-middleware";
@@ -47,10 +47,10 @@ const server = app.listen(port, () => {
 });
 
 // websocket server
-//createWebSocketServer(server);
+createWebSocketServer(server);
 
 // start kafka consumer
-//startConsumer().catch((err: any) => console.error(err));
+startConsumer().catch((err: any) => console.error(err));
 
 server.on("error", (err) => {
   console.log("Server Error :", err);
