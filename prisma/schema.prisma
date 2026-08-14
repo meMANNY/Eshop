@@ -21,7 +21,7 @@ model images {
   userId    String?   @unique @db.ObjectId // foreign key
   users     users?    @relation(fields: [userId], references: [id]) // requires foreign key to be unique
   shopId    String?   @unique @db.ObjectId
-  shops     shops?    @relation(fields: [shopId], references: [id])
+  shops     shops?    @relation(name: "ShopAvatar", fields: [shopId], references: [id])
   productId String?   @unique @db.ObjectId
   products  products? @relation(name: "ProductImages", fields: [productId], references: [id])
 }
@@ -71,7 +71,7 @@ model shops {
   country       String
   bio           String
   category      String
-  avatar        images?
+  avatar        images[] @relation(name: "ShopAvatar")
   coverBanner   String?
   address       String
   opening_hours String?
