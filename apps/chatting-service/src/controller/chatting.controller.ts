@@ -12,6 +12,17 @@ import {
 } from "../../../../packages/libs/redis/message.redis";
 import prisma from "../../../../packages/libs/primsa";
 
+/**
+ * Mongo ObjectIDs are 12 bytes — 24 hex characters. Anything else makes Prisma
+ * throw P2023, which is a raw 500 rather than the 400 a bad path param deserves.
+ *
+ * A plain `!conversationId` check is not enough: the value arrives from the URL,
+ * so a client that interpolates an undefined variable sends the literal string
+ * "undefined", which is truthy and sails straight past a falsy check.
+ */
+const isObjectId = (value: unknown): value is string =>
+  typeof value === "string" && /^[a-f\d]{24}$/i.test(value);
+
 export const newConversation = async (
   req: Request,
   res: Response,
@@ -219,8 +230,8 @@ export const fetchUserMessages = async (
     const page = parseInt(req.query.page as string) || 1;
     const limit = 10;
 
-    if (!conversationId)
-      return next(new ValidationError("Invalid request data", "Conversation Id is required!"));
+    if (!isObjectId(conversationId))
+      return next(new ValidationError("Invalid request data", "A valid Conversation Id is required!"));
     const conversation = await prisma.conversationGroup.findUnique({
       where: { id: conversationId },
     });
@@ -296,8 +307,8 @@ export const fetchSellerMessages = async (
     const page = parseInt(req.query.page as string) || 1;
     const limit = 10;
 
-    if (!conversationId)
-      return next(new ValidationError("Invalid request data", "Conversation Id is required!"));
+    if (!isObjectId(conversationId))
+      return next(new ValidationError("Invalid request data", "A valid Conversation Id is required!"));
     const conversation = await prisma.conversationGroup.findUnique({
       where: { id: conversationId },
     });

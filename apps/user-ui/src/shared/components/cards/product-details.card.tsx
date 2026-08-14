@@ -1,4 +1,5 @@
 import Image from 'next/image'
+import { useRouter } from 'next/navigation'
 import ImageMagnifier from '../image-magnifier'
 import React, { useState } from 'react'
 import { Heart, X } from 'lucide-react'
@@ -10,8 +11,11 @@ import { useStore } from '@/store'
 import useDeviceTracking from '@/hooks/useDeviceTracking'
 import useLocationTracking from '@/hooks/useLocationTracking'
 import useUser from '@/hooks/useUser'
+import axiosInstance from '@/utils/axiosInstance'
+import { isProtected } from '@/utils/protected'
 
 const ProductDetailsCard = ({data,setOpen}: {data:any,setOpen:(open: boolean) => void}) => {
+    const router = useRouter();
 
     const [activeImage, setActiveImage] = useState(0);
     const [isSelected, setIsSelected] = useState(data?.colors?.[0] || "");
@@ -19,6 +23,7 @@ const ProductDetailsCard = ({data,setOpen}: {data:any,setOpen:(open: boolean) =>
     data?.sizes?.[0] || ""
   );
     const [quantity, setQuantity] = useState(1);
+    const [isLoading, setIsLoading] = useState(false);
     const estimatedDelivery = new Date();
     estimatedDelivery.setDate(estimatedDelivery.getDate() + 5);
 
@@ -36,6 +41,26 @@ const ProductDetailsCard = ({data,setOpen}: {data:any,setOpen:(open: boolean) =>
 
     const isWishlisted = wishlist.some((item: any) => item.id === data.id);
     const isInCart = cart.some((item: any) => item.id === data.id);
+
+    const handleChat = async () => {
+
+        if(isLoading)  return;
+        setIsLoading(true);
+
+        try{
+            const res = await axiosInstance.post("/chatting/api/create-user-conversationGroup",{
+                sellerId: data?.Shop?.sellerId
+            },isProtected);
+            // `newConversation` responds with { conversation, isNew } — there is no
+            // top-level `conversationId`. Reading one produced the string "undefined"
+            // in the URL, which reached Prisma as an ObjectID and threw P2023.
+            router.push(`/inbox?conversationId=${res.data.conversation.id}`);
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setIsLoading(false);
+        }
+    }
 
 
   return (
@@ -116,9 +141,9 @@ const ProductDetailsCard = ({data,setOpen}: {data:any,setOpen:(open: boolean) =>
                                     </p>
                             </div>
                                 <button
-                                //disabled={isLoading}
+                                disabled={isLoading}
                                 className="flex items-center gap-2 px-4 py-2 rounded-md text-white bg-blue-700 hover:bg-blue-600 font-medium transition"
-                                //onClick={() => handleChat()}
+                                onClick={() => handleChat()}
                             >
                                 💬 Chat with Seller
                             </button>
