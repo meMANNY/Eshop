@@ -32,7 +32,15 @@ export const WebSocketProvider = ({
     const ws = new WebSocket(uri);
 
     ws.onopen = () => {
-      ws.send(`user_${seller.id}`);
+      /*
+        The `seller_` prefix is not cosmetic. The server derives both the Redis
+        presence key (`online:seller:<id>`) and the routing key it looks up when a
+        user sends to a seller from this exact string. Registering as `user_<id>`
+        meant sellers were written to `online:user:user_<id>`, which nothing reads,
+        so they always showed Offline — and inbound messages addressed to
+        `seller_<id>` matched no socket and were never delivered live.
+      */
+      ws.send(`seller_${seller.id}`);
       setSocket(ws);
     };
 

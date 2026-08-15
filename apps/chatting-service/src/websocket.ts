@@ -2,6 +2,7 @@ import {kafka} from "../../../packages/utils/kafka";
 import {WebSocket, WebSocketServer} from "ws";
 import  { Server as HttpServer} from "http";
 import redis from "../../../packages/libs/redis";
+import prisma from "../../../packages/libs/primsa";
 
 
 const producer = kafka.producer();
@@ -9,6 +10,66 @@ const producer = kafka.producer();
 
 const connectedUsers: Map<string, WebSocket> = new Map();
 const unseenCounts: Map<string, number> = new Map();
+
+const PRESENCE_TTL_SECONDS = 300;
+// Comfortably inside the TTL, so a slow tick can never let the key lapse.
+const PRESENCE_REFRESH_MS = 120_000;
+
+/**
+ * `registeredUserId` arrives as `user_<id>` or `seller_<id>`.
+ *
+ * The two sides are keyed asymmetrically and the readers depend on it: sellers
+ * drop the prefix (`online:seller:<id>`) while users keep it
+ * (`online:user:user_<id>`). Both shapes are mirrored in chatting.controller.ts.
+ */
+const presenceKeyFor = (registeredUserId: string) =>
+    registeredUserId.startsWith("seller_")
+        ? `online:seller:${registeredUserId.replace("seller_", "")}`
+        : `online:user:${registeredUserId}`;
+
+const rawIdOf = (registeredUserId: string) =>
+    registeredUserId.replace(/^(user|seller)_/, "");
+
+/**
+ * Tells the people this account is in a conversation with that it just came
+ * online or went offline.
+ *
+ * Presence was previously only ever read once, when the conversation list was
+ * fetched over HTTP — so a counterpart who connected afterwards stayed "Offline"
+ * on screen for the whole session.
+ */
+async function broadcastPresence(registeredUserId: string, isOnline: boolean) {
+    const rawId = rawIdOf(registeredUserId);
+
+    const groups = await prisma.conversationGroup.findMany({
+        where: { participantIds: { has: rawId } },
+        select: { participantIds: true },
+    });
+
+    const event = JSON.stringify({
+        type: "PRESENCE_UPDATE",
+        payload: { userId: rawId, isOnline },
+    });
+
+    const alreadySent = new Set<string>();
+
+    for (const group of groups) {
+        for (const participantId of group.participantIds) {
+            if (participantId === rawId) continue;
+
+            // A participant id says nothing about which side it belongs to, so try
+            // both registration keys and use whichever one is actually connected.
+            for (const key of [`user_${participantId}`, `seller_${participantId}`]) {
+                if (alreadySent.has(key)) continue;
+                const socket = connectedUsers.get(key);
+                if (socket && socket.readyState === WebSocket.OPEN) {
+                    socket.send(event);
+                    alreadySent.add(key);
+                }
+            }
+        }
+    }
+}
 
 type IncomingMessage = {
     type?: string;
@@ -33,6 +94,7 @@ export async function createWebSocketServer(server: HttpServer) {
     wss.on('connection',(ws:WebSocket) =>{
         console.log("new websocket connection established");
         let registeredUserId: string | null = null;
+        let presenceTimer: NodeJS.Timeout | null = null;
 
         ws.on("message",async (rawMessage: string) => {
             try{
@@ -45,10 +107,22 @@ export async function createWebSocketServer(server: HttpServer) {
                     connectedUsers.set(registeredUserId, ws);
                     console.log(`User ${registeredUserId} registered with websocket connection`);
 
-                    const isSeller = registeredUserId.startsWith("seller_");
-                    const redisKey = isSeller ? `online:seller:${registeredUserId.replace("seller_", "")}` : `online:user:${registeredUserId}`;
-                    await redis.set(redisKey,"1");
-                    await redis.expire(redisKey, 300 ); // Set expiration to 5 minutes
+                    const redisKey = presenceKeyFor(registeredUserId);
+                    await redis.set(redisKey, "1", "EX", PRESENCE_TTL_SECONDS);
+
+                    /*
+                      The TTL exists so a presence key can't outlive a process that
+                      died without running its close handler — but nothing renewed
+                      it, so anyone with a socket open longer than five minutes
+                      silently went "offline" while still connected.
+                    */
+                    presenceTimer = setInterval(() => {
+                        redis
+                            .set(redisKey, "1", "EX", PRESENCE_TTL_SECONDS)
+                            .catch((err) => console.error("Presence refresh failed:", err));
+                    }, PRESENCE_REFRESH_MS);
+
+                    await broadcastPresence(registeredUserId, true);
                     return;
 
                 }
@@ -142,14 +216,30 @@ export async function createWebSocketServer(server: HttpServer) {
         });
 
         ws.on("close",async() => {
+            if(presenceTimer) {
+                clearInterval(presenceTimer);
+                presenceTimer = null;
+            }
+
             if(registeredUserId) {
+                /*
+                  Only tear down presence if THIS socket is still the registered one.
+                  A second tab registers under the same key and overwrites the entry;
+                  without this check, closing the older tab would mark the account
+                  offline while the newer tab is still connected.
+                */
+                if(connectedUsers.get(registeredUserId) !== ws) {
+                    console.log(`Stale socket for ${registeredUserId} closed; presence left intact`);
+                    return;
+                }
+
                 connectedUsers.delete(registeredUserId);
                 console.log(`User ${registeredUserId} disconnected and removed from connected users`);
 
-                const isSeller = registeredUserId.startsWith("seller_");
-                const redisKey = isSeller ? `online:seller:${registeredUserId.replace("seller_", "")}` : `online:user:${registeredUserId}`;
-                await redis.del(redisKey);
+                await redis.del(presenceKeyFor(registeredUserId));
                 console.log(`Removed online status for ${registeredUserId} from Redis`);
+
+                await broadcastPresence(registeredUserId, false);
             }
         });
 

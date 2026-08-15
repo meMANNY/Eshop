@@ -73,7 +73,12 @@ function InboxContent() {
   useEffect(() => {
     if (!ws) return;
 
-    ws.onmessage = (event: any) => {
+    /*
+      `addEventListener`, not `ws.onmessage =`. Assigning the property replaced the
+      handler the WebSocket provider installs, so the provider's unread counts went
+      dead for as long as this page was mounted.
+    */
+    const handleMessage = (event: any) => {
       const data = JSON.parse(event.data);
       if (data.type === "NEW_MESSAGE") {
         const newMessage = data.payload;
@@ -111,7 +116,27 @@ function InboxContent() {
           )
         );
       }
+
+      /*
+        `isOnline` used to be a snapshot taken when the conversation list was
+        fetched, so a seller who connected afterwards stayed "Offline" for the rest
+        of the session. `selectedChat` is derived from `chats`, so updating the list
+        updates the header too.
+      */
+      if (data.type === "PRESENCE_UPDATE") {
+        const { userId, isOnline } = data.payload;
+        setChats((prev) =>
+          prev.map((chat) =>
+            chat.seller?.id === userId
+              ? { ...chat, seller: { ...chat.seller, isOnline } }
+              : chat
+          )
+        );
+      }
     };
+
+    ws.addEventListener("message", handleMessage);
+    return () => ws.removeEventListener("message", handleMessage);
   }, [ws, conversationId]);
 
   useEffect(() => {
