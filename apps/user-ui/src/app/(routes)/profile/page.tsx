@@ -213,7 +213,11 @@ function ProfileContent() {
                     <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-full ring-2 ring-coral/30 ring-offset-2">
                       <Image
                         src={
-                          user?.avatar ||
+                          // `users.avatar` is an `images?` relation — a single row
+                          // object, not a URL. Unlike the shop avatars it is not an
+                          // array, but it is still truthy, so the fallback below was
+                          // unreachable and next/image received an object.
+                          user?.avatar?.url ||
                           "https://cdn-icons-png.flaticon.com/512/847/847969.png"
                         }
                         alt="Profile photo"

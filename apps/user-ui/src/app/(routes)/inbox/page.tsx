@@ -167,10 +167,13 @@ function InboxContent() {
     );
     router.push(`?conversationId=${c.conversationId}`);
 
+    // `conversationId` here is the value read from the URL, which still holds the
+    // PREVIOUS chat — `router.push` above has not propagated yet. Marking that one
+    // as seen instead of the one just opened is off by one selection.
     ws?.send(
       JSON.stringify({
         type: "MARK_AS_SEEN",
-        conversationId,
+        conversationId: c.conversationId,
       })
     );
   };

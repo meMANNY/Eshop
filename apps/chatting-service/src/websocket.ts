@@ -13,7 +13,10 @@ const unseenCounts: Map<string, number> = new Map();
 type IncomingMessage = {
     type?: string;
     fromUserId: string;
-    ToUserId: string;
+    // camelCase, matching what the client actually sends. This was `ToUserId`,
+    // so every real message failed the required-field check below and was
+    // dropped with "Invalid message received".
+    toUserId: string;
     messageBody: string;
     conversationId: string;
     senderType: string;
@@ -62,8 +65,8 @@ export async function createWebSocketServer(server: HttpServer) {
                 }
 
                 //regular message
-                const {fromUserId, ToUserId, messageBody, conversationId, senderType} = data;
-                if(!fromUserId || !ToUserId || !messageBody || !conversationId || !senderType) {
+                const {fromUserId, toUserId, messageBody, conversationId, senderType} = data;
+                if(!fromUserId || !toUserId || !messageBody || !conversationId || !senderType) {
                     console.warn("Invalid message received:", data);
                     return;
                 }
@@ -84,7 +87,7 @@ export async function createWebSocketServer(server: HttpServer) {
                     payload: messagePayload
                 });
 
-                const receiverKey = senderType === "user" ? `seller_${ToUserId}` : `user_${ToUserId}`;
+                const receiverKey = senderType === "user" ? `seller_${toUserId}` : `user_${toUserId}`;
                 const senderKey = senderType === "user" ? `user_${fromUserId}` : `seller_${fromUserId}`;
 
                 //update unseen count for the receive dynamically

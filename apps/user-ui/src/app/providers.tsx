@@ -1,4 +1,6 @@
 "use client";
+import { WebSocketProvider } from '@/context/web-socket-context';
+import useUser from '@/hooks/useUser';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React,{useState} from 'react'
 
@@ -13,9 +15,22 @@ const Providers = ({children}:{children: React.ReactNode}) => {
     // and does not let user A data mingled with user B data
   return (
     <QueryClientProvider client={queryClient}>
+      <ProviderWithWebSocket>
         {children}
+      </ProviderWithWebSocket>
     </QueryClientProvider>
   )
 }
 
-export default Providers
+const ProviderWithWebSocket = ({ children }: { children: React.ReactNode }) => {
+  const { user } = useUser();
+  return (
+    <>
+      {user && <WebSocketProvider user={user}>{children}</WebSocketProvider>}
+      {!user && children}
+    </>
+  );
+};
+
+export default Providers;
+

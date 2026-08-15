@@ -116,8 +116,11 @@ const ProductDetailsCard = ({data,setOpen}: {data:any,setOpen:(open: boolean) =>
                         <div className="flex items-start gap-3">
                             <Image
                             src={
-                                data?.Shop?.avatar || "https://images.unsplash.com/photo-1728577740843-5f29c7586afe?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8YXZhdGFyfGVufDB8fDB8fHww"
-                                
+                                // `Shop.avatar` is an `images[]` relation, so the raw value is
+                                // an array of rows. `[]` is truthy, so passing it straight
+                                // through meant the fallback never fired and next/image got an
+                                // array as `src`.
+                                data?.Shop?.avatar?.[0]?.url || "https://cdn-icons-png.flaticon.com/512/847/847969.png"
                             }
                             alt="Shop Logo"
                             width={60}

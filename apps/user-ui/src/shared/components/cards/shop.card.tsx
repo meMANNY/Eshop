@@ -8,7 +8,13 @@ interface ShopCardProps {
     id: string;
     name: string;
     description?: string;
-    avatar: string;
+    /*
+      `shops.avatar` is an `images[]` relation, so the API hands back an array of
+      image rows — never a URL string. It was typed as `string` here, which meant
+      the empty-array case (`[]`, a shop with no avatar) passed the truthy guard
+      below and reached next/image as `src={[]}`.
+    */
+    avatar?: { url: string }[];
     coverBanner?: string;
     address?: string;
     followers?: [];
@@ -18,6 +24,8 @@ interface ShopCardProps {
 }
 
 const ShopCard: React.FC<ShopCardProps> = ({ shop }) => {
+  const avatarUrl = shop?.avatar?.[0]?.url;
+
   return (
     /*
       The whole card is the link now. It already carried `cursor-pointer`, which
@@ -48,9 +56,9 @@ const ShopCard: React.FC<ShopCardProps> = ({ shop }) => {
 
         <div className="absolute -bottom-8 left-1/2 -translate-x-1/2">
           <div className="relative grid h-16 w-16 place-items-center overflow-hidden rounded-full border-4 border-surface bg-sunken shadow-card">
-            {shop?.avatar ? (
+            {avatarUrl ? (
               <Image
-                src={shop.avatar}
+                src={avatarUrl}
                 alt=""
                 fill
                 unoptimized

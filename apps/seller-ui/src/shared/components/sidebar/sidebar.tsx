@@ -152,9 +152,12 @@ const SidebarBarWrapper = () => {
               className="grid h-8 w-8 shrink-0 place-items-center overflow-hidden rounded-full bg-coral-soft text-sm font-semibold text-coral"
               aria-hidden="true"
             >
-              {seller.shop?.avatar?.url ? (
+              {/* `shops.avatar` is an `images[]` relation — indexing is required.
+                  Reading `.url` off the array gave undefined every time, so this
+                  always fell through to the initial. */}
+              {seller.shop?.avatar?.[0]?.url ? (
                 <img
-                  src={seller.shop.avatar.url}
+                  src={seller.shop.avatar[0].url}
                   alt=""
                   className="h-full w-full object-cover"
                 />
