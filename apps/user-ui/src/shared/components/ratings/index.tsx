@@ -33,7 +33,7 @@ export function Ratings({
 
           return (
             <span key={index} className="relative inline-flex">
-              <Star className={`${sizeClassName} text-stone-300`} />
+              <Star className={`${sizeClassName} text-rule`} />
               <span
                 className="absolute inset-0 overflow-hidden text-amber-400"
                 style={{ width: `${fillPercent}%` }}

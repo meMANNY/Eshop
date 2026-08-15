@@ -108,7 +108,7 @@ export default function CheckoutForm({
           Secure Payment Checkout
         </h2>
 
-        <div className="bg-gray-100 p-4 rounded-md text-sm text-ink-muted space-y-2">
+        <div className="bg-sunken border border-rule p-4 rounded-card text-sm text-ink-muted space-y-2">
           {(cartItems || []).map((item: any, i: number) => {
             const line = num(item?.quantity) * num(item?.sale_price);
             return (
@@ -136,7 +136,7 @@ export default function CheckoutForm({
         <button
           type="submit"
           disabled={!stripe || loading}
-          className="w-full bg-blue-600 text-white py-2 rounded-lg font-medium hover:bg-blue-500 flex items-center justify-center"
+          className="w-full bg-coral text-[#2b0f0a] py-2.5 rounded-lg font-medium hover:bg-coral-dim hover:text-white transition-colors flex items-center justify-center disabled:opacity-60 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-coral/40"
         >
           {loading && <Loader2 className="animate-spin w-5 h-5 mr-2" />}
           {loading ? "Processing" : "Pay Now"}

@@ -5,11 +5,116 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useWebSocket } from "@/context/web-socket-context";
 import useRequireAuth from "@/hooks/useRequiredAuth";
 import ChatInput from "@/shared/components/chats/chat-input";
+import { Bar, Container, EmptyState } from "@/shared/components/ui";
 
 import { isProtected } from "@/utils/protected";
+import { MessagesSquare } from "lucide-react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useRef, useState } from "react";
+
+const FALLBACK_AVATAR =
+  "https://cdn-icons-png.flaticon.com/512/847/847969.png";
+
+/*
+  Timestamps are data, not speech, so they are set in the mono face and kept out
+  of the message's own reading rhythm.
+*/
+const clockTime = (value?: string | Date | null) =>
+  value
+    ? new Date(value).toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      })
+    : "";
+
+const dayKey = (value?: string | Date | null) =>
+  value ? new Date(value).toDateString() : "";
+
+/*
+  A support thread is read by when things happened, so the day boundary is real
+  information rather than decoration — it earns a structural rule.
+*/
+const dayLabel = (value?: string | Date | null) => {
+  if (!value) return "";
+  const date = new Date(value);
+  const today = new Date();
+  const yesterday = new Date();
+  yesterday.setDate(today.getDate() - 1);
+
+  if (date.toDateString() === today.toDateString()) return "Today";
+  if (date.toDateString() === yesterday.toDateString()) return "Yesterday";
+
+  return date.toLocaleDateString([], {
+    month: "short",
+    day: "numeric",
+    year: date.getFullYear() === today.getFullYear() ? undefined : "numeric",
+  });
+};
+
+function Presence({ online }: { online?: boolean }) {
+  return (
+    <span className="flex items-center gap-1.5">
+      <span
+        className={`h-1.5 w-1.5 rounded-full ${
+          online ? "bg-pos" : "bg-ink-faint/50"
+        }`}
+        aria-hidden="true"
+      />
+      <span className={online ? "text-pos" : "text-ink-muted"}>
+        {online ? "Online" : "Offline"}
+      </span>
+    </span>
+  );
+}
+
+function Avatar({
+  src,
+  name,
+  size = 40,
+  online,
+}: {
+  src?: string;
+  name?: string;
+  size?: number;
+  online?: boolean;
+}) {
+  return (
+    <span className="relative shrink-0">
+      <Image
+        src={src || FALLBACK_AVATAR}
+        alt=""
+        width={size}
+        height={size}
+        unoptimized
+        className="rounded-full border border-rule object-cover"
+        style={{ width: size, height: size }}
+      />
+      {online ? (
+        <span
+          className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-surface bg-pos"
+          aria-label={`${name ?? "Shop"} is online`}
+        />
+      ) : null}
+    </span>
+  );
+}
+
+function ThreadSkeleton() {
+  return (
+    <div className="space-y-1 p-3">
+      {[0, 1, 2, 3].map((i) => (
+        <div key={i} className="flex items-center gap-3 rounded-lg px-3 py-2.5">
+          <div className="h-10 w-10 shrink-0 rounded-full bg-sunken" />
+          <div className="flex-1 space-y-2">
+            <Bar className="h-3 w-1/2" />
+            <Bar className="h-2.5 w-3/4" />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
 
 function InboxContent() {
   const searchParams = useSearchParams();
@@ -202,158 +307,220 @@ function InboxContent() {
       })
     );
   };
+
   return (
-    <div className="w-full">
-      <div className="md:w-[80%] mx-auto pt-5">
-        <div className="flex h-[80vh] shadow-sm overflow-hidden">
-          <div className="w-[320px] border-r border-r-gray-200 bg-gray-50">
-            <div className="p-4 border-b border-b-gray-200 text-lg font-semibold text-gray-800">
+    <Container className="py-6 md:py-8">
+      <div className="flex h-[calc(100vh-11rem)] min-h-[520px] overflow-hidden rounded-card border border-rule bg-surface shadow-card">
+        {/* ---------------------------- THREAD LIST ---------------------------- */}
+        <aside className="flex w-[300px] shrink-0 flex-col border-r border-rule bg-sunken max-md:hidden">
+          <div className="flex items-baseline justify-between border-b border-rule px-4 py-4">
+            <h1 className="font-jost text-base font-semibold text-ink">
               Messages
-            </div>
-            <div className="divide-y divide-gray-200">
-              {isLoading ? (
-                <div className="p-4 text-sm text-gray-500">Loading ...</div>
-              ) : chats.length === 0 ? (
-                <div className="p-4 text-sm text-gray-500">
-                  No Conversations!
-                </div>
-              ) : (
-                chats.map((c) => {
+            </h1>
+            {chats.length > 0 ? (
+              <span className="font-mono text-xs tabular-nums text-ink-muted">
+                {chats.length}
+              </span>
+            ) : null}
+          </div>
+
+          <div className="flex-1 overflow-y-auto">
+            {isLoading ? (
+              <ThreadSkeleton />
+            ) : chats.length === 0 ? (
+              <p className="px-4 py-8 text-center text-sm text-ink-muted">
+                No conversations yet.
+              </p>
+            ) : (
+              <ul className="p-2">
+                {chats.map((c) => {
                   const isActive =
                     selectedChat?.conversationId === c.conversationId;
                   return (
-                    <button
-                      key={c?.conversationId}
-                      className={`w-full text-left px-4 py-3 transition hover:bg-blue-50 ${
-                        isActive ? "bg-blue-100" : ""
-                      }`}
-                      onClick={() => handleChatSelect(c)}
-                    >
-                      <div className="flex items-center gap-3">
-                        <Image
-                          src={
-                            c?.seller?.avatar ||
-                            "https://cdn-icons-png.flaticon.com/512/847/847969.png"
-                          }
-                          alt={c?.seller?.name}
-                          width={36}
-                          height={36}
-                          className="rounded-full border w-[40px] h-[40px] object-cover"
-                        />
-                        <div className="flex-1">
-                          <div className="flex items-center justify-between">
-                            <span className="text-sm text-gray-800 font-semibold">
-                              {c?.seller?.name}
-                            </span>
-                            {c?.seller?.isOnline && (
-                              <span className="w-2 h-2 rounded-full bg-green-500" />
-                            )}
-                          </div>
-                          <div className="flex items-center justify-between">
-                            <p className="text-xs text-gray-500 truncate max-w-[170px]">
-                              {getLastMessage(c)}
-                            </p>
-                            {c?.unreadCount > 0 && (
-                              <span className="ml-2 text-[10px] px-2 py-[2px] rounded-full bg-blue-600 text-white">
-                                {c?.unreadCount > 9 ? "9+" : c?.unreadCount}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </button>
-                  );
-                })
-              )}
-            </div>
-          </div>
-          <div className="flex flex-col flex-1 bg-gray-100">
-            {selectedChat ? (
-              <>
-                <div className="p-4 border-b border-b-gray-200 bg-white flex items-center gap-3">
-                  <Image
-                    src={
-                      selectedChat?.seller?.avatar ||
-                      "https://cdn-icons-png.flaticon.com/512/847/847969.png"
-                    }
-                    alt={selectedChat?.seller?.name}
-                    width={40}
-                    height={40}
-                    className="rounded-full border w-[40px] h-[40px] object-cover border-gray-200"
-                  />
-                  <div>
-                    <h2 className="text-gray-800 font-semibold text-base">
-                      {selectedChat?.seller?.name}
-                    </h2>
-                    <p className="text-xs text-gray-500">
-                      {selectedChat?.seller?.isOnline ? "Online" : "Offline"}
-                    </p>
-                  </div>
-                </div>
-                <div
-                  ref={messageContainerRef}
-                  className="flex-1 overflow-y-auto px-6 py-6 space-y-4 text-sm"
-                >
-                  {hasMore && (
-                    <div className="flex justify-center mb-2">
+                    <li key={c?.conversationId}>
                       <button
-                        onClick={loadMoreMessages}
-                        className="text-xs px-4 py-1 bg-gray-200 hover:bg-gray-300"
-                      >
-                        Load previous messages
-                      </button>
-                    </div>
-                  )}
-                  {messages.map((message: any, i: number) => (
-                    <div
-                      key={i}
-                      className={`flex flex-col ${
-                        message.senderType === "user"
-                          ? "items-end ml-auto"
-                          : "items-start"
-                      } max-w-[80%]`}
-                    >
-                      <div
-                        className={`${
-                          message.senderType === "user"
-                            ? "bg-blue-600 text-white"
-                            : "bg-white text-gray-800"
-                        } px-4 py-2 rounded-lg shadow-sm w-fit`}
-                      >
-                        {message.text || message.content}
-                      </div>
-                      <div
-                        className={`text-[11px] text-gray-400 mt-1 flex items-center gap-1 ${
-                          message.senderType === "user"
-                            ? "mr-1 justify-end"
-                            : "ml-1"
+                        onClick={() => handleChatSelect(c)}
+                        aria-current={isActive ? "true" : undefined}
+                        className={`relative w-full rounded-lg px-3 py-2.5 text-left transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-coral/40 ${
+                          isActive
+                            ? "bg-coral-soft"
+                            : "hover:bg-surface"
                         }`}
                       >
-                        {message.time ||
-                          new Date(message.createdAt).toLocaleTimeString([], {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })}
-                      </div>
-                    </div>
-                  ))}
-                  <div ref={scrollAnchorRef} />
-                </div>
-                <ChatInput
-                  message={message}
-                  setMessage={setMessage}
-                  onSendMessage={handleSend}
-                />
-              </>
-            ) : (
-              <div className="flex-1 flex items-center text-sm justify-center text-gray-400">
-                Select a Conversation to start chatting
-              </div>
+                        {/* The active marker is a coral edge rather than a fill:
+                            it reads at a glance without competing with the
+                            unread pill sitting a few pixels away. */}
+                        {isActive ? (
+                          <span
+                            className="absolute inset-y-2 left-0 w-[3px] rounded-full bg-coral"
+                            aria-hidden="true"
+                          />
+                        ) : null}
+
+                        <div className="flex items-center gap-3">
+                          <Avatar
+                            src={c?.seller?.avatar}
+                            name={c?.seller?.name}
+                            online={c?.seller?.isOnline}
+                          />
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-baseline justify-between gap-2">
+                              <span
+                                className={`truncate font-jost text-sm ${
+                                  isActive
+                                    ? "font-semibold text-coral-ink"
+                                    : "font-medium text-ink"
+                                }`}
+                              >
+                                {c?.seller?.name}
+                              </span>
+                              <span className="shrink-0 font-mono text-[11px] tabular-nums text-ink-muted">
+                                {clockTime(c?.lastMessageAt)}
+                              </span>
+                            </div>
+                            <div className="mt-0.5 flex items-center justify-between gap-2">
+                              <p className="truncate text-xs text-ink-muted">
+                                {getLastMessage(c)}
+                              </p>
+                              {c?.unreadCount > 0 && (
+                                <span className="shrink-0 rounded-full bg-coral px-1.5 py-px font-mono text-[10px] font-semibold tabular-nums text-[#2b0f0a]">
+                                  {c?.unreadCount > 9 ? "9+" : c?.unreadCount}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
             )}
           </div>
-        </div>
+        </aside>
+
+        {/* ------------------------------ THREAD ------------------------------ */}
+        <section className="flex min-w-0 flex-1 flex-col bg-canvas">
+          {selectedChat ? (
+            <>
+              <header className="flex items-center gap-3 border-b border-rule bg-surface px-5 py-3.5">
+                <Avatar
+                  src={selectedChat?.seller?.avatar}
+                  name={selectedChat?.seller?.name}
+                  size={38}
+                />
+                <div className="min-w-0">
+                  <h2 className="truncate font-jost text-sm font-semibold text-ink">
+                    {selectedChat?.seller?.name}
+                  </h2>
+                  <p className="mt-0.5 text-xs">
+                    <Presence online={selectedChat?.seller?.isOnline} />
+                  </p>
+                </div>
+              </header>
+
+              <div
+                ref={messageContainerRef}
+                className="flex-1 space-y-1 overflow-y-auto px-4 py-5 md:px-6"
+              >
+                {hasMore && (
+                  <div className="flex justify-center pb-3">
+                    <button
+                      onClick={loadMoreMessages}
+                      className="rounded-full border border-rule bg-surface px-3.5 py-1.5 text-xs font-medium text-ink-muted transition-colors hover:border-coral/40 hover:text-coral-ink focus:outline-none focus-visible:ring-2 focus-visible:ring-coral/40"
+                    >
+                      Load earlier messages
+                    </button>
+                  </div>
+                )}
+
+                {messages.map((msg: any, i: number) => {
+                  const mine = msg.senderType === "user";
+                  const prev = messages[i - 1];
+                  const next = messages[i + 1];
+
+                  const startsDay = dayKey(msg.createdAt) !== dayKey(prev?.createdAt);
+                  /*
+                    Consecutive messages from one side collapse into a run: only
+                    the last of a run keeps its tail and its timestamp. Without
+                    this a long thread reads as a ladder of identical rows.
+                  */
+                  const endsRun =
+                    !next ||
+                    next.senderType !== msg.senderType ||
+                    dayKey(next.createdAt) !== dayKey(msg.createdAt);
+
+                  return (
+                    <div key={i}>
+                      {startsDay && (
+                        <div className="flex items-center gap-3 py-4">
+                          <span className="h-px flex-1 bg-rule" />
+                          <span className="text-label font-semibold uppercase text-ink-muted">
+                            {dayLabel(msg.createdAt)}
+                          </span>
+                          <span className="h-px flex-1 bg-rule" />
+                        </div>
+                      )}
+
+                      <div
+                        className={`flex flex-col ${
+                          mine ? "items-end" : "items-start"
+                        } ${endsRun ? "mb-3" : "mb-0.5"}`}
+                      >
+                        {/*
+                          You speak in coral, the shop answers on paper. Coral
+                          fill takes dark ink — white on it is 2.7:1 and fails.
+                        */}
+                        <div
+                          className={`max-w-[min(78%,34rem)] whitespace-pre-wrap break-words px-3.5 py-2 text-sm leading-relaxed ${
+                            mine
+                              ? "bg-coral text-[#2b0f0a]"
+                              : "border border-rule bg-surface text-ink"
+                          } ${
+                            endsRun
+                              ? mine
+                                ? "rounded-2xl rounded-br-md"
+                                : "rounded-2xl rounded-bl-md"
+                              : "rounded-2xl"
+                          }`}
+                        >
+                          {msg.text || msg.content}
+                        </div>
+
+                        {endsRun && (
+                          <span className="mt-1 px-1 font-mono text-[11px] tabular-nums text-ink-muted">
+                            {msg.time || clockTime(msg.createdAt)}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+                <div ref={scrollAnchorRef} />
+              </div>
+
+              <ChatInput
+                message={message}
+                setMessage={setMessage}
+                onSendMessage={handleSend}
+              />
+            </>
+          ) : (
+            <div className="grid flex-1 place-items-center p-8">
+              <EmptyState
+                icon={<MessagesSquare className="h-8 w-8" aria-hidden="true" />}
+                title="No conversation open"
+                hint={
+                  chats.length > 0
+                    ? "Pick a shop on the left to read the thread and reply."
+                    : "Message a shop from any product page and the conversation will appear here."
+                }
+              />
+            </div>
+          )}
+        </section>
       </div>
-    </div>
+    </Container>
   );
 }
 
@@ -361,9 +528,9 @@ export default function Page() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-[70vh] flex items-center justify-center">
-          Loading...
-        </div>
+        <Container className="py-6 md:py-8">
+          <div className="h-[calc(100vh-11rem)] min-h-[520px] animate-pulse rounded-card border border-rule bg-surface" />
+        </Container>
       }
     >
       <InboxContent />

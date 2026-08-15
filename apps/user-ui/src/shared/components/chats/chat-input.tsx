@@ -1,16 +1,18 @@
+"use client";
+
 import { PickerProps } from "emoji-picker-react";
 import { ImageIcon, Send, Smile } from "lucide-react";
 import dynamic from "next/dynamic";
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 const EmojiPicker = dynamic(
   () =>
     import("emoji-picker-react").then(
       (mod) => mod.default as React.FC<PickerProps>
     ),
-  {
-    ssr: true,
-  }
+  // The picker is a large client-only widget behind a toggle. Rendering it on
+  // the server shipped markup nobody sees until the button is pressed.
+  { ssr: false }
 );
 
 export default function ChatInput({
@@ -23,6 +25,30 @@ export default function ChatInput({
   onSendMessage: (e: any) => void;
 }) {
   const [showEmoji, setShowEmoji] = useState(false);
+  const emojiWrapRef = useRef<HTMLDivElement | null>(null);
+  const canSend = message.trim().length > 0;
+
+  // A picker that only closes by pressing its own button is a trap — clicking
+  // anywhere else, or pressing Escape, should dismiss it.
+  useEffect(() => {
+    if (!showEmoji) return;
+
+    const onPointerDown = (event: MouseEvent) => {
+      if (!emojiWrapRef.current?.contains(event.target as Node)) {
+        setShowEmoji(false);
+      }
+    };
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setShowEmoji(false);
+    };
+
+    document.addEventListener("mousedown", onPointerDown);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", onPointerDown);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [showEmoji]);
 
   const handleEmojiClick = (emojiData: any) => {
     setMessage((prev) => prev + emojiData.emoji);
@@ -33,13 +59,18 @@ export default function ChatInput({
     const file = e.target.files?.[0];
     if (file) console.log("uploading file...");
   };
+
+  const iconButton =
+    "grid h-9 w-9 shrink-0 place-items-center rounded-lg text-ink-faint transition-colors hover:bg-sunken hover:text-ink-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-coral/40";
+
   return (
     <form
       onSubmit={onSendMessage}
-      className="border-t border-t-gray-200 bg-white px-4 py-3 flex items-center gap-2 relative"
+      className="relative flex items-center gap-2 border-t border-rule bg-surface px-3 py-3"
     >
-      <label className="cursor-pointer p-2 hover:bg-gray-100 rounded-md">
-        <ImageIcon className="w-5 h-5 text-gray-600" />
+      <label className={`${iconButton} cursor-pointer`} title="Attach an image">
+        <ImageIcon className="h-[18px] w-[18px]" aria-hidden="true" />
+        <span className="sr-only">Attach an image</span>
         <input
           type="file"
           accept="image/*"
@@ -47,36 +78,48 @@ export default function ChatInput({
           hidden
         />
       </label>
-      {/* Emoji Picker Toggle */}
 
-      <div className="relative">
+      <div className="relative" ref={emojiWrapRef}>
         <button
           type="button"
           onClick={() => setShowEmoji((prev) => !prev)}
-          className="p-2 hover:bg-gray-100 rounded-md"
+          className={iconButton}
+          aria-label="Add an emoji"
+          aria-expanded={showEmoji}
         >
-          <Smile className="w-5 h-5 text-gray-600" />
-          {""}
+          <Smile className="h-[18px] w-[18px]" aria-hidden="true" />
         </button>
         {showEmoji && (
-          <div className="absolute bottom-12 left-0 z-50">
-            <EmojiPicker onEmojiClick={handleEmojiClick} />
+          <div className="absolute bottom-12 left-0 z-50 overflow-hidden rounded-card border border-rule shadow-pop">
+            <EmojiPicker
+              onEmojiClick={handleEmojiClick}
+              previewConfig={{ showPreview: false }}
+            />
           </div>
         )}
       </div>
+
       <input
         type="text"
         value={message}
         onChange={(e) => setMessage(e.target.value)}
-        placeholder="Type your message ..."
-        className="flex-1 px-4 py-2 text-sm border border-gray-200 outline-none rounded-full"
+        placeholder="Write a message"
+        aria-label="Message"
+        className="min-w-0 flex-1 rounded-full border border-rule bg-canvas px-4 py-2.5 text-sm text-ink outline-none transition-colors placeholder:text-ink-faint focus:border-coral focus:bg-surface focus:ring-2 focus:ring-coral/25"
       />
+
+      {/*
+        Coral fill carries DARK ink, never white — it is 2.73:1 against white,
+        so a white glyph on it would sit under the 3:1 floor. Disabled state is
+        a real state here: an empty box has nothing to send.
+      */}
       <button
         type="submit"
-        className="bg-blue-600 hover:bg-blue-700 transition text-white p-2 rounded-md "
+        disabled={!canSend}
+        aria-label="Send message"
+        className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-coral text-[#2b0f0a] transition-all duration-200 hover:bg-coral-dim hover:text-white disabled:cursor-not-allowed disabled:bg-sunken disabled:text-ink-faint focus:outline-none focus-visible:ring-2 focus-visible:ring-coral/50 focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
       >
-        <Send className="w-4 h-4" />
-        {""}
+        <Send className="h-4 w-4" aria-hidden="true" />
       </button>
     </form>
   );

@@ -4,11 +4,114 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useWebSocket } from "../../../../context/web-socket-context";
 import useSeller from "../../../../hooks/useSeller";
 import ChatInput from "../../../../shared/components/chats/chat-input";
-import  axiosInstance  from "../../../../utils/axiosInstance";
+import axiosInstance from "../../../../utils/axiosInstance";
+import { Bar, Crumbs, EmptyState } from "../../../../shared/components/ui";
 
+import { MessagesSquare } from "lucide-react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useRef, useState } from "react";
+
+const FALLBACK_AVATAR =
+  "https://cdn-icons-png.flaticon.com/512/847/847969.png";
+
+/*
+  Timestamps are data, not speech, so they are set in the mono face and kept out
+  of the message's own reading rhythm.
+*/
+const clockTime = (value?: string | Date | null) =>
+  value
+    ? new Date(value).toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      })
+    : "";
+
+const dayKey = (value?: string | Date | null) =>
+  value ? new Date(value).toDateString() : "";
+
+/*
+  A support thread is read by when things happened, so the day boundary is real
+  information rather than decoration — it earns a structural rule.
+*/
+const dayLabel = (value?: string | Date | null) => {
+  if (!value) return "";
+  const date = new Date(value);
+  const today = new Date();
+  const yesterday = new Date();
+  yesterday.setDate(today.getDate() - 1);
+
+  if (date.toDateString() === today.toDateString()) return "Today";
+  if (date.toDateString() === yesterday.toDateString()) return "Yesterday";
+
+  return date.toLocaleDateString([], {
+    month: "short",
+    day: "numeric",
+    year: date.getFullYear() === today.getFullYear() ? undefined : "numeric",
+  });
+};
+
+function Presence({ online }: { online?: boolean }) {
+  return (
+    <span className="flex items-center gap-1.5">
+      <span
+        className={`h-1.5 w-1.5 rounded-full ${online ? "bg-pos" : "bg-white/25"}`}
+        aria-hidden="true"
+      />
+      <span className={online ? "text-pos" : "text-white/55"}>
+        {online ? "Online" : "Offline"}
+      </span>
+    </span>
+  );
+}
+
+function Avatar({
+  src,
+  name,
+  size = 40,
+  online,
+}: {
+  src?: string;
+  name?: string;
+  size?: number;
+  online?: boolean;
+}) {
+  return (
+    <span className="relative shrink-0">
+      <Image
+        src={src || FALLBACK_AVATAR}
+        alt=""
+        width={size}
+        height={size}
+        unoptimized
+        className="rounded-full border border-rule object-cover"
+        style={{ width: size, height: size }}
+      />
+      {online ? (
+        <span
+          className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-panel bg-pos"
+          aria-label={`${name ?? "Customer"} is online`}
+        />
+      ) : null}
+    </span>
+  );
+}
+
+function ThreadSkeleton() {
+  return (
+    <div className="space-y-1 p-3">
+      {[0, 1, 2, 3].map((i) => (
+        <div key={i} className="flex items-center gap-3 rounded-lg px-3 py-2.5">
+          <div className="h-10 w-10 shrink-0 rounded-full bg-raised" />
+          <div className="flex-1 space-y-2">
+            <Bar className="h-3 w-1/2" />
+            <Bar className="h-2.5 w-3/4" />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
 
 function InboxContent() {
   const searchParams = useSearchParams();
@@ -31,7 +134,7 @@ function InboxContent() {
   /** Fetch messages */
   const { data: messages = [] } = useQuery({
     queryKey: ["messages", conversationId],
-    queryFn: async () => { 
+    queryFn: async () => {
       if (!conversationId || hasFetchedOnce) return [];
       const res = await axiosInstance.get(
         `/chatting/api/get-seller-messages/${conversationId}?page=1`
@@ -75,13 +178,6 @@ function InboxContent() {
   }, [conversations]);
 
   useEffect(() => {
-    if (conversationId && chats.length > 0) {
-      const chat = chats.find((c) => c.conversationId === conversationId);
-      setSelectedChat(chat);
-    }
-  }, [conversationId, chats]);
-
-  useEffect(() => {
     if (messages?.length > 0) scrollToBottom();
   }, [messages]);
 
@@ -97,7 +193,12 @@ function InboxContent() {
   useEffect(() => {
     if (!ws) return;
 
-    ws.onmessage = (event: any) => {
+    /*
+      `addEventListener`, not `ws.onmessage =`. Assigning the property replaced
+      the handler the WebSocket provider installs, so the provider's unread
+      counts went dead for as long as this page was mounted.
+    */
+    const handleMessage = (event: any) => {
       const data = JSON.parse(event.data);
       if (data.type === "NEW_MESSAGE") {
         const newMessage = data.payload;
@@ -134,7 +235,27 @@ function InboxContent() {
           )
         );
       }
+
+      /*
+        `isOnline` is a snapshot taken when the conversation list is fetched, so
+        without this a customer who connects afterwards stays "Offline" for the
+        rest of the session. `selectedChat` derives from `chats`, so the header
+        follows the list.
+      */
+      if (data.type === "PRESENCE_UPDATE") {
+        const { userId, isOnline } = data.payload;
+        setChats((prev) =>
+          prev.map((chat) =>
+            chat.user?.id === userId
+              ? { ...chat, user: { ...chat.user, isOnline } }
+              : chat
+          )
+        );
+      }
     };
+
+    ws.addEventListener("message", handleMessage);
+    return () => ws.removeEventListener("message", handleMessage);
   }, [ws, conversationId]);
 
   useEffect(() => {
@@ -184,156 +305,229 @@ function InboxContent() {
   };
 
   return (
-    <div className="w-full min-h-screen bg-gray-950 text-gray-100 flex">
-      {/* SIDEBAR */}
-      <div className="w-[320px] border-r border-gray-800 bg-gradient-to-b from-gray-950 to-gray-900 flex flex-col">
-        <div className="p-4 border-b border-gray-800 text-lg font-semibold tracking-wide">
-          💬 Messages
-        </div>
-        <div className="flex-1 overflow-y-auto divide-y divide-gray-800 custom-scroll">
-          {isLoading ? (
-            <div className="text-center py-6 text-gray-400">Loading...</div>
-          ) : chats.length === 0 ? (
-            <div className="text-center py-6 text-gray-500">
-              No conversations yet
-            </div>
-          ) : (
-            chats.map((chat) => {
-              const isActive =
-                selectedChat?.conversationId === chat.conversationId;
-              return (
-                <button
-                  key={chat.conversationId}
-                  onClick={() => handleChatSelect(chat)}
-                  className={`w-full text-left px-4 py-3 transition-all duration-200 ${
-                    isActive
-                      ? "bg-blue-950/60 border-l-4 border-blue-600"
-                      : "hover:bg-gray-900/60"
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <Image
-                      src={
-                        chat.user?.avatar?.[0] ||
-                        "https://cdn-icons-png.flaticon.com/512/847/847969.png"
-                      }
-                      alt={chat.user?.name}
-                      width={40}
-                      height={40}
-                      className="rounded-full border border-gray-800 object-cover"
-                    />
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between">
-                        <span className="font-medium truncate text-gray-100">
-                          {chat.user?.name}
-                        </span>
-                        {chat.user?.isOnline && (
-                          <span className="w-2 h-2 bg-green-500 rounded-full" />
-                        )}
-                      </div>
-                      <div className="flex items-center justify-between text-xs text-gray-400">
-                        <p className="truncate max-w-[150px]">
-                          {chat.lastMessage || "No messages yet"}
-                        </p>
-                        {chat?.unreadCount > 0 && (
-                          <span className="ml-2 text-[10px] px-2 py-[2px] rounded-full bg-blue-600 text-white">
-                            {chat?.unreadCount > 9 ? "9+" : chat?.unreadCount}
+    <div className="space-y-5">
+      <div>
+        <Crumbs trail={["Dashboard", "Inbox"]} />
+        <h1 className="mt-1 font-display text-xl font-semibold text-white">
+          Inbox
+        </h1>
+      </div>
+
+      <div className="flex h-[calc(100vh-13rem)] min-h-[520px] overflow-hidden rounded-panel border border-rule bg-panel shadow-panel">
+        {/* ---------------------------- THREAD LIST ---------------------------- */}
+        <aside className="flex w-[300px] shrink-0 flex-col border-r border-rule bg-ink max-md:hidden">
+          <div className="flex items-baseline justify-between border-b border-rule px-4 py-4">
+            <h2 className="text-label font-semibold uppercase text-white/60">
+              Conversations
+            </h2>
+            {chats.length > 0 ? (
+              <span className="font-mono text-xs tabular-nums text-white/55">
+                {chats.length}
+              </span>
+            ) : null}
+          </div>
+
+          <div className="flex-1 overflow-y-auto">
+            {isLoading ? (
+              <ThreadSkeleton />
+            ) : chats.length === 0 ? (
+              <p className="px-4 py-8 text-center text-sm text-white/60">
+                No conversations yet.
+              </p>
+            ) : (
+              <ul className="p-2">
+                {chats.map((chat) => {
+                  const isActive =
+                    selectedChat?.conversationId === chat.conversationId;
+                  return (
+                    <li key={chat.conversationId}>
+                      <button
+                        onClick={() => handleChatSelect(chat)}
+                        aria-current={isActive ? "true" : undefined}
+                        className={`relative w-full rounded-lg px-3 py-2.5 text-left transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-coral/40 ${
+                          isActive ? "bg-coral-soft" : "hover:bg-raised"
+                        }`}
+                      >
+                        {/* A coral edge rather than a fill: it reads at a glance
+                            without competing with the unread pill beside it. */}
+                        {isActive ? (
+                          <span
+                            className="absolute inset-y-2 left-0 w-[3px] rounded-full bg-coral"
+                            aria-hidden="true"
+                          />
+                        ) : null}
+
+                        <div className="flex items-center gap-3">
+                          {/*
+                            `users.avatar` is an `images?` relation — one row
+                            object. This read `avatar?.[0]`, which is undefined on
+                            an object, so customer avatars never rendered.
+                          */}
+                          <Avatar
+                            src={chat.user?.avatar?.url}
+                            name={chat.user?.name}
+                            online={chat.user?.isOnline}
+                          />
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-baseline justify-between gap-2">
+                              <span
+                                className={`truncate text-sm ${
+                                  isActive
+                                    ? "font-semibold text-coral-bright"
+                                    : "font-medium text-white/90"
+                                }`}
+                              >
+                                {chat.user?.name}
+                              </span>
+                              <span className="shrink-0 font-mono text-[11px] tabular-nums text-white/55">
+                                {clockTime(chat.lastMessageAt)}
+                              </span>
+                            </div>
+                            <div className="mt-0.5 flex items-center justify-between gap-2">
+                              <p className="truncate text-xs text-white/60">
+                                {chat.lastMessage || "No messages yet"}
+                              </p>
+                              {chat?.unreadCount > 0 && (
+                                <span className="shrink-0 rounded-full bg-coral px-1.5 py-px font-mono text-[10px] font-semibold tabular-nums text-[#2b0f0a]">
+                                  {chat?.unreadCount > 9
+                                    ? "9+"
+                                    : chat?.unreadCount}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </div>
+        </aside>
+
+        {/* ------------------------------ THREAD ------------------------------ */}
+        <section className="flex min-w-0 flex-1 flex-col">
+          {selectedChat ? (
+            <>
+              <header className="flex items-center gap-3 border-b border-rule bg-panel px-5 py-3.5">
+                <Avatar
+                  src={selectedChat.user?.avatar?.url}
+                  name={selectedChat.user?.name}
+                  size={38}
+                />
+                <div className="min-w-0">
+                  <h2 className="truncate text-sm font-semibold text-white">
+                    {selectedChat.user?.name}
+                  </h2>
+                  <p className="mt-0.5 text-xs">
+                    <Presence online={selectedChat.user?.isOnline} />
+                  </p>
+                </div>
+              </header>
+
+              <div
+                className="flex-1 space-y-1 overflow-y-auto bg-ink px-4 py-5 md:px-6"
+                ref={messageContainerRef}
+              >
+                {hasMore && (
+                  <div className="flex justify-center pb-3">
+                    <button
+                      onClick={loadMoreMessages}
+                      className="rounded-full border border-rule bg-panel px-3.5 py-1.5 text-xs font-medium text-white/60 transition-colors hover:border-coral/40 hover:text-coral-bright focus:outline-none focus-visible:ring-2 focus-visible:ring-coral/40"
+                    >
+                      Load earlier messages
+                    </button>
+                  </div>
+                )}
+
+                {messages.map((msg: any, i: number) => {
+                  const mine = msg.senderType === "seller";
+                  const prev = messages[i - 1];
+                  const next = messages[i + 1];
+
+                  const startsDay =
+                    dayKey(msg.createdAt) !== dayKey(prev?.createdAt);
+                  /*
+                    Consecutive messages from one side collapse into a run: only
+                    the last of a run keeps its tail and its timestamp. Without
+                    this a long thread reads as a ladder of identical rows.
+                  */
+                  const endsRun =
+                    !next ||
+                    next.senderType !== msg.senderType ||
+                    dayKey(next.createdAt) !== dayKey(msg.createdAt);
+
+                  return (
+                    <div key={i}>
+                      {startsDay && (
+                        <div className="flex items-center gap-3 py-4">
+                          <span className="h-px flex-1 bg-rule" />
+                          <span className="text-label font-semibold uppercase text-white/55">
+                            {dayLabel(msg.createdAt)}
+                          </span>
+                          <span className="h-px flex-1 bg-rule" />
+                        </div>
+                      )}
+
+                      <div
+                        className={`flex flex-col ${
+                          mine ? "items-end" : "items-start"
+                        } ${endsRun ? "mb-3" : "mb-0.5"}`}
+                      >
+                        {/*
+                          The shop speaks in coral, the customer answers on the
+                          raised panel. Coral fill takes dark ink — white on it
+                          is 2.7:1 and fails the contrast floor.
+                        */}
+                        <div
+                          className={`max-w-[min(78%,34rem)] whitespace-pre-wrap break-words px-3.5 py-2 text-sm leading-relaxed ${
+                            mine
+                              ? "bg-coral text-[#2b0f0a]"
+                              : "border border-rule bg-raised text-white/90"
+                          } ${
+                            endsRun
+                              ? mine
+                                ? "rounded-2xl rounded-br-md"
+                                : "rounded-2xl rounded-bl-md"
+                              : "rounded-2xl"
+                          }`}
+                        >
+                          {msg.content}
+                        </div>
+
+                        {endsRun && (
+                          <span className="mt-1 px-1 font-mono text-[11px] tabular-nums text-white/55">
+                            {clockTime(msg.createdAt)}
                           </span>
                         )}
                       </div>
                     </div>
-                  </div>
-                </button>
-              );
-            })
-          )}
-        </div>
-      </div>
-
-      {/* CHAT CONTENT */}
-      <div className="flex-1 flex flex-col bg-gradient-to-b from-gray-950 to-gray-900">
-        {selectedChat ? (
-          <>
-            {/* HEADER */}
-            <div className="p-4 border-b border-gray-800 bg-gray-900 flex items-center gap-3 shadow-sm">
-              <Image
-                src={
-                  selectedChat.user?.avatar?.[0] ||
-                  "https://cdn-icons-png.flaticon.com/512/847/847969.png"
-                }
-                alt={selectedChat.user?.name}
-                width={42}
-                height={42}
-                className="rounded-full border border-gray-700 object-cover"
-              />
-              <div>
-                <h2 className="font-semibold text-base text-white">
-                  {selectedChat.user?.name}
-                </h2>
-                <p className="text-xs text-gray-400">
-                  {selectedChat.user?.isOnline ? "Online" : "Offline"}
-                </p>
+                  );
+                })}
+                <div ref={scrollAnchorRef} />
               </div>
-            </div>
 
-            {/* MESSAGES */}
-            <div
-              className="flex-1 overflow-y-auto px-6 py-6 space-y-4 custom-scroll"
-              ref={messageContainerRef}
-            >
-              {hasMore && (
-                <div className="flex justify-center mb-2">
-                  <button
-                    onClick={loadMoreMessages}
-                    className="text-xs px-4 py-1 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded"
-                  >
-                    Load previous messages
-                  </button>
-                </div>
-              )}
-              {messages.map((msg: any, idx: number) => (
-                <div
-                  key={idx}
-                  className={`flex flex-col ${
-                    msg.senderType === "seller"
-                      ? "items-end ml-auto"
-                      : "items-start"
-                  } max-w-[75%]`}
-                >
-                  <div
-                    className={`px-4 py-2 rounded-2xl shadow-sm w-fit leading-relaxed ${
-                      msg.senderType === "seller"
-                        ? "bg-blue-600 text-white"
-                        : "bg-gray-800 text-gray-100"
-                    }`}
-                  >
-                    {msg.content}
-                  </div>
-                  <span className="text-[11px] text-gray-500 mt-1">
-                    {new Date(msg.createdAt).toLocaleTimeString([], {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </span>
-                </div>
-              ))}
-              <div ref={scrollAnchorRef} />
-            </div>
-
-            {/* INPUT */}
-            <div className="border-t border-gray-800 bg-gray-900/80 backdrop-blur-sm p-3">
               <ChatInput
                 message={message}
                 setMessage={setMessage}
                 onSendMessage={handleSend}
               />
+            </>
+          ) : (
+            <div className="grid flex-1 place-items-center bg-ink p-8">
+              <EmptyState
+                icon={<MessagesSquare className="h-8 w-8" aria-hidden="true" />}
+                title="No conversation open"
+                hint={
+                  chats.length > 0
+                    ? "Pick a customer on the left to read the thread and reply."
+                    : "Customers can start a conversation from any of your product pages."
+                }
+              />
             </div>
-          </>
-        ) : (
-          <div className="flex-1 flex items-center justify-center text-gray-500 text-sm">
-            Select a conversation to start chatting 💬
-          </div>
-        )}
+          )}
+        </section>
       </div>
     </div>
   );
@@ -343,9 +537,7 @@ export default function Page() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-[70vh] flex items-center justify-center">
-          Loading...
-        </div>
+        <div className="h-[calc(100vh-13rem)] min-h-[520px] animate-pulse rounded-panel border border-rule bg-panel" />
       }
     >
       <InboxContent />

@@ -107,7 +107,7 @@ function CheckoutContent() {
   if (loading)
     return (
       <div className="flex justify-center items-center min-h-[70vh]">
-        <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent" />
+        <div className="animate-spin rounded-full h-12 w-12 border-4 border-coral border-t-transparent" />
       </div>
     );
 
@@ -128,7 +128,7 @@ function CheckoutContent() {
           </p>
           <button
             onClick={() => router.push("/cart")}
-            className="bg-blue-600 text-white px-5 py-2 rounded-md hover:bg-blue-500"
+            className="bg-coral text-[#2b0f0a] px-5 py-2 rounded-lg font-medium hover:bg-coral-dim hover:text-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-coral/40"
           >
             Back to Cart
           </button>

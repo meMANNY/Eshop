@@ -1,14 +1,18 @@
+"use client";
+
 import { PickerProps } from "emoji-picker-react";
 import { ImageIcon, Send, Smile } from "lucide-react";
 import dynamic from "next/dynamic";
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 const EmojiPicker = dynamic(
   () =>
     import("emoji-picker-react").then(
       (mod) => mod.default as React.FC<PickerProps>
     ),
-  { ssr: true }
+  // The picker is a large client-only widget behind a toggle. Rendering it on
+  // the server shipped markup nobody sees until the button is pressed.
+  { ssr: false }
 );
 
 export default function ChatInput({
@@ -21,6 +25,30 @@ export default function ChatInput({
   onSendMessage: (e: any) => void;
 }) {
   const [showEmoji, setShowEmoji] = useState(false);
+  const emojiWrapRef = useRef<HTMLDivElement | null>(null);
+  const canSend = message.trim().length > 0;
+
+  // A picker that only closes by pressing its own button is a trap — clicking
+  // anywhere else, or pressing Escape, should dismiss it.
+  useEffect(() => {
+    if (!showEmoji) return;
+
+    const onPointerDown = (event: MouseEvent) => {
+      if (!emojiWrapRef.current?.contains(event.target as Node)) {
+        setShowEmoji(false);
+      }
+    };
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setShowEmoji(false);
+    };
+
+    document.addEventListener("mousedown", onPointerDown);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", onPointerDown);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [showEmoji]);
 
   const handleEmojiClick = (emojiData: any) => {
     setMessage((prev) => prev + emojiData.emoji);
@@ -32,14 +60,17 @@ export default function ChatInput({
     if (file) console.log("uploading file...");
   };
 
+  const iconButton =
+    "grid h-9 w-9 shrink-0 place-items-center rounded-lg text-white/55 transition-colors hover:bg-raised hover:text-white/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-coral/40";
+
   return (
     <form
       onSubmit={onSendMessage}
-      className="relative flex items-center gap-3 px-4 py-3 border-t border-gray-800 bg-gray-900/70 backdrop-blur-lg"
+      className="relative flex items-center gap-2 border-t border-rule bg-panel px-3 py-3"
     >
-      {/* Upload Image */}
-      <label className="cursor-pointer p-2 rounded-lg hover:bg-gray-800 transition">
-        <ImageIcon className="w-5 h-5 text-gray-300 hover:text-teal-400 transition" />
+      <label className={`${iconButton} cursor-pointer`} title="Attach an image">
+        <ImageIcon className="h-[18px] w-[18px]" aria-hidden="true" />
+        <span className="sr-only">Attach an image</span>
         <input
           type="file"
           accept="image/*"
@@ -48,18 +79,18 @@ export default function ChatInput({
         />
       </label>
 
-      {/* Emoji Picker */}
-      <div className="relative">
+      <div className="relative" ref={emojiWrapRef}>
         <button
           type="button"
           onClick={() => setShowEmoji((prev) => !prev)}
-          className="p-2 rounded-lg hover:bg-gray-800 transition"
+          className={iconButton}
+          aria-label="Add an emoji"
+          aria-expanded={showEmoji}
         >
-          <Smile className="w-5 h-5 text-gray-300 hover:text-yellow-400 transition" />
-          {""}
+          <Smile className="h-[18px] w-[18px]" aria-hidden="true" />
         </button>
         {showEmoji && (
-          <div className="absolute bottom-12 left-0 z-50 bg-gray-900 border border-gray-700 rounded-lg shadow-lg">
+          <div className="absolute bottom-12 left-0 z-50 overflow-hidden rounded-panel border border-rule shadow-pop">
             <EmojiPicker
               onEmojiClick={handleEmojiClick}
               previewConfig={{ showPreview: false }}
@@ -68,22 +99,27 @@ export default function ChatInput({
         )}
       </div>
 
-      {/* Text Input */}
       <input
         type="text"
         value={message}
         onChange={(e) => setMessage(e.target.value)}
-        placeholder="Type your message..."
-        className="flex-1 px-4 py-2 text-sm bg-gray-800 border border-gray-700 text-gray-100 rounded-full outline-none focus:ring-2 focus:ring-teal-500 transition"
+        placeholder="Write a reply"
+        aria-label="Message"
+        className="min-w-0 flex-1 rounded-full border border-rule bg-ink px-4 py-2.5 text-sm text-white outline-none transition-colors placeholder:text-white/55 focus:border-coral focus:ring-2 focus:ring-coral/25"
       />
 
-      {/* Send Button */}
+      {/*
+        The teal-to-blue gradient this replaced belonged to no palette in the
+        product. Coral is the console's one accent, and it carries dark ink —
+        white on coral is 2.7:1, under the 3:1 floor a glyph needs.
+      */}
       <button
         type="submit"
-        className="p-2.5 rounded-full bg-gradient-to-br from-teal-500 to-blue-600 hover:from-teal-400 hover:to-blue-500 transition shadow-md hover:shadow-teal-500/30"
+        disabled={!canSend}
+        aria-label="Send message"
+        className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-coral text-[#2b0f0a] transition-all duration-200 hover:bg-coral-bright disabled:cursor-not-allowed disabled:bg-raised disabled:text-white/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-coral/50 focus-visible:ring-offset-2 focus-visible:ring-offset-panel"
       >
-        <Send className="w-4 h-4 text-white" />
-        {""}
+        <Send className="h-4 w-4" aria-hidden="true" />
       </button>
     </form>
   );

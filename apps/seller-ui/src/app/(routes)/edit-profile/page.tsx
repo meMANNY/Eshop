@@ -235,7 +235,7 @@ export default function EditProfilePage() {
                 value={seller?.email ?? ""}
                 readOnly
                 disabled
-                className="w-full cursor-not-allowed rounded-md border border-gray-700 bg-white/[0.02] p-2 text-slate-500 outline-none"
+                className="w-full cursor-not-allowed rounded-md border border-rule bg-white/[0.02] p-2 text-white/35 outline-none"
               />
             </Field>
           </Card>

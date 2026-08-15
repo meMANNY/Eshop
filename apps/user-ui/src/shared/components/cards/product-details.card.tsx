@@ -2,7 +2,7 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import ImageMagnifier from '../image-magnifier'
 import React, { useState } from 'react'
-import { Heart, X } from 'lucide-react'
+import { Heart, MessageCircle, X } from 'lucide-react'
 import { CartIcon } from '../../../assets/svgs/cart-icon'
 import Link from 'next/link'
 import { MapPin } from 'lucide-react'
@@ -70,12 +70,12 @@ const ProductDetailsCard = ({data,setOpen}: {data:any,setOpen:(open: boolean) =>
     onClick={() => setOpen(false)}
     >
         <div
-            className="w-[90%] md:w-[70%] min-h-[70vh] h-max bg-surface shadow-xl rounded-2xl flex items-center p-6 relative overflow-y-scroll animate-slideDown"
+            className="w-[90%] md:w-[70%] min-h-[70vh] h-max bg-surface shadow-pop rounded-card flex items-center p-6 relative overflow-y-scroll animate-slideDown"
             onClick={(e) => e.stopPropagation()}
         >
                 <button
             onClick={() => setOpen(false)}
-            className="absolute top-[1px] right-[2px] bg-gray-100 hover:bg-gray-200 p-2 rounded-full shadow-sm transition-all hover:scale-110"
+            className="absolute top-3 right-3 grid h-9 w-9 place-items-center rounded-full bg-sunken text-ink-muted shadow-card transition-colors hover:bg-canvas hover:text-ink focus:outline-none focus-visible:ring-2 focus-visible:ring-coral/40"
             >
             <X size={20} />
             {""}
@@ -145,10 +145,11 @@ const ProductDetailsCard = ({data,setOpen}: {data:any,setOpen:(open: boolean) =>
                             </div>
                                 <button
                                 disabled={isLoading}
-                                className="flex items-center gap-2 px-4 py-2 rounded-md text-white bg-blue-700 hover:bg-blue-600 font-medium transition"
+                                className="inline-flex items-center gap-2 rounded-lg border border-coral/40 bg-coral-soft px-4 py-2 text-sm font-medium text-coral-ink transition-colors hover:bg-coral hover:text-[#2b0f0a] disabled:opacity-60 focus:outline-none focus-visible:ring-2 focus-visible:ring-coral/40"
                                 onClick={() => handleChat()}
                             >
-                                💬 Chat with Seller
+                                <MessageCircle className="h-4 w-4" aria-hidden="true" />
+                                Message shop
                             </button>
                         </div>
                 
@@ -172,7 +173,7 @@ const ProductDetailsCard = ({data,setOpen}: {data:any,setOpen:(open: boolean) =>
                                     key={i}
                                     className={`w-8 h-8 rounded-full transition-all ${
                                     isSelected === color
-                                        ? "scale-110 border-gray-600 shadow-md"
+                                        ? "scale-110 ring-2 ring-coral ring-offset-2 ring-offset-surface shadow-md"
                                         : "border border-rule shadow-sm"
                                     }`}
                                     style={{ backgroundColor: color }}
@@ -190,10 +191,10 @@ const ProductDetailsCard = ({data,setOpen}: {data:any,setOpen:(open: boolean) =>
                                 {data.sizes.map((size: string, i: number) => (
                                 <button
                                     key={i}
-                                    className={`px-4 py-2 rounded-md transition ${
+                                    className={`rounded-lg px-4 py-2 text-sm transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-coral/40 ${
                                     isSizeSelected === size
-                                        ? "bg-gray-800 text-white"
-                                        : "bg-gray-300 text-black"
+                                        ? "bg-coral font-medium text-[#2b0f0a]"
+                                        : "border border-rule bg-surface text-ink-muted hover:border-coral/40 hover:text-coral-ink"
                                     }`}
                                     onClick={() => setIsSizeSelected(size)}
                                 >
@@ -216,18 +217,18 @@ const ProductDetailsCard = ({data,setOpen}: {data:any,setOpen:(open: boolean) =>
                     
                     <div className="flex items-center gap-3">
                         <button
-                            className={`px-3 py-1 bg-gray-300 hover:bg-gray-400 rounded-md ${
+                            className={`grid h-8 w-8 place-items-center rounded-lg border border-rule bg-surface text-ink-muted transition-colors hover:border-coral/40 hover:text-coral-ink focus:outline-none focus-visible:ring-2 focus-visible:ring-coral/40 ${
                             quantity <= 1 ? "animate-shake" : ""
                             }`}
                             onClick={() => setQuantity((prev) => Math.max(1, prev - 1))}
                         >
                             -
                         </button>
-                        <span className="px-4 py-1 bg-gray-100 rounded-md">
+                        <span className="min-w-[2.5rem] rounded-lg border border-rule bg-sunken px-3 py-1 text-center font-mono text-sm tabular-nums text-ink">
                             {quantity}
                         </span>
                         <button
-                            className="px-3 py-1 bg-gray-300 hover:bg-gray-400 rounded-md"
+                            className="grid h-8 w-8 place-items-center rounded-lg border border-rule bg-surface text-ink-muted transition-colors hover:border-coral/40 hover:text-coral-ink focus:outline-none focus-visible:ring-2 focus-visible:ring-coral/40"
                             onClick={() => setQuantity((prev) => prev + 1)}
                         >
                             +
