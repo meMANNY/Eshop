@@ -3,6 +3,7 @@ import {WebSocket, WebSocketServer} from "ws";
 import  { Server as HttpServer} from "http";
 import redis from "../../../packages/libs/redis";
 import prisma from "../../../packages/libs/primsa";
+import { logAsync } from "../../../packages/utils/logs/send-logs";
 
 
 const producer = kafka.producer();
@@ -142,6 +143,7 @@ export async function createWebSocketServer(server: HttpServer) {
                 const {fromUserId, toUserId, messageBody, conversationId, senderType} = data;
                 if(!fromUserId || !toUserId || !messageBody || !conversationId || !senderType) {
                     console.warn("Invalid message received:", data);
+                    logAsync({ type: "warning", message: `Dropped malformed chat frame (missing required fields) from ${fromUserId ?? "unknown"}` });
                     return;
                 }
 
@@ -212,6 +214,7 @@ export async function createWebSocketServer(server: HttpServer) {
             }
             catch (error) {
                 console.error("Error handling websocket message:", error);
+                logAsync({ type: "error", message: `WebSocket message handling failed: ${(error as Error)?.message}` });
             }
         });
 

@@ -3,6 +3,9 @@ import { updateUserAnalytics } from "./services/analytics-service";
 import express from "express";
 import cors from "cors";
 import { getProducer } from "../../../packages/utils/kafka/producer";
+import { logAsync, setLogSource } from "../../../packages/utils/logs/send-logs";
+
+setLogSource("kafka-service");
 
 const consumer = kafka.consumer({groupId: "user-events-group"});
 
@@ -34,6 +37,7 @@ const processQueue = async () => {
     }
     catch(err){
         console.error("Error processing event:", err,"payload:", event);
+        logAsync({ type: "error", message: `Analytics event failed (${event?.action}): ${(err as Error)?.message}` });
     }
   }
 
@@ -49,6 +53,7 @@ export const consumeKafkaMessages = async () =>{
 
   consumer.on(consumer.events.CRASH, (e) =>{
     console.error("Kafka consumer crashed:", e.payload);
+    logAsync({ type: "error", message: "Kafka consumer crashed - analytics ingestion has stopped" });
   })
   consumer.on(consumer.events.GROUP_JOIN,(e)=>{
     console.log("Kafka consumer group joined:", e.payload);
@@ -126,6 +131,7 @@ app.post("/track", async (req, res) => {
     return res.json({ ok: true });
   } catch (e: any) {
     console.error("track route error:", e);
+    logAsync({ type: "error", message: `/track failed: ${e?.message}` });
     return res.status(500).json({ error: e?.message || "internal" });
   }
 });

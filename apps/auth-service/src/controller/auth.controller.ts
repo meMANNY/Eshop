@@ -6,6 +6,7 @@ import bcrypt from "bcryptjs";
 import jwt, { JsonWebTokenError } from "jsonwebtoken";
 import { setCookie } from "../utils/cookies/setCookie";
 import Stripe from 'stripe'
+import { logAsync } from "../../../../packages/utils/logs/send-logs";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
     apiVersion: "2026-06-24.dahlia"
@@ -99,6 +100,8 @@ export const verifyUser = async (
             }
         });
 
+        logAsync({ type: "success", message: `New user account created: ${email}` });
+
         res.status(201).json({
             success: true,
             message: "User registered successfully",
@@ -142,6 +145,10 @@ export const loginUser = async (
         const isMatch = await bcrypt.compare(password, user.password!);
 
         if (!isMatch) {
+            // Logged separately from the "no such user" branch above: a burst of
+            // these against one existing account is a password-guessing attempt,
+            // which the generic response deliberately hides from the client.
+            logAsync({ type: "warning", message: `Failed login (bad password) for user ${email}` });
             return next(new AuthError("Invalid email or password"));
         }
 
@@ -158,6 +165,8 @@ export const loginUser = async (
         setCookie(res, "accessToken", accessToken, { httpOnly: true, secure: true, sameSite: 'none', maxAge: 15 * 60 * 1000 }); // 15 minutes
         setCookie(res, "refreshToken", refreshToken, { httpOnly: true, secure: true, sameSite: 'none', maxAge: 7 * 24 * 60 * 60 * 1000 }); // 7 days
 
+
+        logAsync({ type: "success", message: `User logged in: ${user.email}` });
 
         res.status(200).json({
             message: "User logged in successfully",
@@ -246,6 +255,10 @@ export const getUser = async (
 
     try {
         const user = req.user;
+        logAsync({
+            type: "success",
+            message: `User ${user?.email} fetched successfully`,
+        });
         res.status(201).json({
             success: true,
             user,
@@ -322,6 +335,8 @@ export const resetUserPassword = async (
             where: { email },
             data: { password: hashedPassword }
         });
+
+        logAsync({ type: "warning", message: `Password reset completed for ${email}` });
 
         res.status(200).json({
             message: "Password reset successfully"
@@ -406,6 +421,8 @@ export const verifySeller = async (
         });
 
 
+        logAsync({ type: "success", message: `New seller account created: ${email}` });
+
         res.status(200).json({
             seller,
             message: "Seller registered successfully"
@@ -449,6 +466,7 @@ export const loginSeller = async (
         const isMatch = await bcrypt.compare(password, seller.password!);
 
         if (!isMatch) {
+            logAsync({ type: "warning", message: `Failed login (bad password) for seller ${email}` });
             return next(new ValidationError("Invalid request data", {
                 email: "Invalid email or password"
             }));
@@ -467,6 +485,8 @@ export const loginSeller = async (
         setCookie(res, "seller-access-token", accessToken, { httpOnly: true, secure: true, sameSite: 'none', maxAge: 15 * 60 * 1000 }); // 15 minutes
         setCookie(res, "seller-refresh-token", refreshToken, { httpOnly: true, secure: true, sameSite: 'none', maxAge: 7 * 24 * 60 * 60 * 1000 }); // 7 days
 
+
+        logAsync({ type: "success", message: `Seller logged in: ${seller.email}` });
 
         res.status(200).json({
             message: "Seller logged in successfully",
@@ -550,6 +570,8 @@ export const createShop = async (
             data: shopData
         })
 
+        logAsync({ type: "success", message: `Shop created: "${shop.name}" for seller ${seller.email}` });
+
         res.status(201).json({
             shop,
             success: true
@@ -609,6 +631,8 @@ export const createStripeAccountLink = async (
             return_url: 'http://localhost:3000/settings/payments',
             type: 'account_onboarding',
         });
+
+        logAsync({ type: "success", message: `Stripe Connect account ${account.id} created for seller ${seller.email}` });
 
         res.status(201).json({
             url: accountLink.url,
@@ -898,6 +922,8 @@ export const updateUserPassword = async (
       data: { password: hashedPassword },
     });
 
+    logAsync({ type: "warning", message: `Password changed for user ${user.email}` });
+
     res.status(200).json({
       message: "password updated successfully!",
     });
@@ -921,7 +947,10 @@ export const loginAdmin = async (
       where: { email },
     });
 
-    if (!user) return next(new AuthError("User doesn't exist!"));
+    if (!user) {
+      logAsync({ type: "warning", message: `Failed admin login (no such account): ${email}` });
+      return next(new AuthError("User doesn't exist!"));
+    }
 
     // if (user.isBanned) {
     //   return res.status(403).json({
@@ -931,7 +960,10 @@ export const loginAdmin = async (
     //   });
     // }
     const isMatch = await bcrypt.compare(password, user.password!);
-    if (!isMatch) return next(new AuthError("Invalid email or password"));
+    if (!isMatch) {
+      logAsync({ type: "error", message: `Failed admin login (bad password): ${email}` });
+      return next(new AuthError("Invalid email or password"));
+    }
 
     //const isAdmin = user.role === "admin";
     // if (!isAdmin) {
@@ -943,11 +975,7 @@ export const loginAdmin = async (
     //   return next(new AuthError("Invalid Access!"));
     // }
 
-    // sendLog({
-    //   type: "success",
-    //   message: `Admin login successful for: ${email}`,
-    //   source: "auth-service",
-    // });
+    logAsync({ type: "success", message: `Admin login successful for: ${email}` });
 
     res.clearCookie("seller-access-token");
     res.clearCookie("seller-refresh-token");
@@ -983,11 +1011,7 @@ export const getAdmin = async (req: any, res: Response, next: NextFunction) => {
   try {
     const admin = req.admin;
 
-    // await sendLog({
-    //   type: "success",
-    //   message: `Admin data retrived ${admin?.email}`,
-    //   source: "auth-service",
-    // });
+    logAsync({ type: "info", message: `Admin data retrieved: ${admin?.email}` });
 
     res.status(201).json({
       success: true,

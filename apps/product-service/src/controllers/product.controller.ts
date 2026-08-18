@@ -3,6 +3,7 @@ import prisma from "../../../../packages/libs/primsa";
 import { uploadFile, deleteFile } from "../../../../packages/libs/imagekit";
 import { Request, Response, NextFunction } from "express";
 import { Prisma } from "@prisma/client";
+import { logAsync } from "../../../../packages/utils/logs/send-logs";
 
 export const getCategories = async(
     req: Request,
@@ -302,6 +303,8 @@ export const createProduct = async(
             include: {images: true}
         });
 
+        logAsync({ type: "success", message: `Product created: "${newProduct.title}" (${newProduct.id}) in shop ${newProduct.shopId}` });
+
         return res.status(201).json({
             success: true,
             message: "Product created successfully",
@@ -384,6 +387,8 @@ export const deleteProduct = async(
             }
         })
 
+        logAsync({ type: "warning", message: `Product ${deletedProduct.id} marked for deletion (purges ${deletedProduct.deletedAt?.toISOString()})` });
+
         return res.status(200).json({
             success: true,
             message: "Product deleted successfully",
@@ -443,12 +448,17 @@ export const restoreProduct = async(
             }
         })
 
+        logAsync({ type: "success", message: `Product ${restoredProduct.id} restored` });
+
         return res.status(200).json({
             success: true,
             message: "Product restored successfully",
             restoredProduct
         })
     } catch (error) {
+        // This handler answers directly instead of calling next(error), so it
+        // never reaches errorMiddleware and would otherwise log nothing.
+        logAsync({ type: "error", message: `Product restore failed: ${(error as Error)?.message}` });
         return res.status(500).json({
             success: false,
             message: "Internal server error",

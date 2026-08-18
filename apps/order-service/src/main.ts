@@ -8,6 +8,10 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import bodyParser from 'body-parser';
 import {errorMiddleware } from "../../../packages/error-handler/error-middleware";
+import { setLogSource } from "../../../packages/utils/logs/send-logs";
+
+// Names every log this process emits, so call sites never repeat it.
+setLogSource("order-service");
 import router from "./routes/order.routes";
 import { createOrder } from './controllers/order.controller';
 

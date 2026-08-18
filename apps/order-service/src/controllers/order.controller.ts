@@ -5,6 +5,7 @@ import prisma from "../../../../packages/libs/primsa";
 import { NotFoundError, ValidationError } from "../../../../packages/error-handler";
 import { Prisma } from "@prisma/client";
 import { sendEmail } from "../utils/send-email/index";
+import { logAsync } from "../../../../packages/utils/logs/send-logs";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2026-06-24.dahlia'
@@ -165,6 +166,8 @@ export const createPaymentSession = async (
       600,
       JSON.stringify(sessionData)
     );
+
+    logAsync({ type: "info", message: `Payment session ${sessionId} created for user ${userId}` });
 
     return res.status(201).json({ sessionId });
   } catch (err) {
@@ -449,6 +452,11 @@ export const createOrder = async (
 
     await redis.del(sessionKey);
 
+    logAsync({
+      type: "success",
+      message: `Order placed (session ${sessionId}) by user ${userId} across ${sellerShops.length} shop(s) in ${isWebhook ? "webhook" : "manual"} mode`,
+    });
+
     return res.status(200).json({
       received: true,
       message: `✅ Order placed successfully in ${
@@ -457,6 +465,9 @@ export const createOrder = async (
     });
   } catch (err) {
     console.error("❌ Error in createOrder:", err);
+    // A failure here can mean the customer was charged but no order exists,
+    // so this is escalated above the generic error-middleware entry.
+    logAsync({ type: "error", message: `Order creation FAILED: ${(err as Error)?.message}` });
     return next(err);
   }
 };
@@ -641,6 +652,8 @@ export const updateDeliveryStatus = async (
         updatedAt: new Date(),
       },
     });
+    logAsync({ type: "info", message: `Order ${orderId} delivery status -> ${deliveryStatus}` });
+
     return res.status(200).json({
       success: true,
       message: "Delivery status updated successfully!",

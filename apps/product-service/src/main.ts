@@ -2,6 +2,10 @@ import express from 'express';
 import "./jobs/product-crone.job"
 import cors from 'cors';
 import { errorMiddleware } from '../../../packages/error-handler/error-middleware';
+import { setLogSource } from "../../../packages/utils/logs/send-logs";
+
+// Names every log this process emits, so call sites never repeat it.
+setLogSource("product-service");
 import cookieParser from 'cookie-parser';
 import router from './routes/product.routes';
 

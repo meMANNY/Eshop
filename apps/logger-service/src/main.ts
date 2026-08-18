@@ -1,21 +1,40 @@
-/**
- * This is not a production server yet!
- * This is only a minimal backend to get started.
- */
-
-import express from 'express';
-import * as path from 'path';
+import express from "express";
+import { WebSocket } from "ws";
+import http from "http";
+// Imported for its side effect: the module starts the Kafka consumer itself.
+import "./logger-consumer";
 
 const app = express();
 
-app.use('/assets', express.static(path.join(__dirname, 'assets')));
+const wsServer = new WebSocket.Server({ noServer: true });
 
-app.get('/api', (req, res) => {
-  res.send({ message: 'Welcome to logger-service!' });
+export const clients = new Set<WebSocket>();
+
+wsServer.on("connection", (ws) => {
+  console.log("New Logger Client Connected!");
+  clients.add(ws);
+
+  ws.on("close", () => {
+    console.log("Logger Client Disconnected!");
+    clients.delete(ws);
+  });
 });
 
+const server = http.createServer(app);
+server.on("upgrade", (request, socket, head) => {
+  wsServer.handleUpgrade(request, socket, head, (ws) => {
+    wsServer.emit("connection", ws, request);
+  });
+});
+/*
+  6008 belongs to chatting-service. Both services binding it meant whichever
+  started second died with EADDRINUSE — so either chat or the log stream was
+  always down, depending on start order.
+*/
 const port = process.env.PORT || 6007;
-const server = app.listen(port, () => {
-  console.log(`Listening at http://localhost:${port}/api`);
+server.listen(port, () => {
+  console.log(`Logger service listening at http://localhost:${port}/api`);
 });
-server.on('error', console.error);
+
+// The consumer starts itself at the bottom of logger-consumer.ts. Calling it
+// again here connected the same consumer instance twice.

@@ -2,6 +2,7 @@ import { AuthError, ValidationError } from "../../../../packages/error-handler";
 import prisma from '../../../../packages/libs/primsa';
 import { NextFunction, Request, Response } from "express";
 import Stripe from "stripe";
+import { logAsync } from "../../../../packages/utils/logs/send-logs";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2026-06-24.dahlia"
@@ -80,6 +81,8 @@ export const updateShopSettings = async (
       },
     });
 
+    logAsync({ type: "info", message: `Shop settings updated for shop ${shopId}` });
+
     return res.status(200).json({ success: true, settings });
   } catch (err) {
     return next(err);
@@ -114,6 +117,8 @@ export const deleteSeller = async (
         deletedAt: new Date(Date.now() + 28 * 24 * 60 * 60 * 1000),
       },
     });
+
+    logAsync({ type: "warning", message: `Seller ${sellerId} marked for deletion (purges ${deletedSeller.deletedAt?.toISOString()})` });
 
     return res.status(200).json({
       message:
@@ -180,6 +185,8 @@ export const restoreSeller = async (
       where: { id: seller.id },
       data: { isDeleted: false, deletedAt: null },
     });
+
+    logAsync({ type: "success", message: `Seller ${sellerId} restored` });
 
     return res.status(200).json({ message: "Seller successfully restored!" });
   } catch (err) {

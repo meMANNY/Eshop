@@ -3,6 +3,10 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 
 import { errorMiddleware } from '../../../packages/error-handler/error-middleware';
+import { setLogSource } from "../../../packages/utils/logs/send-logs";
+
+// Names every log this process emits, so call sites never repeat it.
+setLogSource("seller-service");
 
 
 import router from "./routes/sellerRoutes";

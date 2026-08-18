@@ -7,6 +7,10 @@ import { startConsumer } from "./chat-message-consumer";
 
 import router from "./routes/chatting.route";
 import { errorMiddleware } from "../../../packages/error-handler/error-middleware";
+import { setLogSource } from "../../../packages/utils/logs/send-logs";
+
+// Names every log this process emits, so call sites never repeat it.
+setLogSource("chatting-service");
 
 
 const app = express();

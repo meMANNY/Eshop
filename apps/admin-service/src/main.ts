@@ -4,6 +4,10 @@ import cors from "cors";
 
 import router from "./routes/adminRoutes";
 import { errorMiddleware } from "../../../packages/error-handler/error-middleware";
+import { setLogSource } from "../../../packages/utils/logs/send-logs";
+
+// Names every log this process emits, so call sites never repeat it.
+setLogSource("admin-service");
 
 const app = express();
 
