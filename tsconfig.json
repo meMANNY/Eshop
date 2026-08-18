@@ -65,6 +65,12 @@
     },
     {
       "path": "./apps/recommendation-service"
+    },
+    {
+      "path": "./apps/seller-service-e2e"
+    },
+    {
+      "path": "./apps/seller-service"
     }
   ]
 }

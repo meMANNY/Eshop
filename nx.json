@@ -48,7 +48,8 @@
         "apps/admin-service-e2e/**/*",
         "apps/chatting-service-e2e/**/*",
         "apps/logger-service-e2e/**/*",
-        "apps/recommendation-service-e2e/**/*"
+        "apps/recommendation-service-e2e/**/*",
+        "apps/seller-service-e2e/**/*"
       ]
     },
     {
