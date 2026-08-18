@@ -7,6 +7,18 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2026-06-24.dahlia"
 });
 
+/**
+ * Mongo ObjectIDs are 12 bytes — 24 hex characters. Anything else makes Prisma
+ * throw P2023, which surfaces as an unhandled 500 rather than the 400 a bad
+ * path param deserves.
+ *
+ * A plain `!id` check is not enough: these values come from the URL, so a
+ * client that interpolates an undefined variable sends the literal string
+ * "undefined", which is truthy and sails straight past a falsy check.
+ */
+const isObjectId = (value: unknown): value is string =>
+  typeof value === "string" && /^[a-f\d]{24}$/i.test(value);
+
 export const getShopSettings = async (
   req: Request,
   res: Response,
@@ -266,6 +278,11 @@ export const getSellerProducts = async (
 ) => {
   try {
     const { shopId } = req.params;
+    if (!isObjectId(shopId))
+      return next(
+        new ValidationError("Invalid request data", "A valid Shop ID is required!")
+      );
+
     const page = Number(req.query.page) || 1;
     const limit = Number(req.query.limit) || 10;
     const skip = (page - 1) * limit;
@@ -291,6 +308,11 @@ export const getSellerEvents = async (
 ) => {
   try {
     const { shopId } = req.params;
+    if (!isObjectId(shopId))
+      return next(
+        new ValidationError("Invalid request data", "A valid Shop ID is required!")
+      );
+
     const page = Number(req.query.page) || 1;
     const limit = Number(req.query.limit) || 10;
     const skip = (page - 1) * limit;
@@ -323,6 +345,11 @@ export const isFollowingShop = async (
     const { shopId } = req.params;
 
     if (!userId) return next(new AuthError("Unauthorized"));
+
+    if (!isObjectId(shopId))
+      return next(
+        new ValidationError("Invalid request data", "A valid Shop ID is required!")
+      );
 
     const follow = await prisma.shopFollowers.findUnique({
       where: { shopId_userId: { shopId, userId } },
@@ -393,7 +420,10 @@ export const getSeller = async (
   try {
     const { id } = req.params; // this is the shopId from the URL
 
-    if (!id) return next(new ValidationError("Invalid request data","Shop ID is required!"));
+    if (!isObjectId(id))
+      return next(
+        new ValidationError("Invalid request data", "A valid Shop ID is required!")
+      );
 
     const shop = await prisma.shops.findUnique({
       where: { id },

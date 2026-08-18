@@ -1,6 +1,8 @@
 import {kafka} from "../../../packages/utils/kafka/index";
 import { updateUserAnalytics } from "./services/analytics-service";
-
+import express from "express";
+import cors from "cors";
+import { getProducer } from "../../../packages/utils/kafka/producer";
 
 const consumer = kafka.consumer({groupId: "user-events-group"});
 
@@ -72,4 +74,71 @@ export const consumeKafkaMessages = async () =>{
 consumeKafkaMessages().catch((err) => {
   console.error("Fatal consumer error:", err);
   process.exit(1);
+});
+
+const PORT = Number(process.env.KAFKA_HTTP_PORT || 6010);
+const ALLOW_ORIGINS = process.env.CORS_ORIGIN?.split(",").map((s) =>
+  s.trim()
+) || ["http://localhost:3000", "http://localhost:8080"];
+
+const app = express();
+
+app.use(
+  cors({
+    origin: ALLOW_ORIGINS,
+    credentials: false,
+  })
+);
+app.use(express.json());
+
+app.use((req, _res, next) => {
+  console.log(`➡️  ${req.method} ${req.url}`);
+  next();
+});
+
+app.post("/track", async (req, res) => {
+  try {
+    const payload = req.body;
+    if (!payload || typeof payload !== "object") {
+      return res.status(400).json({ error: "Invalid JSON body" });
+    }
+    if (!payload.action) {
+      return res.status(400).json({ error: "Missing 'action'" });
+    }
+
+    const msg = {
+      userId: payload.userId ?? null,
+      productId: payload.productId ?? null,
+      shopId: payload.shopId ?? null,
+      action: String(payload.action),
+      country: payload.country ?? "Unknown",
+      city: payload.city ?? "Unknown",
+      device: payload.device ?? "Unknown Device",
+      timestamp: new Date().toISOString(),
+    };
+
+    const producer = await getProducer();
+    await producer.send({
+      topic: "user-events",
+      messages: [{ value: JSON.stringify(msg) }],
+    });
+
+    return res.json({ ok: true });
+  } catch (e: any) {
+    console.error("track route error:", e);
+    return res.status(500).json({ error: e?.message || "internal" });
+  }
+});
+
+app.listen(PORT, () => {
+  console.log(`Kafka tracking HTTP listening on http://localhost:${PORT}`);
+});
+
+process.on("SIGINT", async () => {
+  try {
+    console.log("Shutting down kafka-service...");
+    await consumer.disconnect().catch(() => {});
+  } finally {
+    process.exit(0);
+  }
 });

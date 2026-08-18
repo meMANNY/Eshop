@@ -103,9 +103,15 @@ const ProductCard = ({ product, isEvent }: { product: any; isEvent?: boolean }) 
           </span>
         ) : null}
 
-        {product?.Shop?.name ? (
+        {/*
+          `/shop/[id]` looks the shop up by ObjectID, and `shops` has no `slug`
+          column — so `Shop.slug` was always undefined and every one of these
+          links went to `/shop/undefined`, which reached Prisma as an ObjectID
+          and threw P2023. The id must also be present before the link renders.
+        */}
+        {product?.Shop?.name && product?.Shop?.id ? (
           <Link
-            href={`/shop/${product?.Shop?.slug}`}
+            href={`/shop/${product.Shop.id}`}
             className="absolute bottom-2 left-2 max-w-[calc(100%-1rem)] truncate rounded-full bg-surface/95 px-2.5 py-1 text-xs font-medium text-ink-muted shadow-card backdrop-blur transition-colors hover:text-coral-ink"
           >
             {product.Shop.name}

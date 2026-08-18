@@ -19,28 +19,40 @@ type Store = {
         product: Product,
         user: any,
         location: any,
-        deviceInfo: any
+        // `useDeviceTracking` returns a formatted string, not an object. While
+        // this was `any`, every call site read `deviceInfo?.device` off it and
+        // silently got undefined, so every event recorded "Unknown device".
+        deviceInfo: string
     ) => Promise<void> | void;
 
     removeFromCart: (
         id: string,
         user: any,
         location: any,
-        deviceInfo: any
+        // `useDeviceTracking` returns a formatted string, not an object. While
+        // this was `any`, every call site read `deviceInfo?.device` off it and
+        // silently got undefined, so every event recorded "Unknown device".
+        deviceInfo: string
     ) => Promise<void> | void;
 
     addToWishlist: (
         product: Product,
         user: any,
         location: any,
-        deviceInfo: any
+        // `useDeviceTracking` returns a formatted string, not an object. While
+        // this was `any`, every call site read `deviceInfo?.device` off it and
+        // silently got undefined, so every event recorded "Unknown device".
+        deviceInfo: string
     ) => Promise<void> | void;
 
     removeFromWishlist: (
         id: string,
         user: any,
         location: any,
-        deviceInfo: any
+        // `useDeviceTracking` returns a formatted string, not an object. While
+        // this was `any`, every call site read `deviceInfo?.device` off it and
+        // silently got undefined, so every event recorded "Unknown device".
+        deviceInfo: string
     ) => Promise<void> | void;
 };
 
@@ -77,7 +89,7 @@ export const useStore = create<Store>()(
                         action: "add_to_cart",
                         country: location?.country || "Unknown",
                         city: location?.city || "Unknown",
-                        device: deviceInfo?.device || "Unknown device",
+                        device: deviceInfo || "Unknown device",
                     });
                 }
 
@@ -97,7 +109,7 @@ export const useStore = create<Store>()(
                         action: "remove_from_cart",
                         country: location?.country || "Unknown",
                         city: location?.city || "Unknown",
-                        device: deviceInfo?.device || "Unknown device",
+                        device: deviceInfo || "Unknown device",
                     });
                 }
                 if (!removeProduct) {
@@ -125,7 +137,7 @@ export const useStore = create<Store>()(
                         action: "add_to_wishlist",
                         country: location?.country || "Unknown",
                         city: location?.city || "Unknown",
-                        device: deviceInfo?.device || "Unknown device",
+                        device: deviceInfo || "Unknown device",
                     });
                 }
             },
@@ -143,7 +155,7 @@ export const useStore = create<Store>()(
                         action: "remove_from_wishlist",
                         country: location?.country || "Unknown",
                         city: location?.city || "Unknown",
-                        device: deviceInfo?.device || "Unknown device",
+                        device: deviceInfo || "Unknown device",
                     });
                 }
 
