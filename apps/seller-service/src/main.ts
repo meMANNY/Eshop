@@ -1,21 +1,45 @@
-/**
- * This is not a production server yet!
- * This is only a minimal backend to get started.
- */
+import express from "express";
+import cors from "cors";
+import cookieParser from "cookie-parser";
 
-import express from 'express';
-import * as path from 'path';
+import { errorMiddleware } from '../../../packages/error-handler/error-middleware';
+
+
+import router from "./routes/sellerRoutes";
+
 
 const app = express();
+app.use(
+  cors({
+    origin: ["http://localhost:3000"],
+    allowedHeaders: ["Authorization", "Content-Type"],
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+  })
+);
 
-app.use('/assets', express.static(path.join(__dirname, 'assets')));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
-app.get('/api', (req, res) => {
-  res.send({ message: 'Welcome to seller-service!' });
+app.get("/", (req, res) => {
+  res.send({ message: "Welcome to seller-service!" });
 });
 
-const port = process.env.PORT || 3333;
+// app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+// app.get("/docs-json", (req, res) => {
+//   res.json(swaggerDocument);
+// });
+
+// routes
+app.use("/api", router);
+app.use(errorMiddleware);
+
+const port = process.env.PORT || 6009;
 const server = app.listen(port, () => {
-  console.log(`Listening at http://localhost:${port}/api`);
+  console.log(`Seller service listening at http://localhost:${port}/api`);
+  // console.log(`Swagger Docs available at http://localhost:${port}/api-docs`);
 });
-server.on('error', console.error);
+server.on("error", (err) => {
+  console.log("Server Error :", err);
+});

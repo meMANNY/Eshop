@@ -19,7 +19,7 @@ model images {
   file_id   String
   url       String
   userId    String?   @unique @db.ObjectId // foreign key
-  users     users?    @relation(fields: [userId], references: [id]) // requires foreign key to be unique
+  users     users?    @relation(name: "UserAvatar", fields: [userId], references: [id]) // requires foreign key to be unique
   shopId    String?   @unique @db.ObjectId
   shops     shops?    @relation(name: "ShopAvatar", fields: [shopId], references: [id])
   productId String?   @unique @db.ObjectId
@@ -32,12 +32,18 @@ model users {
   email     String        @unique
   password  String?
   following String[]
-  avatar    images?
+  avatar    images[] @relation(name: "UserAvatar")
   reviews   shopReviews[]
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt
   role     String        @default("user")
   orders   orders[]
+  followings shopFollowers[]
+
+  isBanned Boolean @default(false)
+  bannedAt DateTime?
+  banReason String?
+
 }
 
 model sellers {
@@ -52,6 +58,8 @@ model sellers {
   shop         shops?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+  isDeleted    Boolean  @default(false)
+  deletedAt    DateTime?
 }
 
 model shopReviews {
@@ -88,6 +96,7 @@ model shops {
   orders orders[]
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
+  followers shopFollowers[]
 }
 
 model site_config {
@@ -284,5 +293,41 @@ model message{
   createdAt DateTime @default(now())
 
   @@unique([conversationId, senderId, createdAt,content])
+  
+}
+
+model shop_settings {
+  id       String   @id @default(auto()) @map("_id") @db.ObjectId
+  shopId    String  @unique @db.ObjectId
+  lowStockThreshold    Int  @default(10)
+  notifications Json @default("{\"email\":true,\"web\":true,\"app\":false}")
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model shopFollowers{
+  
+  id       String   @id @default(auto()) @map("_id") @db.ObjectId
+  shopId    String  @db.ObjectId
+  userId    String  @db.ObjectId
+
+  shops shops? @relation(fields: [shopId], references: [id])
+  user users @relation(fields: [userId], references: [id])
+
+
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([shopId, userId])
+}
+
+model blocked_seller_emails{
+  id       String   @id @default(auto()) @map("_id") @db.ObjectId
+  email    String  @unique
+  sellerId    String?  @db.ObjectId
+  reason String?
+  createdAt DateTime @default(now())
   
 }
