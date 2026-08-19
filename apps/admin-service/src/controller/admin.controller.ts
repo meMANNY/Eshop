@@ -408,3 +408,51 @@ export const uploadBanner = async (
 };
 
 
+export const getAllNotifications = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const notifications = await prisma.notifications.findMany({
+      where: { receiverId: "admin" },
+      orderBy: { createdAt: "desc" },
+    });
+
+    // Per-account data behind a cookie: keep it out of the browser cache, which
+    // is keyed on URL alone. This is also what was producing the 304s.
+    res.setHeader("Cache-Control", "no-store");
+
+    res.status(200).json({
+      success: true,
+      notifications,
+    });
+  } catch (err) {
+    return next(err);
+  }
+};
+
+export const getAllUserNotifications = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const userId = (req as any).user.id;
+
+    const notifications = await prisma.notifications.findMany({
+      where: { receiverId: userId },
+      orderBy: { createdAt: "desc" },
+    });
+
+    res.setHeader("Cache-Control", "no-store");
+
+    return res.status(200).json({
+      success: true,
+      notifications,
+    });
+  } catch (err) {
+    return next(err);
+  }
+};
+

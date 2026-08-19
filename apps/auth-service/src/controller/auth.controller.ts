@@ -190,9 +190,14 @@ export const refreshToken = async (
     next: NextFunction
 ) => {
     try {
+        // `refresh_token` is the admin session. Leaving it out meant every admin
+        // 401 fell through to "Refresh token is required", and the UI's response
+        // interceptor treats a failed refresh as a logout — so a single 401 on any
+        // admin page bounced the admin back to the login screen.
         const refreshToken =
             req.cookies["refreshToken"] ||
-            req.cookies["seller-refresh-token"];
+            req.cookies["seller-refresh-token"] ||
+            req.cookies["refresh_token"];
 
         if (!refreshToken) {
             return next(new ValidationError("Invalid request data", {
@@ -224,21 +229,21 @@ export const refreshToken = async (
             { expiresIn: "15m" }
         );
 
-        if (decoded.role === "seller") {
-            setCookie(res, "seller-access-token", newAccessToken, {
-                httpOnly: true,
-                secure: true,
-                sameSite: "none",
-                maxAge: 15 * 60 * 1000,
-            }); // 15 minutes
-        } else {
-            setCookie(res, "accessToken", newAccessToken, {
-                httpOnly: true,
-                secure: true,
-                sameSite: "none",
-                maxAge: 15 * 60 * 1000,
-            }); // 15 minutes
-        }
+        // The refreshed token has to go back into the same cookie namespace the
+        // session came from, or the next request looks unauthenticated again.
+        const accessCookieName =
+            decoded.role === "seller"
+                ? "seller-access-token"
+                : decoded.role === "admin"
+                    ? "access_token"
+                    : "accessToken";
+
+        setCookie(res, accessCookieName, newAccessToken, {
+            httpOnly: true,
+            secure: true,
+            sameSite: "none",
+            maxAge: 15 * 60 * 1000,
+        }); // 15 minutes
 
         return res.status(200).json({ success: true });
     }

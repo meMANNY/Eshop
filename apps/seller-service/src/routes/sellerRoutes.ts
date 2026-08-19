@@ -2,6 +2,7 @@ import express, { Router } from "express";
 
 import { isSeller } from "../../../../packages/middleware/isSeller"
 import { isAuthenticated } from "../../../../packages/middleware/isAuthenticated";
+import { isAnyAuthenticated } from "../../../../packages/middleware/isAnyAuthenticated";
 import {
   deleteSeller,
   followShop,
@@ -51,9 +52,11 @@ router.get(
   isSeller,
   sellerNotifications
 );
+// user-ui, seller-ui and admin-ui all post here, so this cannot be `isAuthenticated`
+// — that only accepts the user cookie and 401s the other two.
 router.post(
   "/mark-notification-as-read",
-  isAuthenticated,
+  isAnyAuthenticated,
   markNotificationAsRead
 );
 

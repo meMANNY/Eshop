@@ -1,5 +1,6 @@
 import express, { Router } from "express";
-import { addNewAdmin, getAllAdmins, getAllCustomizations, getAllEvents, getAllProducts, getAllSellers, getAllUsers, getSiteConfig, uploadBanner, uploadLogo, updateCategories } from "../controller/admin.controller";
+import { addNewAdmin, getAllAdmins, getAllCustomizations, getAllEvents, getAllProducts, getAllSellers, getAllUsers, getSiteConfig, uploadBanner, uploadLogo, updateCategories, getAllNotifications, getAllUserNotifications } from "../controller/admin.controller";
+import { isAuthenticated } from "../../../../packages/middleware/isAuthenticated";
 import { isAdmin } from "../../../../packages/middleware/isAdmin";
 
 
@@ -17,5 +18,13 @@ router.get("/get-site-config",isAdmin,getSiteConfig);
 router.put("/update-categories", isAdmin, updateCategories);
 router.post("/upload-logo",isAdmin, uploadLogo);
 router.post("/upload-banner", isAdmin, uploadBanner);
+router.get(
+  "/get-all-notifications",
+  
+  isAdmin,
+  getAllNotifications
+);
+
+router.get("/get-user-notifications", isAuthenticated, getAllUserNotifications);
 
 export default router;

@@ -82,10 +82,19 @@ module.exports = {
         shimmer: {
           "100%": { transform: "translateX(100%)" },
         },
+        // The staggered entrance for list items that start at `opacity-0`.
+        fadeSlideUp: {
+          from: { opacity: "0", transform: "translateY(12px)" },
+          to: { opacity: "1", transform: "translateY(0)" },
+        },
       },
       animation: {
         "rise-in": "rise-in 0.25s ease-out both",
         shimmer: "shimmer 1.6s infinite",
+        // `both` is load-bearing: it holds opacity:1 after the run, and holds
+        // the from-state during the per-item animation-delay. Without it the
+        // card falls back to its own `opacity-0` and never becomes visible.
+        fadeSlideUp: "fadeSlideUp 0.35s ease-out both",
       },
     },
   },

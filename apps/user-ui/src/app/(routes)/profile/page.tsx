@@ -367,7 +367,7 @@ function ProfileContent() {
                                 onClick={async () => {
                                   await axiosInstance.post(
                                     "/seller/api/mark-notification-as-read",
-                                    { notificationId: not.id }
+                                    { notificationId: not.id, role: "user" }
                                   );
 
                                   queryClient.invalidateQueries({

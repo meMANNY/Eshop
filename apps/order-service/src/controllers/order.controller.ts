@@ -304,6 +304,11 @@ export const createOrder = async (
       acc[item.shopId].push(item);
       return acc;
     }, {});
+    // A cart spanning several shops becomes several orders, and each one gets
+    // its own tracking page — so the buyer's notification needs to know which
+    // order id belongs to which shop.
+    const orderIdByShop: Record<string, string> = {};
+
     for (const shopId in shopGrouped) {
       const orderItems = shopGrouped[shopId];
       let orderTotal = orderItems.reduce(
@@ -328,7 +333,7 @@ export const createOrder = async (
         }
       }
 
-      await prisma.orders.create({
+      const order = await prisma.orders.create({
         data: {
           userId,
           shopId,
@@ -348,6 +353,8 @@ export const createOrder = async (
           },
         },
       });
+      orderIdByShop[shopId] = order.id;
+
       for (const item of orderItems) {
         const { id: productId, quantity } = item;
 
@@ -430,6 +437,15 @@ export const createOrder = async (
     for (const shop of sellerShops) {
       const productTitle =
         (shopGrouped[shop.id]?.[0]?.title as string) || "new item";
+
+      /*
+        All three consoles route an order detail page at `/order/<id>`, so one
+        relative path works in every app. It replaces `https://eshop.com/...`,
+        which pointed at a domain that does not exist — and pointed at the
+        session id, where all three routes expect an order id.
+      */
+      const orderLink = `/order/${orderIdByShop[shop.id]}`;
+
       await prisma.notifications.createMany({
         data: [
           {
@@ -437,14 +453,26 @@ export const createOrder = async (
             message: `A customer just ordered ${productTitle} from your shop.`,
             creatorId: userId,
             receiverId: shop.sellerId,
-            redirect_link: `https://eshop.com/order/${sessionId}`,
+            redirect_link: orderLink,
           },
           {
             title: "Platform Order Alert",
             message: `A new order was placed by ${name}.`,
             creatorId: userId,
             receiverId: "admin",
-            redirect_link: `https://eshop.com/order/${sessionId}`,
+            redirect_link: orderLink,
+          },
+          /*
+            The buyer was the one party the order path never told in-app — they
+            only got the confirmation email above. One row per order rather than
+            per cart, so each links to the order it is actually about.
+          */
+          {
+            title: "Order confirmed",
+            message: `Your order from ${shop.name} is confirmed. We'll let you know as it ships.`,
+            creatorId: userId,
+            receiverId: userId,
+            redirect_link: orderLink,
           },
         ],
       });
@@ -612,6 +640,35 @@ export const getOrderDetails = async (
 };
 
 
+/*
+  The delivery states a seller may set, each paired with what the buyer is told
+  when the order reaches it. Holding the copy against the vocabulary means a new
+  state cannot be added without deciding what it announces — and `allowedStatuses`
+  is derived from it below, so the two can never drift apart.
+*/
+const DELIVERY_NOTICE: Record<string, { title: string; message: string }> = {
+  Ordered: {
+    title: "Order placed",
+    message: "Your order has been placed and is with the seller.",
+  },
+  Packed: {
+    title: "Order packed",
+    message: "Your order has been packed and is ready to ship.",
+  },
+  Shipped: {
+    title: "Order shipped",
+    message: "Your order is on its way.",
+  },
+  "Out for Delivery": {
+    title: "Out for delivery",
+    message: "Your order is out for delivery and should arrive today.",
+  },
+  Delivered: {
+    title: "Order delivered",
+    message: "Your order has been delivered.",
+  },
+};
+
 export const updateDeliveryStatus = async (
   req: Request,
   res: Response,
@@ -626,13 +683,7 @@ export const updateDeliveryStatus = async (
         .status(400)
         .json({ error: "Missin order ID or delivery status!" });
 
-    const allowedStatuses = [
-      "Ordered",
-      "Packed",
-      "Shipped",
-      "Out for Delivery",
-      "Delivered",
-    ];
+    const allowedStatuses = Object.keys(DELIVERY_NOTICE);
 
     if (!allowedStatuses.includes(deliveryStatus))
       return next(new ValidationError("Invalid request data", {
@@ -653,6 +704,31 @@ export const updateDeliveryStatus = async (
       },
     });
     logAsync({ type: "info", message: `Order ${orderId} delivery status -> ${deliveryStatus}` });
+
+    /*
+      Only on an actual transition. The seller sets this from a dropdown, so
+      re-saving the status it already had is easy to do by accident and must not
+      produce a second "your order has shipped".
+    */
+    if (existingOrder.deliveryStatus !== deliveryStatus) {
+      try {
+        await prisma.notifications.create({
+          data: {
+            ...DELIVERY_NOTICE[deliveryStatus],
+            creatorId: (req as any).seller.id,
+            receiverId: existingOrder.userId,
+            redirect_link: `/order/${orderId}`,
+          },
+        });
+      } catch (err: any) {
+        // The status change is already committed. Failing to announce it should
+        // not turn the seller's successful update into a 500.
+        logAsync({
+          type: "error",
+          message: `Order ${orderId} status saved but buyer notification failed: ${err?.message}`,
+        });
+      }
+    }
 
     return res.status(200).json({
       success: true,

@@ -220,6 +220,9 @@ const TONES = {
   pos: "bg-pos/10 text-pos ring-pos/25",
   warn: "bg-warn/10 text-warn ring-warn/25",
   neg: "bg-neg/10 text-neg ring-neg/25",
+  // Attention rather than state — "new", "unread". Coral stays off the
+  // paid/pending/failed vocabulary above, so it can never be misread as one.
+  coral: "bg-coral/10 text-coral ring-coral/25",
   neutral: "bg-white/5 text-[var(--muted)] ring-white/10",
 } as const;
 
@@ -424,6 +427,7 @@ export function Modal({
     pos: "text-pos",
     warn: "text-warn",
     neg: "text-neg",
+    coral: "text-coral",
     neutral: "text-[var(--text)]",
   }[tone];
 

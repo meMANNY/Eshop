@@ -1,4 +1,4 @@
-import { AuthError, ValidationError } from "../../../../packages/error-handler";
+import { AuthError, NotFoundError, ValidationError } from "../../../../packages/error-handler";
 import prisma from '../../../../packages/libs/primsa';
 import { NextFunction, Request, Response } from "express";
 import Stripe from "stripe";
@@ -480,6 +480,15 @@ export const sellerNotifications = async (
       },
     });
 
+    /*
+      Express attaches an ETag to every res.json, so a repeat request answered
+      "304 Not Modified" and the browser replayed its cached copy. Two problems:
+      the list looked frozen after marking something read, and the cache is
+      keyed on URL alone — no Vary: Cookie — so signing in as a different
+      seller could be served the previous one's notifications.
+    */
+    res.setHeader("Cache-Control", "no-store");
+
     res.status(200).json({
       success: true,
       notifications,
@@ -500,14 +509,31 @@ export const markNotificationAsRead = async (
     if (!notificationId)
       return next(new ValidationError("Invalid request data","Notification id is required!"));
 
-    const notification = await prisma.notifications.update({
-      where: { id: notificationId },
+    if (!isObjectId(notificationId))
+      return next(new ValidationError("Invalid request data", "Notification id is malformed!"));
+
+    /*
+      Admin notifications are addressed to the literal string "admin"; everyone
+      else receives them under their own id. Without this the update was keyed
+      on the id alone, so any signed-in account could mark any other account's
+      notification as read just by knowing its id.
+    */
+    const receiverId =
+      (req as any).role === "admin" ? "admin" : (req as any).account?.id;
+
+    const { count } = await prisma.notifications.updateMany({
+      where: { id: notificationId, receiverId },
       data: { isRead: true },
     });
 
+    // 404 rather than 403 when it exists but belongs to someone else — no reason
+    // to confirm to a stranger that a given notification id is real.
+    if (count === 0)
+      return next(new NotFoundError("Notification not found"));
+
     res.status(200).json({
       success: true,
-      notification,
+      notificationId,
     });
   } catch (err) {
     return next(err);
