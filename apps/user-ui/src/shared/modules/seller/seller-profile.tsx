@@ -1,43 +1,83 @@
 "use client";
 
-import { shops } from "@prisma/client";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-
-
-
-
 import {
-  Calendar,
   Clock,
   Globe,
   Heart,
   MapPin,
+  PackageOpen,
   Star,
-  Users,
+  Store,
+  TicketPercent,
+  Video,
   XIcon,
-  Video
-
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import ProductCard from "../../components/cards/product-card";
 import axiosInstance from "@/utils/axiosInstance";
 import useUser from "@/hooks/useUser";
 import useLocationTracking from "@/hooks/useLocationTracking";
 import useDeviceTracking from "@/hooks/useDeviceTracking";
+import {
+  Button,
+  CardSkeleton,
+  Container,
+  Crumbs,
+  EmptyState,
+  Figure,
+  Rating,
+  shortDate,
+} from "@/shared/components/ui";
 
-const TABS = ["Products", "Offers", "Reviews"];
+/*
+  `/seller/api/get-seller/:id` flattens the `avatar` relation to a single URL
+  string and includes the shop's reviews with their authors. The generated
+  `shops` type describes the table, not that response, which is why this file
+  used to reach for `(shop as any).avatar`.
+*/
+type ShopReview = {
+  id: string;
+  rating: number;
+  createdAt: string;
+  user?: { name?: string | null } | null;
+};
+
+type Shop = {
+  id: string;
+  name: string;
+  bio?: string | null;
+  category?: string | null;
+  address?: string | null;
+  opening_hours?: string | null;
+  website?: string | null;
+  avatar?: string | null;
+  coverBanner?: string | null;
+  socialLinks?: { type?: string; url?: string }[] | null;
+  ratings?: number | null;
+  createdAt?: string | Date | null;
+  reviews?: ShopReview[] | null;
+};
+
+const TABS = [
+  { id: "Products", label: "Products", icon: PackageOpen },
+  { id: "Offers", label: "Offers", icon: TicketPercent },
+  { id: "Reviews", label: "Reviews", icon: Star },
+] as const;
+
+type TabId = (typeof TABS)[number]["id"];
 
 export default function SellerProfile({
   shop,
   followersCount,
 }: {
-  shop: shops;
+  shop: Shop;
   followersCount: number;
 }) {
-  const [activeTab, setActiveTab] = useState("Products");
+  const [activeTab, setActiveTab] = useState<TabId>("Products");
   const [followers, setFollowers] = useState(followersCount);
   const [isFollowing, setIsFollowing] = useState(false);
 
@@ -45,25 +85,31 @@ export default function SellerProfile({
   const location = useLocationTracking();
   const deviceInfo = useDeviceTracking();
   const queryClient = useQueryClient();
+  const reduceMotion = useReducedMotion();
 
   const { data: products, isLoading } = useQuery({
-    queryKey: ["seller-products"],
+    // The shop id belongs in the key. Without it every shop page shared one
+    // cache entry, so opening a second shop showed the first one's products
+    // until the refetch landed.
+    queryKey: ["seller-products", shop?.id],
     queryFn: async () => {
       const res = await axiosInstance.get(
-        `/seller/api/get-seller-products/${shop?.id}?page=1&limit=10`
+        `/seller/api/get-seller-products/${shop?.id}?page=1&limit=20`
       );
       return res.data.products;
     },
+    enabled: !!shop?.id,
   });
 
   const { data: events, isLoading: isEventsLoading } = useQuery({
-    queryKey: ["seller-events"],
+    queryKey: ["seller-events", shop?.id],
     queryFn: async () => {
       const res = await axiosInstance.get(
-        `/seller/api/get-seller-events/${shop?.id}?page=1&limit=10`
+        `/seller/api/get-seller-events/${shop?.id}?page=1&limit=20`
       );
       return res.data.products;
     },
+    enabled: !!shop?.id,
   });
 
   useEffect(() => {
@@ -99,323 +145,510 @@ export default function SellerProfile({
     },
   });
 
-  // Tracking
-  const TRACK_URL =
-    (process.env.NEXT_PUBLIC_TRACK_URL ?? "http://localhost:6010") + "/track";
+  /* ------------------------------------------------------------ tracking -- */
 
-  async function postTrack(payload: any) {
-    try {
-      await fetch(TRACK_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-        keepalive: true,
-      });
-    } catch (e) {
-      console.error("Tracking failed:", e);
-    }
-  }
+  const trackedShop = useRef<string | null>(null);
 
   useEffect(() => {
-    if (!isLoading && user?.id && shop?.id && location && deviceInfo) {
-      postTrack({
+    if (!user?.id || !shop?.id || !location || !deviceInfo) return;
+    // One event per shop visit. The effect re-runs as the user, location and
+    // device hooks resolve, and every one of those runs used to POST again.
+    if (trackedShop.current === shop.id) return;
+    trackedShop.current = shop.id;
+
+    const url =
+      (process.env.NEXT_PUBLIC_TRACK_URL ?? "http://localhost:6010") + "/track";
+
+    fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
         userId: user.id,
         shopId: shop.id,
         action: "shop_visit",
         country: location.country || "Unknown",
         city: location.city || "Unknown",
         device: deviceInfo || "Unknown Device",
-      });
-    }
-  }, [user, shop, location, deviceInfo, isLoading]);
+      }),
+      keepalive: true,
+    }).catch((e) => console.error("Tracking failed:", e));
+  }, [user?.id, shop?.id, location, deviceInfo]);
 
-  // Animations
-  const fadeUp = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0 },
-  };
+  /* -------------------------------------------------------------- derived -- */
 
-  const fadeIn = {
-    hidden: { opacity: 0 },
-    visible: { opacity: 1 },
-  };
+  const reviews = useMemo(() => shop?.reviews ?? [], [shop?.reviews]);
+
+  const productImages = useMemo(
+    () =>
+      (products ?? [])
+        .map((p: any) => p?.images?.[0]?.url)
+        .filter(Boolean)
+        .slice(0, 6) as string[],
+    [products]
+  );
+
+  const joinedYear = shop?.createdAt
+    ? new Date(shop.createdAt).getFullYear()
+    : null;
+
+  const rise = reduceMotion
+    ? {}
+    : {
+        initial: { opacity: 0, y: 12 },
+        animate: { opacity: 1, y: 0 },
+        transition: { duration: 0.45, ease: [0.16, 1, 0.3, 1] as const },
+      };
 
   return (
-    <motion.div
-      initial="hidden"
-      animate="visible"
-      transition={{ staggerChildren: 0.1 }}
-      className="min-h-screen bg-[#0f111a] text-white pb-10 overflow-x-hidden"
-    >
-      {/* Banner */}
-      <motion.div
-        variants={fadeIn}
-        className="relative w-full h-[300px] overflow-hidden"
-      >
-        <motion.div
-          initial={{ scale: 1.1 }}
-          animate={{ scale: 1 }}
-          transition={{ duration: 1.2 }}
-          className="absolute inset-0"
-        >
-          <Image
-            src={
-              shop?.coverBanner ||
-              "https://images.unsplash.com/photo-1545239351-1141bd82e8a6?auto=format&fit=crop&w=1400&q=80"
-            }
-            alt="Seller Cover"
-            fill
-            className="object-cover opacity-80"
-          />
-        </motion.div>
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
-      </motion.div>
+    <div className="min-h-screen bg-canvas pb-16">
+      <ShopWindow
+        shopName={shop?.name}
+        coverBanner={shop?.coverBanner}
+        images={productImages}
+        reduceMotion={!!reduceMotion}
+      />
 
-      {/* Profile Section */}
-      <motion.div
-        variants={fadeUp}
-        transition={{ duration: 0.5 }}
-        className="w-[90%] lg:w-[75%] mx-auto mt-[-80px] flex flex-col lg:flex-row gap-6 relative z-20"
-      >
-        {/* Left Card */}
-        <motion.div
-          variants={fadeUp}
-          transition={{ duration: 0.6 }}
-          className="bg-[#181b28] w-full lg:w-[70%] p-6 rounded-xl shadow-lg border border-gray-800 hover:border-blue-600 transition-all duration-300"
-        >
-          <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
-            {/* Avatar */}
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              className="relative w-[110px] h-[110px] rounded-full overflow-hidden border-4 border-[#2b2f45] shadow-md"
-            >
-              <Image
-                src={
-                  (shop as any)?.avatar ||
-                  "https://cdn-icons-png.flaticon.com/512/847/847969.png"
-                }
-                alt="Shop Avatar"
-                fill
-                className="object-cover"
-              />
-            </motion.div>
-
-            {/* Info */}
-            <div className="flex-1">
-              <motion.h1
-                variants={fadeUp}
-                transition={{ delay: 0.2 }}
-                className="text-2xl font-bold tracking-wide"
-              >
-                {shop?.name}
-              </motion.h1>
-              <motion.p
-                variants={fadeUp}
-                className="text-gray-300 text-sm mt-1 max-w-[90%]"
-              >
-                {shop?.bio || "You will get anything related to this category."}
-              </motion.p>
-
-              <motion.div
-                variants={fadeUp}
-                className="flex flex-wrap items-center gap-4 mt-3 text-gray-400"
-              >
-                <div className="flex items-center gap-1">
-                  <Star fill="#facc15" size={18} />
-                  <span>{shop?.ratings || "N/A"}</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <Users size={18} />
-                  <span>{followers} Followers</span>
-                </div>
-              </motion.div>
-
-              <motion.div
-                variants={fadeUp}
-                className="flex items-center gap-2 mt-3 text-gray-400 text-sm"
-              >
-                <Clock size={16} />
-                <span>{shop?.opening_hours || "Mon - Fri 9am to 10pm"}</span>
-              </motion.div>
-
-              <motion.div
-                variants={fadeUp}
-                className="flex items-center gap-2 mt-2 text-gray-400 text-sm"
-              >
-                <MapPin size={16} />
-                <span>{shop?.address || "No Address Provided"}</span>
-              </motion.div>
-            </div>
-
-            {/* Follow Button */}
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => toggleFollowMutation.mutate()}
-              disabled={toggleFollowMutation.isPending}
-              className={`px-6 py-2 rounded-lg font-semibold flex items-center gap-2 transition-all duration-300 ${
-                isFollowing
-                  ? "bg-red-500 hover:bg-red-600 shadow-red-500/20"
-                  : "bg-blue-600 hover:bg-blue-700 shadow-blue-500/20"
-              }`}
-            >
-              <Heart size={18} />
-              {isFollowing ? "Unfollow" : "Follow"}
-            </motion.button>
-          </div>
-        </motion.div>
-
-        {/* Right Card */}
-        <motion.div
-          variants={fadeUp}
-          transition={{ duration: 0.7 }}
-          className="bg-[#181b28] p-6 rounded-xl shadow-lg border border-gray-800 hover:border-blue-600 transition-all duration-300 w-full lg:w-[30%]"
-        >
-          <h2 className="text-lg font-semibold text-white mb-3">
-            Shop Details
-          </h2>
-          <div className="flex items-center gap-2 text-gray-300 text-sm mb-2">
-            <Calendar size={16} />
-            <span>
-              Joined At: {new Date(shop?.createdAt!).toLocaleDateString()}
-            </span>
-          </div>
-
-          {shop?.website && (
-            <div className="flex items-center gap-2 text-gray-300 text-sm mb-2">
-              <Globe size={16} />
-              <Link
-                href={shop.website}
-                target="_blank"
-                className="text-blue-400 hover:underline"
-              >
-                {shop.website}
-              </Link>
-            </div>
-          )}
-
-          {shop?.socialLinks && shop?.socialLinks.length > 0 && (
-            <div className="mt-3">
-              <h3 className="text-sm text-gray-400 mb-2">Follow Us:</h3>
-              <div className="flex gap-3">
-                {shop.socialLinks.map((link: any, i: number) => (
-                  <motion.a
-                    key={i}
-                    href={link.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="opacity-70 hover:opacity-100"
-                    whileHover={{ scale: 1.15 }}
-                  >
-                    {link.type === "youtube" && <Video />}
-                    {link.type === "x" && <XIcon />}
-                  </motion.a>
-                ))}
+      <Container>
+        {/* MASTHEAD — lifted over the window band. */}
+        <motion.div {...rise} className="relative z-10 -mt-14 sm:-mt-20">
+          <div className="rounded-card border border-rule bg-surface p-5 shadow-lift sm:p-7">
+            <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
+              <div className="relative grid h-20 w-20 shrink-0 place-items-center overflow-hidden rounded-full border-4 border-surface bg-sunken shadow-card sm:h-24 sm:w-24">
+                {shop?.avatar ? (
+                  <Image
+                    src={shop.avatar}
+                    alt=""
+                    fill
+                    unoptimized
+                    className="object-cover"
+                  />
+                ) : (
+                  <span className="font-jost text-3xl font-semibold text-ink-muted">
+                    {shop?.name?.[0]?.toUpperCase() ?? "S"}
+                  </span>
+                )}
               </div>
+
+              <div className="min-w-0 flex-1">
+                <div className="flex items-start gap-3">
+                  {/* The coral rail the whole product uses to say "here". */}
+                  <span className="marker mt-1.5 h-8" aria-hidden="true" />
+                  <div className="min-w-0">
+                    <h1 className="font-jost text-[28px] font-semibold leading-none tracking-[-0.02em] text-ink sm:text-[34px]">
+                      {shop?.name}
+                    </h1>
+                    <p className="mt-2 max-w-xl text-sm leading-relaxed text-ink-muted">
+                      {shop?.bio ||
+                        "This seller hasn't written a description yet."}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <Button
+                variant={isFollowing ? "ghost" : "primary"}
+                onClick={() => toggleFollowMutation.mutate()}
+                disabled={toggleFollowMutation.isPending}
+                aria-pressed={isFollowing}
+                className="shrink-0 self-start"
+              >
+                <Heart
+                  size={16}
+                  className={isFollowing ? "fill-coral-ink text-coral-ink" : ""}
+                  aria-hidden="true"
+                />
+                {isFollowing ? "Following" : "Follow shop"}
+              </Button>
             </div>
-          )}
+
+            {/*
+              FACT RAIL — the four things a shopper actually weighs before
+              browsing. Product count is deliberately absent: the grid is
+              paginated, so any number here would be the page size, not the
+              catalogue.
+            */}
+            <dl className="mt-6 grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-rule bg-rule sm:grid-cols-4">
+              <Fact label="Rating">
+                {reviews.length > 0 || shop?.ratings ? (
+                  <span className="inline-flex items-center gap-1.5">
+                    <Star size={15} className="fill-warn text-warn" aria-hidden="true" />
+                    <Figure>{(shop?.ratings ?? 0).toFixed(1)}</Figure>
+                  </span>
+                ) : (
+                  <span className="text-base text-ink-faint">Not rated</span>
+                )}
+              </Fact>
+              <Fact label="Reviews">
+                <Figure>{reviews.length}</Figure>
+              </Fact>
+              <Fact label="Followers">
+                <Figure>{followers}</Figure>
+              </Fact>
+              <Fact label="Selling since">
+                {joinedYear ? <Figure>{joinedYear}</Figure> : "—"}
+              </Fact>
+            </dl>
+
+            {/*
+              Shop details as an inline rail rather than the half-empty sidebar
+              card this page used to carry — most sellers fill in one or two of
+              these, and a panel of blanks reads worse than a short line.
+            */}
+            {(shop?.opening_hours ||
+              shop?.address ||
+              shop?.website ||
+              (shop?.socialLinks?.length ?? 0) > 0) && (
+              <div className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-2.5 border-t border-rule pt-5 text-sm text-ink-muted">
+                {shop?.opening_hours ? (
+                  <Meta icon={Clock}>{shop.opening_hours}</Meta>
+                ) : null}
+                {shop?.address ? <Meta icon={MapPin}>{shop.address}</Meta> : null}
+                {shop?.website ? (
+                  <Meta icon={Globe}>
+                    <Link
+                      href={shop.website}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-coral-ink underline-offset-4 hover:underline"
+                    >
+                      {shop.website.replace(/^https?:\/\//, "")}
+                    </Link>
+                  </Meta>
+                ) : null}
+                {(shop?.socialLinks ?? []).map((link, i) =>
+                  link?.url ? (
+                    <a
+                      key={i}
+                      href={link.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-ink-faint transition-colors hover:text-coral-ink"
+                      aria-label={link.type ?? "Social link"}
+                    >
+                      {link.type === "youtube" ? (
+                        <Video size={17} />
+                      ) : (
+                        <XIcon size={17} />
+                      )}
+                    </a>
+                  ) : null
+                )}
+              </div>
+            )}
+          </div>
         </motion.div>
-      </motion.div>
 
-      {/* Tabs Section */}
-      <motion.div
-        variants={fadeUp}
-        className="w-[90%] lg:w-[75%] mx-auto mt-10"
-      >
-        <div className="flex border-b border-gray-700 overflow-x-auto">
-          {TABS.map((tab) => (
-            <motion.button
-              key={tab}
-              whileHover={{ scale: 1.05 }}
-              onClick={() => setActiveTab(tab)}
-              className={`py-3 px-6 text-lg font-semibold transition-all duration-200 ${
-                activeTab === tab
-                  ? "text-white border-b-2 border-blue-500"
-                  : "text-gray-400 hover:text-white"
-              }`}
-            >
-              {tab}
-            </motion.button>
-          ))}
-        </div>
+        {/* TABS */}
+        <div className="mt-10">
+          <div
+            role="tablist"
+            aria-label="Shop sections"
+            className="scroll-slim flex gap-1 overflow-x-auto border-b border-rule"
+          >
+            {TABS.map((tab) => {
+              const selected = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  role="tab"
+                  id={`tab-${tab.id}`}
+                  aria-selected={selected}
+                  aria-controls={`panel-${tab.id}`}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`-mb-px flex shrink-0 items-center gap-2 border-b-2 px-4 py-3 text-sm font-medium transition-colors ${
+                    selected
+                      ? "border-coral text-ink"
+                      : "border-transparent text-ink-muted hover:text-coral-ink"
+                  }`}
+                >
+                  <tab.icon size={15} aria-hidden="true" />
+                  {tab.label}
+                  {tab.id === "Reviews" && reviews.length > 0 ? (
+                    <Figure className="text-xs text-ink-faint">
+                      {reviews.length}
+                    </Figure>
+                  ) : null}
+                </button>
+              );
+            })}
+          </div>
 
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={activeTab}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.3 }}
+          <div
+            role="tabpanel"
+            id={`panel-${activeTab}`}
+            aria-labelledby={`tab-${activeTab}`}
             className="mt-6"
           >
-            {activeTab === "Products" && (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                {isLoading ? (
-                  Array.from({ length: 10 }).map((_, i) => (
-                    <motion.div
-                      key={i}
-                      className="h-[250px] bg-gray-800 animate-pulse rounded-lg"
-                    />
-                  ))
-                ) : products?.length ? (
-                  products.map((product: any) => (
-                    <motion.div
-                      key={product.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.3 }}
-                    >
-                      <ProductCard product={product} />
-                    </motion.div>
-                  ))
-                ) : (
-                  <p className="text-gray-400 text-center py-6">
-                    No products available yet!
-                  </p>
-                )}
-              </div>
+            {activeTab === "Products" ? (
+              <Grid
+                isLoading={isLoading}
+                items={products}
+                empty={
+                  <EmptyState
+                    icon={<PackageOpen size={30} />}
+                    title="Nothing listed yet"
+                    hint="This shop hasn't published any products. Follow it to hear when the first one lands."
+                  />
+                }
+                render={(product) => <ProductCard product={product} />}
+              />
+            ) : activeTab === "Offers" ? (
+              <Grid
+                isLoading={isEventsLoading}
+                items={events}
+                empty={
+                  <EmptyState
+                    icon={<TicketPercent size={30} />}
+                    title="No offers running"
+                    hint="Timed deals from this shop will appear here while they're live."
+                  />
+                }
+                render={(product) => <ProductCard product={product} isEvent />}
+              />
+            ) : (
+              <Reviews reviews={reviews} average={shop?.ratings ?? 0} />
             )}
+          </div>
+        </div>
+      </Container>
+    </div>
+  );
+}
 
-            {activeTab === "Offers" && (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                {isEventsLoading ? (
-                  Array.from({ length: 10 }).map((_, i) => (
-                    <div
-                      key={i}
-                      className="h-[250px] bg-gray-800 animate-pulse rounded-lg"
-                    />
-                  ))
-                ) : events?.length ? (
-                  events.map((product: any) => (
-                    <motion.div
-                      key={product.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.3 }}
-                    >
-                      <ProductCard product={product} isEvent />
-                    </motion.div>
-                  ))
-                ) : (
-                  <p className="text-gray-400 text-center py-6">
-                    No offers available yet!
-                  </p>
-                )}
-              </div>
-            )}
+/* ------------------------------------------------------------ shop window -- */
 
-            {activeTab === "Reviews" && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="text-center text-gray-400 py-10"
+/**
+ * The header band. A shop's own goods are the most honest thing to show at the
+ * top of its page, so with no uploaded banner this sets out the first few
+ * product images like a window display rather than hotlinking a stock photo of
+ * someone else's warehouse — the same call `shop.card.tsx` already made for the
+ * cards on the shops index.
+ */
+function ShopWindow({
+  shopName,
+  coverBanner,
+  images,
+  reduceMotion,
+}: {
+  shopName?: string;
+  coverBanner?: string | null;
+  images: string[];
+  reduceMotion: boolean;
+}) {
+  const hasWindow = !coverBanner && images.length >= 3;
+
+  return (
+    <div className="relative h-[190px] w-full overflow-hidden bg-sunken sm:h-[280px]">
+      {coverBanner ? (
+        <Image
+          src={coverBanner}
+          alt=""
+          fill
+          unoptimized
+          priority
+          className="object-cover"
+        />
+      ) : hasWindow ? (
+        <div className="flex h-full w-full">
+          {images.map((src, i) => (
+            <motion.div
+              key={`${src}-${i}`}
+              initial={reduceMotion ? false : { opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5, delay: i * 0.06 }}
+              /* Six panes at phone width are 60px slivers that read as stripes
+                 rather than goods, so the tail of the row drops out as the
+                 viewport narrows. */
+              className={`relative h-full flex-1 ${
+                i >= 3 ? "hidden sm:block" : ""
+              } ${i >= 5 ? "sm:hidden lg:block" : ""}`}
+            >
+              <Image src={src} alt="" fill unoptimized className="object-cover" />
+            </motion.div>
+          ))}
+        </div>
+      ) : (
+        <div className="grid h-full w-full place-items-center bg-gradient-to-br from-coral/15 to-coral/5">
+          <Store size={34} className="text-coral-ink/40" aria-hidden="true" />
+        </div>
+      )}
+
+      {/*
+        The wash, in two layers. Product shots are busy and arrive in unknown
+        tones, so a coral tint gives the band one consistent cast and the canvas
+        gradient veils it — heavily at the top, where the breadcrumb has to stay
+        legible over whatever photo happens to sit there, and to solid at the
+        bottom so the masthead lifts off it cleanly.
+      */}
+      {(coverBanner || hasWindow) && (
+        <>
+          <div aria-hidden="true" className="absolute inset-0 bg-coral/20" />
+          <div
+            aria-hidden="true"
+            className="absolute inset-0 bg-gradient-to-b from-canvas/80 via-canvas/45 to-canvas"
+          />
+        </>
+      )}
+
+      <div className="absolute inset-x-0 top-0">
+        <Container className="pt-5">
+          <Crumbs
+            trail={[
+              { label: "Shops", href: "/shops" },
+              { label: shopName ?? "Shop" },
+            ]}
+          />
+        </Container>
+      </div>
+    </div>
+  );
+}
+
+/* ---------------------------------------------------------------- pieces -- */
+
+function Fact({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="bg-surface px-4 py-3">
+      <dt className="text-label font-semibold uppercase text-ink-faint">{label}</dt>
+      <dd className="mt-1 text-lg font-semibold text-ink">{children}</dd>
+    </div>
+  );
+}
+
+function Meta({
+  icon: Icon,
+  children,
+}: {
+  icon: React.ElementType;
+  children: React.ReactNode;
+}) {
+  return (
+    <span className="inline-flex min-w-0 items-center gap-2">
+      <Icon size={15} className="shrink-0 text-coral-ink" aria-hidden="true" />
+      <span className="truncate">{children}</span>
+    </span>
+  );
+}
+
+function Grid({
+  isLoading,
+  items,
+  empty,
+  render,
+}: {
+  isLoading: boolean;
+  items?: any[];
+  empty: React.ReactNode;
+  render: (item: any) => React.ReactNode;
+}) {
+  if (isLoading) {
+    return (
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+        {Array.from({ length: 10 }).map((_, i) => (
+          <CardSkeleton key={i} />
+        ))}
+      </div>
+    );
+  }
+
+  // The empty state used to be a `<p>` inside the grid, so it was laid out as a
+  // single 1-of-5 column and sat squashed against the left edge.
+  if (!items?.length) return <>{empty}</>;
+
+  return (
+    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+      {items.map((item: any) => (
+        <div key={item.id}>{render(item)}</div>
+      ))}
+    </div>
+  );
+}
+
+/**
+ * Reviews here are a star rating and nothing else — `shopReviews` has no comment
+ * column — so this shows the shape of the ratings rather than pretending there is
+ * prose to read. The tab used to be hard-coded to "No Reviews Available yet!"
+ * while `get-seller` was already returning this data.
+ */
+function Reviews({
+  reviews,
+  average,
+}: {
+  reviews: ShopReview[];
+  average: number;
+}) {
+  if (reviews.length === 0) {
+    return (
+      <EmptyState
+        icon={<Star size={30} />}
+        title="No ratings yet"
+        hint="Ratings appear here once buyers have ordered from this shop."
+      />
+    );
+  }
+
+  const buckets = [5, 4, 3, 2, 1].map((stars) => ({
+    stars,
+    count: reviews.filter((r) => Math.round(r.rating) === stars).length,
+  }));
+
+  return (
+    <div className="grid gap-6 lg:grid-cols-[280px_1fr]">
+      <div className="rounded-card border border-rule bg-surface p-5 shadow-card">
+        <p className="font-jost text-5xl font-semibold leading-none text-ink">
+          <Figure>{average.toFixed(1)}</Figure>
+        </p>
+        <div className="mt-2.5">
+          <Rating value={average} count={reviews.length} size={15} />
+        </div>
+
+        <div className="mt-5 space-y-2">
+          {buckets.map(({ stars, count }) => (
+            <div key={stars} className="flex items-center gap-2.5">
+              <span className="figure w-3 text-xs text-ink-muted">{stars}</span>
+              <Star size={11} className="fill-warn text-warn" aria-hidden="true" />
+              <div
+                className="h-1.5 flex-1 overflow-hidden rounded-full bg-sunken ring-1 ring-inset ring-rule"
+                role="presentation"
               >
-                No Reviews Available yet!
-              </motion.div>
-            )}
-          </motion.div>
-        </AnimatePresence>
-      </motion.div>
-    </motion.div>
+                <div
+                  className="h-full rounded-full bg-coral"
+                  style={{
+                    width: `${(count / reviews.length) * 100}%`,
+                  }}
+                />
+              </div>
+              <span className="figure w-4 text-right text-xs text-ink-faint">
+                {count}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <ul className="divide-y divide-rule overflow-hidden rounded-card border border-rule bg-surface shadow-card">
+        {reviews.map((review) => (
+          <li key={review.id} className="flex items-center gap-4 px-5 py-4">
+            {/*
+              `get-seller` includes the review's user but not that user's avatar
+              relation, so this is an initial by design rather than a fallback
+              for a missing image.
+            */}
+            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-coral-soft font-jost text-sm font-semibold text-coral-ink">
+              {review.user?.name?.[0]?.toUpperCase() ?? "?"}
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="clamp-1 text-sm font-medium text-ink">
+                {review.user?.name ?? "A buyer"}
+              </p>
+              <p className="mt-0.5 text-xs text-ink-faint">
+                {shortDate(review.createdAt)}
+              </p>
+            </div>
+            <Rating value={review.rating} size={13} />
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }

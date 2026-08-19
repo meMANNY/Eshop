@@ -11,11 +11,16 @@ const nextConfig = {
   // Use this to set Nx-specific options
   // See: https://nx.dev/recipes/next/next-config-setup
   nx: {},
-  images:{
-    remotePatterns: [{
-      hostname: "ik.imagekit.io",
-      
-    }]
+  images: {
+    // next/image only loads remote images from hosts listed here. Kept in step
+    // with user-ui and seller-ui — the admin console shows the same products,
+    // so a host missing here renders as a broken image only in this app.
+    remotePatterns: [
+      { protocol: 'https', hostname: 'ik.imagekit.io' }, // product images
+      { protocol: 'https', hostname: 'images.unsplash.com' }, // placeholder fallbacks
+      { protocol: 'https', hostname: 'picsum.photos' },
+      { protocol: 'https', hostname: 'cdn-icons-png.flaticon.com' }, // icon placeholders
+    ],
   }
 };
 

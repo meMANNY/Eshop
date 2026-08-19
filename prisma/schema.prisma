@@ -14,15 +14,28 @@ datasource db {
 
 //Node js 20 is depricated
 
+/*
+  These three foreign keys were each `@unique`, which on MongoDB becomes a
+  NON-SPARSE unique index — and a non-sparse index reads a missing field as
+  `null`. Every row here omits two of the three by design (a product image has
+  no userId and no shopId), so the second row inserted collided on whichever
+  field it left out: the collection could hold exactly one document, and every
+  avatar and product-image upload after the first failed with P2002.
+
+  The parent models all declare `images[]`, and the generated client already
+  returned arrays, so dropping `@unique` matches what the relations always
+  meant. It also lets a product carry the several images the create-product
+  form uploads.
+*/
 model images {
   id        String    @id @default(auto()) @map("_id") @db.ObjectId //primary key
   file_id   String
   url       String
-  userId    String?   @unique @db.ObjectId // foreign key
-  users     users?    @relation(name: "UserAvatar", fields: [userId], references: [id]) // requires foreign key to be unique
-  shopId    String?   @unique @db.ObjectId
+  userId    String?   @db.ObjectId // foreign key
+  users     users?    @relation(name: "UserAvatar", fields: [userId], references: [id])
+  shopId    String?   @db.ObjectId
   shops     shops?    @relation(name: "ShopAvatar", fields: [shopId], references: [id])
-  productId String?   @unique @db.ObjectId
+  productId String?   @db.ObjectId
   products  products? @relation(name: "ProductImages", fields: [productId], references: [id])
 }
 

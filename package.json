@@ -6,7 +6,11 @@
     "dev": "npx nx run-many --target=serve --all",
     "user-ui": "npx nx run @org/user-ui:dev",
     "seller-ui": "npx nx run @org/seller-ui:dev",
-    "admin-ui": "npx nx run @org/admin-ui:dev"
+    "admin-ui": "npx nx run @org/admin-ui:dev",
+    "seed": "ts-node -P prisma/tsconfig.seed.json prisma/seed.ts"
+  },
+  "prisma": {
+    "seed": "ts-node -P prisma/tsconfig.seed.json prisma/seed.ts"
   },
   "private": true,
   "dependencies": {

@@ -82,9 +82,21 @@ consumeKafkaMessages().catch((err) => {
 });
 
 const PORT = Number(process.env.KAFKA_HTTP_PORT || 6010);
+/*
+  All three storefront/console dev servers, not just 3000. Nx serves the Next
+  apps together and they each default to port 3000, so whichever starts second
+  and third gets bumped to 3001 and 3002 — which app lands on which port depends
+  on start order. Listing only 3000 meant the browser blocked /track from
+  whichever app happened to lose that race. Matches the api-gateway allowlist.
+*/
 const ALLOW_ORIGINS = process.env.CORS_ORIGIN?.split(",").map((s) =>
   s.trim()
-) || ["http://localhost:3000", "http://localhost:8080"];
+) || [
+  "http://localhost:3000",
+  "http://localhost:3001",
+  "http://localhost:3002",
+  "http://localhost:8080",
+];
 
 const app = express();
 
