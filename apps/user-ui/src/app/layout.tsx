@@ -2,7 +2,6 @@ import './global.css';
 import { IBM_Plex_Mono, IBM_Plex_Sans, Jost } from 'next/font/google';
 import { Toaster } from 'react-hot-toast';
 import Providers from './providers';
-import Header from '@/shared/widgets/header';
 
 export const metadata = {
   title: 'Zshop',
@@ -49,10 +48,12 @@ export default function RootLayout({
       <body
         className={`${sans.variable} ${mono.variable} ${jost.variable} min-h-screen bg-canvas font-sans text-ink antialiased`}
       >
-        <Providers>
-          <Header />
-          {children}
-        </Providers>
+        {/*
+          The header used to sit here, which put the storefront's search bar and
+          cart on the sign-in screen. It now belongs to the `(routes)` group, so
+          the auth screens render on their own.
+        */}
+        <Providers>{children}</Providers>
         {/*
           No Toaster was mounted anywhere in this app, so the four
           toast.success/toast.error calls in the storefront resolved to nothing —

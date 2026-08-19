@@ -5,6 +5,7 @@ import { AuthError, NotFoundError, ValidationError } from "../../../../packages/
 import bcrypt from "bcryptjs";
 import jwt, { JsonWebTokenError } from "jsonwebtoken";
 import { setCookie } from "../utils/cookies/setCookie";
+import { clearCookie } from "../utils/cookies/clearCookie";
 import Stripe from 'stripe'
 import { logAsync } from "../../../../packages/utils/logs/send-logs";
 
@@ -1022,6 +1023,51 @@ export const getAdmin = async (req: any, res: Response, next: NextFunction) => {
       success: true,
       admin,
     });
+  } catch (err) {
+    return next(err);
+  }
+};
+
+/*
+  Ends a session. Session tokens live in httpOnly cookies, so the browser cannot
+  clear them itself — a client-side "logout" that just drops cached state leaves
+  the access cookie valid for 15 minutes and the refresh cookie for 7 days, and
+  reopening the site signs you straight back in.
+
+  Deliberately unauthenticated: an expired or malformed token is exactly when
+  someone needs to log out, and requiring a valid session to end a session would
+  strand them.
+*/
+const SESSION_COOKIES = {
+  user: ["accessToken", "refreshToken"],
+  seller: ["seller-access-token", "seller-refresh-token"],
+  admin: ["access_token", "refresh_token"],
+} as const;
+
+export const logoutAccount = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const role = (req.body?.role ?? "user") as keyof typeof SESSION_COOKIES;
+
+    const names = SESSION_COOKIES[role];
+    if (!names)
+      return next(
+        new ValidationError("Invalid request data", "Unknown account role")
+      );
+
+    /*
+      Only this role's pair. On localhost every app shares one cookie jar because
+      cookies ignore the port, so clearing all three would sign you out of the
+      seller dashboard because you logged out of the storefront.
+    */
+    for (const name of names) clearCookie(res, name);
+
+    logAsync({ type: "info", message: `Logged out (${role})` });
+
+    return res.status(200).json({ success: true });
   } catch (err) {
     return next(err);
   }

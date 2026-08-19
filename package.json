@@ -7,6 +7,7 @@
     "user-ui": "npx nx run @org/user-ui:dev",
     "seller-ui": "npx nx run @org/seller-ui:dev",
     "admin-ui": "npx nx run @org/admin-ui:dev",
+    "stripe:listen": "stripe listen --forward-to localhost:6004/api/create-order",
     "seed": "ts-node -P prisma/tsconfig.seed.json prisma/seed.ts",
     "build-recommendations": "ts-node -P apps/recommendation-service/tsconfig.job.json apps/recommendation-service/src/jobs/buildIndex.ts"
   },

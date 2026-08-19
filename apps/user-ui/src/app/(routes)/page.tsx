@@ -3,16 +3,16 @@
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { PackageSearch, Store } from "lucide-react";
-import Hero from "../shared/modules/hero";
-import axiosInstance from "../utils/axiosInstance";
-import ProductCard from "../shared/components/cards/product-card";
-import ShopCard from "../shared/components/cards/shop.card";
+import Hero from "@/shared/modules/hero";
+import axiosInstance from "@/utils/axiosInstance";
+import ProductCard from "@/shared/components/cards/product-card";
+import ShopCard from "@/shared/components/cards/shop.card";
 import {
   CardSkeleton,
   Container,
   EmptyState,
   SectionTitle,
-} from "../shared/components/ui";
+} from "@/shared/components/ui";
 
 const GRID =
   "grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 md:gap-5 2xl:grid-cols-5";

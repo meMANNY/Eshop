@@ -86,11 +86,25 @@ function ProfileContent() {
     }
   }, [activeTab]);
 
+  /*
+    The session cookies are httpOnly, so only the server can end a session —
+    this used to GET a `/api/logout` route that did not exist, and because the
+    redirect sat inside `.then()`, the 404 meant the button neither logged you
+    out nor navigated you anywhere.
+
+    The redirect now happens whichever way the request goes. A logout button
+    that leaves you stranded on the page because the network hiccuped is worse
+    than one that signs you out optimistically.
+  */
   const logOutHandler = async () => {
-    await axiosInstance.get("/api/logout").then(() => {
-      queryClient.invalidateQueries({ queryKey: ["user"] });
+    try {
+      await axiosInstance.post("/api/logout", { role: "user" });
+    } catch {
+      toast.error("We couldn't reach the server — signing you out here.");
+    } finally {
+      queryClient.clear();
       router.push("/login");
-    });
+    }
   };
 
   const { data: notifications, isLoading: notificationsLoading } = useQuery({

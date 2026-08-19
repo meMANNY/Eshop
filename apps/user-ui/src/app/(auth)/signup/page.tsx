@@ -1,273 +1,236 @@
 'use client';
-import React, { useState } from 'react'
+
+import Link from 'next/link';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
-import Link from 'next/link';
-import { Eye, EyeOff } from 'lucide-react';
 import { useMutation } from '@tanstack/react-query';
-import axios,{AxiosError} from 'axios';
+import axios, { AxiosError } from 'axios';
+import { ArrowLeft } from 'lucide-react';
+import { Button, Field } from '@/shared/components/ui';
+import {
+  AuthHeading,
+  AuthShell,
+  FormError,
+  OTP_LENGTH,
+  OtpInput,
+  PasswordField,
+  ResendLine,
+  Slip,
+  SlipLine,
+  useResendTimer,
+} from '@/shared/components/auth';
+
 type FormData = {
-    name: string;
-    email: string;
-    password: string;
-}
+  name: string;
+  email: string;
+  password: string;
+};
 
-const Signup = () => {
+export default function SignupPage() {
+  const [serverError, setServerError] = useState('');
+  const [showOtp, setShowOtp] = useState(false);
+  const [otp, setOtp] = useState<string[]>(Array(OTP_LENGTH).fill(''));
+  const [pending, setPending] = useState<FormData | null>(null);
+  const router = useRouter();
+  const resend = useResendTimer(60);
 
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<FormData>();
 
-    const [passwordVisible, setPasswordVisible] = useState(false);
-    const [serverError, setServerError] = useState('');
-    const [showOtp, setShowOtp] = useState(false);
-    const [canResend, setCanResend] = useState(false);
-    const [timer, setTimer] = useState(60);
-    const [otp,setOtp] = useState(['','','','']);
-    const [userData, setUserData] = useState<FormData | null>(null);
-    const inputRefs = React.useRef<(HTMLInputElement | null)[]>([]);
+  const failed = (fallback: string) => (error: AxiosError<{ message: string }>) =>
+    setServerError(
+      error.response?.data?.message ??
+        (error.response
+          ? fallback
+          : "Can't reach the server. Check that the gateway is running.")
+    );
 
-    const router  = useRouter();
+  const signupMutation = useMutation({
+    mutationFn: async (data: FormData) => {
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_SERVER_URI}/api/user-registration`,
+        data
+      );
+      return response.data;
+    },
+    onSuccess: (_, formData) => {
+      setPending(formData);
+      setServerError('');
+      setOtp(Array(OTP_LENGTH).fill(''));
+      setShowOtp(true);
+      resend.start();
+    },
+    onError: failed('Something went wrong. Try again.'),
+  });
 
+  const verifyMutation = useMutation({
+    mutationFn: async () => {
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_SERVER_URI}/api/verify-user`,
+        { ...pending, otp: otp.join('') }
+      );
+      return response.data;
+    },
+    onSuccess: () => {
+      setServerError('');
+      router.push('/login');
+    },
+    onError: failed('That code did not work. Check it and try again.'),
+  });
 
-    
+  const resendCode = () => {
+    if (!resend.canResend || !pending) return;
+    setOtp(Array(OTP_LENGTH).fill(''));
+    resend.start();
+    signupMutation.mutate(pending);
+  };
 
-    const {
-        register,
-        handleSubmit,
-        formState: { errors },
-    } = useForm<FormData>();
-
-    const handleOtpChange = (index: number, value: string) => {
-        if (/^\d*$/.test(value)) {
-            const newOtp = [...otp];
-            newOtp[index] = value.slice(-1);
-            setOtp(newOtp);
-            if(value && index < inputRefs.current.length - 1) {
-                inputRefs.current[index + 1]?.focus();
-            }
-        }
-    };
-
-    const startResendTimer = () => {
-        const interval = setInterval(() => {
-            setTimer((prev) => {
-                if (prev <= 1) {
-                    clearInterval(interval);
-                    setCanResend(true);
-                    return 0;
-                }
-                return prev - 1;
-            });
-        }, 1000);
-    };
-    const handleOtpKeyDown = (index: number, event: React.KeyboardEvent<HTMLInputElement>) => {
-        if (event.key === 'Backspace' && !otp[index] && index > 0) {
-            inputRefs.current[index - 1]?.focus();
-        }
-    };
-
-
-
-    const signupMutation = useMutation({
-        mutationFn: async (data: FormData) => {
-            const response = await axios.post(`${process.env.NEXT_PUBLIC_SERVER_URI}/api/user-registration`,data);
-            return response.data;
-        },
-        onSuccess: (_,formData) => {
-            setUserData(formData);
-            setServerError('');
-            setShowOtp(true);
-            setCanResend(false);
-            setTimer(60);
-            startResendTimer();
-        },
-        onError: (error: AxiosError<{ message: string }>) => {
-            setServerError(error.response?.data?.message || 'Something went wrong. Please try again.');
-        },
-    });
-
-    const verifyOtpMutation = useMutation({
-        mutationFn: async () => {
-            if (!userData) return;
-            const response = await axios.post(`${process.env.NEXT_PUBLIC_SERVER_URI}/api/verify-user`, {
-                ...userData,
-                otp: otp.join(''),
-            });
-            return response.data;
-        },
-        onSuccess: () => {
-            setServerError('');
-            router.push('/login');
-        },
-        onError: (error: AxiosError<{ message: string }>) => {
-            setServerError(error.response?.data?.message || 'Invalid OTP. Please try again.');
-        },
-    });
-
-    const onSubmit = (data: FormData) => {
-        signupMutation.mutate(data);
-    };
-
-    const verifyOtp = () => {
-        verifyOtpMutation.mutate();
-    };
-
-    const resendOtp = () => {
-        if (!canResend || !userData) return;
-        setOtp(['', '', '', '']);
-        setCanResend(false);
-        setTimer(60);
-        startResendTimer();
-        signupMutation.mutate(userData);
-    };
+  const slip = (
+    /*
+      Signup's slip is a docket rather than a receipt — nothing has happened yet,
+      so it lists what the account will hold rather than what it does. "Free,
+      always" is the one claim on it, and it is true: there is no paid tier.
+    */
+    <Slip kind="New account" total={{ label: 'Total', value: 'Free, always' }}>
+      <SlipLine label="Order history" value="kept" />
+      <SlipLine label="Wishlist" value="kept" />
+      <SlipLine label="Saved addresses" value="kept" />
+      <SlipLine label="Faster checkout" value="yes" />
+    </Slip>
+  );
 
   return (
-    <div className = "w-full py-10 min-h-[85vh] bg-sunken">
-        <h1 className = "text-4xl font-jost font-semibold text-black text-center ">
-            Signup
-        </h1>
-        <p className='text-center text-lg font-medium py-3 text-[#00000099]'>
-            HOME . SIGNUP
-        </p>
-        <div className = "w-full flex justify-center">
-            <div className = "md:w-[480px] p-8 bg-surface shadow rounded-lg">
-                <h3 className = "text-3xl font-semibold text-center mb-2">
-                    Signup to Eshop
-                </h3>
-                {!showOtp && (
-                    <p className = "text-center text-[#00000099] mb-6">
-                            Already have an account? <Link href="/login" className = "text-coral-ink cursor-pointer">Login</Link>
-                    </p>
-                )}
+    <AuthShell
+      headline={
+        <>
+          One account.
+          <br />
+          Every order in it.
+        </>
+      }
+      blurb="Keep your orders, addresses and the things you liked in one place, on every device you shop from."
+      slip={slip}
+    >
+      {!showOtp ? (
+        <>
+          <AuthHeading title="Create your account">
+            Already have one?{' '}
+            <Link
+              href="/login"
+              className="font-medium text-coral-ink underline-offset-4 hover:underline"
+            >
+              Sign in
+            </Link>
+          </AuthHeading>
 
-                {!showOtp ? (
-                    <>
-                        <button
-                            type="button"
-                            className="group w-full flex items-center justify-center gap-3 border border-[#e0e0e0] rounded-xl py-3 px-4 text-sm font-semibold text-[#000000cc] bg-surface shadow-sm hover:shadow-md hover:border-[#c9c9c9] hover:bg-[#fafafa] active:scale-[0.99] transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#4285F4]/30"
-                        >
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" className="w-5 h-5 transition-transform duration-200 group-hover:scale-110">
-                                <path fill="#EA4335" d="M24 9.5c3.14 0 5.95 1.08 8.17 2.84l6.08-6.08C34.46 3.09 29.52 1 24 1 14.82 1 6.98 6.48 3.38 14.34l7.08 5.5C12.13 13.65 17.6 9.5 24 9.5z"/>
-                                <path fill="#4285F4" d="M46.52 24.5c0-1.64-.15-3.22-.42-4.75H24v9h12.67c-.55 2.97-2.22 5.48-4.72 7.17l7.25 5.63C43.35 37.26 46.52 31.35 46.52 24.5z"/>
-                                <path fill="#FBBC05" d="M10.46 28.16A14.6 14.6 0 0 1 9.5 24c0-1.44.2-2.84.55-4.16l-7.08-5.5A23.94 23.94 0 0 0 0 24c0 3.86.92 7.51 2.54 10.74l7.92-6.58z"/>
-                                <path fill="#34A853" d="M24 47c5.52 0 10.15-1.83 13.53-4.96l-7.25-5.63c-1.83 1.23-4.17 1.96-6.28 1.96-6.4 0-11.87-4.15-13.54-9.84l-7.92 6.58C6.98 41.52 14.82 47 24 47z"/>
-                                <path fill="none" d="M0 0h48v48H0z"/>
-                            </svg>
-                            Sign up with Google
-                        </button>
-                        <div className = "flex items-center my-5 text-ink-faint text-sm">
-                            <div className = "flex-1 border-t border-rule"/>
-                            <span>or Sign up with Email</span>
-                            <div className = "flex-1 border-t border-rule"/>
-                        </div>
-                        <form onSubmit = {handleSubmit(onSubmit)}>
-                                <label className = "block text-ink-muted mb-1"> Name</label>
-                                <input
-                                type = "text"
-                                placeholder = "Dark King"
-                                className = "w-full p-2 border border-rule outline-0 !rounded mb-1"
-                                {...register('name', {
-                                    required: 'Name is required',
-                                })}
-                                />
-                                {errors.name &&
-                                (<p className = "text-neg text-sm mb-1">{errors.name.message}</p>)}
-                                <label className = "block text-ink-muted mb-1"> Email</label>
-                                <input
-                                type = "email"
-                                placeholder = "support@DarkKing.com"
-                                className = "w-full p-2 border border-rule outline-0 !rounded mb-1"
-                                {...register('email', {
-                                    required: 'Email is required',
-                                    pattern: {
-                                        value: /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/,
-                                        message: 'Invalid email address',
-                                    }
-                                })}
-                                />
-                                {errors.email &&
-                                (<p className = "text-neg text-sm mb-1">{errors.email.message}</p>)}
-                                <label className = "block text-ink-muted mb-1"> Password</label>
-                                <div className = "relative">
-                                    <input
-                                    type = {passwordVisible ? 'text' : 'password'}
-                                    placeholder = "Minimum 6 characters"
-                                    className = "w-full p-2 border border-rule outline-0 !rounded mb-1"
-                                    {...register('password', {
-                                        required: 'Password is required',
-                                        minLength: {
-                                            value: 6,
-                                            message: 'Password must be at least 6 characters',
-                                        },
-                                    })}
-                                    />
-                                    <button type ="button" onClick={()=>setPasswordVisible(!passwordVisible)}
-                                    className = "absolute inset-y-0 right-3 flex items-center text-ink-faint" >
-                                    {passwordVisible ? <Eye/> : <EyeOff/>}
-                                    </button>
-                                    {errors.password &&
-                                    (<p className = "text-neg text-sm mb-1">{errors.password.message}</p>)}
-                                </div>
-                                <button
-                                    type="submit"
-                                    disabled={signupMutation.isPending}
-                                    className="w-full bg-coral text-[#2b0f0a] py-2 px-4 rounded font-semibold hover:bg-coral-dim active:scale-[0.99] transition-all duration-200 mt-4"
-                                >
-                                    {signupMutation.isPending ? 'Signing up...' : 'Sign Up'}
-                                </button>
-                                {serverError && <p className="text-neg text-sm mt-2">{serverError}</p>}
-                        </form>
-                    </>
-                ) : (
-                    <div>
-                        <h3 className="text-3xl font-semibold text-center mb-2">Enter OTP</h3>
-                        <p className="text-center text-sm text-[#00000099] mb-4">
-                            We sent a 4-digit code to {userData?.email}
-                        </p>
-                        <div className="flex justify-center gap-3">
-                            {otp.map((digit, index) => (
-                                <input
-                                    key={index}
-                                    ref={(element) => {
-                                        inputRefs.current[index] = element;
-                                    }}
-                                    type="text"
-                                    inputMode="numeric"
-                                    autoComplete="one-time-code"
-                                    maxLength={1}
-                                    value={digit}
-                                    onChange={(event) => handleOtpChange(index, event.target.value)}
-                                    onKeyDown={(event) => handleOtpKeyDown(index, event)}
-                                    aria-label={`OTP digit ${index + 1}`}
-                                    className="h-12 w-12 rounded border border-rule bg-surface text-center text-xl font-semibold outline-0 focus:border-coral focus:ring-2 focus:ring-coral/20"
-                                />
-                            ))}
-                        </div>
-                        <button
-                            type="button"
-                            onClick={verifyOtp}
-                            disabled={verifyOtpMutation.isPending || otp.some((d) => d === '')}
-                            className="w-full bg-coral text-[#2b0f0a] py-2 px-4 rounded font-semibold hover:bg-coral-dim active:scale-[0.99] transition-all duration-200 mt-6 disabled:opacity-60"
-                        >
-                            {verifyOtpMutation.isPending ? 'Verifying...' : 'Verify OTP'}
-                        </button>
-                        <p className="text-center text-sm text-[#00000099] mt-4">
-                            {canResend ? (
-                                <button type="button" onClick={resendOtp} className="text-coral-ink font-medium cursor-pointer">
-                                    Resend OTP
-                                </button>
-                            ) : (
-                                <>Resend OTP in {timer}s</>
-                            )}
-                        </p>
-                        {serverError && <p className="text-neg text-sm mt-2 text-center">{serverError}</p>}
-                    </div>
-                )}
+          <form
+            onSubmit={handleSubmit((data) => signupMutation.mutate(data))}
+            className="mt-8 space-y-4"
+            noValidate
+          >
+            <Field
+              label="Name"
+              autoComplete="name"
+              placeholder="Your name"
+              error={errors.name?.message}
+              {...register('name', { required: 'Enter your name' })}
+            />
 
-            </div>
-        </div>
+            <Field
+              label="Email"
+              type="email"
+              autoComplete="email"
+              placeholder="you@example.com"
+              hint="We'll send a 4-digit code here to confirm it's yours."
+              error={errors.email?.message}
+              {...register('email', {
+                required: 'Enter your email address',
+                pattern: {
+                  value: /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/,
+                  message: "That doesn't look like an email address",
+                },
+              })}
+            />
 
+            <PasswordField
+              label="Password"
+              id="signup-password"
+              autoComplete="new-password"
+              placeholder="At least 6 characters"
+              error={errors.password?.message}
+              {...register('password', {
+                required: 'Choose a password',
+                minLength: {
+                  value: 6,
+                  message: 'Use at least 6 characters',
+                },
+              })}
+            />
 
-    </div>
-  )
+            <FormError>{serverError}</FormError>
+
+            <Button
+              type="submit"
+              variant="primary"
+              disabled={signupMutation.isPending}
+              className="w-full"
+            >
+              {signupMutation.isPending ? 'Sending code…' : 'Create account'}
+            </Button>
+          </form>
+        </>
+      ) : (
+        <>
+          <button
+            type="button"
+            onClick={() => {
+              setShowOtp(false);
+              setServerError('');
+            }}
+            className="mb-6 inline-flex items-center gap-1.5 text-sm text-ink-muted transition-colors hover:text-coral-ink"
+          >
+            <ArrowLeft size={15} aria-hidden="true" />
+            Change details
+          </button>
+
+          <AuthHeading title="Check your email">
+            We sent a {OTP_LENGTH}-digit code to{' '}
+            <span className="font-medium text-ink">{pending?.email}</span>.
+          </AuthHeading>
+
+          <div className="mt-8 space-y-5">
+            <OtpInput
+              value={otp}
+              onChange={setOtp}
+              disabled={verifyMutation.isPending}
+            />
+
+            <FormError>{serverError}</FormError>
+
+            <Button
+              type="button"
+              variant="primary"
+              onClick={() => verifyMutation.mutate()}
+              disabled={
+                verifyMutation.isPending || otp.some((digit) => digit === '')
+              }
+              className="w-full"
+            >
+              {verifyMutation.isPending ? 'Confirming…' : 'Confirm email'}
+            </Button>
+
+            <ResendLine
+              remaining={resend.remaining}
+              canResend={resend.canResend}
+              onResend={resendCode}
+            />
+          </div>
+        </>
+      )}
+    </AuthShell>
+  );
 }
-
-export default Signup

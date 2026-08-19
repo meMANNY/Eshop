@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import toast from "react-hot-toast";
 import SidebarItem from "./sidebar.items";
@@ -68,18 +69,29 @@ export default function SidebarWrapper() {
   const pathName = usePathname();
   const { admin } = useAdmin();
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     setActiveSidebar(pathName);
   }, [pathName, setActiveSidebar]);
 
+  /*
+    Was a GET to a route that did not exist, so this always landed in the catch
+    and told the admin logout had failed — while the session cookie stayed
+    valid. `role` picks which cookie namespace to expire; this browser may hold
+    a user and seller session for the same host too.
+  */
   const handleLogout = async () => {
     try {
-      await axiosInstance.get("/api/logout");
+      await axiosInstance.post("/api/logout", { role: "admin" });
       toast.success("Logged out");
-      router.push("/");
     } catch {
-      toast.error("Couldn't log out. Try again.");
+      toast.error("We couldn't reach the server — signing you out here.");
+    } finally {
+      // Leaving the cached admin in memory is what let the back button walk
+      // straight back into the dashboard.
+      queryClient.clear();
+      router.push("/");
     }
   };
 

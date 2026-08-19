@@ -3,11 +3,19 @@ import React, { useState } from 'react'
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import Link from 'next/link';
-import { Eye, EyeOff, Check, ChevronDown, UserRound, Store, Landmark, ShieldCheck } from 'lucide-react';
+import { ArrowLeft, Check, ChevronDown, UserRound, Store, Landmark, ShieldCheck } from 'lucide-react';
 import { useMutation } from '@tanstack/react-query';
 import countries from '@/utils/countries';
 import categories from '@/utils/categories';
 import axios, { AxiosError } from 'axios';
+import {
+    FormError,
+    OTP_LENGTH,
+    OtpInput,
+    PasswordField,
+    ResendLine,
+    useResendTimer,
+} from '@/shared/components/auth';
 
 type AccountData = {
     name: string;
@@ -30,17 +38,14 @@ type ShopData = {
 const Signup = () => {
 
     const [activeStep, setActiveStep] = useState(1);
-    const [passwordVisible, setPasswordVisible] = useState(false);
     const [serverError, setServerError] = useState('');
     const [showOtp, setShowOtp] = useState(false);
-    const [canResend, setCanResend] = useState(false);
-    const [timer, setTimer] = useState(60);
-    const [otp, setOtp] = useState(['', '', '', '']);
+    const [otp, setOtp] = useState<string[]>(Array(OTP_LENGTH).fill(''));
     const [sellerData, setSellerData] = useState<AccountData | null>(null);
     const [sellerId, setSellerId] = useState<string | null>(null);
-    const inputRefs = React.useRef<(HTMLInputElement | null)[]>([]);
 
     const router = useRouter();
+    const resend = useResendTimer(60);
 
     const {
         register: registerAccount,
@@ -100,36 +105,6 @@ const Signup = () => {
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
-    const handleOtpChange = (index: number, value: string) => {
-        if (/^\d*$/.test(value)) {
-            const newOtp = [...otp];
-            newOtp[index] = value.slice(-1);
-            setOtp(newOtp);
-            if (value && index < inputRefs.current.length - 1) {
-                inputRefs.current[index + 1]?.focus();
-            }
-        }
-    };
-
-    const startResendTimer = () => {
-        const interval = setInterval(() => {
-            setTimer((prev) => {
-                if (prev <= 1) {
-                    clearInterval(interval);
-                    setCanResend(true);
-                    return 0;
-                }
-                return prev - 1;
-            });
-        }, 1000);
-    };
-
-    const handleOtpKeyDown = (index: number, event: React.KeyboardEvent<HTMLInputElement>) => {
-        if (event.key === 'Backspace' && !otp[index] && index > 0) {
-            inputRefs.current[index - 1]?.focus();
-        }
-    };
-
     // Step 1a: register the seller account and trigger the OTP email
     const signupMutation = useMutation({
         mutationFn: async (data: AccountData) => {
@@ -139,10 +114,9 @@ const Signup = () => {
         onSuccess: (_, formData) => {
             setSellerData(formData);
             setServerError('');
+            setOtp(Array(OTP_LENGTH).fill(''));
             setShowOtp(true);
-            setCanResend(false);
-            setTimer(60);
-            startResendTimer();
+            resend.start();
         },
         onError: (error: AxiosError<{ message: string }>) => {
             setServerError(error.response?.data?.message || 'Something went wrong. Please try again.');
@@ -229,11 +203,9 @@ const Signup = () => {
     };
 
     const resendOtp = () => {
-        if (!canResend || !sellerData) return;
-        setOtp(['', '', '', '']);
-        setCanResend(false);
-        setTimer(60);
-        startResendTimer();
+        if (!resend.canResend || !sellerData) return;
+        setOtp(Array(OTP_LENGTH).fill(''));
+        resend.start();
         signupMutation.mutate(sellerData);
     };
 
@@ -473,31 +445,20 @@ const Signup = () => {
                                             (<p className={errorCls}>{accountErrors.phone_number.message}</p>)}
                                     </div>
 
-                                    <div>
-                                        <label htmlFor="password" className={labelCls}>Password</label>
-                                        <div className="relative">
-                                            <input
-                                                id="password"
-                                                type={passwordVisible ? 'text' : 'password'}
-                                                placeholder="Minimum 6 characters"
-                                                className={`${inputCls} pr-11`}
-                                                {...registerAccount('password', {
-                                                    required: 'Password is required',
-                                                    minLength: {
-                                                        value: 6,
-                                                        message: 'Password must be at least 6 characters',
-                                                    },
-                                                })}
-                                            />
-                                            <button type="button" onClick={() => setPasswordVisible(!passwordVisible)}
-                                                aria-label={passwordVisible ? 'Hide password' : 'Show password'}
-                                                className="absolute inset-y-0 right-3 flex items-center text-[var(--faint)] hover:text-[var(--text)]">
-                                                {passwordVisible ? <Eye size={19} /> : <EyeOff size={19} />}
-                                            </button>
-                                        </div>
-                                        {accountErrors.password &&
-                                            (<p className={errorCls}>{accountErrors.password.message}</p>)}
-                                    </div>
+                                    <PasswordField
+                                        label="Password"
+                                        id="password"
+                                        autoComplete="new-password"
+                                        placeholder="At least 6 characters"
+                                        error={accountErrors.password?.message}
+                                        {...registerAccount('password', {
+                                            required: 'Choose a password',
+                                            minLength: {
+                                                value: 6,
+                                                message: 'Use at least 6 characters',
+                                            },
+                                        })}
+                                    />
 
                                     <button
                                         type="submit"
@@ -506,55 +467,56 @@ const Signup = () => {
                                     >
                                         {signupMutation.isPending ? 'Creating account…' : 'Create account'}
                                     </button>
-                                    {serverError && <p className={errorCls}>{serverError}</p>}
+                                    <FormError>{serverError}</FormError>
                                 </form>
                             </>
                         ) : (
                             <>
-                                <h2 className="font-display text-3xl font-semibold text-white">Verify your email</h2>
-                                <p className="mt-2 text-[15px] text-[var(--muted)]">
-                                    Enter the 4-digit code we sent to <span className="font-medium text-white">{sellerData?.email}</span>.
-                                </p>
-
-                                <div className="mt-7 flex gap-3">
-                                    {otp.map((digit, index) => (
-                                        <input
-                                            key={index}
-                                            ref={(element) => {
-                                                inputRefs.current[index] = element;
-                                            }}
-                                            type="text"
-                                            inputMode="numeric"
-                                            autoComplete="one-time-code"
-                                            maxLength={1}
-                                            value={digit}
-                                            onChange={(event) => handleOtpChange(index, event.target.value)}
-                                            onKeyDown={(event) => handleOtpKeyDown(index, event)}
-                                            aria-label={`OTP digit ${index + 1}`}
-                                            className="figure h-14 w-14 rounded-lg border border-rule bg-raised text-center text-2xl font-semibold text-[var(--text)] outline-none transition-colors focus:border-coral/60"
-                                        />
-                                    ))}
-                                </div>
-
+                                {/*
+                                  There was no way back from here. Mistype your
+                                  email on the previous screen and the only exit
+                                  was reloading the page and starting over.
+                                */}
                                 <button
                                     type="button"
-                                    onClick={verifyOtp}
-                                    disabled={verifyOtpMutation.isPending || otp.some((d) => d === '')}
-                                    className={submitCls + ' mt-6'}
+                                    onClick={() => { setShowOtp(false); setServerError(''); }}
+                                    className="mb-6 inline-flex items-center gap-1.5 text-sm text-[var(--muted)] transition-colors hover:text-white"
                                 >
-                                    {verifyOtpMutation.isPending ? 'Verifying…' : 'Verify email'}
+                                    <ArrowLeft size={15} aria-hidden="true" />
+                                    Change details
                                 </button>
 
-                                <p className="mt-4 text-center text-sm text-[var(--muted)]">
-                                    {canResend ? (
-                                        <button type="button" onClick={resendOtp} className="font-medium text-[#ff6f61] hover:underline">
-                                            Resend code
-                                        </button>
-                                    ) : (
-                                        <>Resend code in {timer}s</>
-                                    )}
+                                <h2 className="font-display text-3xl font-semibold text-white">Verify your email</h2>
+                                <p className="mt-2 text-[15px] text-[var(--muted)]">
+                                    Enter the {OTP_LENGTH}-digit code we sent to <span className="font-medium text-white">{sellerData?.email}</span>.
                                 </p>
-                                {serverError && <p className={`${errorCls} text-center`}>{serverError}</p>}
+
+                                <div className="mt-7">
+                                    <OtpInput
+                                        value={otp}
+                                        onChange={setOtp}
+                                        disabled={verifyOtpMutation.isPending}
+                                    />
+                                </div>
+
+                                <div className="mt-6 space-y-4">
+                                    <FormError>{serverError}</FormError>
+
+                                    <button
+                                        type="button"
+                                        onClick={verifyOtp}
+                                        disabled={verifyOtpMutation.isPending || otp.some((d) => d === '')}
+                                        className={submitCls}
+                                    >
+                                        {verifyOtpMutation.isPending ? 'Verifying…' : 'Verify email'}
+                                    </button>
+
+                                    <ResendLine
+                                        remaining={resend.remaining}
+                                        canResend={resend.canResend}
+                                        onResend={resendOtp}
+                                    />
+                                </div>
                             </>
                         )
                     )}
@@ -722,7 +684,7 @@ const Signup = () => {
                                 >
                                     {createShopMutation.isPending ? 'Saving…' : 'Register shop'}
                                 </button>
-                                {serverError && <p className={errorCls}>{serverError}</p>}
+                                <FormError>{serverError}</FormError>
                             </form>
                         </>
                     )}
@@ -761,7 +723,7 @@ const Signup = () => {
                             >
                                 Skip for now
                             </button>
-                            {serverError && <p className={`${errorCls} text-center`}>{serverError}</p>}
+                            <FormError>{serverError}</FormError>
                         </>
                     )}
 

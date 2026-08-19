@@ -62,6 +62,23 @@ async function createPIWithFallback({
   return { pi, scope: "connected" as const };
 }
 
+/**
+ * A brand-new session is just a cart someone may never pay for, so it expires
+ * quickly and does not accumulate.
+ */
+const SESSION_TTL_SECONDS = 10 * 60; // 10 minutes
+
+/**
+ * Once a PaymentIntent exists, the session is money in flight rather than an
+ * abandoned cart — and it holds the only copy of what was bought.
+ *
+ * Stripe retries a failed webhook with backoff for up to three days. At the old
+ * flat 10-minute TTL every one of those retries arrived to find the session
+ * gone, so a webhook that was merely late meant a customer had paid for an order
+ * that could never be created. The window now outlives the retries.
+ */
+const IN_FLIGHT_TTL_SECONDS = 3 * 24 * 60 * 60; // 3 days
+
 export const createPaymentIntent = async (req: Request, res: Response, next: NextFunction) => {
  const { amount, sellerStripeAccountId, sessionId } = req.body;
   const customerAmount = Math.round(amount * 100);
@@ -73,6 +90,23 @@ export const createPaymentIntent = async (req: Request, res: Response, next: Nex
       platformFeeInCents: platformFee,
       metadata: { sessionId, userId: String(req.user.id) },
     });
+
+    /*
+      Extended only now, not at session creation: this is the first moment a
+      webhook can be expected for it. Failing to extend must not fail a payment
+      intent that Stripe has already accepted, so it logs rather than throws.
+    */
+    if (sessionId) {
+      await redis
+        .expire(`payment-session:${sessionId}`, IN_FLIGHT_TTL_SECONDS)
+        .catch((e: any) =>
+          logAsync({
+            type: "error",
+            message: `Could not extend payment session ${sessionId}: ${e?.message}`,
+          })
+        );
+    }
+
     res.send({ clientSecret: pi.client_secret, scope });
   } catch (err) {
     return next(err);
@@ -163,7 +197,7 @@ export const createPaymentSession = async (
 
     await redis.setex(
       `payment-session:${sessionId}`,
-      600,
+      SESSION_TTL_SECONDS,
       JSON.stringify(sessionData)
     );
 

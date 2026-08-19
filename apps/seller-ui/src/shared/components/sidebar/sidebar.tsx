@@ -21,6 +21,8 @@ import {
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import React, { useEffect } from "react";
+import toast from "react-hot-toast";
+import axiosInstance from "@/utils/axiosInstance";
 import SidebarItem from "./sidebar.item";
 import SidebarMenu from "./sidebar.menu";
 
@@ -88,13 +90,23 @@ const SidebarBarWrapper = () => {
   /*
     Logout was a SidebarItem pointing at /login, so it navigated away while
     leaving the cached seller in memory — going back put you straight into the
-    dashboard again. Clearing the cache is what actually ends the session on this
-    side. See the note in the handover: there is no seller logout endpoint yet, so
-    the httpOnly cookie still has to be expired server-side.
+    dashboard again. Clearing the cache fixed that half.
+
+    The other half was the session itself: `seller-access-token` is httpOnly, so
+    only the server can expire it, and until now nothing did — "logging out" left
+    a cookie good for another 15 minutes, with a refresh token good for a week.
+    `/api/logout` exists now, and `role` picks which of the three cookie
+    namespaces to clear.
   */
-  const handleLogout = () => {
-    queryClient.clear();
-    router.push("/login");
+  const handleLogout = async () => {
+    try {
+      await axiosInstance.post("/api/logout", { role: "seller" });
+    } catch {
+      toast.error("We couldn't reach the server — signing you out here.");
+    } finally {
+      queryClient.clear();
+      router.push("/login");
+    }
   };
 
   return (

@@ -21,7 +21,8 @@ import {
     getShopReviews,
     updateUserPassword,
     loginAdmin,
-    getAdmin
+    getAdmin,
+    logoutAccount
 } from "../controller/auth.controller";
 import { isAdmin } from "../../../../packages/middleware/isAdmin";
 import { isAuthenticated } from "../../../../packages/middleware/isAuthenticated";
@@ -52,4 +53,13 @@ router.delete("/delete-address/:addressId", isAuthenticated, deleteUserAddress);
 router.post("/change-password", isAuthenticated, updateUserPassword);
 router.post("/login-admin",loginAdmin);
 router.get("/logged-in-admin",isAdmin,getAdmin);
+
+/*
+  No auth middleware on purpose: an expired session is exactly when you need to
+  log out, and gating this behind a valid token would leave you unable to. The
+  body's `role` picks which cookie namespace to expire — all three apps share one
+  cookie jar on localhost, since cookies ignore the port.
+*/
+router.post("/logout", logoutAccount);
+
 export default router;

@@ -3,6 +3,7 @@
 import { Suspense, useEffect, useMemo, useState } from "react";
 
 import { useRouter, useSearchParams } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 import confetti from "canvas-confetti";
 import axiosInstance from "@/utils/axiosInstance";
 import { useStore } from "@/store";
@@ -22,6 +23,7 @@ function PaymentSuccessContent() {
     [searchParams]
   );
   const router = useRouter();
+  const queryClient = useQueryClient();
   const [copied, setCopied] = useState(false);
   const [orderStatus, setOrderStatus] = useState<
     "creating" | "success" | "failed"
@@ -75,6 +77,14 @@ function PaymentSuccessContent() {
 
         if (res.data?.orders?.length > 0) {
           setOrderStatus("success");
+          /*
+            "Track Order" goes to Profile › My Orders, which reads the cached
+            ["user-orders"] list. Nothing marked it stale after a checkout, so
+            the tab opened on the pre-purchase list and only caught up on a
+            later background refetch — the order was in the database, just not
+            on screen.
+          */
+          queryClient.invalidateQueries({ queryKey: ["user-orders"] });
           return;
         }
       } catch (err: any) {
