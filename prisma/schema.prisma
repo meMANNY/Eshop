@@ -361,11 +361,36 @@ model shopAnalytics{
 }
 
 model uniqueShopVisitors{
-  
+
   id       String   @id @default(auto()) @map("_id") @db.ObjectId
   shopId    String   @db.ObjectId
   userId    String   @db.ObjectId
   visitedAt DateTime @default(now())
 
   @@unique([shopId, userId])
+}
+
+/*
+  One product's nearest neighbours, precomputed by the recommendation service's
+  index job. `reason` is stored rather than derived so the page can say *why* a
+  product is being shown — "bought together" and "similar item" are different
+  claims and a shopper can tell.
+*/
+type productNeighbour {
+  productId String @db.ObjectId
+  score     Float
+  reason    String
+}
+
+/*
+  Recommendations are read on the request path and computed off it. Keeping the
+  neighbours embedded means serving them is a single indexed document read
+  rather than a join, which is the whole point of precomputing.
+*/
+model productSimilarity {
+  id         String             @id @default(auto()) @map("_id") @db.ObjectId
+  productId  String             @unique @db.ObjectId
+  neighbours productNeighbour[]
+  builtAt    DateTime           @default(now())
+  updatedAt  DateTime           @updatedAt
 }

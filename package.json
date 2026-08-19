@@ -7,7 +7,8 @@
     "user-ui": "npx nx run @org/user-ui:dev",
     "seller-ui": "npx nx run @org/seller-ui:dev",
     "admin-ui": "npx nx run @org/admin-ui:dev",
-    "seed": "ts-node -P prisma/tsconfig.seed.json prisma/seed.ts"
+    "seed": "ts-node -P prisma/tsconfig.seed.json prisma/seed.ts",
+    "build-recommendations": "ts-node -P apps/recommendation-service/tsconfig.job.json apps/recommendation-service/src/jobs/buildIndex.ts"
   },
   "prisma": {
     "seed": "ts-node -P prisma/tsconfig.seed.json prisma/seed.ts"
