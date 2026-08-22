@@ -30,6 +30,20 @@ const fetchProducts = async () => {
   return res?.data?.products;
 };
 
+/*
+  What counts as "low" is the seller's call, set under Settings → General. This
+  column used to hardcode 10, so raising the threshold to 25 changed nothing
+  here and the setting quietly meant nothing. Same query key as the settings
+  form, so the two stay in step and share one fetch.
+*/
+const DEFAULT_LOW_STOCK_THRESHOLD = 10;
+
+const fetchLowStockThreshold = async () => {
+  const res = await axiosInstance.get("/seller/api/get-shop-settings");
+  const value = Number(res?.data?.settings?.lowStockThreshold);
+  return Number.isFinite(value) ? value : DEFAULT_LOW_STOCK_THRESHOLD;
+};
+
 const ProductList = () => {
   const [globalFilter, setGlobalFilter] = useState("");
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -40,6 +54,12 @@ const ProductList = () => {
   const { data: products = [], isLoading } = useQuery({
     queryKey: ["shop-products"],
     queryFn: fetchProducts,
+    staleTime: 1000 * 60 * 5,
+  });
+
+  const { data: lowStockThreshold = DEFAULT_LOW_STOCK_THRESHOLD } = useQuery({
+    queryKey: ["settings", "general", "lowStockThreshold"],
+    queryFn: fetchLowStockThreshold,
     staleTime: 1000 * 60 * 5,
   });
 
@@ -148,8 +168,9 @@ const ProductList = () => {
         header: "Stock",
         meta: { align: "right" },
         // Low stock is an alert, not a fact — the word carries it, not the colour.
+        // "or fewer" is what the setting promises, hence `<=` rather than `<`.
         cell: ({ row }: any) =>
-          row.original.stock < 10 ? (
+          row.original.stock <= lowStockThreshold ? (
             <StatusPill tone="warn">
               Low · <Figure>{row.original.stock}</Figure>
             </StatusPill>
@@ -210,7 +231,7 @@ const ProductList = () => {
         ),
       },
     ],
-    []
+    [lowStockThreshold]
   );
 
   const table = useReactTable({

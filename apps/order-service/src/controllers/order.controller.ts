@@ -11,6 +11,11 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2026-06-24.dahlia'
 });
 
+// Mirrors the shop_settings defaults in getShopSettings and the Prisma schema:
+// a shop with no settings row still gets warned somewhere sensible.
+const DEFAULT_LOW_STOCK_THRESHOLD = 10;
+const DEFAULT_NOTIFICATION_CHANNELS = { email: true, web: true, app: false };
+
 
 async function getAccountCapabilities(accountId: string) {
   const acct = await stripe.accounts.retrieve(accountId);
@@ -343,6 +348,22 @@ export const createOrder = async (
     // order id belongs to which shop.
     const orderIdByShop: Record<string, string> = {};
 
+    /*
+      Each shop sets its own low-stock threshold under Settings → General, and
+      a shop that has never opened that page has no row at all — hence the
+      defaults below, which mirror the ones getShopSettings serves.
+
+      Read once for the whole cart rather than per product: a ten-item order
+      from one shop needs one query, not ten.
+    */
+    const shopSettings = await prisma.shop_settings.findMany({
+      where: { shopId: { in: Object.keys(shopGrouped) } },
+      select: { shopId: true, lowStockThreshold: true, notifications: true },
+    });
+    const settingsByShop = new Map(shopSettings.map((s) => [s.shopId, s]));
+    const lowStockByShop: Record<string, { title: string; stock: number }[]> =
+      {};
+
     for (const shopId in shopGrouped) {
       const orderItems = shopGrouped[shopId];
       let orderTotal = orderItems.reduce(
@@ -392,13 +413,32 @@ export const createOrder = async (
       for (const item of orderItems) {
         const { id: productId, quantity } = item;
 
-        await prisma.products.update({
+        const updatedProduct = await prisma.products.update({
           where: { id: productId },
           data: {
             stock: { decrement: quantity },
             totalSales: { increment: quantity },
           },
+          select: { title: true, stock: true },
         });
+
+        /*
+          Notify on the crossing, not on the state. Testing `stock <= threshold`
+          on its own would fire again on every later sale while stock stayed
+          low, and a warning that repeats on every order is one the seller
+          learns to ignore — the one thing a stock warning cannot afford.
+        */
+        const threshold =
+          settingsByShop.get(shopId)?.lowStockThreshold ??
+          DEFAULT_LOW_STOCK_THRESHOLD;
+        const stockBefore = updatedProduct.stock + Number(quantity);
+
+        if (stockBefore > threshold && updatedProduct.stock <= threshold) {
+          (lowStockByShop[shopId] ??= []).push({
+            title: updatedProduct.title,
+            stock: updatedProduct.stock,
+          });
+        }
 
         await prisma.productAnalytics.upsert({
           where: { productId },
@@ -510,6 +550,41 @@ export const createOrder = async (
           },
         ],
       });
+
+      /*
+        The seller's low-stock threshold was stored and read back by the
+        settings form and consulted by nothing — no alert existed at any point
+        in the order path. This is that alert.
+
+        It is deliberately one notification per order rather than one per
+        product: a cart that empties five lines at once is one restock trip,
+        not five things to read.
+      */
+      const lowStock = lowStockByShop[shop.id] ?? [];
+      const channels = {
+        ...DEFAULT_NOTIFICATION_CHANNELS,
+        ...((settingsByShop.get(shop.id)?.notifications as
+          | Record<string, boolean>
+          | null) ?? {}),
+      };
+
+      if (lowStock.length > 0 && channels.web) {
+        const [first] = lowStock;
+        const others = lowStock.length - 1;
+
+        await prisma.notifications.create({
+          data: {
+            title: "Low stock",
+            message:
+              others > 0
+                ? `${first.title} is down to ${first.stock} left, along with ${others} other ${others === 1 ? "product" : "products"}.`
+                : `${first.title} is down to ${first.stock} left.`,
+            creatorId: userId,
+            receiverId: shop.sellerId,
+            redirect_link: "/dashboard/all-products",
+          },
+        });
+      }
     }
 
     await redis.del(sessionKey);
