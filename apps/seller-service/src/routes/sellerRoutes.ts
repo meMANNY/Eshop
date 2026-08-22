@@ -38,7 +38,11 @@ router.get(
 );
 router.put("/restore-shop", isSeller, restoreSeller);
 
-router.get("/get-stripe-account", isAuthenticated, getStripeAccount);
+// `isSeller`, not `isAuthenticated`: the controller reads `req.seller.id`, and
+// only `isSeller` reads the `seller-access-token` cookie a seller session
+// actually carries. Under `isAuthenticated` this route 401'd every seller —
+// the same trap noted on mark-notification-as-read below.
+router.get("/get-stripe-account", isSeller, getStripeAccount);
 
 router.get("/get-seller-products/:shopId", getSellerProducts);
 router.get("/get-seller-events/:shopId", getSellerEvents);

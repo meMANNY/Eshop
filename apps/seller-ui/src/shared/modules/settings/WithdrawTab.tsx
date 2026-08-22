@@ -2,8 +2,10 @@
 
 import StripeSLogo from "@/assests/svgs/stripe-logo";
 import axiosInstance from "@/utils/axiosInstance";
+import useSeller from "@/hooks/useSeller";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { CheckCircle2, ExternalLink, Loader2 } from "lucide-react";
+import toast from "react-hot-toast";
 import {
   Bar,
   Button,
@@ -26,6 +28,8 @@ type StripeAccount = {
 };
 
 export default function WithdrawMethodTab() {
+  const { seller } = useSeller();
+
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["stripe-account"],
     queryFn: async (): Promise<StripeAccount | null> => {
@@ -53,12 +57,29 @@ export default function WithdrawMethodTab() {
 
   const { mutate: connectStripe, isPending: linking } = useMutation({
     mutationFn: async () => {
-      const res = await axiosInstance.post("/api/create-stripe-link");
+      /*
+        `create-stripe-link` reads `sellerId` off the body and 400s without it.
+        This posted an empty body, so the button spun and then did nothing at
+        all — the mutation had no onError either, so the failure was silent.
+      */
+      const sellerId = seller?.id;
+      if (!sellerId) throw new Error("Your seller account is still loading");
+
+      const res = await axiosInstance.post("/api/create-stripe-link", {
+        sellerId,
+      });
       if (!res.data?.url) throw new Error("No Stripe link URL returned");
       return res.data.url as string;
     },
     onSuccess: (url) => {
       window.location.href = url;
+    },
+    onError: (err: any) => {
+      toast.error(
+        err?.response?.data?.message ||
+          err?.message ||
+          "Couldn't start Stripe onboarding"
+      );
     },
   });
 
@@ -102,7 +123,7 @@ export default function WithdrawMethodTab() {
             <Button
               variant="primary"
               onClick={() => connectStripe()}
-              disabled={linking}
+              disabled={linking || !seller?.id}
             >
               {linking ? (
                 <>
