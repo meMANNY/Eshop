@@ -241,7 +241,7 @@ const Signup = () => {
 
                 {/* brand */}
                 <div className="relative flex items-center gap-3">
-                    <span className="font-display text-2xl font-bold tracking-tight">Zshop</span>
+                    <span className="font-display text-2xl font-bold tracking-tight">Eshop</span>
                     <span className="rounded-full border border-white/20 bg-white/5 px-2.5 py-0.5 text-[11px] font-medium uppercase tracking-[0.18em] text-white/70">
                         Seller
                     </span>
@@ -307,7 +307,7 @@ const Signup = () => {
 
                     {/* mobile brand */}
                     <div className="mb-8 flex items-center gap-2 lg:hidden">
-                        <span className="font-display text-xl font-bold tracking-tight text-white">Zshop</span>
+                        <span className="font-display text-xl font-bold tracking-tight text-white">Eshop</span>
                         <span className="rounded-full border border-rule px-2 py-0.5 text-label font-semibold uppercase text-[var(--muted)]">
                             Seller
                         </span>
@@ -703,7 +703,7 @@ const Signup = () => {
                                         <Landmark size={18} />
                                     </span>
                                     <p className="text-[13px] leading-relaxed text-[var(--muted)]">
-                                        You&apos;ll be taken to Stripe to add your bank details securely. Zshop never sees or stores them.
+                                        You&apos;ll be taken to Stripe to add your bank details securely. Eshop never sees or stores them.
                                     </p>
                                 </div>
                             </div>

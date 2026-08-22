@@ -105,7 +105,7 @@ export default function SidebarWrapper() {
         <Logo className="h-[18px] w-[18px] text-coral" />
         <span className="leading-none">
           <span className="block font-display text-base font-bold tracking-[-0.01em] text-white">
-            Zshop
+            Eshop
           </span>
           <span className="mt-0.5 block text-label font-semibold uppercase text-[var(--faint)]">
             Ops console

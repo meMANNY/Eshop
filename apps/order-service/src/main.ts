@@ -14,15 +14,12 @@ import { setLogSource } from "../../../packages/utils/logs/send-logs";
 setLogSource("order-service");
 import router from "./routes/order.routes";
 import { createOrder } from './controllers/order.controller';
+import { ALLOWED_ORIGINS } from "../../../packages/utils/cors";
 
 const app = express();
 app.use(
   cors({
-    origin: [
-      "http://localhost:3000",
-      "http://localhost:3001",
-      "http://localhost:3002",
-    ],
+    origin: ALLOWED_ORIGINS,
     allowedHeaders: ["Authorization", "Content-Type"],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],

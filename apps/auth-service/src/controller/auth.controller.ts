@@ -631,10 +631,23 @@ export const createStripeAccountLink = async (
                 stripeId: account.id
             }
         })
+        /*
+          Stripe sends the seller back here once onboarding finishes, so these
+          have to be real, reachable URLs in production. They were hardcoded to
+          `http://localhost:3000/settings/payments`, which was wrong three ways:
+          the host is not reachable from a deployed Stripe, port 3000 is user-ui
+          when this is a seller flow, and `/settings/payments` is not a route in
+          any of the three apps. Every returning seller got a 404.
+
+          The Stripe panel lives on the seller-ui settings page, under its
+          "Withdraw" tab. That tab is client-side state rather than a route, so
+          this lands on the page itself.
+        */
+        const sellerUiUrl = process.env.SELLER_UI_URL || 'http://localhost:3001';
         const accountLink = await stripe.accountLinks.create({
             account: account.id,
-            refresh_url: 'http://localhost:3000/settings/payments?refresh=true',
-            return_url: 'http://localhost:3000/settings/payments',
+            refresh_url: `${sellerUiUrl}/dashboard/settings?refresh=true`,
+            return_url: `${sellerUiUrl}/dashboard/settings`,
             type: 'account_onboarding',
         });
 

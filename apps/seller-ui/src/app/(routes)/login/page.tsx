@@ -67,7 +67,7 @@ const Login = () => {
 
         <div className="relative flex items-center gap-3">
           <span className="font-display text-2xl font-bold tracking-tight">
-            Zshop
+            Eshop
           </span>
           <span className="rounded-full border border-white/20 bg-white/5 px-2.5 py-0.5 text-label font-semibold uppercase text-white/70">
             Seller
@@ -117,7 +117,7 @@ const Login = () => {
           {/* Mobile brand — the storefront panel is hidden at this width. */}
           <div className="mb-8 flex items-center gap-2 lg:hidden">
             <span className="font-display text-xl font-bold tracking-tight text-white">
-              Zshop
+              Eshop
             </span>
             <span className="rounded-full border border-rule px-2 py-0.5 text-label font-semibold uppercase text-[var(--muted)]">
               Seller
@@ -230,7 +230,7 @@ const Login = () => {
           </form>
 
           <p className="mt-8 text-center text-sm text-[var(--muted)]">
-            New to Zshop?{' '}
+            New to Eshop?{' '}
             <Link
               href="/signup"
               className="font-medium text-coral transition-colors hover:text-coral-bright"

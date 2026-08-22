@@ -8,6 +8,7 @@ setLogSource("auth-service");
 import cookieParser from 'cookie-parser';
 import router from './routes/auth.router';
 import swaggerUi from 'swagger-ui-express';
+import { ALLOWED_ORIGINS } from "../../../packages/utils/cors";
 
 
 
@@ -20,7 +21,7 @@ const host = process.env.HOST ?? 'localhost';
 
 const app = express();
 app.use(cors({
-    origin: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:3002'],
+    origin: ALLOWED_ORIGINS,
     allowedHeaders: ['Authorization', 'Content-Type',],
     credentials: true //if credentials true then we cannot use origin "*"
 }));

@@ -29,7 +29,7 @@ const Header = () => {
       <Container className="flex items-center gap-4 py-4 lg:gap-8">
         <Link href="/" className="shrink-0">
           <span className="font-jost text-2xl font-bold tracking-[-0.02em] text-ink lg:text-3xl">
-            Zshop
+            Eshop
           </span>
         </Link>
 

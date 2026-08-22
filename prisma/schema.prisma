@@ -37,6 +37,11 @@ model images {
   shops     shops?    @relation(name: "ShopAvatar", fields: [shopId], references: [id])
   productId String?   @db.ObjectId
   products  products? @relation(name: "ProductImages", fields: [productId], references: [id])
+
+  // All three are lookup keys, none were indexed. Not @unique — see the note above.
+  @@index([userId])
+  @@index([shopId])
+  @@index([productId])
 }
 
 model users {
@@ -84,6 +89,9 @@ model shopReviews {
   rating    Float
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([shopId])
+  @@index([userId])
 }
 
 model shops {
@@ -224,6 +232,9 @@ model orders{
   updatedAt DateTime @updatedAt
 
   @@index([sessionId])
+  @@index([userId])
+  @@index([userId, createdAt])
+  @@index([shopId])
 }
 model orderItems{
   id     String   @id @default(auto()) @map("_id") @db.ObjectId
@@ -234,7 +245,9 @@ model orderItems{
   quantity Int
   price Float
   createdAt DateTime @default(now())
-  
+
+  @@index([orderId])
+  @@index([productId])
 }
 
 enum addressType {
@@ -255,6 +268,8 @@ model address{
   isDefault Boolean @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([userId])
 }
 
 model notifications{
@@ -267,6 +282,9 @@ model notifications{
   isRead Boolean @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([receiverId])
+  @@index([receiverId, isRead])
 }
 
 model conversationGroup{
@@ -290,6 +308,10 @@ model participant{
   unreadCount Int @default(0)
   muted Boolean @default(false)
   joinedAt DateTime @default(now())
+
+  @@index([conversationId])
+  @@index([userId])
+  @@index([sellerId])
 }
 
 
@@ -306,7 +328,42 @@ model message{
   createdAt DateTime @default(now())
 
   @@unique([conversationId, senderId, createdAt,content])
-  
+
+  // The chat pagination query. Was an unindexed scan of every message ever sent.
+  @@index([conversationId, createdAt])
+}
+
+/*
+  One row per checkout session, written before any order is created.
+
+  Stripe retries a failed webhook with backoff for up to three days, and a retry
+  that lands after a *slow success* — Stripe gave up waiting, the handler
+  finished anyway — used to replay the whole path: a second set of orders, a
+  second stock decrement, a second round of notifications.
+
+  `sessionId` is the guard, and it is deliberately required rather than optional:
+  a @unique on a nullable field becomes a NON-SPARSE index on MongoDB, which
+  reads a missing field as null and collides on the second row that omits it.
+  That is the P2002 incident documented on `images` above.
+
+  It is keyed on the session and not on `orders.sessionId`, because one checkout
+  spanning several shops creates one order per shop — all sharing that id.
+
+  `paymentIntentId` is nullable (the manual, non-webhook path has none) and so is
+  intentionally NOT unique, for the same non-sparse reason.
+*/
+model orderPayment {
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  sessionId       String   @unique
+  paymentIntentId String?
+  userId          String   @db.ObjectId
+  amountReceived  Int?
+  currency        String?
+  source          String
+  createdAt       DateTime @default(now())
+
+  @@index([userId])
+  @@index([paymentIntentId])
 }
 
 model shop_settings {

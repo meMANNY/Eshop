@@ -8,6 +8,7 @@ import { startConsumer } from "./chat-message-consumer";
 import router from "./routes/chatting.route";
 import { errorMiddleware } from "../../../packages/error-handler/error-middleware";
 import { setLogSource } from "../../../packages/utils/logs/send-logs";
+import { ALLOWED_ORIGINS } from "../../../packages/utils/cors";
 
 // Names every log this process emits, so call sites never repeat it.
 setLogSource("chatting-service");
@@ -17,11 +18,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: [
-      "http://localhost:3000",
-      "http://localhost:3001",
-      "http://localhost:3002",
-    ],
+    origin: ALLOWED_ORIGINS,
     allowedHeaders: ["Authorization", "Content-Type"],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],

@@ -24,6 +24,7 @@ import Link from "next/link";
 import { Ratings } from "../../components/ratings";
 import {CartIcon} from "../../../assets/svgs/cart-icon";
 import ProductCard from "../../components/cards/product-card";
+import { sanitizeRichText } from "../../../../../../packages/utils/sanitize";
 
 
 
@@ -477,10 +478,15 @@ export default function ProductDetails({
               Product details
             </h3>
           </div>
+          {/*
+            Seller-authored HTML. product-service sanitises on write, but every
+            product created before that shipped is still raw in the database —
+            so this pass is what actually protects existing rows.
+          */}
           <div
             className="prose prose-sm text-ink-muted max-w-none leading-relaxed"
             dangerouslySetInnerHTML={{
-              __html: productDetails?.detailed_description,
+              __html: sanitizeRichText(productDetails?.detailed_description),
             }}
           />
         </div>

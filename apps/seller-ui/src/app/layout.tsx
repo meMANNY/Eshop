@@ -9,8 +9,8 @@ import { Toaster } from 'react-hot-toast';
 import Providers from './providers';
 
 export const metadata = {
-  title: 'Zshop Seller',
-  description: 'Run your shop on Zshop',
+  title: 'Eshop Seller',
+  description: 'Run your shop on Eshop',
 };
 
 /*

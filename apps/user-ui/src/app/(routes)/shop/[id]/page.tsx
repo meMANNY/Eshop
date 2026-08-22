@@ -36,12 +36,12 @@ export async function generateMetadata({
     title: `${data?.shop?.name} | Eshop Marketplace`,
     description:
       data?.shop?.bio ||
-      "Explore products and services from trusted sellers on Zshop.",
+      "Explore products and services from trusted sellers on Eshop.",
     openGraph: {
       title: `${data?.shop?.name} | Eshop Marketplace`,
       description:
         data?.shop?.bio ||
-        "Explore products and services from trusted sellers on Zshop.",
+        "Explore products and services from trusted sellers on Eshop.",
       type: "website",
       images: [
         {
@@ -59,7 +59,7 @@ export async function generateMetadata({
       title: `${data?.shop?.name} | Eshop Marketplace`,
       description:
         data?.shop?.bio ||
-        "Explore products and services from trusted sellers on Zshop.",
+        "Explore products and services from trusted sellers on Eshop.",
       images: [
         data?.shop?.avatar ||
           "https://cdn-icons-png.flaticon.com/512/847/847969.png",

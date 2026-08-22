@@ -1,6 +1,7 @@
 import { Response, Request, NextFunction } from "express";
 import prisma from "../libs/primsa";
 import jwt from "jsonwebtoken";
+import { toAuthError } from "./jwt-error";
 
 // Extend Express Request interface to include the admin property
 declare global {
@@ -40,6 +41,8 @@ export const isAdmin = async (
             where: {
                 id: decoded.id
             },
+            // Attached to req.admin in full, so the hash must not come with it.
+            omit: { password: true },
             include: {
                 avatar: true
             }
@@ -61,6 +64,6 @@ export const isAdmin = async (
         next();
     }
     catch (error) {
-        return next(error);
+        return next(toAuthError(error));
     }
 };

@@ -30,8 +30,6 @@ function CheckoutContent() {
   const router = useRouter();
   const sessionId = searchParams.get("sessionId");
 
-  const num = (v: any) => (Number.isFinite(Number(v)) ? Number(v) : 0);
-
   useEffect(() => {
     const fetchSessionAndClientSecret = async () => {
       if (!sessionId) {
@@ -59,19 +57,14 @@ function CheckoutContent() {
         if (!sellerStripeAccountId)
           throw new Error("Seller Stripe account is missing");
 
-        const subtotal = num(totalAmount);
-        const discount = num(coupon?.discountAmount);
-        const amountNumber = Number(
-          Math.max(0, subtotal - discount).toFixed(2)
-        );
-
+        /*
+          The amount and the destination account used to be computed here and
+          posted to the server, which charged whatever arrived. Both now come
+          from the session the server priced, so this only names the session.
+        */
         const intentRes = await axiosInstance.post(
           "order/api/create-payment-intent",
-          {
-            amount: amountNumber,
-            sellerStripeAccountId,
-            sessionId,
-          }
+          { sessionId }
         );
 
         setClientSecret(intentRes.data.clientSecret);
@@ -89,7 +82,10 @@ function CheckoutContent() {
         //   "platform"  → destination charge on the platform     → omit it
         setStripePromise(
           intentRes.data.scope === "connected"
-            ? loadStripe(pk, { stripeAccount: sellerStripeAccountId })
+            ? loadStripe(pk, {
+                stripeAccount:
+                  intentRes.data.stripeAccountId ?? sellerStripeAccountId,
+              })
             : loadStripe(pk)
         );
       } catch (err) {

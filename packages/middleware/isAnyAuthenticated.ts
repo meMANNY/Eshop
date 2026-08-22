@@ -1,6 +1,7 @@
 import { Response, Request, NextFunction } from "express";
 import prisma from "../libs/primsa";
 import jwt from "jsonwebtoken";
+import { toAuthError } from "./jwt-error";
 
 declare global {
     namespace Express {
@@ -90,10 +91,18 @@ export const isAnyAuthenticated = async (
         }
 
         // Admins are rows in `users`; only sellers live in their own table.
+        // `omit` keeps the bcrypt hash out of req.account / req.user / req.seller
+        // / req.admin, all of which carry the row verbatim.
         const account =
             decoded.role === "seller"
-                ? await prisma.sellers.findUnique({ where: { id: decoded.id } })
-                : await prisma.users.findUnique({ where: { id: decoded.id } });
+                ? await prisma.sellers.findUnique({
+                      where: { id: decoded.id },
+                      omit: { password: true },
+                  })
+                : await prisma.users.findUnique({
+                      where: { id: decoded.id },
+                      omit: { password: true },
+                  });
 
         if (!account) {
             return res.status(401).json({ message: "Account not found!" });
@@ -118,6 +127,6 @@ export const isAnyAuthenticated = async (
         next();
     }
     catch (error) {
-        return next(error);
+        return next(toAuthError(error));
     }
 };

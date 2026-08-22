@@ -136,8 +136,10 @@ export const getAllAdmins = async (
   next: NextFunction
 ) => {
   try {
+    // Without this the bcrypt hash of every admin ships in the response.
     const admins = await prisma.users.findMany({
       where: { role: "admin" },
+      omit: { password: true },
     });
 
     return res.status(200).json({

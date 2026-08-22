@@ -1,6 +1,7 @@
 import { Response, Request, NextFunction } from "express";
 import prisma from "../libs/primsa";
 import jwt from "jsonwebtoken";
+import { toAuthError } from "./jwt-error";
 
 // Extend Express Request interface to include the user property
 declare global {
@@ -33,10 +34,14 @@ export const isAuthenticated = async (
             return res.status(401).json({ message: "Unauthorized! Invalid token" });
         }
 
+        // The whole row gets attached to req.user, so any handler doing
+        // `res.json(req.user)` would ship the bcrypt hash. `omit` drops it while
+        // leaving every other field intact, so nothing downstream changes.
         const account = await prisma.users.findUnique({
             where: {
                 id: decoded.id
-            }
+            },
+            omit: { password: true }
         });
 
         if (!account) {
@@ -48,7 +53,7 @@ export const isAuthenticated = async (
         next();
     }
     catch (error) {
-        return next(error);
+        return next(toAuthError(error));
     }
 };
 

@@ -1,6 +1,7 @@
 import { Response, Request, NextFunction } from "express";
 import prisma from "../libs/primsa";
 import jwt from "jsonwebtoken";
+import { toAuthError } from "./jwt-error";
 
 // Extend Express Request interface to include the seller property
 declare global {
@@ -36,6 +37,8 @@ export const isSeller = async (
             where: {
                 id: decoded.id
             },
+            // Attached to req.seller in full, so the hash must not come with it.
+            omit: { password: true },
             include: {
                 // The shop's avatar is a relation, so `shop: true` alone would
                 // omit it and every seller-facing page would render a fallback.
@@ -54,6 +57,6 @@ export const isSeller = async (
         next();
     }
     catch (error) {
-        return next(error);
+        return next(toAuthError(error));
     }
 };

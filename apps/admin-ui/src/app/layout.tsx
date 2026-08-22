@@ -1,11 +1,13 @@
+
+// @ts-ignore -- Resolved by the Next.js CSS pipeline at build time.
 import "./global.css";
 import { Bricolage_Grotesque, IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/google";
 import Providers from "./providers";
 import { Toaster } from "react-hot-toast";
 
 export const metadata = {
-  title: "Zshop Ops",
-  description: "Operations console for the Zshop marketplace",
+  title: "Eshop Ops",
+  description: "Operations console for the Eshop marketplace",
 };
 
 /*

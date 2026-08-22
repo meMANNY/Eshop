@@ -32,7 +32,7 @@ export default function DomainsTab() {
       <Panel>
         <PanelHead
           title="Custom domain"
-          note="Serve your shop from your own address instead of a Zshop URL."
+          note="Serve your shop from your own address instead of a Eshop URL."
           actions={<StatusPill tone="warn">Not available yet</StatusPill>}
         />
         <div className="space-y-4 p-5">

@@ -49,7 +49,7 @@ export function AuthShell({
           {/* The same coral rail every page header in this app uses. */}
           <span className="marker h-7" aria-hidden="true" />
           <span className="font-jost text-2xl font-semibold tracking-[-0.02em] text-ink">
-            Zshop
+            Eshop
           </span>
         </Link>
 
@@ -74,7 +74,7 @@ export function AuthShell({
           <Link href="/" className="mb-10 flex items-center gap-2.5 lg:hidden">
             <span className="marker h-6" aria-hidden="true" />
             <span className="font-jost text-xl font-semibold tracking-[-0.02em] text-ink">
-              Zshop
+              Eshop
             </span>
           </Link>
           {children}
@@ -137,7 +137,7 @@ export function Slip({
       <div className="rounded-t-[3px] bg-surface px-7 pb-6 pt-7 font-mono text-[11px] uppercase leading-[2.1] tracking-[0.07em] text-ink-muted shadow-pop">
         <div className="text-center">
           <p className="font-jost text-lg font-semibold normal-case tracking-[-0.01em] text-ink">
-            Zshop
+            Eshop
           </p>
           <p className="mt-0.5 text-[10px] text-ink-faint">{kind}</p>
         </div>

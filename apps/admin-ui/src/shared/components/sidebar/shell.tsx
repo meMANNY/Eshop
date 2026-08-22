@@ -65,7 +65,7 @@ export default function DashboardShell({
             {open ? <X size={18} /> : <Menu size={18} />}
           </button>
           <span className="font-display text-sm font-bold text-white">
-            Zshop Ops
+            Eshop Ops
           </span>
         </div>
 

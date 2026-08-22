@@ -69,7 +69,7 @@ export default function Page() {
           <span>
             <Logo className="mb-1.5 h-4 w-4 text-coral" />
             <h1 className="font-display text-xl font-bold leading-none tracking-[-0.01em] text-white">
-              Zshop Ops
+              Eshop Ops
             </h1>
           </span>
         </div>
@@ -135,7 +135,7 @@ export default function Page() {
         </div>
 
         <p className="mt-5 text-center text-xs text-[var(--faint)]">
-          © {new Date().getFullYear()} Zshop
+          © {new Date().getFullYear()} Eshop
         </p>
       </div>
     </main>

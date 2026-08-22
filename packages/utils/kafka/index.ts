@@ -3,7 +3,15 @@ import {Kafka, logLevel} from "kafkajs";
 export const kafka  = new Kafka({
     clientId: "kafka-service",
 
-    brokers: ["pkc-41p56.asia-south1.gcp.confluent.cloud:9092"],
+    /*
+      The broker was hardcoded to one Confluent cluster, which pinned every
+      deployment to that account with no way to point at another environment.
+      Comma-separated so a multi-broker cluster can be configured, and the old
+      value stays the default so nothing changes locally.
+    */
+    brokers: process.env.KAFKA_BROKER?.split(",").map((b) => b.trim()) || [
+        "pkc-41p56.asia-south1.gcp.confluent.cloud:9092",
+    ],
     ssl: true,
     sasl:{
         mechanism: "plain",

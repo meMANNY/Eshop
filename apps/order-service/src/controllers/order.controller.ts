@@ -6,6 +6,7 @@ import { NotFoundError, ValidationError } from "../../../../packages/error-handl
 import { Prisma } from "@prisma/client";
 import { sendEmail } from "../utils/send-email/index";
 import { logAsync } from "../../../../packages/utils/logs/send-logs";
+import { buildTrustedCheckout } from "../utils/trusted-checkout";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2026-06-24.dahlia'
@@ -85,10 +86,38 @@ const SESSION_TTL_SECONDS = 10 * 60; // 10 minutes
 const IN_FLIGHT_TTL_SECONDS = 3 * 24 * 60 * 60; // 3 days
 
 export const createPaymentIntent = async (req: Request, res: Response, next: NextFunction) => {
- const { amount, sellerStripeAccountId, sessionId } = req.body;
-  const customerAmount = Math.round(amount * 100);
-  const platformFee = Math.floor(customerAmount * 0.1);
+  /*
+    `amount` and `sellerStripeAccountId` used to come from the request body, so
+    the buyer chose both the price and who got paid. Only the session id is
+    accepted now; everything else is read back from the session the server built
+    in createPaymentSession, which priced the cart from the database.
+  */
+  const { sessionId } = req.body;
   try {
+    if (!sessionId)
+      throw new ValidationError("Invalid request data", "Session ID is required");
+
+    const sessionData = await redis.get(`payment-session:${sessionId}`);
+    if (!sessionData)
+      throw new ValidationError("Invalid request data", "Payment session not found or expired");
+
+    const session = JSON.parse(sessionData);
+
+    // The session belongs to whoever created it. Without this, any signed-in
+    // user who learned a session id could drive someone else's checkout.
+    if (String(session.userId) !== String(req.user.id))
+      throw new ValidationError("Invalid request data", "Payment session does not belong to you");
+
+    const customerAmount = Number(session.trustedTotalCents);
+    if (!Number.isInteger(customerAmount) || customerAmount < 1)
+      throw new ValidationError("Invalid request data", "Payment session has no payable amount");
+
+    const sellerStripeAccountId = session.sellers?.[0]?.stripeAccountId;
+    if (!sellerStripeAccountId)
+      throw new ValidationError("Invalid request data", "Seller Stripe account is missing");
+
+    const platformFee = Math.floor(customerAmount * 0.1);
+
     const { pi, scope } = await createPIWithFallback({
       amountInCents: customerAmount,
       sellerAccountId: sellerStripeAccountId,
@@ -112,7 +141,9 @@ export const createPaymentIntent = async (req: Request, res: Response, next: Nex
         );
     }
 
-    res.send({ clientSecret: pi.client_secret, scope });
+    // The account is returned so the client loads Stripe.js in the same context
+    // the intent was created in, rather than keeping its own copy of it.
+    res.send({ clientSecret: pi.client_secret, scope, stripeAccountId: sellerStripeAccountId });
   } catch (err) {
     return next(err);
   }
@@ -166,7 +197,16 @@ export const createPaymentSession = async (
       }
     }
 
-    const uniqueShopIds = [...new Set(cart.map((item: any) => item.shopId))];
+    /*
+      Every price, shop id and discount below is recomputed from the database.
+      What the client sent is treated as a request for particular products in
+      particular quantities and nothing more — see trusted-checkout.ts. The
+      session is the only thing later steps read, so making it trustworthy here
+      is what makes the payment intent and the webhook trustworthy too.
+    */
+    const checkout = await buildTrustedCheckout(cart, coupon?.code);
+
+    const uniqueShopIds = [...new Set(checkout.items.map((item) => item.shopId))];
     const shops = await prisma.shops.findMany({
       where: { id: { in: uniqueShopIds } },
       select: {
@@ -186,18 +226,19 @@ export const createPaymentSession = async (
       stripeAccountId: shop?.sellers?.stripeId,
     }));
 
-    const totalAmount = cart.reduce((total: number, item: any) => {
-      return total + item.quantity * item.sale_price;
-    }, 0);
-
     const sessionId = crypto.randomUUID();
     const sessionData = {
       userId,
-      cart,
+      cart: checkout.items,
       sellers: sellerData,
-      totalAmount,
+      // Subtotal before discount, which is what the checkout page displays.
+      totalAmount: checkout.subtotal,
+      // What the card is actually charged. createPaymentIntent reads this and
+      // never accepts an amount from the request.
+      trustedTotal: checkout.total,
+      trustedTotalCents: checkout.totalCents,
       shippingAddressId: selectedAddressId || null,
-      coupon: coupon || null,
+      coupon: checkout.coupon,
     };
 
     await redis.setex(
@@ -284,6 +325,9 @@ export const createOrder = async (
   try {
     let userId: string;
     let sessionId: string;
+    let paymentIntentId: string | null = null;
+    let amountReceived: number | null = null;
+    let currency: string | null = null;
     const isWebhook = !!req.headers["stripe-signature"];
     if (isWebhook) {
       const stripeSignature = req.headers["stripe-signature"];
@@ -312,6 +356,9 @@ export const createOrder = async (
       const paymentIntent = event.data.object as Stripe.PaymentIntent;
       sessionId = paymentIntent.metadata?.sessionId;
       userId = paymentIntent.metadata?.userId;
+      paymentIntentId = paymentIntent.id;
+      amountReceived = paymentIntent.amount_received;
+      currency = paymentIntent.currency;
 
       if (!sessionId || !userId) {
         throw new ValidationError("Invalid request data", "Missing sessionId or userId in metadata");
@@ -330,10 +377,65 @@ export const createOrder = async (
     if (!sessionData)
       throw new ValidationError("Invalid request data", "Payment session not found or expired");
 
-    const { cart, totalAmount, shippingAddressId, coupon } =
+    const { cart, totalAmount, trustedTotalCents, shippingAddressId, coupon } =
       JSON.parse(sessionData);
     if (!Array.isArray(cart) || cart.length === 0)
       throw new ValidationError("Invalid request data", "Cart data missing or invalid");
+
+    /*
+      What Stripe captured has to cover what the server priced. Without this the
+      only figure ever compared against the cart was the one the client asked to
+      be charged.
+
+      Sessions created before `trustedTotalCents` existed skip the check rather
+      than reject a payment that has already been taken.
+    */
+    if (
+      isWebhook &&
+      Number.isInteger(trustedTotalCents) &&
+      amountReceived !== null &&
+      amountReceived < trustedTotalCents
+    ) {
+      logAsync({
+        type: "error",
+        message: `Underpaid order rejected: session ${sessionId} expected ${trustedTotalCents} but received ${amountReceived}`,
+      });
+      throw new ValidationError(
+        "Invalid request data",
+        "Paid amount is less than the order total"
+      );
+    }
+
+    /*
+      The idempotency guard, and it has to be a write rather than a read: two
+      concurrent retries would both pass a findFirst. `sessionId` is unique on
+      orderPayment, so exactly one caller creates the row and the rest get P2002.
+
+      Stripe retries a failed webhook for up to three days, and a retry landing
+      after a slow success used to replay everything below — duplicate orders,
+      a second stock decrement, another round of notifications.
+    */
+    try {
+      await prisma.orderPayment.create({
+        data: {
+          sessionId,
+          paymentIntentId,
+          userId,
+          amountReceived,
+          currency,
+          source: isWebhook ? "webhook" : "manual",
+        },
+      });
+    } catch (err: any) {
+      if (err?.code === "P2002") {
+        logAsync({
+          type: "info",
+          message: `Duplicate order webhook ignored for session ${sessionId}`,
+        });
+        return res.status(200).json({ received: true, duplicate: true });
+      }
+      throw err;
+    }
 
     const user = await prisma.users.findUnique({ where: { id: userId } });
     if (!user) throw new ValidationError("Invalid request data", "User not found");

@@ -86,7 +86,7 @@ export default function LoginPage() {
       }
     >
       <AuthHeading title="Welcome back">
-        New to Zshop?{' '}
+        New to Eshop?{' '}
         <Link
           href="/signup"
           className="font-medium text-coral-ink underline-offset-4 hover:underline"

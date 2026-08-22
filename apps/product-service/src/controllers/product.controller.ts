@@ -4,6 +4,7 @@ import { uploadFile, deleteFile } from "../../../../packages/libs/imagekit";
 import { Request, Response, NextFunction } from "express";
 import { Prisma } from "@prisma/client";
 import { logAsync } from "../../../../packages/utils/logs/send-logs";
+import { sanitizeRichText } from "../../../../packages/utils/sanitize";
 
 export const getCategories = async(
     req: Request,
@@ -276,7 +277,10 @@ export const createProduct = async(
             data:{
                 title,
                 short_description,
-                detailed_description,
+                // Rich text straight from the seller's editor. Sanitised here so
+                // the payload never reaches the database — user-ui sanitises on
+                // render too, which is what covers rows written before this.
+                detailed_description: sanitizeRichText(detailed_description),
                 warranty,
                 cashOnDelivery: cash_on_delivery,
                 slug,

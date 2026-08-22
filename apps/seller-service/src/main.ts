@@ -10,12 +10,13 @@ setLogSource("seller-service");
 
 
 import router from "./routes/sellerRoutes";
+import { ALLOWED_ORIGINS } from "../../../packages/utils/cors";
 
 
 const app = express();
 app.use(
   cors({
-    origin: ["http://localhost:3000"],
+    origin: ALLOWED_ORIGINS,
     allowedHeaders: ["Authorization", "Content-Type"],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
