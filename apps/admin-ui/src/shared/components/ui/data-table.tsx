@@ -31,7 +31,7 @@ export function DataTable<T>({
   footer?: React.ReactNode;
 }) {
   return (
-    <div className="overflow-hidden rounded-panel border border-rule bg-panel shadow-panel">
+    <div className="overflow-hidden border border-ink-border bg-ink-soft">
       {isLoading ? (
         <TableSkeleton columns={columnCount} />
       ) : isEmpty ? (
@@ -41,8 +41,14 @@ export function DataTable<T>({
           <table className="w-full border-collapse text-sm">
             <thead>
               {table.getHeaderGroups().map((group) => (
-                /* The coral hairline under the head is the ledger's rule line. */
-                <tr key={group.id} className="border-b-2 border-b-coral/25 bg-raised">
+                /*
+                  A hard cream rule under the head, not a tinted accent one.
+                  In this theme the rule is always the highest-contrast line
+                  available, because separating the head from the body is
+                  structural — the same device the storefront uses between
+                  page sections.
+                */
+                <tr key={group.id} className="border-b-2 border-b-on-ink bg-ink-raised">
                   {group.headers.map((header) => {
                     const align =
                       (header.column.columnDef.meta as any)?.align === "right"
@@ -52,7 +58,7 @@ export function DataTable<T>({
                       <th
                         key={header.id}
                         scope="col"
-                        className={`whitespace-nowrap px-4 py-3 text-label font-semibold uppercase text-[var(--muted)] ${align}`}
+                        className={`whitespace-nowrap px-4 py-3 font-mono text-[0.78em] font-semibold uppercase tracking-[0.06em] text-on-ink ${align}`}
                       >
                         {header.isPlaceholder
                           ? null
@@ -75,7 +81,7 @@ export function DataTable<T>({
                     `hover:scale-[1.01]`, which nudged every neighbouring row and
                     blurred the text under the transform.
                   */
-                  className="border-b border-rule/70 transition-colors last:border-0 hover:bg-white/[0.025]"
+                  className="border-b border-ink-border transition-colors last:border-0 hover:bg-ink-raised"
                 >
                   {row.getVisibleCells().map((cell) => {
                     const align =
@@ -85,7 +91,7 @@ export function DataTable<T>({
                     return (
                       <td
                         key={cell.id}
-                        className={`whitespace-nowrap px-4 py-3 text-[var(--text)] ${align}`}
+                        className={`whitespace-nowrap px-4 py-3 text-on-ink ${align}`}
                       >
                         {flexRender(
                           cell.column.columnDef.cell,
@@ -98,7 +104,7 @@ export function DataTable<T>({
               ))}
             </tbody>
             {footer ? (
-              <tfoot className="border-t-2 border-t-rule bg-raised/60">
+              <tfoot className="border-t-2 border-t-on-ink bg-ink-raised">
                 {footer}
               </tfoot>
             ) : null}
@@ -123,13 +129,13 @@ export function TableSkeleton({
 }) {
   return (
     <div className="px-4 py-3" role="status" aria-label="Loading records">
-      <div className="flex gap-4 border-b-2 border-b-coral/25 pb-3">
+      <div className="flex gap-4 border-b-2 border-b-on-ink pb-3">
         {Array.from({ length: columns }).map((_, i) => (
           <Bar key={i} className="h-3 flex-1" />
         ))}
       </div>
       {Array.from({ length: rows }).map((_, r) => (
-        <div key={r} className="flex gap-4 border-b border-rule/70 py-4 last:border-0">
+        <div key={r} className="flex gap-4 border-b border-ink-border py-4 last:border-0">
           {Array.from({ length: columns }).map((_, c) => (
             <Bar key={c} className="h-3.5 flex-1" />
           ))}
