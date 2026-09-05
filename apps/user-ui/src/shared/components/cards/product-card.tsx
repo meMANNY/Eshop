@@ -8,13 +8,13 @@ import { useStore } from "@/store";
 import useUser from "@/hooks/useUser";
 import useLocationTracking from "@/hooks/useLocationTracking";
 import useDeviceTracking from "@/hooks/useDeviceTracking";
-import { Price, Rating, StatusPill } from "../ui";
+import { Chip, Price, Rating, StatusPill } from "../ui";
 
 /** Renders instantly, never hotlink-blocked, no network needed. */
 const PLACEHOLDER =
   "data:image/svg+xml;utf8," +
   encodeURIComponent(
-    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300"><rect width="300" height="300" fill="#f1f3f5"/><path d="M104 176l28-34 22 26 18-20 24 28z" fill="#d7dce2"/><circle cx="118" cy="120" r="14" fill="#d7dce2"/></svg>`
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300"><rect width="300" height="300" fill="#F2EDE0"/><path d="M104 176l28-34 22 26 18-20 24 28z" fill="#D8D2C2"/><circle cx="118" cy="120" r="14" fill="#D8D2C2"/></svg>`
   );
 
 function formatRemaining(endingDate: string): string {
@@ -70,35 +70,52 @@ const ProductCard = ({ product, isEvent }: { product: any; isEvent?: boolean }) 
   // `images` itself can be undefined — the optional chain was on the wrong link.
   const image = product?.images?.[0]?.url || PLACEHOLDER;
   const lowStock = product?.stock <= 5;
+  const discount =
+    product?.regular_price > product?.sale_price
+      ? Math.round(
+          (100 * (product.regular_price - product.sale_price)) /
+            product.regular_price
+        )
+      : 0;
+
+  /*
+    The plate tag, top-left. On an event it says `offer`; otherwise it names the
+    category in the same lowercase mono voice the rest of the theme uses for
+    metadata, so every card carries a filing label rather than only the ones that
+    happen to be on promotion.
+  */
+  const plate = isEvent
+    ? "offer"
+    : String(product?.category ?? "").split(/[\s,/]+/)[0].toLowerCase();
 
   return (
-    <div className="group relative flex h-full flex-col overflow-hidden rounded-card border border-rule bg-surface shadow-card transition-shadow duration-300 hover:shadow-lift">
-      <div className="relative">
+    <article className="card-hover group relative flex h-full flex-col overflow-hidden border border-line bg-paper">
+      <div className="relative border-b border-line">
         <Link
           href={`/product/${product?.slug}`}
-          className="block aspect-square overflow-hidden bg-sunken"
+          className="block aspect-square overflow-hidden bg-surface"
         >
           <img
             src={image}
             alt={product?.title ?? "Product"}
             loading="lazy"
-            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+            className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
           />
         </Link>
 
         {/*
           The offer badge and the shop-name link were both `top-2 left-2`, so on
-          an event product they were drawn one on top of the other. Offer sits
+          an event product they were drawn one on top of the other. The plate sits
           top-left, stock warning top-right, shop name along the bottom.
         */}
-        {isEvent ? (
-          <span className="absolute left-2 top-2">
-            <StatusPill tone="coral">Offer</StatusPill>
+        {plate ? (
+          <span className="absolute left-3 top-3 border border-line bg-paper/85 px-2 py-1 font-mono text-[10px] uppercase tracking-[0.16em] text-ink-500 backdrop-blur-sm">
+            {plate}
           </span>
         ) : null}
 
         {lowStock ? (
-          <span className="absolute right-2 top-2">
+          <span className="absolute right-3 top-3">
             <StatusPill tone="warn">Low stock</StatusPill>
           </span>
         ) : null}
@@ -112,7 +129,7 @@ const ProductCard = ({ product, isEvent }: { product: any; isEvent?: boolean }) 
         {product?.Shop?.name && product?.Shop?.id ? (
           <Link
             href={`/shop/${product.Shop.id}`}
-            className="absolute bottom-2 left-2 max-w-[calc(100%-1rem)] truncate rounded-full bg-surface/95 px-2.5 py-1 text-xs font-medium text-ink-muted shadow-card backdrop-blur transition-colors hover:text-coral-ink"
+            className="absolute bottom-3 left-3 max-w-[calc(100%-1.5rem)] truncate border border-line bg-paper/90 px-2 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-ink-500 backdrop-blur transition-colors hover:text-terra-2"
           >
             {product.Shop.name}
           </Link>
@@ -124,17 +141,17 @@ const ProductCard = ({ product, isEvent }: { product: any; isEvent?: boolean }) 
           are buttons now, and they stay visible on touch screens, where the
           hover-only reveal made them unreachable entirely.
         */}
-        <div className="absolute right-2 top-1/2 flex -translate-y-1/2 flex-col gap-2 opacity-100 transition-opacity duration-300 md:opacity-0 md:group-hover:opacity-100 md:group-focus-within:opacity-100">
+        <div className="absolute right-3 top-1/2 flex -translate-y-1/2 flex-col gap-2 opacity-100 transition-opacity duration-300 md:opacity-0 md:group-focus-within:opacity-100 md:group-hover:opacity-100">
           <IconButton
             label={isWishlisted ? "Remove from wishlist" : "Save to wishlist"}
             onClick={toggleWishlist}
             active={isWishlisted}
           >
-            <Heart size={17} className={isWishlisted ? "fill-current" : ""} />
+            <Heart size={16} className={isWishlisted ? "fill-current" : ""} />
           </IconButton>
 
           <IconButton label="Quick view" onClick={() => setOpen(true)}>
-            <Eye size={17} />
+            <Eye size={16} />
           </IconButton>
 
           <IconButton
@@ -145,47 +162,45 @@ const ProductCard = ({ product, isEvent }: { product: any; isEvent?: boolean }) 
               addToCart({ ...product, quantity: 1 }, user, location, deviceInfo)
             }
           >
-            <ShoppingBag size={17} />
+            <ShoppingBag size={16} />
           </IconButton>
         </div>
       </div>
 
-      <div className="flex flex-1 flex-col gap-2 p-3.5">
-        <Link href={`/product/${product?.slug}`} className="group/title">
-          <h3 className="clamp-2 text-sm font-medium leading-snug text-ink transition-colors group-hover/title:text-coral-ink">
+      <div className="flex flex-1 flex-col p-5">
+        <Link href={`/product/${product?.slug}`}>
+          <h3 className="clamp-2 font-display text-base font-medium leading-snug tracking-tight text-ink transition-colors group-hover:text-terra lg:text-lg">
             {product?.title}
           </h3>
         </Link>
 
-        <Rating value={product?.ratings ?? 0} />
+        <div className="mt-2.5">
+          <Rating value={product?.ratings ?? 0} />
+        </div>
 
-        <div className="mt-auto flex flex-wrap items-center gap-2 pt-1">
+        <div className="mt-auto flex flex-wrap items-baseline justify-between gap-2 border-t border-line pt-4">
           <Price value={product?.sale_price} compareAt={product?.regular_price} />
-          {product?.regular_price > product?.sale_price ? (
-            <StatusPill tone="pos">
-              −
-              {Math.round(
-                (100 * (product.regular_price - product.sale_price)) /
-                  product.regular_price
-              )}
-              %
-            </StatusPill>
+          {discount ? (
+            <Chip className="border-terra-2/40 text-terra-2">−{discount}%</Chip>
           ) : null}
         </div>
 
-        {product?.totalSales > 0 ? (
-          <p className="text-xs text-ink-faint">
-            <span className="figure">{product.totalSales}</span> sold
-          </p>
-        ) : null}
-
-        {isEvent && timeLeft ? (
-          <p className="text-xs font-medium text-coral-ink">{timeLeft}</p>
+        {product?.totalSales > 0 || (isEvent && timeLeft) ? (
+          <div className="mt-3 flex flex-wrap items-center justify-between gap-2 font-mono text-[10px] uppercase tracking-[0.14em]">
+            {product?.totalSales > 0 ? (
+              <span className="text-ink-400">
+                <span className="figure">{product.totalSales}</span> sold
+              </span>
+            ) : null}
+            {isEvent && timeLeft ? (
+              <span className="text-terra-2">{timeLeft}</span>
+            ) : null}
+          </div>
         ) : null}
       </div>
 
       {open ? <ProductDetailsCard data={product} setOpen={setOpen} /> : null}
-    </div>
+    </article>
   );
 };
 
@@ -210,8 +225,10 @@ function IconButton({
       aria-label={label}
       title={label}
       aria-pressed={active}
-      className={`grid h-9 w-9 place-items-center rounded-full bg-surface shadow-card ring-1 ring-rule transition-colors hover:ring-coral disabled:cursor-not-allowed disabled:opacity-50 ${
-        active ? "text-coral-ink" : "text-ink-muted hover:text-coral-ink"
+      className={`grid h-9 w-9 place-items-center border bg-paper transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
+        active
+          ? "border-terra-2 text-terra-2"
+          : "border-line text-ink-500 hover:border-ink-line hover:text-terra-2"
       }`}
     >
       {children}
