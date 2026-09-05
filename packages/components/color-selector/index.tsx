@@ -12,7 +12,7 @@ const DEFAULT_COLORS = [
   '#ffffff', // White
   '#6b7280', // Gray
   '#ef4444', // Red
-  '#ff6f61', // Coral
+  'var(--terra)', // Coral
   '#f59e0b', // Amber
   '#22c55e', // Green
   '#0ea5e9', // Sky
@@ -45,12 +45,12 @@ const checkOnLight = (hex: string) => {
 const ColorSelector = ({ control, errors }: { control: any; errors: any }) => {
   const [customColors, setCustomColors] = useState<string[]>([]);
   const [showPicker, setShowPicker] = useState(false);
-  const [draft, setDraft] = useState('#ff6f61');
+  const [draft, setDraft] = useState('var(--terra)');
   const [expanded, setExpanded] = useState(false);
 
   return (
     <div className="mt-2">
-      <label className="block font-semibold text-gray-300 mb-1">Colors</label>
+      <label className="mb-1.5 block font-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--on-ink-muted)]">Colors</label>
 
       <Controller
         name="colors"
@@ -79,7 +79,7 @@ const ColorSelector = ({ control, errors }: { control: any; errors: any }) => {
               setCustomColors((prev) => [...prev, hex]);
             }
             if (!selected.includes(hex)) field.onChange([...selected, hex]);
-            setDraft('#ff6f61');
+            setDraft('var(--terra)');
             setShowPicker(false);
           };
 
@@ -111,17 +111,17 @@ const ColorSelector = ({ control, errors }: { control: any; errors: any }) => {
                     title={color}
                     style={{ backgroundColor: color }}
                     className={`relative flex h-9 w-9 items-center justify-center rounded-full transition-all duration-150
-                      outline-none focus-visible:ring-2 focus-visible:ring-[#ff6f61] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0f172a]
-                      ${needsBorder(color) ? 'ring-1 ring-inset ring-slate-500/40' : ''}
+                      outline-none focus-visible:ring-2 focus-visible:ring-[var(--terra)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--ink)]
+                      ${needsBorder(color) ? 'ring-1 ring-inset ring-[var(--on-ink-faint)]/40' : ''}
                       ${isActive
-                        ? 'ring-2 ring-[#ff6f61] ring-offset-2 ring-offset-[#0f172a] scale-105'
+                        ? 'ring-2 ring-[var(--terra)] ring-offset-2 ring-offset-[var(--ink)] scale-105'
                         : 'hover:scale-110'}`}
                   >
                     {isActive && (
                       <Check
                         size={16}
                         strokeWidth={3}
-                        className={checkOnLight(color) ? 'text-slate-900' : 'text-white'}
+                        className={checkOnLight(color) ? 'text-[var(--ink)]' : 'text-[var(--on-ink)]'}
                       />
                     )}
                   </button>
@@ -133,7 +133,7 @@ const ColorSelector = ({ control, errors }: { control: any; errors: any }) => {
                 <span className="flex items-center gap-2">
                   <input
                     type="color"
-                    value={isValidHex ? draft : '#ff6f61'}
+                    value={isValidHex ? draft : 'var(--terra)'}
                     onChange={(e) => setDraft(e.target.value)}
                     className="h-9 w-9 cursor-pointer rounded-full border-none bg-transparent p-0 [&::-webkit-color-swatch-wrapper]:p-0 [&::-webkit-color-swatch]:rounded-full [&::-webkit-color-swatch]:border-none"
                     aria-label="Pick a custom color"
@@ -143,17 +143,17 @@ const ColorSelector = ({ control, errors }: { control: any; errors: any }) => {
                     value={draft}
                     onChange={(e) => setDraft(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addCustom())}
-                    placeholder="#ff6f61"
+                    placeholder="var(--terra)"
                     spellCheck={false}
                     aria-label="Enter a hex color"
-                    className={`w-24 rounded-md border bg-transparent px-2 py-1 text-sm text-white outline-none transition-colors
-                      ${isValidHex ? 'border-slate-600 focus:border-[#ff6f61]' : 'border-red-500'}`}
+                    className={`w-24  border bg-transparent px-2 py-1 text-sm text-[var(--on-ink)] outline-none transition-colors
+                      ${isValidHex ? 'border-[var(--ink-border)] focus:border-[var(--terra)]' : 'border-[var(--neg)]'}`}
                   />
                   <button
                     type="button"
                     onClick={addCustom}
                     disabled={!isValidHex}
-                    className="rounded-md bg-[#ff6f61] px-3 py-1 text-xs font-semibold text-white transition-colors hover:bg-[#e05a4d] disabled:cursor-not-allowed disabled:opacity-40"
+                    className="bg-[var(--terra)] px-3 py-1 text-xs font-semibold text-[var(--on-ink)] transition-colors hover:bg-[#e05a4d] disabled:cursor-not-allowed disabled:opacity-40"
                   >
                     Add
                   </button>
@@ -163,7 +163,7 @@ const ColorSelector = ({ control, errors }: { control: any; errors: any }) => {
                   type="button"
                   onClick={() => setShowPicker(true)}
                   aria-label="Add a custom color"
-                  className="flex h-9 w-9 items-center justify-center rounded-full border border-dashed border-slate-600 text-slate-400 transition-colors duration-150 hover:border-[#ff6f61] hover:text-[#ff6f61] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff6f61] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0f172a]"
+                  className="flex h-9 w-9 items-center justify-center rounded-full border border-dashed border-[var(--ink-border)] text-[var(--on-ink-faint)] transition-colors duration-150 hover:border-[var(--terra)] hover:text-[var(--terra)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--terra)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--ink)]"
                 >
                   <Plus size={16} />
                 </button>
@@ -174,7 +174,7 @@ const ColorSelector = ({ control, errors }: { control: any; errors: any }) => {
                 <button
                   type="button"
                   onClick={() => setExpanded((e) => !e)}
-                  className="rounded-full px-3 py-1 text-xs font-medium text-slate-400 transition-colors hover:text-[#ff6f61] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff6f61] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0f172a]"
+                  className="rounded-full px-3 py-1 text-xs font-medium text-[var(--on-ink-faint)] transition-colors hover:text-[var(--terra)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--terra)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--ink)]"
                 >
                   {expanded ? 'Show less' : `+${hiddenCount} more`}
                 </button>
@@ -185,7 +185,7 @@ const ColorSelector = ({ control, errors }: { control: any; errors: any }) => {
       />
 
       {errors?.colors && (
-        <p className="text-red-500 text-xs mt-1">{errors.colors.message as string}</p>
+        <p className="mt-1.5 font-mono text-[10px] uppercase tracking-[0.12em] text-[var(--neg)]">{errors.colors.message as string}</p>
       )}
     </div>
   );

@@ -7,7 +7,7 @@ import 'react-quill-new/dist/quill.snow.css';
 const ReactQuill = dynamic(() => import('react-quill-new'), {
   ssr: false,
   loading: () => (
-    <div className="h-[250px] w-full animate-pulse rounded-md border border-slate-700 bg-[#141922]" />
+    <div className="h-[250px] w-full animate-pulse border border-[var(--ink-border)] bg-[var(--ink-soft)]" />
   ),
 });
 
@@ -57,19 +57,24 @@ const RichTextEditor = ({ value, onChange, placeholder = 'Write a detailed descr
       />
 
       {/* Snow theme is light by default — retheme it to the dark seller UI. */}
+      {/*
+        Quill ships the light "snow" theme and paints its own chrome, so the only
+        way to bring it onto the host app's surface is to restate its selectors.
+        Every value is a CSS variable, which means this editor follows whichever
+        app mounts it rather than pinning itself to one palette — and the radii
+        are gone, because nothing else in this theme is round.
+      */}
       <style jsx global>{`
         .rich-text-editor .ql-toolbar {
-          background: #0f172a;
-          border-color: #334155;
-          border-top-left-radius: 0.5rem;
-          border-top-right-radius: 0.5rem;
+          background: var(--ink-raised);
+          border-color: var(--ink-border);
+          border-radius: 0;
         }
         .rich-text-editor .ql-container {
-          background: #141922;
-          border-color: #334155;
-          border-bottom-left-radius: 0.5rem;
-          border-bottom-right-radius: 0.5rem;
-          color: #e2e8f0;
+          background: var(--ink-soft);
+          border-color: var(--ink-border);
+          border-radius: 0;
+          color: var(--on-ink);
           font-size: 0.95rem;
           min-height: 220px;
         }
@@ -77,37 +82,38 @@ const RichTextEditor = ({ value, onChange, placeholder = 'Write a detailed descr
           min-height: 220px;
         }
         .rich-text-editor .ql-editor.ql-blank::before {
-          color: #64748b;
+          color: var(--on-ink-faint);
           font-style: normal;
         }
-        /* Toolbar icons + dropdown labels */
+        /* Toolbar icons and dropdown labels. */
         .rich-text-editor .ql-snow .ql-stroke {
-          stroke: #cbd5e1;
+          stroke: var(--on-ink-muted);
         }
         .rich-text-editor .ql-snow .ql-fill {
-          fill: #cbd5e1;
+          fill: var(--on-ink-muted);
         }
         .rich-text-editor .ql-snow .ql-picker {
-          color: #cbd5e1;
+          color: var(--on-ink-muted);
         }
-        /* Hover + active use the coral accent */
+        /* Hover and active take the accent. */
         .rich-text-editor .ql-snow .ql-toolbar button:hover .ql-stroke,
         .rich-text-editor .ql-snow button.ql-active .ql-stroke,
         .rich-text-editor .ql-snow .ql-picker-label:hover {
-          stroke: #ff6f61;
-          color: #ff6f61;
+          stroke: var(--terra);
+          color: var(--terra);
         }
         .rich-text-editor .ql-snow .ql-toolbar button:hover .ql-fill,
         .rich-text-editor .ql-snow button.ql-active .ql-fill {
-          fill: #ff6f61;
+          fill: var(--terra);
         }
-        /* Dropdown menus (font, size, header) */
+        /* Dropdown menus (font, size, header). */
         .rich-text-editor .ql-snow .ql-picker-options {
-          background: #0f172a;
-          border-color: #334155;
+          background: var(--ink-raised);
+          border-color: var(--ink-border);
+          border-radius: 0;
         }
         .rich-text-editor .ql-snow .ql-picker-item:hover {
-          color: #ff6f61;
+          color: var(--terra);
         }
       `}</style>
     </div>

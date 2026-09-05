@@ -4,10 +4,17 @@ import { Controller } from 'react-hook-form';
 
 const SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL'];
 
+/*
+  Square chips in the mono voice, selected by inversion rather than by a tinted
+  fill with a coral glow — the glow was the single most anti-editorial thing in
+  these shared components, and it is the one detail the theme replaced outright.
+*/
 const SizeSelector = ({ control, errors }: { control: any; errors: any }) => {
   return (
     <div className="mt-2">
-      <label className="block font-semibold text-gray-300 mb-1">Sizes</label>
+      <label className="mb-1.5 block font-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--on-ink-muted)]">
+        Sizes
+      </label>
 
       <Controller
         name="sizes"
@@ -33,11 +40,11 @@ const SizeSelector = ({ control, errors }: { control: any; errors: any }) => {
                     key={size}
                     onClick={() => toggle(size)}
                     aria-pressed={isActive}
-                    className={`flex h-10 min-w-[2.75rem] items-center justify-center rounded-md px-3 text-sm font-semibold transition-all duration-150
-                      outline-none focus-visible:ring-2 focus-visible:ring-[#ff6f61] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0f172a]
-                      ${isActive
-                        ? 'border border-[#ff6f61] bg-[#ff6f61]/10 text-white shadow-[0_0_8px_rgba(255,111,97,0.35)]'
-                        : 'border border-slate-700 text-slate-300 hover:border-[#ff6f61]/60 hover:text-white'}`}
+                    className={`flex h-10 min-w-[2.75rem] items-center justify-center border px-3 font-mono text-[11px] uppercase tracking-[0.1em] transition-colors duration-150 ${
+                      isActive
+                        ? 'border-[var(--on-ink)] bg-[var(--paper)] text-[var(--ink)]'
+                        : 'border-[var(--ink-border)] text-[var(--on-ink-muted)] hover:border-[var(--on-ink)] hover:text-[var(--on-ink)]'
+                    }`}
                   >
                     {size}
                   </button>
@@ -49,7 +56,9 @@ const SizeSelector = ({ control, errors }: { control: any; errors: any }) => {
       />
 
       {errors?.sizes && (
-        <p className="text-red-500 text-xs mt-1">{errors.sizes.message as string}</p>
+        <p className="mt-1.5 font-mono text-[10px] uppercase tracking-[0.12em] text-[var(--neg)]">
+          {errors.sizes.message as string}
+        </p>
       )}
     </div>
   );

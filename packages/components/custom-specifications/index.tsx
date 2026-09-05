@@ -12,7 +12,7 @@ const CustomSpecifications = ({ control, errors }: { control: any; errors: any }
 
   return (
     <div className="mt-2">
-      <label className="block font-semibold text-gray-300 mb-1">
+      <label className="mb-1.5 block font-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--on-ink-muted)]">
         Custom Specifications
       </label>
 
@@ -29,7 +29,7 @@ const CustomSpecifications = ({ control, errors }: { control: any; errors: any }
                 )}
               />
               {errors?.custom_specifications?.[index]?.name && (
-                <p className="text-red-500 text-xs mt-1">
+                <p className="mt-1.5 font-mono text-[10px] uppercase tracking-[0.12em] text-[var(--neg)]">
                   {errors.custom_specifications[index].name.message as string}
                 </p>
               )}
@@ -45,7 +45,7 @@ const CustomSpecifications = ({ control, errors }: { control: any; errors: any }
                 )}
               />
               {errors?.custom_specifications?.[index]?.value && (
-                <p className="text-red-500 text-xs mt-1">
+                <p className="mt-1.5 font-mono text-[10px] uppercase tracking-[0.12em] text-[var(--neg)]">
                   {errors.custom_specifications[index].value.message as string}
                 </p>
               )}
@@ -55,7 +55,7 @@ const CustomSpecifications = ({ control, errors }: { control: any; errors: any }
               type="button"
               onClick={() => remove(index)}
               aria-label="Remove specification"
-              className="mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-slate-700 text-slate-400 transition-colors duration-150 hover:border-red-500 hover:text-red-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+              className="mt-1 flex h-11 w-11 shrink-0 items-center justify-center border border-[var(--ink-border)] text-[var(--on-ink-faint)] transition-colors duration-150 hover:border-[var(--neg)] hover:text-[var(--neg)]"
             >
               <Trash2 size={16} />
             </button>
@@ -66,7 +66,7 @@ const CustomSpecifications = ({ control, errors }: { control: any; errors: any }
       <button
         type="button"
         onClick={() => append({ name: '', value: '' })}
-        className="mt-3 flex items-center gap-2 rounded-md border border-dashed border-slate-600 px-3 py-2 text-sm font-medium text-slate-300 transition-colors duration-150 hover:border-[#ff6f61] hover:text-[#ff6f61] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff6f61] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0f172a]"
+        className="mt-3 flex items-center gap-2 border border-dashed border-[var(--ink-border)] px-3 py-2 font-mono text-[11px] uppercase tracking-[0.12em] text-[var(--on-ink-muted)] transition-colors duration-150 hover:border-[var(--terra)] hover:text-[var(--terra)]"
       >
         <Plus size={16} />
         Add Specification

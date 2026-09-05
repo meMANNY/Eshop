@@ -6,7 +6,7 @@ import { Controller } from 'react-hook-form';
 type Property = { label: string; values: string[] };
 
 const fieldClass =
-  'w-full rounded-md border border-slate-700 bg-transparent px-3 py-2 text-sm text-white outline-none transition-colors placeholder:text-slate-500 focus:border-[#ff6f61]';
+  'w-full  border border-[var(--ink-border)] bg-transparent px-3 py-2 text-sm text-[var(--on-ink)] outline-none transition-colors placeholder:text-[var(--on-ink-faint)] focus:border-[var(--terra)]';
 
 const CustomProperties = ({ control, errors }: { control: any; errors: any }) => {
   const [newLabel, setNewLabel] = useState('');
@@ -14,7 +14,7 @@ const CustomProperties = ({ control, errors }: { control: any; errors: any }) =>
 
   return (
     <div className="mt-2">
-      <label className="block font-semibold text-gray-300 mb-1">Custom Properties</label>
+      <label className="mb-1.5 block font-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--on-ink-muted)]">Custom Properties</label>
 
       <Controller
         name="custom_properties"
@@ -59,17 +59,17 @@ const CustomProperties = ({ control, errors }: { control: any; errors: any }) =>
               {properties.map((property, index) => (
                 <div
                   key={index}
-                  className="rounded-lg border border-slate-700 bg-[#141922] p-3"
+                  className="border border-[var(--ink-border)] bg-[var(--ink-soft)] p-3"
                 >
                   <div className="flex items-center justify-between gap-2">
-                    <span className="text-sm font-semibold text-slate-200">
+                    <span className="text-sm font-semibold text-[var(--on-ink)]">
                       {property.label}
                     </span>
                     <button
                       type="button"
                       onClick={() => removeProperty(index)}
                       aria-label={`Remove ${property.label} property`}
-                      className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-slate-700 text-slate-400 transition-colors hover:border-red-500 hover:text-red-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+                      className="flex h-7 w-7 shrink-0 items-center justify-center border border-[var(--ink-border)] text-[var(--on-ink-faint)] transition-colors hover:border-[var(--neg)] hover:text-[var(--neg)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
                     >
                       <X size={15} />
                     </button>
@@ -81,14 +81,14 @@ const CustomProperties = ({ control, errors }: { control: any; errors: any }) =>
                       {property.values.map((val) => (
                         <span
                           key={val}
-                          className="flex items-center gap-1.5 rounded-full bg-[#ff6f61]/10 px-3 py-1 text-xs font-medium text-[#ff8a7d] ring-1 ring-[#ff6f61]/25"
+                          className="flex items-center gap-1.5 rounded-full bg-[var(--terra)]/10 px-3 py-1 text-xs font-medium text-[#ff8a7d] ring-1 ring-[var(--terra)]/25"
                         >
                           {val}
                           <button
                             type="button"
                             onClick={() => removeValue(index, val)}
                             aria-label={`Remove value ${val}`}
-                            className="text-[#ff8a7d]/70 transition-colors hover:text-white"
+                            className="text-[#ff8a7d]/70 transition-colors hover:text-[var(--on-ink)]"
                           >
                             <X size={13} />
                           </button>
@@ -118,7 +118,7 @@ const CustomProperties = ({ control, errors }: { control: any; errors: any }) =>
                       type="button"
                       onClick={() => addValue(index)}
                       aria-label="Add value"
-                      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-slate-700 text-slate-300 transition-colors hover:border-[#ff6f61] hover:text-[#ff6f61] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff6f61]"
+                      className="flex h-9 w-9 shrink-0 items-center justify-center border border-[var(--ink-border)] text-[var(--on-ink-muted)] transition-colors hover:border-[var(--terra)] hover:text-[var(--terra)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--terra)]"
                     >
                       <Plus size={16} />
                     </button>
@@ -144,7 +144,7 @@ const CustomProperties = ({ control, errors }: { control: any; errors: any }) =>
                 <button
                   type="button"
                   onClick={addProperty}
-                  className="flex shrink-0 items-center gap-2 rounded-md border border-dashed border-slate-600 px-3 py-2 text-sm font-medium text-slate-300 transition-colors hover:border-[#ff6f61] hover:text-[#ff6f61] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff6f61] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0f172a]"
+                  className="flex shrink-0 items-center gap-2 border border-dashed border-[var(--ink-border)] px-3 py-2 text-sm font-medium text-[var(--on-ink-muted)] transition-colors hover:border-[var(--terra)] hover:text-[var(--terra)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--terra)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--ink)]"
                 >
                   <Plus size={16} />
                   Add Property
@@ -156,7 +156,7 @@ const CustomProperties = ({ control, errors }: { control: any; errors: any }) =>
       />
 
       {errors?.custom_properties && (
-        <p className="text-red-500 text-xs mt-1">
+        <p className="mt-1.5 font-mono text-[10px] uppercase tracking-[0.12em] text-[var(--neg)]">
           {errors.custom_properties.message as string}
         </p>
       )}
