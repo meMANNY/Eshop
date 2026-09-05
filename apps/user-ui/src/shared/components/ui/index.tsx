@@ -457,19 +457,32 @@ export function Ledger({
 export function TileGrid({
   items,
   className = "grid-cols-2 md:grid-cols-3 lg:grid-cols-6",
+  tone = "paper",
 }: {
   items: { label: string; href: string }[];
   className?: string;
+  /** `ink` inverts the tiles for use inside an InkSection, such as the footer. */
+  tone?: "paper" | "ink";
 }) {
+  const tile =
+    tone === "ink"
+      ? "bg-ink text-on-ink hover:bg-paper hover:text-ink"
+      : "bg-paper text-ink hover:bg-ink hover:text-paper";
+
+  // The rails are the grid's own background showing through its 1px gaps, so the
+  // border and the gap colour always have to agree.
+  const rails =
+    tone === "ink" ? "border-ink-border bg-ink-border" : "border-line bg-line";
+
   return (
-    <ul className={`grid gap-px border border-line bg-line ${className}`}>
+    <ul className={`grid gap-px border ${rails} ${className}`}>
       {items.map((item, i) => (
         <li key={item.href}>
           <Link
             href={item.href}
-            className="group flex min-h-[88px] flex-col justify-between bg-paper px-5 py-5 transition-colors duration-300 hover:bg-ink hover:text-paper"
+            className={`group flex min-h-[88px] flex-col justify-between px-5 py-5 transition-colors duration-300 ${tile}`}
           >
-            <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-terra group-hover:text-terra">
+            <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-terra">
               /{String(i + 1).padStart(2, "0")} ↗
             </span>
             <span className="font-display text-base font-medium tracking-tight">

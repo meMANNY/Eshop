@@ -1,12 +1,18 @@
 'use client';
 
 import { navItems, shopCategories } from '@/configs/constants';
-import { AlignLeft, ChevronDown, X } from 'lucide-react';
 import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Container } from '@/shared/components/ui';
 import AccountActions from './account-actions';
+
+/*
+  The departments bar, and the sheet the whole navigation collapses into on a
+  phone. The mobile menu is a full-bleed ink takeover rather than a dropdown: on
+  a cream page, inverting the entire screen is an unmistakable "you are in the
+  menu now", and it costs no extra chrome to say it.
+*/
 
 const HeaderBottom = () => {
   const [showDepartments, setShowDepartments] = useState(false);
@@ -51,6 +57,17 @@ const HeaderBottom = () => {
     };
   }, []);
 
+  // The full-screen menu takes over the viewport, so the page behind it must not
+  // keep scrolling underneath.
+  useEffect(() => {
+    if (!showNav) return;
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = previous;
+    };
+  }, [showNav]);
+
   return (
     <>
       {/*
@@ -58,109 +75,124 @@ const HeaderBottom = () => {
         upward by the bar's own height the moment you scrolled past 100px. The
         spacer holds that space open.
       */}
-      {isSticky ? <div aria-hidden="true" className="h-[60px]" /> : null}
+      {isSticky ? <div aria-hidden="true" className="h-[57px]" /> : null}
       <div
-      className={
-        isSticky
-          ? 'fixed left-0 top-0 z-[100] w-full border-b border-rule bg-surface/95 shadow-card backdrop-blur transition-shadow'
-          : 'relative w-full'
-      }
-    >
-      <Container className="flex items-center gap-4 py-2">
-        {/* Departments */}
-        <div className="relative shrink-0" ref={departmentsRef}>
+        className={
+          isSticky
+            ? 'fixed left-0 top-0 z-[100] w-full border-b border-ink-line bg-paper/95 backdrop-blur'
+            : 'relative w-full border-y border-line'
+        }
+      >
+        <Container className="flex items-center gap-4 py-2.5">
+          {/* The wordmark only rides along once the masthead has scrolled away. */}
+          {isSticky ? (
+            <Link href="/" className="group flex shrink-0 items-baseline gap-2">
+              <span
+                className="h-2 w-2 shrink-0 rounded-full bg-terra-2 transition-transform group-hover:scale-125"
+                aria-hidden="true"
+              />
+              <span className="font-display text-base font-medium tracking-tight text-ink">
+                Eshop
+              </span>
+            </Link>
+          ) : null}
+
+          {/* Departments */}
+          <div className="relative shrink-0" ref={departmentsRef}>
+            <button
+              onClick={() => setShowDepartments((s) => !s)}
+              aria-expanded={showDepartments}
+              aria-haspopup="true"
+              className="btn-ghost btn-mono !py-2"
+            >
+              <span aria-hidden="true">≡</span>
+              <span className="hidden sm:inline">departments</span>
+              <span
+                aria-hidden="true"
+                className={`transition-transform ${showDepartments ? 'rotate-180' : ''}`}
+              >
+                ▾
+              </span>
+            </button>
+
+            {/*
+              This used to open an empty 260×400 grey rectangle — a prominent
+              control whose panel had no contents at all. The categories were
+              already sitting in configs/constants as `shopCategories`.
+            */}
+            {showDepartments ? (
+              <div className="scroll-slim absolute left-0 top-[46px] z-50 max-h-[420px] w-[300px] overflow-y-auto border border-ink-line bg-paper py-1 shadow-pop">
+                {shopCategories.map((category, i) => (
+                  <Link
+                    key={category.value}
+                    href={`/products?category=${encodeURIComponent(category.value)}`}
+                    className="flex items-baseline gap-2.5 px-4 py-2.5 font-mono text-[11px] uppercase tracking-[0.12em] text-ink-500 transition-colors hover:bg-surface hover:text-terra-2"
+                  >
+                    <span className="text-[9px] text-terra-2" aria-hidden="true">
+                      {String(i + 1).padStart(2, '0')}
+                    </span>
+                    {category.label}
+                  </Link>
+                ))}
+              </div>
+            ) : null}
+          </div>
+
           <button
-            onClick={() => setShowDepartments((s) => !s)}
-            aria-expanded={showDepartments}
-            aria-haspopup="true"
-            className="flex h-11 items-center gap-2 rounded-lg bg-coral px-4 text-sm font-medium text-[#2b0f0a] transition-colors hover:bg-coral-dim"
+            onClick={() => setShowNav(true)}
+            aria-expanded={showNav}
+            aria-label="Browse menu"
+            className="ml-auto flex h-9 w-9 flex-col items-center justify-center gap-[5px] border border-ink-line text-ink lg:hidden"
           >
-            <AlignLeft size={18} aria-hidden="true" />
-            <span className="hidden sm:inline">All departments</span>
-            <ChevronDown
-              size={16}
-              aria-hidden="true"
-              className={`transition-transform ${showDepartments ? 'rotate-180' : ''}`}
-            />
+            <span className="block h-px w-4 bg-current" aria-hidden="true" />
+            <span className="block h-px w-4 bg-current" aria-hidden="true" />
           </button>
 
           {/*
-            This used to open an empty 260×400 grey rectangle — a prominent
-            control whose panel had no contents at all. The categories were
-            already sitting in configs/constants as `shopCategories`.
+            The account cluster rides along only while the bar is stuck to the
+            top — same component as the masthead rather than a second copy of it.
           */}
-          {showDepartments ? (
-            <div className="scroll-slim absolute left-0 top-[52px] z-50 max-h-[420px] w-[280px] overflow-y-auto rounded-card border border-rule bg-surface py-2 shadow-pop">
-              {shopCategories.map((category) => (
-                <Link
-                  key={category.value}
-                  href={`/products?category=${encodeURIComponent(category.value)}`}
-                  className="block px-4 py-2.5 text-sm text-ink-muted transition-colors hover:bg-sunken hover:text-coral-ink"
-                >
-                  {category.label}
-                </Link>
-              ))}
+          {isSticky ? (
+            <div className="ml-auto hidden lg:block">
+              <AccountActions compact />
             </div>
           ) : null}
-        </div>
+        </Container>
+      </div>
 
-        {/* Primary nav — a row on desktop, a sheet on phones. */}
-        <nav className="hidden items-center gap-6 md:flex">
-          {navItems.map((item: NavItem, index: number) => {
-            const isActive = pathname === item.href;
-            return (
-              <Link
-                key={index}
-                href={item.href}
-                aria-current={isActive ? 'page' : undefined}
-                className={`text-sm transition-colors ${
-                  isActive
-                    ? 'font-medium text-coral-ink'
-                    : 'text-ink-muted hover:text-ink'
-                }`}
-              >
-                {item.title}
-              </Link>
-            );
-          })}
-        </nav>
-
-        <button
-          onClick={() => setShowNav((s) => !s)}
-          aria-expanded={showNav}
-          aria-label="Browse menu"
-          className="ml-auto rounded-lg border border-rule p-2 text-ink-muted md:hidden"
-        >
-          {showNav ? <X size={18} /> : <AlignLeft size={18} />}
-        </button>
-
-        {/*
-          The account cluster now rides along only while the bar is stuck to the
-          top — same component as the top bar rather than a second copy of it.
-        */}
-        {isSticky ? (
-          <div className="ml-auto hidden md:block">
-            <AccountActions compact />
-          </div>
-        ) : null}
-      </Container>
-
+      {/* The ink takeover. */}
       {showNav ? (
-        <Container className="border-t border-rule py-2 md:hidden">
-          <nav className="flex flex-col">
+        <div className="fixed inset-0 z-[200] flex flex-col bg-ink text-on-ink lg:hidden">
+          <div className="flex items-center justify-between border-b border-ink-border px-4 py-5">
+            <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-terra">
+              ~/menu
+            </span>
+            <button
+              onClick={() => setShowNav(false)}
+              aria-label="Close menu"
+              className="font-mono text-sm uppercase tracking-[0.14em] text-on-ink-muted transition-colors hover:text-on-ink"
+            >
+              esc ×
+            </button>
+          </div>
+
+          <nav className="flex flex-col gap-6 px-4 pt-12">
             {navItems.map((item: NavItem, index: number) => (
               <Link
                 key={index}
                 href={item.href}
-                className="py-2.5 text-sm text-ink-muted transition-colors hover:text-coral-ink"
+                onClick={() => setShowNav(false)}
+                className="flex items-baseline gap-4 font-display text-2xl tracking-tight text-on-ink/70 transition-colors hover:text-on-ink"
               >
+                <span className="font-mono text-xs text-terra-2" aria-hidden="true">
+                  {String(index + 1).padStart(2, '0')}
+                </span>
                 {item.title}
               </Link>
             ))}
           </nav>
-        </Container>
+        </div>
       ) : null}
-      </div>
     </>
   );
 };
