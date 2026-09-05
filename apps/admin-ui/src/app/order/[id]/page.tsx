@@ -56,7 +56,7 @@ export default function Page() {
       <PageShell>
         <button
           onClick={() => router.push("/dashboard/orders")}
-          className="mb-5 inline-flex items-center gap-2 text-sm text-[var(--muted)] transition-colors hover:text-coral"
+          className="mb-5 inline-flex items-center gap-2 text-sm text-on-ink-muted transition-colors hover:text-terra"
         >
           <ArrowLeft size={16} aria-hidden="true" />
           Back to orders
@@ -80,7 +80,7 @@ export default function Page() {
                 <>
                   Placed{" "}
                   <Figure>{shortDate(order.createdAt)}</Figure> ·{" "}
-                  <Figure className="text-white">{money(order.total)}</Figure>
+                  <Figure className="text-on-ink">{money(order.total)}</Figure>
                 </>
               }
               actions={
@@ -103,14 +103,14 @@ export default function Page() {
             <div className="mb-5 grid gap-5 lg:grid-cols-2">
               <Panel>
                 <PanelHead title="Summary" />
-                <dl className="divide-y divide-rule">
+                <dl className="divide-y divide-ink-border">
                   <Row label="Payment">
                     <StatusPill tone={paymentTone(order.status)}>
                       {order.status ?? "Unknown"}
                     </StatusPill>
                   </Row>
                   <Row label="Total paid">
-                    <Figure className="font-medium text-white">
+                    <Figure className="font-medium text-on-ink">
                       {money(order.total)}
                     </Figure>
                   </Row>
@@ -125,7 +125,7 @@ export default function Page() {
                     <Row label="Coupon">{order.couponCode.public_name}</Row>
                   ) : null}
                   <Row label="Placed">
-                    <Figure className="text-[var(--muted)]">
+                    <Figure className="text-on-ink-muted">
                       {shortDate(order.createdAt)}
                     </Figure>
                   </Row>
@@ -135,8 +135,8 @@ export default function Page() {
               <Panel>
                 <PanelHead title="Shipping address" />
                 {order.shippingAddress ? (
-                  <div className="space-y-1 p-5 text-sm text-[var(--muted)]">
-                    <p className="font-medium text-[var(--text)]">
+                  <div className="space-y-1 p-5 text-sm text-on-ink-muted">
+                    <p className="font-medium text-on-ink">
                       {order.shippingAddress.name}
                     </p>
                     <p>
@@ -146,7 +146,7 @@ export default function Page() {
                     <p>{order.shippingAddress.country}</p>
                   </div>
                 ) : (
-                  <p className="p-5 text-sm text-[var(--faint)]">
+                  <p className="p-5 text-sm text-on-ink-faint">
                     No address recorded for this order.
                   </p>
                 )}
@@ -163,7 +163,7 @@ export default function Page() {
                   </>
                 }
               />
-              <ul className="divide-y divide-rule">
+              <ul className="divide-y divide-ink-border">
                 {(order.items ?? []).map((item: any) => (
                   <li
                     key={item.productId}
@@ -179,13 +179,13 @@ export default function Page() {
                         "/placeholder.png"
                       }
                       alt=""
-                      className="h-14 w-14 shrink-0 rounded-md border border-rule object-cover"
+                      className="h-14 w-14 shrink-0 border border-ink-border object-cover"
                     />
                     <div className="min-w-0 flex-1">
-                      <p className="truncate font-medium text-[var(--text)]">
+                      <p className="truncate font-medium text-on-ink">
                         {item.product?.title ?? "Unnamed product"}
                       </p>
-                      <p className="mt-0.5 text-sm text-[var(--muted)]">
+                      <p className="mt-0.5 text-sm text-on-ink-muted">
                         Quantity <Figure>{item.quantity}</Figure>
                       </p>
                       {item.selectedOptions &&
@@ -196,7 +196,7 @@ export default function Page() {
                               value ? (
                                 <span
                                   key={key}
-                                  className="rounded-full bg-raised px-2.5 py-0.5 text-xs text-[var(--muted)]"
+                                  className="rounded-full bg-ink-raised px-2.5 py-0.5 text-xs text-on-ink-muted"
                                 >
                                   <span className="capitalize">{key}</span>:{" "}
                                   {value}
@@ -206,7 +206,7 @@ export default function Page() {
                         </div>
                       ) : null}
                     </div>
-                    <Figure className="shrink-0 font-medium text-white">
+                    <Figure className="shrink-0 font-medium text-on-ink">
                       {money(item.price)}
                     </Figure>
                   </li>
@@ -229,10 +229,10 @@ function Row({
 }) {
   return (
     <div className="flex items-center justify-between gap-4 px-5 py-3">
-      <dt className="text-label font-semibold uppercase text-[var(--muted)]">
+      <dt className="text-label font-semibold uppercase text-on-ink-muted">
         {label}
       </dt>
-      <dd className="text-sm text-[var(--text)]">{children}</dd>
+      <dd className="text-sm text-on-ink">{children}</dd>
     </div>
   );
 }
@@ -249,9 +249,9 @@ function ProgressTracker({ current }: { current?: string }) {
 
   return (
     <div>
-      <div className="relative mb-4 h-1 rounded-full bg-raised">
+      <div className="relative mb-4 h-1 rounded-full bg-ink-raised">
         <div
-          className="absolute inset-y-0 left-0 rounded-full bg-coral transition-[width] duration-500 motion-reduce:transition-none"
+          className="absolute inset-y-0 left-0 rounded-full bg-terra transition-[width] duration-500 motion-reduce:transition-none"
           style={{ width: `${percent}%` }}
         />
         <div className="absolute inset-0 flex items-center justify-between">
@@ -259,7 +259,7 @@ function ProgressTracker({ current }: { current?: string }) {
             <span
               key={stage}
               className={`h-3 w-3 rounded-full ring-4 ring-panel transition-colors ${
-                i <= reached ? "bg-coral" : "bg-rule"
+                i <= reached ? "bg-terra" : "bg-rule"
               }`}
               aria-hidden="true"
             />
@@ -273,8 +273,8 @@ function ProgressTracker({ current }: { current?: string }) {
             aria-current={i === reached ? "step" : undefined}
             className={`flex-1 text-center text-xs ${
               i <= reached
-                ? "font-medium text-[var(--text)]"
-                : "text-[var(--faint)]"
+                ? "font-medium text-on-ink"
+                : "text-on-ink-faint"
             }`}
           >
             {stage}

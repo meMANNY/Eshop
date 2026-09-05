@@ -23,10 +23,10 @@ export default function DeviceUsagePie() {
   const max = Math.max(...staticData.map((d) => d.value));
 
   return (
-    <section className="rounded-panel border border-rule bg-panel shadow-panel">
-      <header className="border-b border-rule px-5 py-4">
-        <h2 className="text-[15px] font-semibold text-white">Device usage</h2>
-        <p className="mt-0.5 text-xs text-[var(--muted)]">
+    <section className="border border-ink-border bg-ink-soft">
+      <header className="border-b border-ink-border px-5 py-4">
+        <h2 className="text-[15px] font-semibold text-on-ink">Device usage</h2>
+        <p className="mt-0.5 text-xs text-on-ink-muted">
           How buyers reach the storefront
         </p>
       </header>
@@ -37,15 +37,15 @@ export default function DeviceUsagePie() {
           return (
             <div key={d.name}>
               <div className="mb-1.5 flex items-baseline justify-between gap-3">
-                <span className="text-sm text-[var(--text)]">{d.name}</span>
-                <span className="figure text-sm text-[var(--muted)]">
+                <span className="text-sm text-on-ink">{d.name}</span>
+                <span className="figure text-sm text-on-ink-muted">
                   {share}%
                 </span>
               </div>
               {/* The track is the full width, so every bar is read against the
                   same baseline and the same maximum. */}
               <div
-                className="h-2 w-full overflow-hidden rounded-full bg-raised"
+                className="h-2 w-full overflow-hidden rounded-full bg-ink-raised"
                 role="img"
                 aria-label={`${d.name}: ${share} percent`}
               >

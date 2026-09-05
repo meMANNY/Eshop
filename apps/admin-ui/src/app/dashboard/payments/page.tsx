@@ -52,7 +52,7 @@ export default function Page() {
         accessorKey: "id",
         header: "Order",
         cell: ({ row }: any) => (
-          <Figure className="font-medium text-white">
+          <Figure className="font-medium text-on-ink">
             {shortId(row.original.id)}
           </Figure>
         ),
@@ -67,7 +67,7 @@ export default function Page() {
         header: "Gross",
         meta: { align: "right" },
         cell: ({ row }: any) => (
-          <Figure className="text-white">{money(row.original.total)}</Figure>
+          <Figure className="text-on-ink">{money(row.original.total)}</Figure>
         ),
       },
       {
@@ -75,7 +75,7 @@ export default function Page() {
         header: "Seller payout",
         meta: { align: "right" },
         cell: ({ row }: any) => (
-          <Figure className="text-[var(--muted)]">
+          <Figure className="text-on-ink-muted">
             {money(sellerShare(row.original.total))}
           </Figure>
         ),
@@ -86,7 +86,7 @@ export default function Page() {
         meta: { align: "right" },
         /* The one figure this page exists to show, in the marketplace's colour. */
         cell: ({ row }: any) => (
-          <Figure className="font-medium text-coral">
+          <Figure className="font-medium text-terra">
             {money(houseCut(row.original.total))}
           </Figure>
         ),
@@ -104,7 +104,7 @@ export default function Page() {
         accessorKey: "createdAt",
         header: "Date",
         cell: ({ row }: any) => (
-          <Figure className="text-[var(--muted)]">
+          <Figure className="text-on-ink-muted">
             {shortDate(row.original.createdAt)}
           </Figure>
         ),
@@ -116,7 +116,7 @@ export default function Page() {
         cell: ({ row }: any) => (
           <Link
             href={`/order/${row.original.id}`}
-            className="inline-flex items-center gap-1.5 text-sm text-[var(--muted)] transition-colors hover:text-coral"
+            className="inline-flex items-center gap-1.5 text-sm text-on-ink-muted transition-colors hover:text-terra"
           >
             <Eye size={16} aria-hidden="true" />
             View
@@ -154,7 +154,7 @@ export default function Page() {
             <>
               <Figure>{rows.length}</Figure> settled order
               {rows.length === 1 ? "" : "s"} · house cut{" "}
-              <Figure className="text-coral">{money(houseCut(gross))}</Figure>
+              <Figure className="text-terra">{money(houseCut(gross))}</Figure>
             </>
           )
         }
@@ -193,20 +193,20 @@ export default function Page() {
               <th
                 scope="row"
                 colSpan={2}
-                className="px-4 py-3 text-left text-label font-semibold uppercase text-[var(--muted)]"
+                className="px-4 py-3 text-left text-label font-semibold uppercase text-on-ink-muted"
               >
                 Total
               </th>
               <td className="px-4 py-3 text-right">
-                <Figure className="font-medium text-white">{money(gross)}</Figure>
+                <Figure className="font-medium text-on-ink">{money(gross)}</Figure>
               </td>
               <td className="px-4 py-3 text-right">
-                <Figure className="text-[var(--muted)]">
+                <Figure className="text-on-ink-muted">
                   {money(sellerShare(gross))}
                 </Figure>
               </td>
               <td className="px-4 py-3 text-right">
-                <Figure className="font-semibold text-coral">
+                <Figure className="font-semibold text-terra">
                   {money(houseCut(gross))}
                 </Figure>
               </td>

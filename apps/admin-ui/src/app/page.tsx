@@ -5,7 +5,6 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useMutation } from "@tanstack/react-query";
 import axios, { AxiosError } from "axios";
-import Logo from "./assests/svgs/logo";
 
 type FormData = {
   email: string;
@@ -56,27 +55,41 @@ export default function Page() {
       */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 [background-image:repeating-linear-gradient(to_bottom,transparent_0,transparent_31px,rgba(35,42,56,0.55)_32px)]"
+        className="pointer-events-none absolute inset-0 [background-image:repeating-linear-gradient(to_bottom,transparent_0,transparent_31px,rgba(58,53,48,0.55)_32px)]"
       />
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_20%,#08090c_78%)]"
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_20%,#1A1A1A_78%)]"
       />
 
       <div className="relative w-full max-w-sm">
-        <div className="mb-7 flex items-center gap-2.5">
-          <span className="marker h-9" aria-hidden="true" />
-          <span>
-            <Logo className="mb-1.5 h-4 w-4 text-coral" />
-            <h1 className="font-display text-xl font-bold leading-none tracking-[-0.01em] text-white">
-              Eshop Ops
-            </h1>
+        <div className="sys-strip mb-8">
+          <span className="sys-key">~/ops</span>
+          <span className="sys-dot" aria-hidden="true">
+            ●
+          </span>
+          <span className="sys-value">sign-in</span>
+          <span className="sys-value ml-auto">audit: on</span>
+        </div>
+
+        <div className="mb-7 flex items-baseline gap-2.5">
+          <span
+            className="h-2 w-2 shrink-0 rounded-full bg-terra-2"
+            aria-hidden="true"
+          />
+          <h1 className="font-display text-xl font-medium tracking-tight text-on-ink">
+            Eshop
+          </h1>
+          <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-on-ink-faint">
+            /ops
           </span>
         </div>
 
-        <div className="rounded-panel border border-rule bg-panel p-6 shadow-pop">
-          <h2 className="text-[15px] font-semibold text-white">Sign in</h2>
-          <p className="mt-1 text-sm text-[var(--muted)]">
+        <div className="border border-ink-border bg-ink-soft p-6 shadow-pop">
+          <h2 className="font-display text-lg font-medium tracking-tight text-on-ink">
+            Sign in
+          </h2>
+          <p className="mt-1.5 text-sm text-on-ink-muted">
             Admin accounts only. Everything you do here is recorded.
           </p>
 
@@ -118,7 +131,7 @@ export default function Page() {
             {serverError ? (
               <p
                 role="alert"
-                className="rounded-lg border border-neg/30 bg-neg/10 px-3 py-2 text-sm text-neg"
+                className="border border-neg/30 bg-neg/10 px-3 py-2 text-sm text-neg"
               >
                 {serverError}
               </p>
@@ -127,15 +140,18 @@ export default function Page() {
             <button
               type="submit"
               disabled={loginMutation.isPending}
-              className="flex w-full items-center justify-center gap-2 rounded-lg bg-coral px-4 py-2.5 text-sm font-medium text-[#1a0d0b] transition-colors hover:bg-coral-dim disabled:cursor-not-allowed disabled:opacity-60"
+              className="btn-primary btn-mono w-full !justify-between"
             >
               {loginMutation.isPending ? "Signing in…" : "Sign in"}
+              <span aria-hidden="true" className="font-mono text-xs">
+                →
+              </span>
             </button>
           </form>
         </div>
 
-        <p className="mt-5 text-center text-xs text-[var(--faint)]">
-          © {new Date().getFullYear()} Eshop
+        <p className="mt-6 text-center font-mono text-[10px] uppercase tracking-[0.16em] text-on-ink-faint">
+          © {new Date().getFullYear()} · eshop ops
         </p>
       </div>
     </main>
@@ -162,7 +178,7 @@ function Field({
     <div>
       <label
         htmlFor={id}
-        className="mb-1.5 block text-label font-semibold uppercase text-[var(--muted)]"
+        className="mb-1.5 block text-label font-semibold uppercase text-on-ink-muted"
       >
         {label}
       </label>
@@ -171,8 +187,8 @@ function Field({
         {...inputProps}
         aria-invalid={error ? "true" : undefined}
         aria-describedby={error ? `${id}-error` : undefined}
-        className={`w-full rounded-lg border bg-raised px-3 py-2.5 text-sm text-[var(--text)] outline-none transition-colors placeholder:text-[var(--faint)] ${
-          error ? "border-neg/60" : "border-rule focus:border-coral/60"
+        className={`w-full  border bg-ink-raised px-3 py-2.5 text-sm text-on-ink outline-none transition-colors placeholder:text-on-ink-faint ${
+          error ? "border-neg/60" : "border-ink-border focus:border-terra/60"
         }`}
       />
       {error ? (

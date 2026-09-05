@@ -78,7 +78,7 @@ export default function Page() {
         cell: ({ row }: any) => (
           <div className="flex items-center gap-3">
             <span
-              className="grid h-8 w-8 shrink-0 place-items-center overflow-hidden rounded-full bg-raised text-xs font-semibold text-[var(--muted)]"
+              className="grid h-8 w-8 shrink-0 place-items-center overflow-hidden rounded-full bg-ink-raised text-xs font-semibold text-on-ink-muted"
               aria-hidden="true"
             >
               {/* `shops.avatar` is an `images[]` relation — indexing is required.
@@ -95,10 +95,10 @@ export default function Page() {
               )}
             </span>
             <span className="min-w-0">
-              <span className="block truncate font-medium text-[var(--text)]">
+              <span className="block truncate font-medium text-on-ink">
                 {row.original.name}
               </span>
-              <span className="block truncate text-xs text-[var(--faint)]">
+              <span className="block truncate text-xs text-on-ink-faint">
                 {row.original.email}
               </span>
             </span>
@@ -112,7 +112,7 @@ export default function Page() {
           row.original.shop ? (
             <Link
               href={`${process.env.NEXT_PUBLIC_USER_UI_LINK}/shop/${row.original.shop.id}`}
-              className="text-[var(--text)] transition-colors hover:text-coral"
+              className="text-on-ink transition-colors hover:text-terra"
             >
               {row.original.shop.name}
             </Link>
@@ -121,7 +121,7 @@ export default function Page() {
               A seller with no shop hasn't finished onboarding — worth calling out
               plainly rather than printing a dash that reads like missing data.
             */
-            <span className="text-[var(--faint)]">Not set up yet</span>
+            <span className="text-on-ink-faint">Not set up yet</span>
           ),
       },
       {
@@ -129,7 +129,7 @@ export default function Page() {
         header: "Address",
         cell: ({ row }: any) => (
           <span
-            className="block max-w-[280px] truncate text-[var(--muted)]"
+            className="block max-w-[280px] truncate text-on-ink-muted"
             title={row.original.shop?.address ?? undefined}
           >
             {row.original.shop?.address ?? "—"}
@@ -140,7 +140,7 @@ export default function Page() {
         accessorKey: "createdAt",
         header: "Joined",
         cell: ({ row }: any) => (
-          <Figure className="text-[var(--muted)]">
+          <Figure className="text-on-ink-muted">
             {shortDate(row.original.createdAt)}
           </Figure>
         ),

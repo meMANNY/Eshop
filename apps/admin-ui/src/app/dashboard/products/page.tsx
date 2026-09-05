@@ -82,11 +82,11 @@ export default function ProductList() {
               alt=""
               width={40}
               height={40}
-              className="h-10 w-10 shrink-0 rounded-md border border-rule object-cover"
+              className="h-10 w-10 shrink-0 border border-ink-border object-cover"
             />
             <Link
               href={`${process.env.NEXT_PUBLIC_USER_UI_LINK}/product/${row.original.slug}`}
-              className="max-w-[280px] truncate font-medium text-[var(--text)] transition-colors hover:text-coral"
+              className="max-w-[280px] truncate font-medium text-on-ink transition-colors hover:text-terra"
               title={row.original.title}
             >
               {row.original.title}
@@ -98,7 +98,7 @@ export default function ProductList() {
         accessorKey: "category",
         header: "Category",
         cell: ({ row }: any) => (
-          <span className="text-[var(--muted)]">{row.original.category}</span>
+          <span className="text-on-ink-muted">{row.original.category}</span>
         ),
       },
       {
@@ -106,7 +106,7 @@ export default function ProductList() {
         header: "Shop",
         cell: ({ row }: any) =>
           shopOf(row.original)?.name ?? (
-            <span className="text-[var(--faint)]">—</span>
+            <span className="text-on-ink-faint">—</span>
           ),
       },
       {
@@ -114,7 +114,7 @@ export default function ProductList() {
         header: "Price",
         meta: { align: "right" },
         cell: ({ row }: any) => (
-          <Figure className="text-white">
+          <Figure className="text-on-ink">
             ${Number(row.original.sale_price ?? 0).toFixed(2)}
           </Figure>
         ),
@@ -133,7 +133,7 @@ export default function ProductList() {
               Low · <Figure>{row.original.stock}</Figure>
             </StatusPill>
           ) : (
-            <Figure className="text-[var(--muted)]">{row.original.stock}</Figure>
+            <Figure className="text-on-ink-muted">{row.original.stock}</Figure>
           ),
       },
       {
@@ -143,7 +143,7 @@ export default function ProductList() {
         cell: ({ row }: any) => (
           <span className="inline-flex items-center gap-1.5">
             <Star size={13} className="fill-warn text-warn" aria-hidden="true" />
-            <Figure className="text-[var(--muted)]">
+            <Figure className="text-on-ink-muted">
               {(row.original.ratings ?? 5).toFixed(1)}
             </Figure>
           </span>
@@ -153,7 +153,7 @@ export default function ProductList() {
         accessorKey: "createdAt",
         header: "Added",
         cell: ({ row }: any) => (
-          <Figure className="text-[var(--muted)]">
+          <Figure className="text-on-ink-muted">
             {shortDate(row.original.createdAt)}
           </Figure>
         ),

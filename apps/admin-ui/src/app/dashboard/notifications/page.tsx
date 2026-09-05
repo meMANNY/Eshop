@@ -121,7 +121,7 @@ export default function Page() {
 
       <Panel className="overflow-hidden">
         {isLoading ? (
-          <ul className="divide-y divide-rule">
+          <ul className="divide-y divide-ink-border">
             {Array.from({ length: 4 }).map((_, i) => (
               <li key={i} className="px-5 py-4">
                 <Bar className="h-4 w-48" />
@@ -143,7 +143,7 @@ export default function Page() {
             hint="Platform-wide activity — orders, sellers joining — lands here as it happens."
           />
         ) : (
-          <ul className="divide-y divide-rule">
+          <ul className="divide-y divide-ink-border">
             {sorted.map((not) => {
               const pending =
                 markAsRead.isPending && markAsRead.variables === not.id;
@@ -152,7 +152,7 @@ export default function Page() {
                 <li
                   key={not.id}
                   className={`relative flex items-start justify-between gap-4 px-5 py-4 transition-colors ${
-                    not.isRead ? "hover:bg-raised" : "bg-coral-soft"
+                    not.isRead ? "hover:bg-ink-raised" : "bg-terra-soft"
                   }`}
                 >
                   {/* The same coral rail the sidebar puts against the active
@@ -168,7 +168,7 @@ export default function Page() {
                     <div className="flex flex-wrap items-center gap-2.5">
                       <h2
                         className={`text-[15px] font-semibold ${
-                          not.isRead ? "text-[var(--text)]" : "text-white"
+                          not.isRead ? "text-on-ink" : "text-on-ink"
                         }`}
                       >
                         {not.title}
@@ -178,11 +178,11 @@ export default function Page() {
                       ) : null}
                     </div>
 
-                    <p className="mt-1 text-sm leading-relaxed text-[var(--muted)]">
+                    <p className="mt-1 text-sm leading-relaxed text-on-ink-muted">
                       {not.message}
                     </p>
 
-                    <div className="mt-2.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-[var(--faint)]">
+                    <div className="mt-2.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-on-ink-faint">
                       <time
                         dateTime={not.createdAt}
                         title={new Date(not.createdAt).toLocaleString()}
@@ -195,7 +195,7 @@ export default function Page() {
                       {not.redirect_link ? (
                         <Link
                           href={not.redirect_link}
-                          className="inline-flex items-center gap-1.5 text-coral transition-colors hover:text-coral-dim"
+                          className="inline-flex items-center gap-1.5 text-terra transition-colors hover:text-terra-2"
                         >
                           <ExternalLink size={13} aria-hidden="true" />
                           View details

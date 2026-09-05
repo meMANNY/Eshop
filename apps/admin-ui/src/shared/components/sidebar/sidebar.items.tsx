@@ -5,33 +5,63 @@ interface Props {
   icon: React.ReactNode;
   isActive: boolean;
   href: string;
+  /** Position in the flattened rail, rendered as a zero-padded numeral. */
+  index?: number;
 }
 
-export default function SidebarItem({ icon, title, isActive, href }: Props) {
+/*
+  The rail item in the editorial voice: a mono uppercase label with its own index
+  numeral, marked active by a 1px terracotta hairline on the leading edge rather
+  than by a tinted, rounded tab. Identical to seller-ui's, because the two
+  consoles are one product.
+*/
+export default function SidebarItem({
+  icon,
+  title,
+  isActive,
+  href,
+  index,
+}: Props) {
   return (
     <Link
       href={href}
       /*
         `aria-current` is what tells a screen reader which route you are on. The
-        coral marker and the tint say the same thing to everyone else.
+        hairline and the brighter label say the same thing to everyone else.
       */
       aria-current={isActive ? "page" : undefined}
-      className={`group relative flex items-center gap-3 rounded-lg py-2.5 pl-3 pr-3 text-sm transition-colors ${
-        isActive
-          ? "bg-coral-soft font-medium text-coral"
-          : "text-[var(--muted)] hover:bg-white/[0.04] hover:text-[var(--text)]"
+      className={`group relative flex items-center gap-2.5 px-3 py-2.5 transition-colors duration-200 ${
+        isActive ? "text-on-ink" : "text-on-ink-muted hover:text-on-ink"
       }`}
     >
-      {isActive ? (
-        /* Anchored to the item's left edge so the rail reads as one column. */
+      <span
+        aria-hidden="true"
+        className={`absolute left-0 top-1/2 h-6 w-px -translate-y-1/2 transition-colors duration-200 ${
+          isActive ? "bg-terra-2" : "bg-transparent group-hover:bg-on-ink-faint"
+        }`}
+      />
+
+      {index != null ? (
         <span
-          className="marker absolute -left-2 top-1/2 h-5 -translate-y-1/2"
           aria-hidden="true"
-        />
+          className="w-4 shrink-0 font-mono text-[9px] tracking-[0.1em] text-terra-2"
+        >
+          {String(index).padStart(2, "0")}
+        </span>
       ) : null}
+
       {/* Icons inherit the row's colour, so the active state needs no second rule. */}
-      <span className="shrink-0 [&>svg]:h-[18px] [&>svg]:w-[18px]">{icon}</span>
-      <span className="truncate">{title}</span>
+      <span
+        className={`flex h-4 w-4 shrink-0 items-center justify-center transition-colors duration-200 [&>svg]:h-4 [&>svg]:w-4 ${
+          isActive ? "text-terra" : "text-on-ink-faint group-hover:text-terra"
+        }`}
+      >
+        {icon}
+      </span>
+
+      <span className="truncate font-mono text-[11px] uppercase tracking-[0.14em]">
+        {title}
+      </span>
     </Link>
   );
 }

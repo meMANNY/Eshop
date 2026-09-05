@@ -1,6 +1,5 @@
 "use client";
 
-import { Menu, X } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import SidebarWrapper from "./index";
@@ -35,7 +34,7 @@ export default function DashboardShell({
   return (
     <div className="flex min-h-screen bg-ink">
       {/* Persistent rail, md and up. */}
-      <aside className="scroll-none sticky top-0 hidden h-screen w-[248px] shrink-0 overflow-y-auto border-r border-rule bg-panel px-4 py-5 md:block">
+      <aside className="ink-section scroll-none sticky top-0 hidden h-screen w-[248px] shrink-0 overflow-y-auto border-r border-ink-border px-4 py-5 md:block">
         <SidebarWrapper />
       </aside>
 
@@ -45,9 +44,9 @@ export default function DashboardShell({
           <button
             aria-label="Close navigation"
             onClick={() => setOpen(false)}
-            className="absolute inset-0 h-full w-full cursor-default bg-black/70 backdrop-blur-sm"
+            className="absolute inset-0 h-full w-full cursor-default bg-ink/80 backdrop-blur-sm"
           />
-          <aside className="scroll-none absolute inset-y-0 left-0 w-[268px] overflow-y-auto border-r border-rule bg-panel px-4 py-5">
+          <aside className="scroll-none absolute inset-y-0 left-0 w-[268px] overflow-y-auto border-r border-ink-border bg-ink px-4 py-5">
             <SidebarWrapper />
           </aside>
         </div>
@@ -55,17 +54,23 @@ export default function DashboardShell({
 
       <div className="flex min-w-0 flex-1 flex-col">
         {/* Mobile-only bar. On md and up the rail already carries the wordmark. */}
-        <div className="sticky top-0 z-40 flex items-center gap-3 border-b border-rule bg-ink/90 px-4 py-3 backdrop-blur md:hidden">
+        <div className="sticky top-0 z-40 flex items-center gap-3 border-b border-ink-border bg-ink/90 px-4 py-3 backdrop-blur md:hidden">
           <button
             onClick={() => setOpen(true)}
             aria-label="Open navigation"
             aria-expanded={open}
-            className="rounded-lg border border-rule bg-raised p-2 text-[var(--text)]"
+            className="flex h-9 w-9 flex-col items-center justify-center gap-[5px] border border-ink-border text-on-ink"
           >
-            {open ? <X size={18} /> : <Menu size={18} />}
+            <span className="block h-px w-4 bg-current" aria-hidden="true" />
+            <span className="block h-px w-4 bg-current" aria-hidden="true" />
           </button>
-          <span className="font-display text-sm font-bold text-white">
-            Eshop Ops
+          <span className="flex items-baseline gap-2">
+            <span className="font-display text-base font-medium tracking-tight text-on-ink">
+              Eshop
+            </span>
+            <span className="font-mono text-[9px] uppercase tracking-[0.18em] text-on-ink-faint">
+              /ops
+            </span>
           </span>
         </div>
 

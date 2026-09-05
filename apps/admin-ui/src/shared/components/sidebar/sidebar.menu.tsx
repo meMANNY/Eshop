@@ -5,11 +5,13 @@ interface Props {
 
 export default function SidebarMenu({ title, children }: Props) {
   return (
-    <div className="mt-6 first:mt-0">
-      <h3 className="mb-1.5 px-3 text-label font-semibold uppercase text-[var(--faint)]">
+    <div className="mt-7 first:mt-0">
+      {/* The kicker treatment without its leading rule — inside a 248px rail the
+          rule would eat a third of the line. */}
+      <h3 className="px-3 pb-1 font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-on-ink-faint">
         {title}
       </h3>
-      <div className="space-y-0.5">{children}</div>
+      <div>{children}</div>
     </div>
   );
 }

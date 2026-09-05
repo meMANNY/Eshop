@@ -132,7 +132,7 @@ export default function CustomizationPage() {
         />
         <div className="space-y-5 p-5">
           {currentImage ? (
-            <div className="rounded-lg border border-rule bg-ink p-4">
+            <div className="border border-ink-border bg-ink p-4">
               <img
                 src={currentImage}
                 alt={`Current ${type}`}
@@ -147,14 +147,14 @@ export default function CustomizationPage() {
 
           <label
             htmlFor={`${type}-upload`}
-            className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-rule px-6 py-10 text-center transition-colors hover:border-coral/50 hover:bg-white/[0.02]"
+            className="flex cursor-pointer flex-col items-center justify-center gap-2 border-2 border-dashed border-ink-border px-6 py-10 text-center transition-colors hover:border-terra/50 hover:bg-white/[0.02]"
           >
-            <UploadCloud size={26} className="text-[var(--faint)]" aria-hidden="true" />
-            <span className="text-sm font-medium text-[var(--text)]">
+            <UploadCloud size={26} className="text-on-ink-faint" aria-hidden="true" />
+            <span className="text-sm font-medium text-on-ink">
               {copy.label}
             </span>
-            <Figure className="text-xs text-[var(--muted)]">{copy.hint}</Figure>
-            <span className="mt-2 rounded-lg bg-coral px-3.5 py-2 text-sm font-medium text-[#1a0d0b]">
+            <Figure className="text-xs text-on-ink-muted">{copy.hint}</Figure>
+            <span className="mt-2 bg-terra px-3.5 py-2 text-sm font-medium text-ink">
               {uploading ? "Uploading…" : "Choose file"}
             </span>
             <input
@@ -181,7 +181,7 @@ export default function CustomizationPage() {
 
       {/* Tabs. `role="tablist"` plus the pressed state is what makes these read
           as one control rather than three unrelated buttons. */}
-      <div role="tablist" className="mb-6 flex gap-1 border-b border-rule">
+      <div role="tablist" className="mb-6 flex gap-1 border-b border-ink-border">
         {TABS.map((t) => (
           <button
             key={t.id}
@@ -190,8 +190,8 @@ export default function CustomizationPage() {
             onClick={() => setTab(t.id)}
             className={`-mb-px flex items-center gap-2 border-b-2 px-3.5 py-2.5 text-sm transition-colors ${
               tab === t.id
-                ? "border-coral font-medium text-coral"
-                : "border-transparent text-[var(--muted)] hover:text-[var(--text)]"
+                ? "border-terra font-medium text-terra"
+                : "border-transparent text-on-ink-muted hover:text-on-ink"
             }`}
           >
             {t.icon}
@@ -219,23 +219,23 @@ export default function CustomizationPage() {
                 hint="Add your first category on the right. Buyers browse the storefront by these."
               />
             ) : (
-              <ul className="divide-y divide-rule">
+              <ul className="divide-y divide-ink-border">
                 {categories.map((cat) => (
                   <li key={cat} className="px-5 py-4">
-                    <p className="text-sm font-medium text-[var(--text)]">{cat}</p>
+                    <p className="text-sm font-medium text-on-ink">{cat}</p>
                     {(subCategories[cat] || []).length > 0 ? (
                       <div className="mt-2 flex flex-wrap gap-1.5">
                         {subCategories[cat].map((sub) => (
                           <span
                             key={sub}
-                            className="rounded-full bg-raised px-2.5 py-0.5 text-xs text-[var(--muted)]"
+                            className="rounded-full bg-ink-raised px-2.5 py-0.5 text-xs text-on-ink-muted"
                           >
                             {sub}
                           </span>
                         ))}
                       </div>
                     ) : (
-                      <p className="mt-1 text-xs text-[var(--faint)]">
+                      <p className="mt-1 text-xs text-on-ink-faint">
                         No subcategories
                       </p>
                     )}
@@ -270,7 +270,7 @@ export default function CustomizationPage() {
               <PanelHead title="Add a subcategory" />
               <div className="space-y-3 p-5">
                 <div>
-                  <span className="mb-1.5 block text-label font-semibold uppercase text-[var(--muted)]">
+                  <span className="mb-1.5 block text-label font-semibold uppercase text-on-ink-muted">
                     Parent category
                   </span>
                   <Select

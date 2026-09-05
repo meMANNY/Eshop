@@ -24,7 +24,7 @@ export default function RecentOrdersTable() {
         accessorKey: "id",
         header: "Order",
         cell: ({ row }: any) => (
-          <Figure className="font-medium text-white">{row.original.id}</Figure>
+          <Figure className="font-medium text-on-ink">{row.original.id}</Figure>
         ),
       },
       { accessorKey: "customer", header: "Buyer" },
@@ -33,7 +33,7 @@ export default function RecentOrdersTable() {
         header: "Amount",
         meta: { align: "right" },
         cell: ({ row }: any) => (
-          <Figure className="text-white">
+          <Figure className="text-on-ink">
             ${row.original.amount.toFixed(2)}
           </Figure>
         ),
@@ -59,11 +59,11 @@ export default function RecentOrdersTable() {
   });
 
   return (
-    <section className="overflow-hidden rounded-panel border border-rule bg-panel shadow-panel">
-      <header className="flex items-center justify-between gap-3 border-b border-rule px-5 py-4">
+    <section className="overflow-hidden border border-ink-border bg-ink-soft">
+      <header className="flex items-center justify-between gap-3 border-b border-ink-border px-5 py-4">
         <div>
-          <h2 className="text-[15px] font-semibold text-white">Recent orders</h2>
-          <p className="mt-0.5 text-xs text-[var(--muted)]">
+          <h2 className="text-[15px] font-semibold text-on-ink">Recent orders</h2>
+          <p className="mt-0.5 text-xs text-on-ink-muted">
             The last six across every shop
           </p>
         </div>

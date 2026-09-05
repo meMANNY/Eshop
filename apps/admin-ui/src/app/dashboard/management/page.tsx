@@ -61,16 +61,16 @@ export default function TeamManagementPage() {
         cell: ({ row }: any) => (
           <div className="flex items-center gap-3">
             <span
-              className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-coral-soft text-xs font-semibold text-coral"
+              className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-terra-soft text-xs font-semibold text-terra"
               aria-hidden="true"
             >
               {row.original.name?.[0]?.toUpperCase() ?? "?"}
             </span>
             <span className="min-w-0">
-              <span className="block truncate font-medium text-[var(--text)]">
+              <span className="block truncate font-medium text-on-ink">
                 {row.original.name}
               </span>
-              <span className="block truncate text-xs text-[var(--faint)]">
+              <span className="block truncate text-xs text-on-ink-faint">
                 {row.original.email}
               </span>
             </span>
@@ -88,7 +88,7 @@ export default function TeamManagementPage() {
         accessorKey: "createdAt",
         header: "Member since",
         cell: ({ row }: any) => (
-          <Figure className="text-[var(--muted)]">
+          <Figure className="text-on-ink-muted">
             {shortDate(row.original.createdAt)}
           </Figure>
         ),

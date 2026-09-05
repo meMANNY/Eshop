@@ -44,7 +44,7 @@ export default function Page() {
         accessorKey: "id",
         header: "Order",
         cell: ({ row }: any) => (
-          <Figure className="font-medium text-white">
+          <Figure className="font-medium text-on-ink">
             {shortId(row.original.id)}
           </Figure>
         ),
@@ -54,7 +54,7 @@ export default function Page() {
         header: "Shop",
         cell: ({ row }: any) =>
           row.original.shop?.name ?? (
-            <span className="text-[var(--faint)]">Unknown shop</span>
+            <span className="text-on-ink-faint">Unknown shop</span>
           ),
       },
       {
@@ -63,7 +63,7 @@ export default function Page() {
         cell: ({ row }: any) => (
           <div className="flex items-center gap-2.5">
             <span
-              className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-raised text-xs font-semibold text-[var(--muted)]"
+              className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-ink-raised text-xs font-semibold text-on-ink-muted"
               aria-hidden="true"
             >
               {row.original.user?.name?.[0]?.toUpperCase() ?? "G"}
@@ -77,7 +77,7 @@ export default function Page() {
         header: "Total",
         meta: { align: "right" },
         cell: ({ row }: any) => (
-          <Figure className="font-medium text-white">
+          <Figure className="font-medium text-on-ink">
             {money(row.original.total)}
           </Figure>
         ),
@@ -104,7 +104,7 @@ export default function Page() {
         accessorKey: "createdAt",
         header: "Placed",
         cell: ({ row }: any) => (
-          <Figure className="text-[var(--muted)]">
+          <Figure className="text-on-ink-muted">
             {shortDate(row.original.createdAt)}
           </Figure>
         ),
@@ -116,7 +116,7 @@ export default function Page() {
         cell: ({ row }: any) => (
           <Link
             href={`/order/${row.original.id}`}
-            className="inline-flex items-center gap-1.5 text-sm text-[var(--muted)] transition-colors hover:text-coral"
+            className="inline-flex items-center gap-1.5 text-sm text-on-ink-muted transition-colors hover:text-terra"
           >
             <Eye size={16} aria-hidden="true" />
             View

@@ -31,9 +31,11 @@ export default function SalesChart({
     chart: {
       type: "area",
       toolbar: { show: false },
-      foreColor: "#8b95a7",
+      foreColor: "#A89E8F",
       background: "transparent",
-      fontFamily: "var(--font-sans), sans-serif",
+      // Axis labels are metadata, and metadata is mono everywhere else in this
+      // theme — a chart is the one place that rule is easy to forget.
+      fontFamily: "var(--font-mono), ui-monospace, monospace",
       animations: { enabled: true, speed: 600 },
     },
     // One data hue, kept clear of the coral chrome and of the status colours so a
@@ -51,21 +53,21 @@ export default function SalesChart({
       },
     },
     grid: {
-      borderColor: "rgba(255,255,255,0.06)",
+      borderColor: "rgba(250,247,240,0.06)",
       strokeDashArray: 3,
       xaxis: { lines: { show: false } },
       padding: { left: 4, right: 4 },
     },
     xaxis: {
       categories: data.map((d) => d.month),
-      labels: { style: { colors: "#8b95a7", fontSize: "12px" } },
+      labels: { style: { colors: "#A89E8F", fontSize: "11px" } },
       axisBorder: { show: false },
       axisTicks: { show: false },
       tooltip: { enabled: false },
     },
     yaxis: {
       labels: {
-        style: { colors: "#8b95a7", fontSize: "12px" },
+        style: { colors: "#A89E8F", fontSize: "11px" },
         formatter: (val: number) => String(Math.round(val)),
       },
     },
@@ -84,15 +86,15 @@ export default function SalesChart({
   const series = [{ name: "Orders", data: data.map((d) => d.count) }];
 
   return (
-    <section className="rounded-panel border border-rule bg-panel shadow-panel">
-      <header className="flex items-center justify-between gap-3 border-b border-rule px-5 py-4">
+    <section className="border border-ink-border bg-ink-soft">
+      <header className="flex items-center justify-between gap-3 border-b border-ink-border px-5 py-4">
         <div>
-          <h2 className="text-[15px] font-semibold text-white">Orders</h2>
-          <p className="mt-0.5 text-xs text-[var(--muted)]">
+          <h2 className="text-[15px] font-semibold text-on-ink">Orders</h2>
+          <p className="mt-0.5 text-xs text-on-ink-muted">
             Orders placed per month
           </p>
         </div>
-        <span className="text-label font-semibold uppercase text-[var(--faint)]">
+        <span className="text-label font-semibold uppercase text-on-ink-faint">
           Last 6 months
         </span>
       </header>

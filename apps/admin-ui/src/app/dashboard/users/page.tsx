@@ -111,16 +111,16 @@ export default function AllUsersPage() {
         cell: ({ row }: any) => (
           <div className="flex items-center gap-3">
             <span
-              className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-raised text-xs font-semibold text-[var(--muted)]"
+              className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-ink-raised text-xs font-semibold text-on-ink-muted"
               aria-hidden="true"
             >
               {row.original.name?.[0]?.toUpperCase() ?? "?"}
             </span>
             <span className="min-w-0">
-              <span className="block truncate font-medium text-[var(--text)]">
+              <span className="block truncate font-medium text-on-ink">
                 {row.original.name}
               </span>
-              <span className="block truncate text-xs text-[var(--faint)]">
+              <span className="block truncate text-xs text-on-ink-faint">
                 {row.original.email}
               </span>
             </span>
@@ -149,7 +149,7 @@ export default function AllUsersPage() {
         accessorKey: "createdAt",
         header: "Joined",
         cell: ({ row }: any) => (
-          <Figure className="text-[var(--muted)]">
+          <Figure className="text-on-ink-muted">
             {shortDate(row.original.createdAt)}
           </Figure>
         ),
@@ -168,8 +168,8 @@ export default function AllUsersPage() {
               }}
               className={`inline-flex items-center gap-1.5 text-sm transition-colors ${
                 user.isBanned
-                  ? "text-[var(--muted)] hover:text-pos"
-                  : "text-[var(--muted)] hover:text-neg"
+                  ? "text-on-ink-muted hover:text-pos"
+                  : "text-on-ink-muted hover:text-neg"
               }`}
             >
               {user.isBanned ? (
@@ -294,10 +294,10 @@ export default function AllUsersPage() {
       >
         {selectedUser ? (
           <>
-            <span className="font-medium text-[var(--text)]">
+            <span className="font-medium text-on-ink">
               {selectedUser.name}
             </span>{" "}
-            <span className="text-[var(--faint)]">({selectedUser.email})</span>
+            <span className="text-on-ink-faint">({selectedUser.email})</span>
             <p className="mt-2">
               {isBanned
                 ? "They get access back immediately and can sign in again."

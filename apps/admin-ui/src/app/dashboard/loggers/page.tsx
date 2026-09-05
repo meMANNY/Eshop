@@ -46,7 +46,7 @@ const SEVERITY: Record<
   debug: {
     tag: "DEBUG",
     rail: "bg-[var(--faint)]",
-    text: "text-[var(--muted)]",
+    text: "text-on-ink-muted",
     dot: "bg-[var(--faint)]",
   },
 };
@@ -80,7 +80,7 @@ function ConnectionBadge({ state }: { state: Connection }) {
       connecting: {
         label: "Connecting",
         dot: "bg-[var(--muted)]",
-        text: "text-[var(--muted)]",
+        text: "text-on-ink-muted",
       },
       live: { label: "Live", dot: "bg-pos", text: "text-pos" },
       retrying: { label: "Reconnecting", dot: "bg-warn", text: "text-warn" },
@@ -90,7 +90,7 @@ function ConnectionBadge({ state }: { state: Connection }) {
 
   return (
     <span
-      className={`inline-flex items-center gap-2 rounded-full border border-rule bg-raised px-3 py-1.5 text-xs font-medium ${text}`}
+      className={`inline-flex items-center gap-2 rounded-full border border-ink-border bg-ink-raised px-3 py-1.5 text-xs font-medium ${text}`}
     >
       <span className="relative flex h-2 w-2" aria-hidden="true">
         {state === "live" ? (
@@ -135,29 +135,29 @@ function TallyFilter({
       {items.map(({ key, label, n }) => {
         const on = active === key;
         const tone =
-          key === "all" ? "text-[var(--text)]" : SEVERITY[key as LogType].text;
+          key === "all" ? "text-on-ink" : SEVERITY[key as LogType].text;
         return (
           <button
             key={key}
             type="button"
             aria-pressed={on}
             onClick={() => onChange(key)}
-            className={`group flex items-baseline gap-2 rounded-lg border px-3 py-2 transition-colors ${
+            className={`group flex items-baseline gap-2  border px-3 py-2 transition-colors ${
               on
-                ? "border-coral/60 bg-raised"
-                : "border-rule bg-panel hover:border-[#2f3949]"
+                ? "border-terra/60 bg-ink-raised"
+                : "border-ink-border bg-ink-soft hover:border-[#2f3949]"
             }`}
           >
             <span
               className={`text-label font-semibold uppercase ${
-                on ? tone : "text-[var(--muted)]"
+                on ? tone : "text-on-ink-muted"
               }`}
             >
               {label}
             </span>
             <span
               className={`figure text-sm leading-none ${
-                n > 0 ? tone : "text-[var(--faint)]"
+                n > 0 ? tone : "text-on-ink-faint"
               }`}
             >
               {n}
@@ -351,10 +351,24 @@ export default function Page() {
   const filtering = activeFilter !== "all" || search.trim().length > 0;
 
   return (
-    <PageShell>
+    <PageShell
+      sys={[
+        { key: "~/logs", value: `ws: ${connection}` },
+        {
+          value: `${visible.length.toLocaleString()} lines`,
+          hideOnMobile: true,
+        },
+        {
+          value:
+            logs.length >= MAX_LOGS ? `capped at ${MAX_LOGS}` : "streaming",
+          trailing: true,
+        },
+      ]}
+    >
       <Crumbs trail={["Logs"]} />
 
       <PageTitle
+        kicker="/loggers · every service"
         title="Service logs"
         meta={
           logs.length
@@ -390,14 +404,14 @@ export default function Page() {
         placeholder="Search messages or a service name…"
       />
 
-      <Panel className="relative overflow-hidden">
+      <Panel className="crosshairs relative overflow-hidden">
         <div
           ref={scrollRef}
           onScroll={onScroll}
           role="log"
           aria-live="polite"
           aria-label="Service log stream"
-          className="scroll-slim h-[min(62vh,640px)] overflow-y-auto"
+          className="scroll-slim h-[min(62vh,640px)] overflow-y-auto font-mono text-[12px] leading-[1.6]"
         >
           {visible.length === 0 ? (
             <EmptyState
@@ -445,7 +459,7 @@ export default function Page() {
 
                     <time
                       dateTime={log.timestamp}
-                      className="figure shrink-0 py-1 text-xs leading-5 text-[var(--faint)]"
+                      className="figure shrink-0 py-1 text-xs leading-5 text-on-ink-faint"
                     >
                       {clockTime(log.timestamp)}
                     </time>
@@ -456,11 +470,11 @@ export default function Page() {
                       {sev.tag}
                     </span>
 
-                    <span className="shrink-0 py-1 font-mono text-xs leading-5 text-[var(--muted)]">
+                    <span className="shrink-0 py-1 font-mono text-xs leading-5 text-on-ink-muted">
                       {log.source ?? "unknown"}
                     </span>
 
-                    <span className="min-w-0 flex-1 whitespace-pre-wrap break-words py-1 font-mono text-xs leading-5 text-[var(--text)]">
+                    <span className="min-w-0 flex-1 whitespace-pre-wrap break-words py-1 font-mono text-xs leading-5 text-on-ink">
                       {log.message}
                     </span>
                   </li>
@@ -476,16 +490,17 @@ export default function Page() {
             <button
               type="button"
               onClick={jumpToLatest}
-              className="pointer-events-auto inline-flex items-center gap-2 rounded-full border border-rule bg-raised px-3.5 py-2 text-xs font-medium text-[var(--text)] shadow-pop transition-colors hover:border-coral/60"
+              className="pointer-events-auto inline-flex items-center gap-2 rounded-full border border-ink-border bg-ink-raised px-3.5 py-2 text-xs font-medium text-on-ink shadow-pop transition-colors hover:border-terra/60"
             >
               <ArrowDownToLine size={14} aria-hidden="true" />
               Jump to latest
             </button>
           </div>
         ) : null}
+        <span className="xh-b" aria-hidden="true" />
       </Panel>
 
-      <p className="mt-3 flex items-center gap-2 text-xs text-[var(--faint)]">
+      <p className="mt-3 flex items-center gap-2 text-xs text-on-ink-faint">
         <Radio size={13} aria-hidden="true" />
         Press 0–5 to filter by severity. Newest lines appear at the bottom.
       </p>
