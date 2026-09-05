@@ -35,9 +35,9 @@ export default function Page() {
             role="tab"
             aria-selected={activeTab === tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`-mb-px flex items-center gap-2 border-b-2 px-3.5 py-2.5 text-sm transition-colors ${
+            className={`-mb-px flex items-center gap-2 border-b-2 px-3.5 py-2.5 font-mono text-[11px] uppercase tracking-[0.16em] transition-colors ${
               activeTab === tab.id
-                ? "border-terra font-medium text-terra"
+                ? "border-terra-2 text-on-ink"
                 : "border-transparent text-on-ink-muted hover:text-on-ink"
             }`}
           >

@@ -247,9 +247,10 @@ const ProductList = () => {
   const shown = table.getRowModel().rows.length;
 
   return (
-    <PageShell>
+    <PageShell sys={[{ key: "~/products", value: `${products.length} listed` }, { value: isLoading ? "loading…" : `${shown} shown`, hideOnMobile: true }]}>
       <Crumbs trail={["All products"]} />
       <PageTitle
+        kicker="/products · your catalogue"
         title="All products"
         meta={
           isLoading ? (

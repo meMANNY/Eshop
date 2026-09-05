@@ -218,9 +218,10 @@ const Page = () => {
   );
 
   return (
-    <PageShell>
+    <PageShell sys={[{ key: "~/discounts", value: `${discountCodes.length} / ${MAX_CODES} used` }]}>
       <Crumbs trail={["Discount codes"]} />
       <PageTitle
+        kicker="/discounts · codes you issue"
         title="Discount codes"
         meta={
           isLoading ? (

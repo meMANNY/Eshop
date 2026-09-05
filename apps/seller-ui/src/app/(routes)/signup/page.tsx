@@ -234,7 +234,7 @@ const Signup = () => {
         <div className="flex min-h-screen w-full bg-ink">
 
             {/* ── Left: setup-rail panel (storefront at night) ──────────── */}
-            <aside className="relative hidden lg:flex lg:sticky lg:top-0 h-screen w-[42%] flex-col justify-between overflow-hidden bg-[#171310] px-12 py-10 text-on-ink">
+            <aside className="relative hidden lg:flex lg:sticky lg:top-0 h-screen w-[42%] flex-col justify-between overflow-hidden bg-[#262220] px-12 py-10 text-on-ink">
                 {/* ambient coral glow */}
                 <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_28%_18%,rgba(255,111,97,0.28),transparent_58%)]" />
                 <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_85%_100%,rgba(255,111,97,0.14),transparent_55%)]" />
@@ -268,15 +268,15 @@ const Signup = () => {
                                     {stepNumber < stepMeta.length && (
                                         <span
                                             className={`absolute left-[19px] top-11 h-7 w-px transition-colors duration-300
-                                            ${isCompleted ? 'bg-[#ff6f61]' : 'bg-white/15'}`}
+                                            ${isCompleted ? 'bg-[#FF6B35]' : 'bg-white/15'}`}
                                         />
                                     )}
                                     <span
                                         className={`relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full border transition-all duration-300
                                         ${isCompleted
-                                                ? 'border-[#ff6f61] bg-[#ff6f61] text-on-ink'
+                                                ? 'border-[#FF6B35] bg-[#FF6B35] text-on-ink'
                                                 : isActive
-                                                    ? 'border-[#ff6f61] bg-white/[0.04] text-[#ff8a7d] shadow-[0_0_18px_rgba(255,111,97,0.55)]'
+                                                    ? 'border-[#FF6B35] bg-white/[0.04] text-[#FF6B35] shadow-[0_0_18px_rgba(255,111,97,0.55)]'
                                                     : 'border-white/15 text-on-ink/40'}`}
                                     >
                                         {isCompleted ? <Check size={18} /> : <Icon size={18} />}
@@ -297,7 +297,7 @@ const Signup = () => {
 
                 {/* trust footer */}
                 <div className="relative flex items-center gap-2 text-sm text-on-ink/45">
-                    <ShieldCheck size={16} className="text-[#ff8a7d]" /> Secured with bank-grade encryption
+                    <ShieldCheck size={16} className="text-[#FF6B35]" /> Secured with bank-grade encryption
                 </div>
             </aside>
 
@@ -323,12 +323,12 @@ const Signup = () => {
                                 <React.Fragment key={step.label}>
                                     <span
                                         className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border text-sm font-semibold transition-colors
-                                        ${isCompleted || isActive ? 'border-[#ff6f61] bg-[#ff6f61] text-on-ink' : 'border-ink-border text-on-ink-faint'}`}
+                                        ${isCompleted || isActive ? 'border-[#FF6B35] bg-[#FF6B35] text-on-ink' : 'border-ink-border text-on-ink-faint'}`}
                                     >
                                         {isCompleted ? <Check size={16} /> : stepNumber}
                                     </span>
                                     {stepNumber < stepMeta.length && (
-                                        <span className={`h-px flex-1 ${activeStep > stepNumber ? 'bg-[#ff6f61]' : 'bg-ink-border'}`} />
+                                        <span className={`h-px flex-1 ${activeStep > stepNumber ? 'bg-[#FF6B35]' : 'bg-ink-border'}`} />
                                     )}
                                 </React.Fragment>
                             );
@@ -341,7 +341,7 @@ const Signup = () => {
                             <>
                                 <h2 className="font-display text-3xl font-semibold text-on-ink">Create your account</h2>
                                 <p className="mt-2 text-[15px] text-on-ink-muted">
-                                    Already selling with us? <Link href="/login" className="font-medium text-[#ff6f61] hover:underline">Sign in</Link>
+                                    Already selling with us? <Link href="/login" className="font-medium text-[#FF6B35] hover:underline">Sign in</Link>
                                 </p>
 
                                 <form onSubmit={handleSubmitAccount(onSubmitAccount)} className="mt-7 space-y-4">
@@ -412,7 +412,7 @@ const Signup = () => {
                                                                     setValueAccount('country', c.code, { shouldValidate: true });
                                                                     setCountryOpen(false);
                                                                 }}
-                                                                className={`w-full text-left px-4 py-2 text-sm transition-colors duration-150 hover:bg-[#ff6f61]/10 hover:text-[#ff6f61]
+                                                                className={`w-full text-left px-4 py-2 text-sm transition-colors duration-150 hover:bg-[#FF6B35]/10 hover:text-[#FF6B35]
                                                                 ${selectedCountry === c.code ? 'bg-terra-soft font-medium text-terra' : 'text-on-ink-muted'}`}
                                                             >
                                                                 {c.name}
@@ -643,7 +643,7 @@ const Signup = () => {
                                                                 setValueShop('category', c.value, { shouldValidate: true });
                                                                 setCategoryOpen(false);
                                                             }}
-                                                            className={`w-full text-left px-4 py-2 text-sm transition-colors duration-150 hover:bg-[#ff6f61]/10 hover:text-[#ff6f61]
+                                                            className={`w-full text-left px-4 py-2 text-sm transition-colors duration-150 hover:bg-[#FF6B35]/10 hover:text-[#FF6B35]
                                                             ${selectedCategory === c.value ? 'bg-terra-soft font-medium text-terra' : 'text-on-ink-muted'}`}
                                                         >
                                                             {c.name}
@@ -699,7 +699,7 @@ const Signup = () => {
 
                             <div className="mt-7 border border-ink-border bg-ink-raised p-4">
                                 <div className="flex items-start gap-3">
-                                    <span className="flex h-9 w-9 shrink-0 items-center justify-center bg-[#ff6f61]/12 text-[#ff6f61]">
+                                    <span className="flex h-9 w-9 shrink-0 items-center justify-center bg-[#FF6B35]/12 text-[#FF6B35]">
                                         <Landmark size={18} />
                                     </span>
                                     <p className="text-[13px] leading-relaxed text-on-ink-muted">

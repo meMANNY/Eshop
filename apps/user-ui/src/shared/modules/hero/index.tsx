@@ -79,7 +79,18 @@ const Hero = ({
             >
               Shop the things you
               <br />
-              love, from the <Serif>people</Serif>
+              love, from the{" "}
+              <span className="serif-sig">
+                <Serif>people</Serif>
+                <svg
+                  className="sig-stroke"
+                  viewBox="0 0 120 12"
+                  preserveAspectRatio="none"
+                  aria-hidden="true"
+                >
+                  <path d="M2 8 C 30 2, 90 2, 118 7" />
+                </svg>
+              </span>
               <br />
               who <span className="hero-highlight">make them.</span>
             </h1>
@@ -168,7 +179,7 @@ const Hero = ({
                 <div className="flex h-full flex-col">
                   <Link
                     href={`/product/${lead.slug}`}
-                    className="group relative block flex-1 overflow-hidden"
+                    className="portrait-duotone group relative block flex-1 overflow-hidden"
                   >
                     <Image
                       src={lead.images![0].url}

@@ -195,9 +195,10 @@ export default function EventList() {
   });
 
   return (
-    <PageShell>
+    <PageShell sys={[{ key: "~/events", value: `${filteredEvents.length} records` }]}>
       <Crumbs trail={["Events"]} />
       <PageTitle
+        kicker="/events · every promotion"
         title="Events"
         meta={
           isLoading ? (

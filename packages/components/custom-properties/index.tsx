@@ -81,14 +81,14 @@ const CustomProperties = ({ control, errors }: { control: any; errors: any }) =>
                       {property.values.map((val) => (
                         <span
                           key={val}
-                          className="flex items-center gap-1.5 rounded-full bg-[var(--terra)]/10 px-3 py-1 text-xs font-medium text-[#ff8a7d] ring-1 ring-[var(--terra)]/25"
+                          className="flex items-center gap-1.5 rounded-full bg-[var(--terra)]/10 px-3 py-1 text-xs font-medium text-[#FF6B35] ring-1 ring-[var(--terra)]/25"
                         >
                           {val}
                           <button
                             type="button"
                             onClick={() => removeValue(index, val)}
                             aria-label={`Remove value ${val}`}
-                            className="text-[#ff8a7d]/70 transition-colors hover:text-[var(--on-ink)]"
+                            className="text-[#FF6B35]/70 transition-colors hover:text-[var(--on-ink)]"
                           >
                             <X size={13} />
                           </button>

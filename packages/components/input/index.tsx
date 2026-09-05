@@ -6,7 +6,7 @@ import { forwardRef } from 'react';
   they read the host's CSS variables rather than naming a palette of their own.
   Every colour below is `var(--…)`, which is why the same control can sit on the
   seller console's warm ink today and on a cream surface tomorrow without being
-  edited again. The hard-coded `#ff6f61`, `border-gray-700` and `text-white` they
+  edited again. The hard-coded `#FF6B35`, `border-gray-700` and `text-white` they
   used before pinned them to a design system that no longer exists.
 */
 

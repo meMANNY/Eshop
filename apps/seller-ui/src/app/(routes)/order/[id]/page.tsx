@@ -60,14 +60,14 @@ export default function Page() {
   if (loading)
     return (
       <div className="flex min-h-screen w-full items-center justify-center bg-black">
-        <Loader2 className="h-6 w-6 animate-spin text-[#ff6f61]" />
+        <Loader2 className="h-6 w-6 animate-spin text-[#FF6B35]" />
       </div>
     );
 
   if (!order)
     return (
       <div className="flex min-h-screen w-full flex-col items-center justify-center bg-black px-8 text-center">
-        <span className="flex h-14 w-14 items-center justify-center rounded-full bg-[#ff6f61]/10 text-[#ff6f61]">
+        <span className="flex h-14 w-14 items-center justify-center rounded-full bg-[#FF6B35]/10 text-[#FF6B35]">
           <PackageX size={24} />
         </span>
         <h2 className="mt-4 text-lg font-semibold text-on-ink">
@@ -79,7 +79,7 @@ export default function Page() {
         </p>
         <button
           onClick={() => router.push("/dashboard/orders")}
-          className="mt-6 bg-[#ff6f61] px-4 py-2 text-sm font-medium text-on-ink shadow-[#ff6f61]/20 transition-colors hover:bg-[#e05a4d]"
+          className="mt-6 bg-[#FF6B35] px-4 py-2 text-sm font-medium text-on-ink shadow-[#FF6B35]/20 transition-colors hover:bg-[#C24A1B]"
         >
           Back to orders
         </button>
@@ -100,11 +100,11 @@ export default function Page() {
           {/* Coral marker — echoes the sidebar's "you are here" accent. */}
           <span
             aria-hidden="true"
-            className="h-7 w-[3px] rounded-full bg-[#ff6f61] shadow-[0_0_10px_rgba(255,111,97,0.6)]"
+            className="h-7 w-[3px] rounded-full bg-[#FF6B35] shadow-[0_0_10px_rgba(194,74,27,0.35)]"
           />
           <h2 className="text-2xl font-semibold text-on-ink">
             Order{" "}
-            <span className="font-mono text-[#ff8a7d]">
+            <span className="font-mono text-[#FF6B35]">
               #{order.id.slice(-6).toUpperCase()}
             </span>
           </h2>
@@ -113,14 +113,14 @@ export default function Page() {
         <div className="mt-1 flex items-center text-sm">
           <Link
             href="/dashboard"
-            className="text-on-ink-muted transition-colors hover:text-[#ff8a7d]"
+            className="text-on-ink-muted transition-colors hover:text-[#FF6B35]"
           >
             Dashboard
           </Link>
           <ChevronRight size={16} className="mx-1 text-on-ink-faint" />
           <Link
             href="/dashboard/orders"
-            className="text-on-ink-muted transition-colors hover:text-[#ff8a7d]"
+            className="text-on-ink-muted transition-colors hover:text-[#FF6B35]"
           >
             Orders
           </Link>
@@ -132,7 +132,7 @@ export default function Page() {
 
         <button
           onClick={() => router.push("/dashboard/orders")}
-          className="mt-5 inline-flex items-center gap-2 text-sm font-medium text-on-ink-muted transition-colors hover:text-[#ff8a7d] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff6f61]"
+          className="mt-5 inline-flex items-center gap-2 text-sm font-medium text-on-ink-muted transition-colors hover:text-[#FF6B35] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FF6B35]"
         >
           <ArrowLeft size={16} />
           Back to all orders
@@ -157,7 +157,7 @@ export default function Page() {
                   value={order.deliveryStatus}
                   onChange={handleStatusChange}
                   disabled={updating}
-                  className="border border-ink-border bg-white/[0.04] px-3 py-1.5 text-sm text-on-ink outline-none transition-colors hover:border-ink-border focus:border-[#ff6f61] focus:ring-2 focus:ring-[#ff6f61]/30 disabled:opacity-50"
+                  className="border border-ink-border bg-white/[0.04] px-3 py-1.5 text-sm text-on-ink outline-none transition-colors hover:border-ink-border focus:border-[#FF6B35] focus:ring-2 focus:ring-[#FF6B35]/30 disabled:opacity-50"
                 >
                   {statuses.map((status) => (
                     <option
@@ -171,7 +171,7 @@ export default function Page() {
                   ))}
                 </select>
                 {updating && (
-                  <Loader2 className="absolute -right-6 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-[#ff6f61]" />
+                  <Loader2 className="absolute -right-6 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-[#FF6B35]" />
                 )}
               </div>
             </div>
@@ -214,7 +214,7 @@ export default function Page() {
 
             {order.couponCode && (
               <SummaryRow label="Coupon">
-                <span className="inline-block rounded border border-ink-border bg-white/[0.03] px-2 py-0.5 font-mono text-sm text-[#ff8a7d]">
+                <span className="inline-block rounded border border-ink-border bg-white/[0.03] px-2 py-0.5 font-mono text-sm text-[#FF6B35]">
                   {order.couponCode.public_name}
                 </span>
               </SummaryRow>
@@ -311,7 +311,7 @@ const ProgressTracker = ({
           key={status}
           className={`flex-1 text-center first:text-left last:text-right ${
             i <= activeIndex
-              ? "font-semibold text-[#ff8a7d]"
+              ? "font-semibold text-[#FF6B35]"
               : "text-on-ink-faint"
           }`}
         >
@@ -327,7 +327,7 @@ const ProgressTracker = ({
       />
       <div
         aria-hidden="true"
-        className="absolute left-0 top-1/2 h-[3px] -translate-y-1/2 rounded-full bg-[#ff6f61] shadow-[0_0_10px_rgba(255,111,97,0.5)] transition-all duration-500 ease-in-out motion-reduce:transition-none"
+        className="absolute left-0 top-1/2 h-[3px] -translate-y-1/2 rounded-full bg-[#FF6B35] shadow-[0_0_10px_rgba(255,111,97,0.5)] transition-all duration-500 ease-in-out motion-reduce:transition-none"
         style={{ width: `${width}%` }}
       />
 
@@ -339,9 +339,9 @@ const ProgressTracker = ({
             key={status}
             className={`relative z-10 flex h-5 w-5 items-center justify-center rounded-full transition-all duration-500 motion-reduce:transition-none ${
               current
-                ? "scale-110 bg-[#ff6f61]  shadow-[#ff6f61]/50"
+                ? "scale-110 bg-[#FF6B35]  shadow-[#FF6B35]/50"
                 : reached
-                ? "bg-[#ff6f61]"
+                ? "bg-[#FF6B35]"
                 : "bg-ink-raised"
             }`}
           >

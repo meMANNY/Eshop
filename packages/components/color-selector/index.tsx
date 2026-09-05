@@ -153,7 +153,7 @@ const ColorSelector = ({ control, errors }: { control: any; errors: any }) => {
                     type="button"
                     onClick={addCustom}
                     disabled={!isValidHex}
-                    className="bg-[var(--terra)] px-3 py-1 text-xs font-semibold text-[var(--on-ink)] transition-colors hover:bg-[#e05a4d] disabled:cursor-not-allowed disabled:opacity-40"
+                    className="bg-[var(--terra)] px-3 py-1 text-xs font-semibold text-[var(--on-ink)] transition-colors hover:bg-[var(--terra-2)] disabled:cursor-not-allowed disabled:opacity-40"
                   >
                     Add
                   </button>

@@ -63,7 +63,7 @@ const Login = () => {
       The form half used to be `bg-white` with black text while every other screen
       in this app is near-black — the front door looked like a different product
       from the thing behind it. Both halves are night now: the storefront panel
-      stays warm (#171310, a shop lit from inside) against the app's cooler ink.
+      stays warm (#262220, a shop lit from inside) against the app's cooler ink.
     */
     <div className="flex min-h-screen w-full bg-ink">
       {/*

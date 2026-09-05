@@ -154,9 +154,10 @@ export default function Page() {
   const gross = rows.reduce((sum, r: any) => sum + (r.original.total ?? 0), 0);
 
   return (
-    <PageShell>
+    <PageShell sys={[{ key: "~/payments", value: `${rows.length} orders` }]}>
       <Crumbs trail={["Payments"]} />
       <PageTitle
+        kicker="/payments · what you are owed"
         title="Payments"
         meta={
           isLoading ? (

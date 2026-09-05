@@ -50,13 +50,15 @@ const ImagePlaceHolder = ({
       roughly 7:1 on either. Same reasoning as the primary Button.
     */
     const actionBtn =
-        'flex h-9 w-9 items-center justify-center  bg-ink-soft/85 text-on-ink  ring-1 ring-white/10 backdrop-blur-sm transition-colors duration-150 focus-visible:outline-none';
+        'flex h-9 w-9 items-center justify-center border border-ink-border bg-ink/85 text-on-ink backdrop-blur-sm transition-colors duration-150 focus-visible:outline-none';
 
   return (
     <div
     className={`group relative ${
         small ? "h-[180px]" : "h-[450px]"
-    } w-full overflow-hidden  border border-ink-border bg-ink-soft transition-colors duration-200`}>
+    } w-full overflow-hidden border border-ink-border bg-ink-soft transition-colors duration-200 ${
+        imagePreview ? "crosshairs" : ""
+    }`}>
         <input type="file"
         accept='image/*'
         className='hidden'
@@ -93,34 +95,42 @@ const ImagePlaceHolder = ({
                 src={imagePreview}
                 alt='Uploaded product image'
                 className='object-cover'/>
+
+                {/* The lower pair of registration marks; one element only has
+                    two pseudo-elements. */}
+                <span className='xh-b' aria-hidden='true' />
+
+                <span className='absolute inset-x-0 bottom-0 z-10 flex items-center justify-between border-t border-ink-border bg-ink/80 px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.16em] text-on-ink-muted backdrop-blur-sm'>
+                    <span>fig.{String((index ?? 0) + 1).padStart(2, '0')} / product</span>
+                    <span className='text-terra'>{size}</span>
+                </span>
             </>
         ):(
             // The whole empty area is the upload target — not just a corner button.
             <label htmlFor={inputId}
             className='absolute inset-0 flex cursor-pointer flex-col items-center justify-center gap-4  border border-dashed border-ink-border bg-transparent px-6 text-center transition-colors duration-200 group-hover:border-terra/60 group-hover:bg-terra-soft'>
-                <span className={`flex items-center justify-center rounded-full bg-terra-soft text-terra ring-1 ring-terra/20 transition-transform duration-200 group-hover:scale-105 ${
-                    small ? "h-11 w-11" : "h-16 w-16"
+                <span className={`relative flex items-center justify-center border border-ink-border bg-ink text-terra transition-colors duration-200 group-hover:border-terra ${
+                    small ? "h-11 w-11" : "h-14 w-14"
                 }`}>
-                    <ImagePlus size={small ? 20 : 28} strokeWidth={1.75} />
+                    <ImagePlus size={small ? 18 : 24} strokeWidth={1.75} />
+                    <span className='absolute -bottom-px -right-px h-2.5 w-2.5 border-b border-r border-terra-2' aria-hidden='true' />
                 </span>
 
                 <div className='space-y-1.5'>
-                    <p className={`font-semibold tracking-tight text-on-ink ${
-                        small ? "text-base" : "text-2xl"
+                    <p className={`font-display font-medium tracking-tight text-on-ink ${
+                        small ? "text-base" : "text-xl"
                     }`}>
                         <span className='text-terra'>Click to upload</span> an image
                     </p>
-                    <p className={`text-on-ink-muted ${
-                        small ? "text-xs" : "text-sm"
-                    }`}>
-                        Recommended ratio <span className='figure text-on-ink'>{size}</span> · PNG or JPG
+                    <p className='font-mono text-[10px] uppercase tracking-[0.14em] text-on-ink-muted'>
+                        ratio <span className='figure text-on-ink'>{size}</span> · png or jpg
                     </p>
                 </div>
 
                 <span aria-hidden='true'
-                className='pointer-events-none flex items-center gap-1.5 rounded-full bg-ink-raised px-3 py-1 text-[11px] font-medium text-on-ink-muted ring-1 ring-white/5'>
-                    <Pencil size={12} />
-                    Browse files
+                className='pointer-events-none flex items-center gap-1.5 border border-ink-border bg-ink-raised px-3 py-1 font-mono text-[10px] uppercase tracking-[0.12em] text-on-ink-muted'>
+                    <Pencil size={11} />
+                    browse files
                 </span>
             </label>
         )}

@@ -361,7 +361,7 @@ const ProductDetailsCard = ({
             </div>
 
             {/*
-              Was a hardcoded `bg-[#ff5722]` fill with a sweeping shine overlay —
+              Was a hardcoded `bg-[#FF6B35]` fill with a sweeping shine overlay —
               a second orange that belonged to no palette, on the one control
               that spends money.
             */}

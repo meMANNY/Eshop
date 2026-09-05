@@ -127,7 +127,7 @@ export default function Page() {
         cell: ({ row }: any) => (
           <Link
             href={`/order/${row.original.id}`}
-            className="inline-flex items-center gap-1 text-sm font-medium text-on-ink-muted transition-colors hover:text-[#ff8a7d] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff6f61]"
+            className="inline-flex items-center gap-1 text-sm font-medium text-on-ink-muted transition-colors hover:text-[#FF6B35] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FF6B35]"
           >
             Open
             <ChevronRight size={14} />
@@ -157,7 +157,7 @@ export default function Page() {
         {/* Coral marker — echoes the sidebar's "you are here" accent. */}
         <span
           aria-hidden="true"
-          className="h-7 w-[3px] rounded-full bg-[#ff6f61] shadow-[0_0_10px_rgba(255,111,97,0.6)]"
+          className="h-7 w-[3px] rounded-full bg-[#FF6B35] shadow-[0_0_10px_rgba(194,74,27,0.35)]"
         />
         <h2 className="text-2xl font-semibold text-on-ink">Orders</h2>
       </div>
@@ -165,7 +165,7 @@ export default function Page() {
       <div className="mt-1 flex items-center text-sm">
         <Link
           href="/dashboard"
-          className="text-on-ink-muted transition-colors hover:text-[#ff8a7d]"
+          className="text-on-ink-muted transition-colors hover:text-[#FF6B35]"
         >
           Dashboard
         </Link>
@@ -204,7 +204,7 @@ export default function Page() {
       {/* PANEL */}
       <div className="mt-6 border border-ink-border bg-ink-soft">
         <div className="flex flex-wrap items-center justify-between gap-4 border-b border-ink-border p-5">
-          <div className="flex min-w-[260px] flex-1 items-center gap-2 border border-ink-border bg-white/[0.03] px-3 py-2 transition-colors focus-within:border-[#ff6f61] focus-within:ring-2 focus-within:ring-[#ff6f61]/25">
+          <div className="flex min-w-[260px] flex-1 items-center gap-2 border border-ink-border bg-white/[0.03] px-3 py-2 transition-colors focus-within:border-[#FF6B35] focus-within:ring-2 focus-within:ring-[#FF6B35]/25">
             <Search size={16} className="shrink-0 text-on-ink-faint" />
             <input
               type="search"
@@ -248,7 +248,7 @@ export default function Page() {
                   setStage(null);
                   setGlobalFilter("");
                 }}
-                className="mt-5 bg-[#ff6f61] px-4 py-2 text-sm font-medium text-on-ink shadow-[#ff6f61]/20 transition-colors hover:bg-[#e05a4d] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff6f61]"
+                className="mt-5 bg-[#FF6B35] px-4 py-2 text-sm font-medium text-on-ink shadow-[#FF6B35]/20 transition-colors hover:bg-[#C24A1B] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FF6B35]"
               >
                 Clear filters
               </button>
@@ -320,16 +320,16 @@ const StageChip = ({
     type="button"
     onClick={onClick}
     aria-pressed={active}
-    className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff6f61] ${
+    className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FF6B35] ${
       active
-        ? "border-[#ff6f61] bg-[#ff6f61]/15 text-[#ff8a7d]"
+        ? "border-[#FF6B35] bg-[#FF6B35]/15 text-[#FF6B35]"
         : "border-ink-border bg-white/[0.03] text-on-ink-muted hover:border-ink-border hover:text-on-ink"
     }`}
   >
     {label}
     <span
       className={`rounded-full px-1.5 py-0.5 text-xs font-semibold tabular-nums ${
-        active ? "bg-[#ff6f61] text-on-ink" : "bg-white/[0.06] text-on-ink-muted"
+        active ? "bg-[#FF6B35] text-on-ink" : "bg-white/[0.06] text-on-ink-muted"
       }`}
     >
       {count}
@@ -361,7 +361,7 @@ const StageMeter = ({ status }: { status: string }) => {
           <span
             key={s}
             className={`h-1 w-4 rounded-full ${
-              i <= activeIndex ? "bg-[#ff6f61]" : "bg-ink-raised"
+              i <= activeIndex ? "bg-[#FF6B35]" : "bg-ink-raised"
             }`}
           />
         ))}
@@ -409,7 +409,7 @@ const EmptyState = ({
   action?: React.ReactNode;
 }) => (
   <div className="flex flex-col items-center justify-center px-6 py-16 text-center">
-    <span className="flex h-14 w-14 items-center justify-center rounded-full bg-[#ff6f61]/10 text-[#ff6f61]">
+    <span className="flex h-14 w-14 items-center justify-center rounded-full bg-[#FF6B35]/10 text-[#FF6B35]">
       <Icon size={24} />
     </span>
     <h3 className="mt-4 text-base font-semibold text-on-ink">{title}</h3>

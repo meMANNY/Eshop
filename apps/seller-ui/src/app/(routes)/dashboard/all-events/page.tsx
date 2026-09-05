@@ -15,9 +15,10 @@ import {
 */
 export default function AllEventsPage() {
   return (
-    <PageShell>
+    <PageShell sys={[{ key: "~/events", value: "promotions" }]}>
       <Crumbs trail={["All events"]} />
       <PageTitle
+        kicker="/events · timed promotions"
         title="All events"
         meta="Products you've put on a timed promotion."
       />

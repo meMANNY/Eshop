@@ -117,7 +117,7 @@ export default function ChatInput({
         type="submit"
         disabled={!canSend}
         aria-label="Send message"
-        className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-terra text-[#2b0f0a] transition-all duration-200 hover:bg-terra disabled:cursor-not-allowed disabled:bg-ink-raised disabled:text-on-ink/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-terra/50 focus-visible:ring-offset-2 focus-visible:ring-offset-panel"
+        className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-terra text-[#1A1A1A] transition-all duration-200 hover:bg-terra disabled:cursor-not-allowed disabled:bg-ink-raised disabled:text-on-ink/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-terra/50 focus-visible:ring-offset-2 focus-visible:ring-offset-panel"
       >
         <Send className="h-4 w-4" aria-hidden="true" />
       </button>

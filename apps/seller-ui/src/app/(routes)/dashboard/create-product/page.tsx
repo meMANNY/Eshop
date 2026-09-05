@@ -205,7 +205,7 @@ function Page() {
             {/*Heading and Breadcrumbs*/}
             <div className="flex items-center gap-3 py-2">
                 {/* Coral marker — echoes the sidebar's "you are here" accent. */}
-                <span aria-hidden="true" className="h-7 w-[3px] rounded-full bg-[#ff6f61] shadow-[0_0_10px_rgba(255,111,97,0.6)]"/>
+                <span aria-hidden="true" className="h-7 w-[3px] rounded-full bg-[#FF6B35] shadow-[0_0_10px_rgba(194,74,27,0.35)]"/>
                 <h2 className="text-2xl font-semibold font-display text-on-ink">
                     Create Product
                 </h2>
@@ -546,7 +546,7 @@ function Page() {
                                                 ) ? currentSelection.filter((id: string)=> id !== code.id) : [...currentSelection, code.id];
                                                 setValue("discountCodes",updatedSelection);
                                             }}
-                                            className={`px-3 py-1  font-semibold border transition-colors ${watch("discountCodes")?.includes(code.id) ? "bg-[#ff6f61]/10 border-terra text-terra" : "border-ink-border text-on-ink-muted hover:border-ink-border hover:text-on-ink"}`}>
+                                            className={`px-3 py-1  font-semibold border transition-colors ${watch("discountCodes")?.includes(code.id) ? "bg-[#FF6B35]/10 border-terra text-terra" : "border-ink-border text-on-ink-muted hover:border-ink-border hover:text-on-ink"}`}>
                                                 {code?.public_name} ({code.discountValue}{code.discountType === "percentage" ? "%" : "$"})
                                             </button>
                                         ))}
@@ -642,7 +642,7 @@ function Page() {
                 )}
                 <button
                 type="submit"
-                className="bg-[#ff6f61] px-6 py-2 font-medium text-on-ink shadow-[#ff6f61]/20 transition-colors hover:bg-[#e05a4d] disabled:cursor-not-allowed disabled:opacity-60"
+                className="bg-[#FF6B35] px-6 py-2 font-medium text-on-ink shadow-[#FF6B35]/20 transition-colors hover:bg-[#C24A1B] disabled:cursor-not-allowed disabled:opacity-60"
                 disabled = {loading}>
                     {loading? "Creating..." : "Create"}
                 </button>

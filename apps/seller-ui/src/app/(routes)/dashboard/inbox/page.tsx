@@ -388,7 +388,7 @@ function InboxContent() {
                                 {chat.lastMessage || "No messages yet"}
                               </p>
                               {chat?.unreadCount > 0 && (
-                                <span className="shrink-0 rounded-full bg-terra px-1.5 py-px font-mono text-[10px] font-semibold tabular-nums text-[#2b0f0a]">
+                                <span className="shrink-0 rounded-full bg-terra px-1.5 py-px font-mono text-[10px] font-semibold tabular-nums text-[#1A1A1A]">
                                   {chat?.unreadCount > 9
                                     ? "9+"
                                     : chat?.unreadCount}
@@ -483,7 +483,7 @@ function InboxContent() {
                         <div
                           className={`max-w-[min(78%,34rem)] whitespace-pre-wrap break-words px-3.5 py-2 text-sm leading-relaxed ${
                             mine
-                              ? "bg-terra text-[#2b0f0a]"
+                              ? "bg-terra text-[#1A1A1A]"
                               : "border border-ink-border bg-ink-raised text-on-ink/90"
                           }`}
                         >

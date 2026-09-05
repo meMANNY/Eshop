@@ -96,7 +96,7 @@ export default function EditProfilePage() {
   if (isLoading) {
     return (
       <div className="flex min-h-screen w-full items-center justify-center bg-black">
-        <Loader2 className="h-6 w-6 animate-spin text-[#ff6f61]" />
+        <Loader2 className="h-6 w-6 animate-spin text-[#FF6B35]" />
       </div>
     );
   }
@@ -108,7 +108,7 @@ export default function EditProfilePage() {
         <div className="mb-1 flex items-center gap-3">
           <span
             aria-hidden="true"
-            className="h-7 w-[3px] rounded-full bg-[#ff6f61] shadow-[0_0_10px_rgba(255,111,97,0.6)]"
+            className="h-7 w-[3px] rounded-full bg-[#FF6B35] shadow-[0_0_10px_rgba(194,74,27,0.35)]"
           />
           <h2 className="text-2xl font-semibold text-on-ink">Edit profile</h2>
         </div>
@@ -116,7 +116,7 @@ export default function EditProfilePage() {
         <div className="mt-1 flex items-center text-sm">
           <Link
             href="/"
-            className="text-on-ink-muted transition-colors hover:text-[#ff8a7d]"
+            className="text-on-ink-muted transition-colors hover:text-[#FF6B35]"
           >
             Shop
           </Link>
@@ -126,7 +126,7 @@ export default function EditProfilePage() {
 
         <Link
           href="/"
-          className="mt-5 inline-flex items-center gap-2 text-sm font-medium text-on-ink-muted transition-colors hover:text-[#ff8a7d] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff6f61]"
+          className="mt-5 inline-flex items-center gap-2 text-sm font-medium text-on-ink-muted transition-colors hover:text-[#FF6B35] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FF6B35]"
         >
           <ArrowLeft size={16} />
           Back to your shop
@@ -250,7 +250,7 @@ export default function EditProfilePage() {
             <button
               type="submit"
               disabled={mutation.isPending || !isDirty}
-              className="inline-flex items-center gap-2 bg-[#ff6f61] px-5 py-2 text-sm font-medium text-on-ink shadow-[#ff6f61]/20 transition-colors hover:bg-[#e05a4d] disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff6f61]"
+              className="inline-flex items-center gap-2 bg-[#FF6B35] px-5 py-2 text-sm font-medium text-on-ink shadow-[#FF6B35]/20 transition-colors hover:bg-[#C24A1B] disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FF6B35]"
             >
               {mutation.isPending && (
                 <Loader2 className="h-4 w-4 animate-spin motion-reduce:animate-none" />

@@ -278,6 +278,29 @@
   .serif-hl {
     @apply font-serif font-normal italic text-terra;
   }
+  /*
+    ---- serif signature ----------------------------------------------------
+    The accent word in the hero draws its own underline once, on load. The
+    stroke is an inline SVG so the line can follow the word's width; the
+    dash offset is what animates, which is cheap and never reflows.
+  */
+  .serif-sig {
+    @apply relative inline-block;
+  }
+  .serif-sig .sig-stroke {
+    @apply pointer-events-none absolute -bottom-1 left-0 w-full overflow-visible;
+    height: 0.28em;
+  }
+  .serif-sig .sig-stroke path {
+    fill: none;
+    stroke: var(--terra-2);
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-dasharray: 120;
+    stroke-dashoffset: 120;
+    animation: sig-draw 0.9s cubic-bezier(0.65, 0, 0.35, 1) 0.9s forwards;
+  }
+
   .hero-highlight {
     @apply relative inline-block;
     z-index: 0;
@@ -395,6 +418,22 @@
     @apply border-l-2 border-terra-2 pl-4 font-serif text-lg italic text-ink-500;
   }
 
+  /*
+    ---- portrait duotone ---------------------------------------------------
+    Editorial photography convention: the plate sits desaturated until you
+    engage with it, then warms toward the accent. Reserved for the hero
+    showcase and shop banners — applying it to product grids would hide the
+    one thing a shopper is there to judge.
+  */
+  .portrait-duotone img {
+    filter: grayscale(1);
+    transition: filter 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .portrait-duotone:hover img {
+    filter: grayscale(1) sepia(0.35) saturate(1.6) hue-rotate(-18deg);
+  }
+
   /* ---- marquee page title ---- */
   .marquee-title {
     @apply whitespace-nowrap font-display font-bold leading-[0.9] text-ink;
@@ -493,5 +532,14 @@
   }
   .card-hover:hover {
     transform: none;
+  }
+  .portrait-duotone img,
+  .portrait-duotone:hover img {
+    filter: none;
+    transition: none;
+  }
+  .serif-sig .sig-stroke path {
+    stroke-dashoffset: 0;
+    animation: none;
   }
 }

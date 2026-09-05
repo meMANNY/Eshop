@@ -169,9 +169,10 @@ export default function ProductList() {
   });
 
   return (
-    <PageShell>
+    <PageShell sys={[{ key: "~/products", value: `${filteredProducts.length} records` }]}>
       <Crumbs trail={["Products"]} />
       <PageTitle
+        kicker="/products · every listing"
         title="Products"
         meta={
           isLoading ? (

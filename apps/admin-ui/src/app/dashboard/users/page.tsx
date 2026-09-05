@@ -196,9 +196,10 @@ export default function AllUsersPage() {
   const pending = banMutation.isPending || unbanMutation.isPending;
 
   return (
-    <PageShell>
+    <PageShell sys={[{ key: "~/users", value: `${filteredUsers.length} records` }]}>
       <Crumbs trail={["Users"]} />
       <PageTitle
+        kicker="/users · registered buyers"
         title="Users"
         meta={
           isLoading ? (

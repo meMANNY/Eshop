@@ -156,9 +156,10 @@ export default function Page() {
   });
 
   return (
-    <PageShell>
+    <PageShell sys={[{ key: "~/sellers", value: `${filteredSellers.length} records` }]}>
       <Crumbs trail={["Sellers"]} />
       <PageTitle
+        kicker="/sellers · onboarded shops"
         title="Sellers"
         meta={
           isLoading ? (

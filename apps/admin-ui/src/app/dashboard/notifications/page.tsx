@@ -101,9 +101,10 @@ export default function Page() {
   const unread = sorted.filter((n) => !n.isRead).length;
 
   return (
-    <PageShell>
+    <PageShell sys={[{ key: "~/notifications", value: `${sorted.length} records` }]}>
       <Crumbs trail={["Notifications"]} />
       <PageTitle
+        kicker="/notifications · platform events"
         title="Notifications"
         meta={
           isLoading ? (

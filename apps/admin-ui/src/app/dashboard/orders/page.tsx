@@ -140,9 +140,10 @@ export default function Page() {
   const shown = table.getRowModel().rows.length;
 
   return (
-    <PageShell>
+    <PageShell sys={[{ key: "~/orders", value: `${shown} records` }]}>
       <Crumbs trail={["Orders"]} />
       <PageTitle
+        kicker="/orders · every shop"
         title="Orders"
         meta={
           isLoading ? (

@@ -66,7 +66,7 @@ export default function SellerHome() {
   if (!shop) {
     return (
       <div className="flex min-h-screen w-full flex-col items-center justify-center bg-black px-6 text-center">
-        <span className="flex h-14 w-14 items-center justify-center rounded-full bg-[#ff6f61]/10 text-[#ff6f61]">
+        <span className="flex h-14 w-14 items-center justify-center rounded-full bg-[#FF6B35]/10 text-[#FF6B35]">
           <Store size={24} />
         </span>
         <h1 className="mt-4 text-xl font-semibold text-on-ink">
@@ -77,7 +77,7 @@ export default function SellerHome() {
         </p>
         <Link
           href="/signup"
-          className="mt-6 bg-[#ff6f61] px-4 py-2 text-sm font-medium text-on-ink shadow-[#ff6f61]/20 transition-colors hover:bg-[#e05a4d]"
+          className="mt-6 bg-[#FF6B35] px-4 py-2 text-sm font-medium text-on-ink shadow-[#FF6B35]/20 transition-colors hover:bg-[#C24A1B]"
         >
           Create your shop
         </Link>
@@ -120,14 +120,14 @@ export default function SellerHome() {
             <div className="flex shrink-0 gap-3 pb-1">
               <Link
                 href="/edit-profile"
-                className="inline-flex items-center gap-2 bg-[#ff6f61] px-4 py-2 text-sm font-medium text-on-ink shadow-[#ff6f61]/20 transition-colors hover:bg-[#e05a4d] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff6f61]"
+                className="inline-flex items-center gap-2 bg-[#FF6B35] px-4 py-2 text-sm font-medium text-on-ink shadow-[#FF6B35]/20 transition-colors hover:bg-[#C24A1B] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FF6B35]"
               >
                 <Pencil size={16} />
                 Edit profile
               </Link>
               <Link
                 href="/dashboard"
-                className="inline-flex items-center gap-2 border border-ink-border bg-white/[0.03] px-4 py-2 text-sm font-medium text-on-ink transition-colors hover:border-ink-border hover:text-on-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff6f61]"
+                className="inline-flex items-center gap-2 border border-ink-border bg-white/[0.03] px-4 py-2 text-sm font-medium text-on-ink transition-colors hover:border-ink-border hover:text-on-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FF6B35]"
               >
                 <LayoutDashboard size={16} />
                 Dashboard
@@ -181,7 +181,7 @@ export default function SellerHome() {
                       href={shop.website}
                       target="_blank"
                       rel="noreferrer noopener"
-                      className="text-[#ff8a7d] hover:underline"
+                      className="text-[#FF6B35] hover:underline"
                     >
                       {shop.website.replace(/^https?:\/\//, "")}
                     </a>
@@ -237,7 +237,7 @@ export default function SellerHome() {
                     role="tab"
                     aria-selected={active}
                     onClick={() => setTab(name)}
-                    className={`relative px-4 py-3 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff6f61] ${
+                    className={`relative px-4 py-3 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FF6B35] ${
                       active
                         ? "text-on-ink"
                         : "text-on-ink-muted hover:text-on-ink"
@@ -249,7 +249,7 @@ export default function SellerHome() {
                     </span>
                     <span
                       aria-hidden="true"
-                      className={`absolute inset-x-2 bottom-0 h-[2px] rounded-full bg-[#ff6f61] transition-opacity ${
+                      className={`absolute inset-x-2 bottom-0 h-[2px] rounded-full bg-[#FF6B35] transition-opacity ${
                         active ? "opacity-100" : "opacity-0"
                       }`}
                     />
@@ -293,7 +293,7 @@ export default function SellerHome() {
                   action={
                     <Link
                       href="/dashboard/create-product"
-                      className="mt-5 bg-[#ff6f61] px-4 py-2 text-sm font-medium text-on-ink shadow-[#ff6f61]/20 transition-colors hover:bg-[#e05a4d]"
+                      className="mt-5 bg-[#FF6B35] px-4 py-2 text-sm font-medium text-on-ink shadow-[#FF6B35]/20 transition-colors hover:bg-[#C24A1B]"
                     >
                       Create a product
                     </Link>
@@ -326,7 +326,7 @@ const Avatar = ({ url, name }: { url?: string; name: string }) =>
   ) : (
     <span
       aria-hidden="true"
-      className="flex h-24 w-24 shrink-0 items-center justify-center border-4 border-black bg-[#ff6f61] text-3xl font-bold text-on-ink sm:h-28 sm:w-28"
+      className="flex h-24 w-24 shrink-0 items-center justify-center border-4 border-black bg-[#FF6B35] text-3xl font-bold text-on-ink sm:h-28 sm:w-28"
     >
       {name?.charAt(0).toUpperCase() ?? "S"}
     </span>
@@ -334,7 +334,7 @@ const Avatar = ({ url, name }: { url?: string; name: string }) =>
 
 const Rating = ({ value, count }: { value?: number; count?: number }) => (
   <span className="inline-flex items-center gap-1">
-    <Star size={14} className="fill-[#ff6f61] text-[#ff6f61]" />
+    <Star size={14} className="fill-[#FF6B35] text-[#FF6B35]" />
     <span className="font-medium text-on-ink">
       {Number(value ?? 0).toFixed(1)}
     </span>
@@ -364,7 +364,7 @@ const Detail = ({
   children: React.ReactNode;
 }) => (
   <div className="flex items-start gap-3">
-    {Icon && <Icon size={16} className="mt-0.5 shrink-0 text-[#ff6f61]" />}
+    {Icon && <Icon size={16} className="mt-0.5 shrink-0 text-[#FF6B35]" />}
     <div className="min-w-0 flex-1">
       <dt className="text-xs text-on-ink-faint">{label}</dt>
       <dd className="mt-0.5 break-words text-sm text-on-ink">{children}</dd>
@@ -383,7 +383,7 @@ const Stat = ({
 }) => (
   <div className="border border-ink-border bg-ink-soft p-4">
     <div className="flex items-center gap-2 text-on-ink-muted">
-      <Icon size={15} className="text-[#ff6f61]" />
+      <Icon size={15} className="text-[#FF6B35]" />
       <span className="text-xs font-medium uppercase tracking-wider">
         {label}
       </span>
@@ -439,7 +439,7 @@ const ProductCard = ({ product }: { product: any }) => {
             {product.stock > 0 ? `${product.stock} in stock` : "Out of stock"}
           </span>
           <span className="flex items-center gap-1 text-on-ink-muted">
-            <Star size={12} className="fill-[#ff6f61] text-[#ff6f61]" />
+            <Star size={12} className="fill-[#FF6B35] text-[#FF6B35]" />
             {Number(product.ratings ?? 0).toFixed(1)}
           </span>
         </div>
@@ -476,7 +476,7 @@ const ReviewRow = ({ review }: { review: any }) => (
               size={13}
               className={
                 i < Math.round(review.rating)
-                  ? "fill-[#ff6f61] text-[#ff6f61]"
+                  ? "fill-[#FF6B35] text-[#FF6B35]"
                   : "text-on-ink-faint"
               }
             />
@@ -506,7 +506,7 @@ const Empty = ({
   action?: React.ReactNode;
 }) => (
   <div className="flex flex-col items-center justify-center border border-ink-border bg-ink-soft px-6 py-16 text-center">
-    <span className="flex h-14 w-14 items-center justify-center rounded-full bg-[#ff6f61]/10 text-[#ff6f61]">
+    <span className="flex h-14 w-14 items-center justify-center rounded-full bg-[#FF6B35]/10 text-[#FF6B35]">
       <Icon size={24} />
     </span>
     <h3 className="mt-4 text-base font-semibold text-on-ink">{title}</h3>
