@@ -288,14 +288,18 @@ export function Card({
   children,
   className = "",
   hover = false,
+  id,
 }: {
   children: React.ReactNode;
   className?: string;
   /** Adds the offset hard shadow and 4px lift on hover. */
   hover?: boolean;
+  /** For in-page anchors, such as the reviews section on a product page. */
+  id?: string;
 }) {
   return (
     <section
+      id={id}
       className={`border border-line bg-paper ${hover ? "card-hover group" : ""} ${className}`}
     >
       {children}

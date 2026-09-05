@@ -337,6 +337,64 @@
     border-bottom-width: 1px;
   }
 
+  /*
+    ---- prose ---------------------------------------------------------------
+    Styling for the seller's sanitised rich text on a product page. This project
+    does not load @tailwindcss/typography, so the `prose prose-sm` classes that
+    were on that block were inert — the description rendered as unstyled browser
+    defaults, with headings and lists collapsed into the body copy. These are the
+    tags `sanitizeRichText` actually allows through, and nothing else.
+  */
+  .prose {
+    @apply text-base leading-[1.65] text-ink-500;
+  }
+  .prose > * + * {
+    @apply mt-4;
+  }
+  .prose h1,
+  .prose h2,
+  .prose h3 {
+    @apply font-display font-medium tracking-tight text-ink;
+  }
+  .prose h1 {
+    @apply mt-8 text-2xl;
+  }
+  .prose h2 {
+    @apply mt-8 text-xl;
+  }
+  .prose h3 {
+    @apply mt-6 text-lg;
+  }
+  .prose strong {
+    @apply font-semibold text-ink;
+  }
+  .prose em {
+    @apply italic;
+  }
+  .prose a {
+    @apply text-terra-2 underline underline-offset-2 transition-colors hover:text-terra;
+  }
+  .prose ul,
+  .prose ol {
+    @apply pl-5;
+  }
+  .prose ul {
+    @apply list-disc;
+  }
+  .prose ol {
+    @apply list-decimal;
+  }
+  .prose li {
+    @apply my-1.5;
+  }
+  /* The bullet is the one place the accent appears in body copy. */
+  .prose ul > li::marker {
+    color: var(--terra-2);
+  }
+  .prose blockquote {
+    @apply border-l-2 border-terra-2 pl-4 font-serif text-lg italic text-ink-500;
+  }
+
   /* ---- marquee page title ---- */
   .marquee-title {
     @apply whitespace-nowrap font-display font-bold leading-[0.9] text-ink;
