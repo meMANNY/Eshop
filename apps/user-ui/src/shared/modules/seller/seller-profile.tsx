@@ -234,7 +234,7 @@ export default function SellerProfile({
                   {/* The coral rail the whole product uses to say "here". */}
                   <span className="mt-1.5 h-8 w-px bg-terra-2" aria-hidden="true" />
                   <div className="min-w-0">
-                    <h1 className="font-display text-[28px] font-semibold leading-none tracking-[-0.02em] text-ink sm:text-[34px]">
+                    <h1 className="font-display text-[28px] font-medium leading-[1.05] tracking-tight text-ink sm:text-[34px]">
                       {shop?.name}
                     </h1>
                     <p className="mt-2 max-w-xl text-sm leading-relaxed text-ink-500">
@@ -355,10 +355,10 @@ export default function SellerProfile({
                   aria-selected={selected}
                   aria-controls={`panel-${tab.id}`}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`-mb-px flex shrink-0 items-center gap-2 border-b-2 px-4 py-3 text-sm font-medium transition-colors ${
+                  className={`-mb-px flex shrink-0 items-center gap-2 border-b-2 px-4 py-3 font-mono text-[11px] uppercase tracking-[0.16em] transition-colors ${
                     selected
-                      ? "border-terra text-ink"
-                      : "border-transparent text-ink-500 hover:text-terra-2"
+                      ? "border-terra-2 text-ink"
+                      : "border-transparent text-ink-400 hover:text-ink"
                   }`}
                 >
                   <tab.icon size={15} aria-hidden="true" />
@@ -438,7 +438,7 @@ function ShopWindow({
   const hasWindow = !coverBanner && images.length >= 3;
 
   return (
-    <div className="relative h-[190px] w-full overflow-hidden bg-surface sm:h-[280px]">
+    <div className="crosshairs relative h-[190px] w-full overflow-hidden border-b border-ink-line bg-surface sm:h-[280px]">
       {coverBanner ? (
         <Image
           src={coverBanner}
@@ -468,7 +468,7 @@ function ShopWindow({
           ))}
         </div>
       ) : (
-        <div className="grid h-full w-full place-items-center bg-gradient-to-br from-coral/15 to-coral/5">
+        <div className="grid h-full w-full place-items-center bg-surface">
           <Store size={34} className="text-terra-2/40" aria-hidden="true" />
         </div>
       )}
@@ -482,10 +482,10 @@ function ShopWindow({
       */}
       {(coverBanner || hasWindow) && (
         <>
-          <div aria-hidden="true" className="absolute inset-0 bg-terra/20" />
+          <div aria-hidden="true" className="absolute inset-0 bg-ink/10" />
           <div
             aria-hidden="true"
-            className="absolute inset-0 bg-gradient-to-b from-canvas/80 via-canvas/45 to-canvas"
+            className="absolute inset-0 bg-gradient-to-b from-paper/80 via-paper/45 to-paper"
           />
         </>
       )}

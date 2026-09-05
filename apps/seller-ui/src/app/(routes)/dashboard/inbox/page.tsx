@@ -352,7 +352,7 @@ function InboxContent() {
                             without competing with the unread pill beside it. */}
                         {isActive ? (
                           <span
-                            className="absolute inset-y-2 left-0 w-[3px] rounded-full bg-terra"
+                            className="absolute inset-y-2 left-0 w-px bg-terra-2"
                             aria-hidden="true"
                           />
                         ) : null}
@@ -485,12 +485,6 @@ function InboxContent() {
                             mine
                               ? "bg-terra text-[#2b0f0a]"
                               : "border border-ink-border bg-ink-raised text-on-ink/90"
-                          } ${
-                            endsRun
-                              ? mine
-                                ? " rounded-br-md"
-                                : " rounded-bl-md"
-                              : ""
                           }`}
                         >
                           {msg.content}

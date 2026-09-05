@@ -66,7 +66,7 @@ export default function ShippingAddressSection() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold text-ink tracking-tight">
+        <h2 className="font-display text-xl font-medium tracking-tight text-ink">
           Saved Addresses
         </h2>
         <button
@@ -145,7 +145,7 @@ export default function ShippingAddressSection() {
             </button>
 
             {/* Header */}
-            <h3 className="text-xl font-semibold text-ink mb-5 text-center">
+            <h3 className="mb-5 text-center font-display text-xl font-medium tracking-tight text-ink">
               Add New Address
             </h3>
 
@@ -153,7 +153,7 @@ export default function ShippingAddressSection() {
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               {/* Address Type */}
               <div>
-                <label className="block text-sm font-medium text-ink-500 mb-1">
+                <label className="mb-1.5 block font-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-ink-500">
                   Address Type
                 </label>
                 <select
@@ -224,7 +224,7 @@ export default function ShippingAddressSection() {
 
               {/* Country */}
               <div>
-                <label className="block text-sm font-medium text-ink-500 mb-1">
+                <label className="mb-1.5 block font-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-ink-500">
                   Country
                 </label>
                 <select
@@ -241,7 +241,7 @@ export default function ShippingAddressSection() {
 
               {/* Default Option */}
               <div>
-                <label className="block text-sm font-medium text-ink-500 mb-1">
+                <label className="mb-1.5 block font-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-ink-500">
                   Default Setting
                 </label>
                 <select

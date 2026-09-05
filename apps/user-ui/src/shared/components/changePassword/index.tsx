@@ -173,7 +173,7 @@ const PasswordField = React.forwardRef<HTMLInputElement, PasswordFieldProps>(
 
     return (
       <div>
-        <label className="mb-1.5 block text-sm font-medium text-ink-500">
+        <label className="mb-1.5 block font-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-ink-500">
           {label}
         </label>
         <div className="relative">

@@ -486,7 +486,7 @@ export default function Page() {
 
         {/* Appears only once following has been broken, and says how to resume. */}
         {!pinned && visible.length > 0 ? (
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 flex justify-center bg-gradient-to-t from-panel to-transparent pb-4 pt-10">
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 flex justify-center bg-gradient-to-t from-ink-soft to-transparent pb-4 pt-10">
             <button
               type="button"
               onClick={jumpToLatest}

@@ -343,8 +343,8 @@ function InboxContent() {
                         aria-current={isActive ? "true" : undefined}
                         className={`relative w-full  px-3 py-2.5 text-left transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-terra/40 ${
                           isActive
-                            ? "bg-terra-soft"
-                            : "hover:bg-paper"
+                            ? "bg-surface"
+                            : "hover:bg-surface"
                         }`}
                       >
                         {/* The active marker is a coral edge rather than a fill:
@@ -352,7 +352,7 @@ function InboxContent() {
                             unread pill sitting a few pixels away. */}
                         {isActive ? (
                           <span
-                            className="absolute inset-y-2 left-0 w-[3px] rounded-full bg-terra"
+                            className="absolute inset-y-2 left-0 w-px bg-terra-2"
                             aria-hidden="true"
                           />
                         ) : null}
@@ -383,7 +383,7 @@ function InboxContent() {
                                 {getLastMessage(c)}
                               </p>
                               {c?.unreadCount > 0 && (
-                                <span className="shrink-0 rounded-full bg-terra px-1.5 py-px font-mono text-[10px] font-semibold tabular-nums text-paper">
+                                <span className="shrink-0 border border-terra-2 bg-terra-2 px-1.5 py-px font-mono text-[10px] font-semibold tabular-nums text-paper">
                                   {c?.unreadCount > 9 ? "9+" : c?.unreadCount}
                                 </span>
                               )}
@@ -427,7 +427,7 @@ function InboxContent() {
                   <div className="flex justify-center pb-3">
                     <button
                       onClick={loadMoreMessages}
-                      className="rounded-full border border-line bg-paper px-3.5 py-1.5 text-xs font-medium text-ink-500 transition-colors hover:border-terra/40 hover:text-terra-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-terra/40"
+                      className="border border-line bg-paper px-3.5 py-1.5 font-mono text-[10px] uppercase tracking-[0.12em] text-ink-500 transition-colors hover:border-ink hover:text-ink"
                     >
                       Load earlier messages
                     </button>
@@ -468,27 +468,22 @@ function InboxContent() {
                         } ${endsRun ? "mb-3" : "mb-0.5"}`}
                       >
                         {/*
-                          You speak in coral, the shop answers on paper. Coral
-                          fill takes dark ink — white on it is 2.7:1 and fails.
+                          You speak on ink, they answer on paper — the theme's
+                          two surfaces doing the work a colour used to do. Both
+                          are square: a message is a slip, not a chat bubble.
                         */}
                         <div
                           className={`max-w-[min(78%,34rem)] whitespace-pre-wrap break-words px-3.5 py-2 text-sm leading-relaxed ${
                             mine
                               ? "bg-ink text-paper"
                               : "border border-line bg-paper text-ink"
-                          } ${
-                            endsRun
-                              ? mine
-                                ? " rounded-br-md"
-                                : " rounded-bl-md"
-                              : ""
                           }`}
                         >
                           {msg.text || msg.content}
                         </div>
 
                         {endsRun && (
-                          <span className="mt-1 px-1 font-mono text-[11px] tabular-nums text-ink-500">
+                          <span className="mt-1 px-1 font-mono text-[10px] uppercase tracking-[0.1em] tabular-nums text-ink-400">
                             {msg.time || clockTime(msg.createdAt)}
                           </span>
                         )}
