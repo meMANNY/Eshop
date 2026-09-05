@@ -258,8 +258,8 @@ function ProgressTracker({ current }: { current?: string }) {
           {STAGES.map((stage, i) => (
             <span
               key={stage}
-              className={`h-3 w-3 rounded-full ring-4 ring-panel transition-colors ${
-                i <= reached ? "bg-terra" : "bg-rule"
+              className={`h-3 w-3 rounded-full ring-4 ring-ink-soft transition-colors ${
+                i <= reached ? "bg-terra" : "bg-ink-border"
               }`}
               aria-hidden="true"
             />

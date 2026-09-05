@@ -127,7 +127,7 @@ export default function SellerHome() {
               </Link>
               <Link
                 href="/dashboard"
-                className="inline-flex items-center gap-2 border border-ink-border bg-white/[0.03] px-4 py-2 text-sm font-medium text-slate-200 transition-colors hover:border-ink-border hover:text-on-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff6f61]"
+                className="inline-flex items-center gap-2 border border-ink-border bg-white/[0.03] px-4 py-2 text-sm font-medium text-on-ink transition-colors hover:border-ink-border hover:text-on-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff6f61]"
               >
                 <LayoutDashboard size={16} />
                 Dashboard
@@ -207,9 +207,9 @@ export default function SellerHome() {
                 </Detail>
                 <Detail label="Payouts">
                   {seller.stripeId ? (
-                    <span className="text-emerald-400">Connected</span>
+                    <span className="text-pos">Connected</span>
                   ) : (
-                    <span className="text-amber-400">Not connected</span>
+                    <span className="text-warn">Not connected</span>
                   )}
                 </Detail>
               </dl>
@@ -221,7 +221,7 @@ export default function SellerHome() {
             <div
               role="tablist"
               aria-label="Shop content"
-              className="flex gap-1 border-b border-slate-800"
+              className="flex gap-1 border-b border-ink-border"
             >
               {TABS.map((name) => {
                 const count =
@@ -240,7 +240,7 @@ export default function SellerHome() {
                     className={`relative px-4 py-3 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff6f61] ${
                       active
                         ? "text-on-ink"
-                        : "text-on-ink-muted hover:text-slate-200"
+                        : "text-on-ink-muted hover:text-on-ink"
                     }`}
                   >
                     {name}
@@ -335,7 +335,7 @@ const Avatar = ({ url, name }: { url?: string; name: string }) =>
 const Rating = ({ value, count }: { value?: number; count?: number }) => (
   <span className="inline-flex items-center gap-1">
     <Star size={14} className="fill-[#ff6f61] text-[#ff6f61]" />
-    <span className="font-medium text-slate-200">
+    <span className="font-medium text-on-ink">
       {Number(value ?? 0).toFixed(1)}
     </span>
     <span className="text-on-ink-faint">({count ?? 0})</span>
@@ -343,7 +343,7 @@ const Rating = ({ value, count }: { value?: number; count?: number }) => (
 );
 
 const Card = ({ children }: { children: React.ReactNode }) => (
-  <div className="border border-slate-800 bg-[#141922] p-5">
+  <div className="border border-ink-border bg-ink-soft p-5">
     {children}
   </div>
 );
@@ -367,7 +367,7 @@ const Detail = ({
     {Icon && <Icon size={16} className="mt-0.5 shrink-0 text-[#ff6f61]" />}
     <div className="min-w-0 flex-1">
       <dt className="text-xs text-on-ink-faint">{label}</dt>
-      <dd className="mt-0.5 break-words text-sm text-slate-200">{children}</dd>
+      <dd className="mt-0.5 break-words text-sm text-on-ink">{children}</dd>
     </div>
   </div>
 );
@@ -381,7 +381,7 @@ const Stat = ({
   label: string;
   value: React.ReactNode;
 }) => (
-  <div className="border border-slate-800 bg-[#141922] p-4">
+  <div className="border border-ink-border bg-ink-soft p-4">
     <div className="flex items-center gap-2 text-on-ink-muted">
       <Icon size={15} className="text-[#ff6f61]" />
       <span className="text-xs font-medium uppercase tracking-wider">
@@ -401,7 +401,7 @@ const ProductCard = ({ product }: { product: any }) => {
   return (
     <Link
       href={`/dashboard/all-products`}
-      className="group flex flex-col overflow-hidden border border-slate-800 bg-[#141922] transition-colors hover:border-ink-border"
+      className="group flex flex-col overflow-hidden border border-ink-border bg-ink-soft transition-colors hover:border-ink-border"
     >
       <div className="aspect-[4/3] w-full overflow-hidden bg-[#0d1117]">
         {product.images?.[0]?.url ? (
@@ -411,13 +411,13 @@ const ProductCard = ({ product }: { product: any }) => {
             className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105 motion-reduce:transition-none motion-reduce:group-hover:scale-100"
           />
         ) : (
-          <div className="flex h-full items-center justify-center text-slate-700">
+          <div className="flex h-full items-center justify-center text-on-ink-faint">
             <Package size={28} />
           </div>
         )}
       </div>
       <div className="flex flex-1 flex-col p-4">
-        <p className="truncate text-sm font-medium text-slate-100">
+        <p className="truncate text-sm font-medium text-on-ink">
           {product.title}
         </p>
         <div className="mt-2 flex items-baseline gap-2">
@@ -433,7 +433,7 @@ const ProductCard = ({ product }: { product: any }) => {
         <div className="mt-3 flex items-center justify-between text-xs">
           <span
             className={
-              product.stock > 0 ? "text-on-ink-muted" : "text-amber-400"
+              product.stock > 0 ? "text-on-ink-muted" : "text-warn"
             }
           >
             {product.stock > 0 ? `${product.stock} in stock` : "Out of stock"}
@@ -449,7 +449,7 @@ const ProductCard = ({ product }: { product: any }) => {
 };
 
 const ReviewRow = ({ review }: { review: any }) => (
-  <div className="flex items-start gap-4 border border-slate-800 bg-[#141922] p-4">
+  <div className="flex items-start gap-4 border border-ink-border bg-ink-soft p-4">
     {review.user?.avatar?.url ? (
       <img
         src={review.user.avatar.url}
@@ -466,7 +466,7 @@ const ReviewRow = ({ review }: { review: any }) => (
     )}
     <div className="min-w-0 flex-1">
       <div className="flex flex-wrap items-center gap-x-3">
-        <p className="text-sm font-medium text-slate-100">
+        <p className="text-sm font-medium text-on-ink">
           {review.user?.name ?? "Anonymous"}
         </p>
         <span className="flex items-center gap-0.5">
@@ -477,7 +477,7 @@ const ReviewRow = ({ review }: { review: any }) => (
               className={
                 i < Math.round(review.rating)
                   ? "fill-[#ff6f61] text-[#ff6f61]"
-                  : "text-slate-700"
+                  : "text-on-ink-faint"
               }
             />
           ))}
@@ -505,7 +505,7 @@ const Empty = ({
   description: string;
   action?: React.ReactNode;
 }) => (
-  <div className="flex flex-col items-center justify-center border border-slate-800 bg-[#141922] px-6 py-16 text-center">
+  <div className="flex flex-col items-center justify-center border border-ink-border bg-ink-soft px-6 py-16 text-center">
     <span className="flex h-14 w-14 items-center justify-center rounded-full bg-[#ff6f61]/10 text-[#ff6f61]">
       <Icon size={24} />
     </span>
@@ -520,7 +520,7 @@ const GridSkeleton = ({ rows }: { rows: number }) => (
     {[...Array(rows)].map((_, i) => (
       <div
         key={i}
-        className="h-56 animate-pulse border border-slate-800 bg-[#141922] motion-reduce:animate-none"
+        className="h-56 animate-pulse border border-ink-border bg-ink-soft motion-reduce:animate-none"
       />
     ))}
   </div>
@@ -528,7 +528,7 @@ const GridSkeleton = ({ rows }: { rows: number }) => (
 
 const HomeSkeleton = () => (
   <div className="min-h-screen w-full bg-black">
-    <div className="h-44 w-full animate-pulse bg-slate-900 motion-reduce:animate-none sm:h-56" />
+    <div className="h-44 w-full animate-pulse bg-ink motion-reduce:animate-none sm:h-56" />
     <div className="mx-auto max-w-6xl px-6">
       <div className="-mt-14 flex items-end gap-4 sm:-mt-16">
         <div className="h-24 w-24 shrink-0 animate-pulse border-4 border-black bg-ink-raised motion-reduce:animate-none sm:h-28 sm:w-28" />
@@ -541,7 +541,7 @@ const HomeSkeleton = () => (
         {[...Array(4)].map((_, i) => (
           <div
             key={i}
-            className="h-24 animate-pulse bg-[#141922] motion-reduce:animate-none"
+            className="h-24 animate-pulse bg-ink-soft motion-reduce:animate-none"
           />
         ))}
       </div>

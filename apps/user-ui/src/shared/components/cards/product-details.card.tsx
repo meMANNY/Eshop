@@ -75,7 +75,7 @@ const ProductDetailsCard = ({data,setOpen}: {data:any,setOpen:(open: boolean) =>
         >
                 <button
             onClick={() => setOpen(false)}
-            className="absolute top-3 right-3 grid h-9 w-9 place-items-center rounded-full bg-paper-x text-ink-500 transition-colors hover:bg-paper hover:text-ink focus:outline-none focus-visible:ring-2 focus-visible:ring-terra/40"
+            className="absolute top-3 right-3 grid h-9 w-9 place-items-center rounded-full bg-surface text-ink-500 transition-colors hover:bg-paper hover:text-ink focus:outline-none focus-visible:ring-2 focus-visible:ring-terra/40"
             >
             <X size={20} />
             {""}
@@ -224,7 +224,7 @@ const ProductDetailsCard = ({data,setOpen}: {data:any,setOpen:(open: boolean) =>
                         >
                             -
                         </button>
-                        <span className="min-w-[2.5rem] border border-line bg-paper-x px-3 py-1 text-center font-mono text-sm tabular-nums text-ink">
+                        <span className="min-w-[2.5rem] border border-line bg-surface px-3 py-1 text-center font-mono text-sm tabular-nums text-ink">
                             {quantity}
                         </span>
                         <button

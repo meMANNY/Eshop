@@ -453,17 +453,6 @@
     display: none;
   }
 
-  /*
-    Transitional: the old coral marker bar, now a 1px terracotta hairline so the
-    nine call sites read as editorial rules instead of rounded coral tabs. Phase
-    2 replaces them with kickers and Phase 7 deletes this.
-  */
-  .marker {
-    width: 1px;
-    border-radius: 0;
-    background-color: var(--terra-2);
-  }
-
   /* Clamps used by product titles and shop bios in grid cards. */
   .clamp-1,
   .clamp-2,

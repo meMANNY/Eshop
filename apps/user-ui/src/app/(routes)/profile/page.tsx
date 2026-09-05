@@ -314,7 +314,7 @@ function ProfileContent() {
                         <div
                           key={not.id}
                           style={{ animationDelay: `${idx * 80}ms` }}
-                          className={`group animate-fadeSlideUp  border p-5 opacity-0  transition-all duration-300 ease-out hover:border-terra/40 hover: motion-reduce:animate-none motion-reduce:opacity-100 motion-reduce:transition-none ${
+                          className={`group animate-reveal-up border p-5 opacity-0 transition-all duration-300 ease-out hover:border-terra/40 hover: motion-reduce:animate-none motion-reduce:opacity-100 motion-reduce:transition-none ${
                             !not.isRead
                               ? "border-terra/30 bg-terra/5"
                               : "border-line bg-paper"

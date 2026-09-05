@@ -106,7 +106,7 @@ export default function ChangePassword() {
                     aria-hidden="true"
                     className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full transition-colors ${
                       met
-                        ? "bg-emerald-100 text-pos"
+                        ? "border border-pos/40 bg-pos/10 text-pos"
                         : "bg-surface text-transparent"
                     }`}
                   >
@@ -136,8 +136,8 @@ export default function ChangePassword() {
             role={error ? "alert" : "status"}
             className={`flex items-start gap-2.5  border p-3 text-sm ${
               error
-                ? "border-red-200 bg-neg/10 text-neg"
-                : "border-emerald-200 bg-pos/10 text-pos"
+                ? "border-neg/30 bg-neg/10 text-neg"
+                : "border-pos/40 bg-pos/10 text-pos"
             }`}
           >
             {error ? (
@@ -183,7 +183,7 @@ const PasswordField = React.forwardRef<HTMLInputElement, PasswordFieldProps>(
             aria-invalid={Boolean(error)}
             className={`w-full  border px-4 py-2.5 pr-11 text-ink placeholder:text-ink-400 transition-colors focus:outline-none focus:ring-2 ${
               error
-                ? "border-red-300 focus:border-red-400 focus:ring-neg/20"
+                ? "border-neg/40 focus:border-neg focus:ring-neg/20"
                 : "border-line focus:border-terra focus:ring-terra/25"
             }`}
             {...props}

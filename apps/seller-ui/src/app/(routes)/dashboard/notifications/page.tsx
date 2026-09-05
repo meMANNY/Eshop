@@ -159,7 +159,7 @@ export default function Page() {
                       route — here it marks the rows still wanting attention. */}
                   {!not.isRead ? (
                     <span
-                      className="marker absolute inset-y-4 left-0"
+                      className="absolute inset-y-4 left-0 w-px bg-terra-2"
                       aria-hidden="true"
                     />
                   ) : null}

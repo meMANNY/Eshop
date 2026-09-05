@@ -75,7 +75,7 @@ export function AuthShell({
       </aside>
 
       <div className="flex w-full items-center justify-center px-6 py-12 lg:w-[54%]">
-        <div className="w-full max-w-[380px] animate-rise-in motion-reduce:animate-none">
+        <div className="w-full max-w-[380px] animate-fade-in motion-reduce:animate-none">
           {/* The panel is hidden at this width, so the brand comes along. */}
           <Link href="/" className="mb-10 flex items-baseline gap-2.5 lg:hidden">
             <span
@@ -120,7 +120,7 @@ export function SlipLine({ label, value }: { label: string; value: string }) {
     <div className="flex items-center gap-2">
       <span>{label}</span>
       <span
-        className="flex-1 border-b border-dotted border-ink-faint/60"
+        className="flex-1 border-b border-dotted border-ink-300"
         aria-hidden="true"
       />
       <span className="text-ink">{value}</span>

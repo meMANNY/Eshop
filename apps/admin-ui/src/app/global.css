@@ -7,13 +7,6 @@
   to differ by a few points of blue in their surfaces for no reason anyone could
   name; they now share one warm near-black, which is also the storefront's footer
   band. One system, three surfaces.
-
-  The `--text` / `--muted` / `--faint` variables below are load-bearing. They are
-  read directly by hundreds of `text-[var(--muted)]`-style call sites across the
-  two consoles, which is more than any Tailwind token covers, so repointing them
-  here is what actually moves this app onto the new palette without editing a
-  single component. Phase 4 replaces the call sites with `text-on-ink-muted`;
-  until then these three lines are doing most of the work.
 */
 
 :root {
@@ -36,15 +29,6 @@
   --warn: #e8a44b;
   --neg: #e8735a;
 
-  /* ---- transitional aliases (deleted in Phase 7) ---- */
-  --panel: #262220;
-  --raised: #302b27;
-  --rule: #3a3530;
-  --coral: #ff6b35;
-  --coral-dim: #c24a1b;
-  --text: #faf7f0;
-  --muted: #a89e8f;
-  --faint: #6e665a;
 }
 
 @layer base {
@@ -348,17 +332,6 @@
     display: none;
   }
 
-  /*
-    Transitional: the old coral edge marker, now a 1px terracotta hairline with
-    no glow — the glow is the single most anti-editorial thing in the old system.
-    Phase 4 replaces the five call sites with the nav-index treatment.
-  */
-  .marker {
-    width: 1px;
-    border-radius: 0;
-    background-color: var(--terra);
-    box-shadow: none;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {

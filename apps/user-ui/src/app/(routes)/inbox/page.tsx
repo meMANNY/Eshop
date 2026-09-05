@@ -57,7 +57,7 @@ function Presence({ online }: { online?: boolean }) {
     <span className="flex items-center gap-1.5">
       <span
         className={`h-1.5 w-1.5 rounded-full ${
-          online ? "bg-pos" : "bg-ink-faint/50"
+          online ? "bg-pos" : "bg-ink-300/50"
         }`}
         aria-hidden="true"
       />
@@ -105,7 +105,7 @@ function ThreadSkeleton() {
     <div className="space-y-1 p-3">
       {[0, 1, 2, 3].map((i) => (
         <div key={i} className="flex items-center gap-3 px-3 py-2.5">
-          <div className="h-10 w-10 shrink-0 rounded-full bg-paper-x" />
+          <div className="h-10 w-10 shrink-0 rounded-full bg-surface" />
           <div className="flex-1 space-y-2">
             <Bar className="h-3 w-1/2" />
             <Bar className="h-2.5 w-3/4" />
@@ -312,7 +312,7 @@ function InboxContent() {
     <Container className="py-6 md:py-8">
       <div className="flex h-[calc(100vh-11rem)] min-h-[520px] overflow-hidden border border-line bg-paper">
         {/* ---------------------------- THREAD LIST ---------------------------- */}
-        <aside className="flex w-[300px] shrink-0 flex-col border-r border-line bg-paper-x max-md:hidden">
+        <aside className="flex w-[300px] shrink-0 flex-col border-r border-line bg-surface max-md:hidden">
           <div className="flex items-baseline justify-between border-b border-line px-4 py-4">
             <h1 className="font-display text-base font-semibold text-ink">
               Messages
@@ -454,11 +454,11 @@ function InboxContent() {
                     <div key={i}>
                       {startsDay && (
                         <div className="flex items-center gap-3 py-4">
-                          <span className="h-px flex-1 bg-rule" />
+                          <span className="h-px flex-1 bg-line" />
                           <span className="text-label font-semibold uppercase text-ink-500">
                             {dayLabel(msg.createdAt)}
                           </span>
-                          <span className="h-px flex-1 bg-rule" />
+                          <span className="h-px flex-1 bg-line" />
                         </div>
                       )}
 

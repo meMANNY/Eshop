@@ -45,9 +45,9 @@ const SEVERITY: Record<
   // graphic, but below the 4.5:1 a small tag needs. The tag steps up to muted.
   debug: {
     tag: "DEBUG",
-    rail: "bg-[var(--faint)]",
+    rail: "bg-on-ink-faint",
     text: "text-on-ink-muted",
-    dot: "bg-[var(--faint)]",
+    dot: "bg-on-ink-faint",
   },
 };
 
@@ -79,7 +79,7 @@ function ConnectionBadge({ state }: { state: Connection }) {
     {
       connecting: {
         label: "Connecting",
-        dot: "bg-[var(--muted)]",
+        dot: "bg-on-ink-muted",
         text: "text-on-ink-muted",
       },
       live: { label: "Live", dot: "bg-pos", text: "text-pos" },
@@ -445,7 +445,7 @@ export default function Page() {
                 return (
                   <li
                     key={`${log.timestamp}-${i}`}
-                    className="group flex gap-3 px-1 transition-colors hover:bg-white/[0.03]"
+                    className="group flex gap-3 px-1 transition-colors hover:bg-ink-raised"
                   >
                     {/*
                       The rail is the signature of this page. Read as a column it

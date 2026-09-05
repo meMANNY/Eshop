@@ -213,7 +213,7 @@ export default function SellerProfile({
         <motion.div {...rise} className="relative z-10 -mt-14 sm:-mt-20">
           <div className="border border-line bg-paper p-5 shadow-lift sm:p-7">
             <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
-              <div className="relative grid h-20 w-20 shrink-0 place-items-center overflow-hidden rounded-full border-4 border-paper bg-paper-x sm:h-24 sm:w-24">
+              <div className="relative grid h-20 w-20 shrink-0 place-items-center overflow-hidden rounded-full border-4 border-paper bg-surface sm:h-24 sm:w-24">
                 {shop?.avatar ? (
                   <Image
                     src={shop.avatar}
@@ -232,7 +232,7 @@ export default function SellerProfile({
               <div className="min-w-0 flex-1">
                 <div className="flex items-start gap-3">
                   {/* The coral rail the whole product uses to say "here". */}
-                  <span className="marker mt-1.5 h-8" aria-hidden="true" />
+                  <span className="mt-1.5 h-8 w-px bg-terra-2" aria-hidden="true" />
                   <div className="min-w-0">
                     <h1 className="font-display text-[28px] font-semibold leading-none tracking-[-0.02em] text-ink sm:text-[34px]">
                       {shop?.name}
@@ -267,7 +267,7 @@ export default function SellerProfile({
               paginated, so any number here would be the page size, not the
               catalogue.
             */}
-            <dl className="mt-6 grid grid-cols-2 gap-px overflow-hidden border border-line bg-rule sm:grid-cols-4">
+            <dl className="mt-6 grid grid-cols-2 gap-px overflow-hidden border border-line bg-line sm:grid-cols-4">
               <Fact label="Rating">
                 {reviews.length > 0 || shop?.ratings ? (
                   <span className="inline-flex items-center gap-1.5">
@@ -438,7 +438,7 @@ function ShopWindow({
   const hasWindow = !coverBanner && images.length >= 3;
 
   return (
-    <div className="relative h-[190px] w-full overflow-hidden bg-paper-x sm:h-[280px]">
+    <div className="relative h-[190px] w-full overflow-hidden bg-surface sm:h-[280px]">
       {coverBanner ? (
         <Image
           src={coverBanner}
@@ -608,7 +608,7 @@ function Reviews({
               <span className="figure w-3 text-xs text-ink-500">{stars}</span>
               <Star size={11} className="fill-warn text-warn" aria-hidden="true" />
               <div
-                className="h-1.5 flex-1 overflow-hidden rounded-full bg-paper-x ring-1 ring-inset ring-rule"
+                className="h-1.5 flex-1 overflow-hidden rounded-full bg-surface ring-1 ring-inset ring-line"
                 role="presentation"
               >
                 <div

@@ -26,12 +26,6 @@ module.exports = {
           hue with exactly two steps. There is deliberately no blue, green or
           purple in the chrome — status colours are re-tinted warm so they sit on
           paper without reading as a different design system.
-
-          The block at the bottom keeps the old coral-marketplace names alive and
-          pointed at the new values. That is what makes this phase safe to merge
-          on its own: several hundred existing call sites change colour without
-          any of them being edited. Phase 7 deletes them once the components stop
-          referring to them.
         */
         paper: "#FAF7F0",
         surface: "#F2EDE0",
@@ -54,9 +48,6 @@ module.exports = {
           400: "#6E665A",
           500: "#4D4639",
           600: "#2A241B",
-          // Transitional aliases — Phase 7 deletes these.
-          muted: "#4D4639",
-          faint: "#6E665A",
         },
 
         "on-ink": {
@@ -89,16 +80,6 @@ module.exports = {
         // Blur decorations only.
         glow: { terra: "#FF6B35", yellow: "#FFBF4B" },
 
-        // ---- transitional aliases (deleted in Phase 7) ----
-        canvas: "#FAF7F0",
-        sunken: "#F2EDE0",
-        rule: "#D8D2C2",
-        coral: {
-          DEFAULT: "#FF6B35",
-          dim: "#C24A1B",
-          ink: "#C24A1B",
-          soft: "rgba(255,107,53,0.08)",
-        },
       },
       fontFamily: {
         /*
@@ -115,8 +96,6 @@ module.exports = {
         display: ["var(--font-display)", "Inter Tight", "Helvetica Neue", "Arial", "sans-serif"],
         serif: ["var(--font-serif)", "Instrument Serif", "Georgia", "serif"],
         mono: ["var(--font-mono)", "JetBrains Mono", "ui-monospace", "monospace"],
-        // Transitional alias — `font-jost` is still on 15 files.
-        jost: ["var(--font-display)", "Inter Tight", "sans-serif"],
       },
       fontSize: {
         label: ["0.6875rem", { lineHeight: "1rem", letterSpacing: "0.16em" }],
@@ -130,16 +109,8 @@ module.exports = {
         kicker: "0.18em",
         label: "0.14em",
       },
-      borderRadius: {
-        // Everything in this theme is a hard rectangle; the pill is reserved for
-        // buttons. Redefining the token to 0 flips all 212 `rounded-card` call
-        // sites at once instead of editing them.
-        card: "0",
-        panel: "0",
-      },
       boxShadow: {
-        card: "none",
-        // The portfolio's offset hard shadow, paired with a soft drop so the
+        // The theme's offset hard shadow, paired with a soft drop so the
         // lift reads as paper moving rather than a UI card floating.
         lift: "4px 4px 0 0 #1A1A1A, 0 16px 30px -14px rgba(26,26,26,0.22)",
         pop: "0 0 0 1px #1A1A1A, 0 10px 30px rgba(0,0,0,0.15)",
@@ -179,10 +150,6 @@ module.exports = {
         // `both` is load-bearing: it holds opacity:1 after the run, and holds
         // the from-state during the per-item animation-delay. Without it the
         // card falls back to its own `opacity-0` and never becomes visible.
-        //
-        // The last two are transitional aliases so existing call sites animate.
-        "rise-in": "fade-in 0.55s cubic-bezier(0.22,1,0.36,1) both",
-        fadeSlideUp: "reveal-up 0.7s cubic-bezier(0.22,1,0.36,1) both",
       },
     },
   },

@@ -117,15 +117,15 @@ export default function Page() {
           >
             Dashboard
           </Link>
-          <ChevronRight size={16} className="mx-1 text-slate-600" />
+          <ChevronRight size={16} className="mx-1 text-on-ink-faint" />
           <Link
             href="/dashboard/orders"
             className="text-on-ink-muted transition-colors hover:text-[#ff8a7d]"
           >
             Orders
           </Link>
-          <ChevronRight size={16} className="mx-1 text-slate-600" />
-          <span className="text-slate-200">
+          <ChevronRight size={16} className="mx-1 text-on-ink-faint" />
+          <span className="text-on-ink">
             #{order.id.slice(-6).toUpperCase()}
           </span>
         </div>
@@ -157,14 +157,14 @@ export default function Page() {
                   value={order.deliveryStatus}
                   onChange={handleStatusChange}
                   disabled={updating}
-                  className="border border-ink-border bg-white/[0.04] px-3 py-1.5 text-sm text-slate-100 outline-none transition-colors hover:border-ink-border focus:border-[#ff6f61] focus:ring-2 focus:ring-[#ff6f61]/30 disabled:opacity-50"
+                  className="border border-ink-border bg-white/[0.04] px-3 py-1.5 text-sm text-on-ink outline-none transition-colors hover:border-ink-border focus:border-[#ff6f61] focus:ring-2 focus:ring-[#ff6f61]/30 disabled:opacity-50"
                 >
                   {statuses.map((status) => (
                     <option
                       key={status}
                       value={status}
                       disabled={statuses.indexOf(status) < activeIndex}
-                      className="bg-[#141922] text-slate-200"
+                      className="bg-ink-soft text-on-ink"
                     >
                       {status}
                     </option>
@@ -190,8 +190,8 @@ export default function Page() {
               <span
                 className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ring-inset ${
                   order.status === "Paid"
-                    ? "bg-emerald-500/10 text-emerald-400 ring-emerald-500/30"
-                    : "bg-amber-500/10 text-amber-400 ring-amber-500/30"
+                    ? "border-pos/40 bg-pos/10 text-pos"
+                    : "border-warn/40 bg-warn/10 text-warn"
                 }`}
               >
                 {order.status}
@@ -206,7 +206,7 @@ export default function Page() {
 
             {order.discountAmount > 0 && (
               <SummaryRow label="Discount">
-                <span className="font-medium text-emerald-400">
+                <span className="font-medium text-pos">
                   -${Number(order.discountAmount).toFixed(2)}
                 </span>
               </SummaryRow>
@@ -214,14 +214,14 @@ export default function Page() {
 
             {order.couponCode && (
               <SummaryRow label="Coupon">
-                <span className="inline-block rounded border border-slate-800 bg-white/[0.03] px-2 py-0.5 font-mono text-sm text-[#ff8a7d]">
+                <span className="inline-block rounded border border-ink-border bg-white/[0.03] px-2 py-0.5 font-mono text-sm text-[#ff8a7d]">
                   {order.couponCode.public_name}
                 </span>
               </SummaryRow>
             )}
 
             <SummaryRow label="Date">
-              <span className="text-slate-200">
+              <span className="text-on-ink">
                 {new Date(order.createdAt).toLocaleDateString(undefined, {
                   day: "numeric",
                   month: "short",
@@ -239,7 +239,7 @@ export default function Page() {
               Shipping Address
             </h3>
             <address className="space-y-1 text-sm not-italic text-on-ink-muted">
-              <p className="font-medium text-slate-100">
+              <p className="font-medium text-on-ink">
                 {order.shippingAddress.name}
               </p>
               <p>
@@ -278,7 +278,7 @@ const Card = ({
   className?: string;
 }) => (
   <div
-    className={` border border-slate-800 bg-[#141922] p-6  ${className}`}
+    className={` border border-ink-border bg-ink-soft p-6  ${className}`}
   >
     {children}
   </div>
@@ -291,7 +291,7 @@ const SummaryRow = ({
   label: string;
   children: React.ReactNode;
 }) => (
-  <div className="flex items-center justify-between gap-4 border-b border-slate-800/70 pb-3 sm:border-b-0 sm:pb-0">
+  <div className="flex items-center justify-between gap-4 border-b border-ink-border pb-3 sm:border-b-0 sm:pb-0">
     <dt className="text-sm text-on-ink-muted">{label}</dt>
     <dd className="text-sm">{children}</dd>
   </div>
@@ -347,7 +347,7 @@ const ProgressTracker = ({
           >
             <span
               className={`h-2 w-2 rounded-full ${
-                reached ? "bg-white" : "bg-slate-500"
+                reached ? "bg-white" : "bg-on-ink-faint"
               }`}
             />
           </div>
@@ -358,17 +358,17 @@ const ProgressTracker = ({
 );
 
 const OrderItem = ({ item }: { item: any }) => (
-  <div className="flex items-center gap-5 border border-slate-800 bg-white/[0.02] p-4 transition-colors hover:bg-white/[0.05]">
+  <div className="flex items-center gap-5 border border-ink-border bg-white/[0.02] p-4 transition-colors hover:bg-white/[0.05]">
     <img
       src={
         item.product?.images?.[0]?.url ||
         "https://images.unsplash.com/photo-1635405074683-96d6921a2a68?w=500&auto=format&fit=crop&q=80"
       }
       alt={item.product?.title || "Product image"}
-      className="h-16 w-16 shrink-0 border border-slate-800 object-cover"
+      className="h-16 w-16 shrink-0 border border-ink-border object-cover"
     />
     <div className="min-w-0 flex-1">
-      <p className="truncate font-medium text-slate-100">
+      <p className="truncate font-medium text-on-ink">
         {item?.product?.title || "Unnamed Product"}
       </p>
       <p className="mt-0.5 text-sm text-on-ink-muted">

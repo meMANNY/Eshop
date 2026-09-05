@@ -61,7 +61,7 @@ export default function ChatInput({
   };
 
   const iconButton =
-    "grid h-9 w-9 shrink-0 place-items-center  text-ink-400 transition-colors hover:bg-paper-x hover:text-ink-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-terra/40";
+    "grid h-9 w-9 shrink-0 place-items-center  text-ink-400 transition-colors hover:bg-surface hover:text-ink-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-terra/40";
 
   return (
     <form
@@ -117,7 +117,7 @@ export default function ChatInput({
         type="submit"
         disabled={!canSend}
         aria-label="Send message"
-        className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-ink text-paper transition-all duration-200 hover:bg-terra hover:text-white disabled:cursor-not-allowed disabled:bg-paper-x disabled:text-ink-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-terra/50 focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
+        className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-ink text-paper transition-all duration-200 hover:bg-terra hover:text-white disabled:cursor-not-allowed disabled:bg-surface disabled:text-ink-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-terra/50 focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
       >
         <Send className="h-4 w-4" aria-hidden="true" />
       </button>

@@ -328,7 +328,7 @@ const Signup = () => {
                                         {isCompleted ? <Check size={16} /> : stepNumber}
                                     </span>
                                     {stepNumber < stepMeta.length && (
-                                        <span className={`h-px flex-1 ${activeStep > stepNumber ? 'bg-[#ff6f61]' : 'bg-rule'}`} />
+                                        <span className={`h-px flex-1 ${activeStep > stepNumber ? 'bg-[#ff6f61]' : 'bg-ink-border'}`} />
                                     )}
                                 </React.Fragment>
                             );

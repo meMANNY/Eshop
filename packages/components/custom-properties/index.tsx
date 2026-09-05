@@ -69,7 +69,7 @@ const CustomProperties = ({ control, errors }: { control: any; errors: any }) =>
                       type="button"
                       onClick={() => removeProperty(index)}
                       aria-label={`Remove ${property.label} property`}
-                      className="flex h-7 w-7 shrink-0 items-center justify-center border border-[var(--ink-border)] text-[var(--on-ink-faint)] transition-colors hover:border-[var(--neg)] hover:text-[var(--neg)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+                      className="flex h-7 w-7 shrink-0 items-center justify-center border border-[var(--ink-border)] text-[var(--on-ink-faint)] transition-colors hover:border-[var(--neg)] hover:text-[var(--neg)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neg"
                     >
                       <X size={15} />
                     </button>

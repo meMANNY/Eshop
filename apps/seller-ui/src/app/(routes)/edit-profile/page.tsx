@@ -120,8 +120,8 @@ export default function EditProfilePage() {
           >
             Shop
           </Link>
-          <ChevronRight size={16} className="mx-1 text-slate-600" />
-          <span className="text-slate-200">Edit profile</span>
+          <ChevronRight size={16} className="mx-1 text-on-ink-faint" />
+          <span className="text-on-ink">Edit profile</span>
         </div>
 
         <Link
@@ -243,7 +243,7 @@ export default function EditProfilePage() {
           <div className="flex items-center justify-end gap-3">
             <Link
               href="/"
-              className="border border-ink-border bg-white/[0.03] px-4 py-2 text-sm font-medium text-slate-200 transition-colors hover:border-ink-border hover:text-on-ink"
+              className="border border-ink-border bg-white/[0.03] px-4 py-2 text-sm font-medium text-on-ink transition-colors hover:border-ink-border hover:text-on-ink"
             >
               Cancel
             </Link>
@@ -273,7 +273,7 @@ const Card = ({
   description: string;
   children: React.ReactNode;
 }) => (
-  <div className="border border-slate-800 bg-[#141922] p-6">
+  <div className="border border-ink-border bg-ink-soft p-6">
     <h3 className="text-lg font-semibold text-on-ink">{title}</h3>
     <p className="mt-1 text-sm text-on-ink-muted">{description}</p>
     <div className="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2">{children}</div>
@@ -299,7 +299,7 @@ const Field = ({
     </span>
     {children}
     {error ? (
-      <span className="mt-1 block text-xs text-red-400">{error}</span>
+      <span className="mt-1 block text-xs text-neg">{error}</span>
     ) : hint ? (
       <span className="mt-1 block text-xs text-on-ink-faint">{hint}</span>
     ) : null}

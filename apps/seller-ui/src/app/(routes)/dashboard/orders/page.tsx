@@ -91,10 +91,10 @@ export default function Page() {
           <span
             className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ring-inset ${
               row.original.status === "Paid"
-                ? "bg-emerald-500/10 text-emerald-400 ring-emerald-500/30"
+                ? "border-pos/40 bg-pos/10 text-pos"
                 : row.original.status === "Pending"
-                ? "bg-amber-500/10 text-amber-400 ring-amber-500/30"
-                : "bg-white/[0.04] text-on-ink-muted ring-slate-700"
+                ? "border-warn/40 bg-warn/10 text-warn"
+                : "border-ink-border text-on-ink-muted"
             }`}
           >
             {row.original.status}
@@ -169,8 +169,8 @@ export default function Page() {
         >
           Dashboard
         </Link>
-        <ChevronRight size={16} className="mx-1 text-slate-600" />
-        <span className="text-slate-200">Orders</span>
+        <ChevronRight size={16} className="mx-1 text-on-ink-faint" />
+        <span className="text-on-ink">Orders</span>
       </div>
 
       {/* FULFILLMENT RAIL — the page's spine, and the table's filter. */}
@@ -187,7 +187,7 @@ export default function Page() {
             {i > 0 && (
               <ChevronRight
                 size={14}
-                className="text-slate-700"
+                className="text-on-ink-faint"
                 aria-hidden="true"
               />
             )}
@@ -202,8 +202,8 @@ export default function Page() {
       </div>
 
       {/* PANEL */}
-      <div className="mt-6 border border-slate-800 bg-[#141922]">
-        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-800 p-5">
+      <div className="mt-6 border border-ink-border bg-ink-soft">
+        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-ink-border p-5">
           <div className="flex min-w-[260px] flex-1 items-center gap-2 border border-ink-border bg-white/[0.03] px-3 py-2 transition-colors focus-within:border-[#ff6f61] focus-within:ring-2 focus-within:ring-[#ff6f61]/25">
             <Search size={16} className="shrink-0 text-on-ink-faint" />
             <input
@@ -259,7 +259,7 @@ export default function Page() {
             <table className="w-full min-w-[820px] border-collapse">
               <thead>
                 {table.getHeaderGroups().map((headerGroup) => (
-                  <tr key={headerGroup.id} className="border-b border-slate-800">
+                  <tr key={headerGroup.id} className="border-b border-ink-border">
                     {headerGroup.headers.map((header) => (
                       <th
                         key={header.id}
@@ -281,7 +281,7 @@ export default function Page() {
                 {rows.map((row) => (
                   <tr
                     key={row.id}
-                    className="border-b border-slate-800/60 transition-colors last:border-b-0 hover:bg-white/[0.03]"
+                    className="border-b border-ink-border transition-colors last:border-b-0 hover:bg-ink-raised"
                   >
                     {row.getVisibleCells().map((cell) => (
                       <td
@@ -343,7 +343,7 @@ const StageMeter = ({ status }: { status: string }) => {
     <div className="flex flex-col gap-1.5">
       <span
         className={`text-sm font-medium ${
-          status === "Delivered" ? "text-emerald-400" : "text-slate-200"
+          status === "Delivered" ? "text-pos" : "text-on-ink"
         }`}
       >
         {status}
@@ -387,7 +387,7 @@ const Buyer = ({ user }: { user: any }) => (
       </span>
     )}
     <div className="min-w-0">
-      <p className="truncate text-sm font-medium text-slate-100">
+      <p className="truncate text-sm font-medium text-on-ink">
         {user?.name ?? "Guest"}
       </p>
       {user?.email && (
@@ -419,7 +419,7 @@ const EmptyState = ({
 );
 
 const TableSkeleton = () => (
-  <div className="divide-y divide-slate-800/60">
+  <div className="divide-y divide-ink-border">
     {[...Array(5)].map((_, i) => (
       <div key={i} className="flex items-center gap-4 px-5 py-4">
         <div className="h-9 w-9 shrink-0 animate-pulse rounded-full bg-ink-raised motion-reduce:animate-none" />

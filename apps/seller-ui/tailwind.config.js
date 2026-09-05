@@ -27,11 +27,7 @@ module.exports = {
           near-black of the storefront's footer band, so the two surfaces are
           demonstrably one design system rather than two that happen to share an
           accent. Admin-ui now uses these exact values too — the consoles used to
-          differ by a few points of blue for no reason anyone could name.
-
-          The old names are kept as aliases pointing at the new values, which is
-          what lets this phase land without editing a single component.
-        */
+          differ by a few points of blue for no reason anyone could name.        */
         ink: {
           DEFAULT: "#1A1A1A",
           soft: "#262220",
@@ -76,16 +72,6 @@ module.exports = {
           low: "#256abf",
         },
 
-        // ---- transitional aliases (deleted in Phase 7) ----
-        panel: "#262220",
-        raised: "#302B27",
-        rule: "#3A3530",
-        coral: {
-          DEFAULT: "#FF6B35",
-          bright: "#FF6B35",
-          dim: "#C24A1B",
-          soft: "rgba(255,107,53,0.12)",
-        },
       },
       fontFamily: {
         /*
@@ -112,20 +98,11 @@ module.exports = {
         kicker: "0.18em",
         label: "0.14em",
       },
-      borderRadius: {
-        // Hard rectangles everywhere; the pill belongs to buttons alone.
-        panel: "0",
-        card: "0",
-      },
       boxShadow: {
-        panel: "none",
         pop: "0 0 0 1px #3A3530, 0 16px 40px -12px rgba(0,0,0,0.6)",
         // The offset hard shadow, in terracotta on ink — a cream one would blow
         // out against the near-black.
         lift: "4px 4px 0 0 #C24A1B, 0 16px 30px -14px rgba(0,0,0,0.5)",
-        // Transitional: the coral glow contradicts the print aesthetic, so it is
-        // neutralised here rather than left to light up a component in Phase 3.
-        "coral-glow": "none",
       },
       transitionTimingFunction: {
         editorial: "cubic-bezier(0.22, 1, 0.36, 1)",
@@ -160,10 +137,6 @@ module.exports = {
         // `both` is load-bearing: it holds opacity:1 after the run, and holds
         // the from-state during the per-item animation-delay. Without it the
         // card falls back to its own `opacity-0` and never becomes visible.
-        //
-        // The last two are transitional aliases so existing call sites animate.
-        "rise-in": "fade-in 0.55s cubic-bezier(0.22,1,0.36,1) both",
-        fadeSlideUp: "reveal-up 0.7s cubic-bezier(0.22,1,0.36,1) both",
       },
     },
   },

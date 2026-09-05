@@ -89,7 +89,7 @@ function Avatar({
       />
       {online ? (
         <span
-          className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-panel bg-pos"
+          className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-ink-soft bg-pos"
           aria-label={`${name ?? "Customer"} is online`}
         />
       ) : null}
@@ -462,11 +462,11 @@ function InboxContent() {
                     <div key={i}>
                       {startsDay && (
                         <div className="flex items-center gap-3 py-4">
-                          <span className="h-px flex-1 bg-rule" />
+                          <span className="h-px flex-1 bg-ink-border" />
                           <span className="text-label font-semibold uppercase text-on-ink/55">
                             {dayLabel(msg.createdAt)}
                           </span>
-                          <span className="h-px flex-1 bg-rule" />
+                          <span className="h-px flex-1 bg-ink-border" />
                         </div>
                       )}
 
