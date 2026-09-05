@@ -261,31 +261,36 @@ const Signup = () => {
                             const stepNumber = index + 1;
                             const isCompleted = activeStep > stepNumber;
                             const isActive = activeStep === stepNumber;
-                            const Icon = step.Icon;
                             return (
                                 <li key={step.label} className="relative flex items-start gap-4">
                                     {/* connector to the next node */}
                                     {stepNumber < stepMeta.length && (
                                         <span
                                             className={`absolute left-[19px] top-11 h-7 w-px transition-colors duration-300
-                                            ${isCompleted ? 'bg-[#FF6B35]' : 'bg-white/15'}`}
+                                            ${isCompleted ? 'bg-terra' : 'bg-ink-border'}`}
                                         />
                                     )}
                                     <span
-                                        className={`relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full border transition-all duration-300
+                                        className={`relative flex h-10 w-10 shrink-0 items-center justify-center border transition-colors duration-300
                                         ${isCompleted
-                                                ? 'border-[#FF6B35] bg-[#FF6B35] text-on-ink'
+                                                ? 'border-terra bg-terra text-ink'
                                                 : isActive
-                                                    ? 'border-[#FF6B35] bg-white/[0.04] text-[#FF6B35] shadow-[0_0_18px_rgba(255,111,97,0.55)]'
-                                                    : 'border-white/15 text-on-ink/40'}`}
+                                                    ? 'border-terra text-terra'
+                                                    : 'border-ink-border text-on-ink-faint'}`}
                                     >
-                                        {isCompleted ? <Check size={18} /> : <Icon size={18} />}
+                                        {isCompleted ? (
+                                            <Check size={16} />
+                                        ) : (
+                                            <span className="font-mono text-[11px] font-semibold tracking-[0.1em]">
+                                                {String(stepNumber).padStart(2, '0')}
+                                            </span>
+                                        )}
                                     </span>
-                                    <div className="pt-0.5">
-                                        <p className={`text-[15px] font-medium ${isActive || isCompleted ? 'text-on-ink' : 'text-on-ink/45'}`}>
+                                    <div className="pt-1">
+                                        <p className={`font-mono text-[11px] uppercase tracking-[0.16em] ${isActive || isCompleted ? 'text-on-ink' : 'text-on-ink-faint'}`}>
                                             {step.label}
                                         </p>
-                                        <p className={`text-[13px] ${isActive ? 'text-on-ink/60' : 'text-on-ink/35'}`}>
+                                        <p className={`mt-1 text-[13px] leading-[1.5] ${isActive ? 'text-on-ink-muted' : 'text-on-ink-faint'}`}>
                                             {step.desc}
                                         </p>
                                     </div>
@@ -328,7 +333,7 @@ const Signup = () => {
                                         {isCompleted ? <Check size={16} /> : stepNumber}
                                     </span>
                                     {stepNumber < stepMeta.length && (
-                                        <span className={`h-px flex-1 ${activeStep > stepNumber ? 'bg-[#FF6B35]' : 'bg-ink-border'}`} />
+                                        <span className={`h-px flex-1 ${activeStep > stepNumber ? 'bg-terra' : 'bg-ink-border'}`} />
                                     )}
                                 </React.Fragment>
                             );

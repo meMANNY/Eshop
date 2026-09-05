@@ -110,7 +110,7 @@ export default function EditProfilePage() {
             aria-hidden="true"
             className="h-7 w-[3px] rounded-full bg-[#FF6B35] shadow-[0_0_10px_rgba(194,74,27,0.35)]"
           />
-          <h2 className="text-2xl font-semibold text-on-ink">Edit profile</h2>
+          <h2 className="font-display text-2xl font-medium tracking-tight text-on-ink">Edit profile</h2>
         </div>
 
         <div className="mt-1 flex items-center text-sm">
@@ -274,7 +274,7 @@ const Card = ({
   children: React.ReactNode;
 }) => (
   <div className="border border-ink-border bg-ink-soft p-6">
-    <h3 className="text-lg font-semibold text-on-ink">{title}</h3>
+    <h3 className="font-display text-lg font-medium tracking-tight text-on-ink">{title}</h3>
     <p className="mt-1 text-sm text-on-ink-muted">{description}</p>
     <div className="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2">{children}</div>
   </div>
@@ -294,7 +294,7 @@ const Field = ({
   children: React.ReactNode;
 }) => (
   <label className={`block ${full ? "sm:col-span-2" : ""}`}>
-    <span className="mb-1 block text-sm font-medium text-on-ink-muted">
+    <span className="mb-1.5 block font-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-on-ink-muted">
       {label}
     </span>
     {children}

@@ -70,7 +70,7 @@ export default function Page() {
         <span className="flex h-14 w-14 items-center justify-center rounded-full bg-[#FF6B35]/10 text-[#FF6B35]">
           <PackageX size={24} />
         </span>
-        <h2 className="mt-4 text-lg font-semibold text-on-ink">
+        <h2 className="mt-4 font-display text-lg font-medium tracking-tight text-on-ink">
           Order not found
         </h2>
         <p className="mt-1.5 max-w-sm text-sm text-on-ink-muted">
@@ -102,7 +102,7 @@ export default function Page() {
             aria-hidden="true"
             className="h-7 w-[3px] rounded-full bg-[#FF6B35] shadow-[0_0_10px_rgba(194,74,27,0.35)]"
           />
-          <h2 className="text-2xl font-semibold text-on-ink">
+          <h2 className="font-display text-2xl font-medium tracking-tight text-on-ink">
             Order{" "}
             <span className="font-mono text-[#FF6B35]">
               #{order.id.slice(-6).toUpperCase()}
@@ -141,7 +141,7 @@ export default function Page() {
         {/* DELIVERY PROGRESS + STATUS CONTROL */}
         <Card className="mt-8">
           <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
-            <h3 className="text-lg font-semibold text-on-ink">
+            <h3 className="font-display text-lg font-medium tracking-tight text-on-ink">
               Delivery Progress
             </h3>
             <div className="flex items-center gap-3">
@@ -182,7 +182,7 @@ export default function Page() {
 
         {/* ORDER SUMMARY */}
         <Card className="mt-6">
-          <h3 className="mb-4 text-lg font-semibold text-on-ink">
+          <h3 className="mb-4 font-display text-lg font-medium tracking-tight text-on-ink">
             Order Summary
           </h3>
           <dl className="grid grid-cols-1 gap-x-8 gap-y-3 sm:grid-cols-2">
@@ -199,7 +199,7 @@ export default function Page() {
             </SummaryRow>
 
             <SummaryRow label="Total Paid">
-              <span className="text-base font-semibold text-on-ink">
+              <span className="font-display text-base font-medium tracking-tight text-on-ink">
                 ${Number(order.total).toFixed(2)}
               </span>
             </SummaryRow>
@@ -235,7 +235,7 @@ export default function Page() {
         {/* SHIPPING ADDRESS */}
         {order.shippingAddress && (
           <Card className="mt-6">
-            <h3 className="mb-3 text-lg font-semibold text-on-ink">
+            <h3 className="mb-3 font-display text-lg font-medium tracking-tight text-on-ink">
               Shipping Address
             </h3>
             <address className="space-y-1 text-sm not-italic text-on-ink-muted">
@@ -253,7 +253,7 @@ export default function Page() {
 
         {/* ORDER ITEMS */}
         <Card className="mt-6">
-          <h3 className="mb-4 text-lg font-semibold text-on-ink">
+          <h3 className="mb-4 font-display text-lg font-medium tracking-tight text-on-ink">
             Order Items
             <span className="ml-2 text-sm font-normal text-on-ink-faint">
               ({order.items?.length ?? 0})

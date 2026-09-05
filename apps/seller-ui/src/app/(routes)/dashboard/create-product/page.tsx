@@ -206,7 +206,7 @@ function Page() {
             <div className="flex items-center gap-3 py-2">
                 {/* Coral marker — echoes the sidebar's "you are here" accent. */}
                 <span aria-hidden="true" className="h-7 w-[3px] rounded-full bg-[#FF6B35] shadow-[0_0_10px_rgba(194,74,27,0.35)]"/>
-                <h2 className="text-2xl font-semibold font-display text-on-ink">
+                <h2 className="font-display text-2xl font-medium tracking-tight text-on-ink">
                     Create Product
                 </h2>
             </div>
@@ -565,7 +565,7 @@ function Page() {
                         {/*Modal Content*/}
                         <div className="w-[500px] max-w-full border border-ink-border bg-ink-soft p-6 text-on-ink shadow-2xl">
                             <div className="flex justify-between items-center border-b border-ink-border pb-3 mb-4">
-                                <h2 className="font-semibold text-lg">Enhance Product Image</h2>
+                                <h2 className="font-display text-lg font-medium tracking-tight">Enhance Product Image</h2>
                                 <X size={20} className="cursor-pointer text-on-ink-muted transition-colors hover:text-on-ink" onClick={()=>setOpenImageModal(false)} />
                             </div>
                             {/*Image Viewer*/}
@@ -588,7 +588,7 @@ function Page() {
                             </div>
                             {/*AI IMAGE ENHANCEMENT*/}
                             <div className="mt-5">
-                                <h3 className="text-sm font-semibold text-on-ink-muted mb-2">AI Enhancements</h3>
+                                <h3 className="mb-2 font-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-on-ink-muted">AI Enhancements</h3>
                                 <div className="grid grid-cols-2 gap-2">
                                     {aiEnhancements.map(({label, transformation})=>(
                                         <button
