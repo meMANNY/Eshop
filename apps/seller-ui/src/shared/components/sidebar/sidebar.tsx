@@ -2,7 +2,6 @@
 
 import useSeller from "@/hooks/useSeller";
 import useSidebar from "@/hooks/useSidebar";
-import Logo from "@/assests/logo";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   BellPlus,
@@ -76,6 +75,15 @@ const NAV: {
   },
 ];
 
+/*
+  Position of each route in the flattened rail, so the numerals run 01…11 down the
+  whole sidebar rather than restarting per group. Derived from NAV rather than
+  written out, which is the same reason NAV itself is data.
+*/
+const FLAT_INDEX: Record<string, number> = Object.fromEntries(
+  NAV.flatMap((section) => section.items).map((item, i) => [item.href, i + 2])
+);
+
 const SidebarBarWrapper = () => {
   const { activeSidebar, setActiveSidebar } = useSidebar();
   const pathName = usePathname();
@@ -112,28 +120,34 @@ const SidebarBarWrapper = () => {
   return (
     <div className="flex h-full flex-col">
       {/* Shop identity — the seller's own shop, not the product's name. */}
-      <Link
-        href="/"
-        className="flex items-center gap-2.5 rounded-lg px-3 py-2 transition-colors hover:bg-white/[0.04]"
-      >
-        <Logo className="h-[18px] w-[18px] shrink-0 text-coral" />
+      <Link href="/" className="group flex items-start gap-2.5 px-3 py-2">
+        <span
+          className="mt-2 h-2 w-2 shrink-0 rounded-full bg-terra-2 transition-transform group-hover:scale-125"
+          aria-hidden="true"
+        />
         <span className="min-w-0 leading-none">
-          <span className="block truncate font-display text-base font-bold tracking-[-0.01em] text-white">
-            {seller?.shop?.name ?? "Your shop"}
+          <span className="flex items-baseline gap-2">
+            <span className="truncate font-display text-base font-medium tracking-tight text-on-ink">
+              {seller?.shop?.name ?? "Your shop"}
+            </span>
+            <span className="shrink-0 font-mono text-[9px] uppercase tracking-[0.18em] text-on-ink-faint">
+              /seller
+            </span>
           </span>
-          <span className="mt-1 block truncate text-xs text-[var(--faint)]">
-            {seller?.shop?.address ?? "Seller portal"}
+          <span className="mt-1.5 block truncate font-mono text-[10px] uppercase tracking-[0.14em] text-on-ink-faint">
+            {seller?.shop?.address ?? "seller portal"}
           </span>
         </span>
       </Link>
 
-      <nav className="scroll-none mt-6 flex-1 overflow-y-auto pb-4">
+      <nav className="scroll-none mt-8 flex-1 overflow-y-auto pb-4">
         <SidebarMenu title="Overview">
           <SidebarItem
             title="Dashboard"
             icon={<LayoutDashboard />}
             isActive={activeSidebar === "/dashboard"}
             href="/dashboard"
+            index={1}
           />
         </SidebarMenu>
 
@@ -146,6 +160,7 @@ const SidebarBarWrapper = () => {
                 icon={item.icon}
                 isActive={activeSidebar === item.href}
                 href={item.href}
+                index={FLAT_INDEX[item.href]}
               />
             ))}
           </SidebarMenu>
@@ -157,11 +172,11 @@ const SidebarBarWrapper = () => {
         session — you check which account you are in at the moment you consider
         leaving it, not while reading a table.
       */}
-      <div className="mt-auto border-t border-rule pt-3">
+      <div className="mt-auto border-t border-ink-border pt-3">
         {seller ? (
           <div className="flex items-center gap-2.5 px-3 py-2">
             <span
-              className="grid h-8 w-8 shrink-0 place-items-center overflow-hidden rounded-full bg-coral-soft text-sm font-semibold text-coral"
+              className="grid h-8 w-8 shrink-0 place-items-center overflow-hidden border border-ink-border bg-ink-soft font-display text-sm font-medium text-on-ink-muted"
               aria-hidden="true"
             >
               {/* `shops.avatar` is an `images[]` relation — indexing is required.
@@ -178,26 +193,29 @@ const SidebarBarWrapper = () => {
               )}
             </span>
             <span className="min-w-0">
-              <span className="block truncate text-sm font-medium text-[var(--text)]">
+              <span className="block truncate text-sm font-medium text-on-ink">
                 {seller.name}
               </span>
-              <span className="block truncate text-xs text-[var(--faint)]">
+              <span className="block truncate font-mono text-[10px] tracking-[0.08em] text-on-ink-faint">
                 {seller.email}
               </span>
             </span>
           </div>
         ) : (
           <div className="px-3 py-2">
-            <div className="h-8 w-full animate-pulse rounded bg-raised motion-reduce:animate-none" />
+            <div className="h-8 w-full animate-pulse bg-ink-raised motion-reduce:animate-none" />
           </div>
         )}
 
         <button
           onClick={handleLogout}
-          className="mt-1 flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-[var(--muted)] transition-colors hover:bg-neg/10 hover:text-neg"
+          className="mt-1 flex w-full items-center gap-2.5 px-3 py-2.5 font-mono text-[11px] uppercase tracking-[0.14em] text-on-ink-muted transition-colors hover:text-neg"
         >
-          <LogOut size={20} className="shrink-0" />
+          <LogOut size={16} className="shrink-0" />
           Log out
+          <span aria-hidden="true" className="ml-auto">
+            ↗
+          </span>
         </button>
       </div>
     </div>

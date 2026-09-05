@@ -107,14 +107,14 @@ const ProductList = () => {
                   width={40}
                   height={40}
                   unoptimized
-                  className="h-10 w-10 shrink-0 rounded-md border border-rule object-cover"
+                  className="h-10 w-10 shrink-0 border border-ink-border object-cover"
                 />
               ) : (
-                <div className="h-10 w-10 shrink-0 rounded-md border border-rule bg-raised" />
+                <div className="h-10 w-10 shrink-0 border border-ink-border bg-ink-raised" />
               )}
               <Link
                 href={`${process.env.NEXT_PUBLIC_USER_UI_LINK}/product/${row.original.slug}`}
-                className="max-w-[260px] truncate font-medium text-[var(--text)] transition-colors hover:text-coral"
+                className="max-w-[260px] truncate font-medium text-on-ink transition-colors hover:text-terra"
                 title={row.original.title}
               >
                 {row.original.title}
@@ -142,7 +142,7 @@ const ProductList = () => {
         accessorKey: "category",
         header: "Category",
         cell: ({ row }: any) => (
-          <span className="text-[var(--muted)]">{row.original.category}</span>
+          <span className="text-on-ink-muted">{row.original.category}</span>
         ),
       },
       {
@@ -154,11 +154,11 @@ const ProductList = () => {
           return (
             <span className="inline-flex items-baseline gap-2">
               {regular_price > sale_price ? (
-                <Figure className="text-xs text-[var(--faint)] line-through">
+                <Figure className="text-xs text-on-ink-faint line-through">
                   {money(regular_price)}
                 </Figure>
               ) : null}
-              <Figure className="font-medium text-white">{money(sale_price)}</Figure>
+              <Figure className="font-medium text-on-ink">{money(sale_price)}</Figure>
             </span>
           );
         },
@@ -175,7 +175,7 @@ const ProductList = () => {
               Low · <Figure>{row.original.stock}</Figure>
             </StatusPill>
           ) : (
-            <Figure className="text-[var(--muted)]">{row.original.stock}</Figure>
+            <Figure className="text-on-ink-muted">{row.original.stock}</Figure>
           ),
       },
       {
@@ -185,7 +185,7 @@ const ProductList = () => {
         cell: ({ row }: any) => (
           <span className="inline-flex items-center gap-1.5">
             <Star size={13} className="fill-warn text-warn" aria-hidden="true" />
-            <Figure className="text-[var(--muted)]">
+            <Figure className="text-on-ink-muted">
               {(row.original.ratings ?? 5).toFixed(1)}
             </Figure>
           </span>
@@ -204,14 +204,14 @@ const ProductList = () => {
           <div className="flex items-center justify-end gap-3">
             <Link
               href={`${process.env.NEXT_PUBLIC_USER_UI_LINK}/product/${row.original.slug}`}
-              className="text-[var(--muted)] transition-colors hover:text-coral"
+              className="text-on-ink-muted transition-colors hover:text-terra"
               title="View on the storefront"
             >
               <Eye size={16} />
             </Link>
             <Link
               href={`/dashboard/edit-product/${row.original.id}`}
-              className="text-[var(--muted)] transition-colors hover:text-coral"
+              className="text-on-ink-muted transition-colors hover:text-terra"
               title="Edit product"
             >
               <Pencil size={16} />
@@ -222,7 +222,7 @@ const ProductList = () => {
                 setSelectedProduct(row.original);
                 setShowDeleteModal(true);
               }}
-              className="text-[var(--muted)] transition-colors hover:text-neg"
+              className="text-on-ink-muted transition-colors hover:text-neg"
               title={row.original.isDeleted ? "Restore product" : "Delete product"}
             >
               <Trash size={16} />
@@ -266,7 +266,7 @@ const ProductList = () => {
         actions={
           <Link
             href="/dashboard/create-product"
-            className="inline-flex items-center gap-2 rounded-lg bg-coral px-3.5 py-2 text-sm font-medium text-[#1a0d0b] transition-colors hover:bg-coral-dim"
+            className="inline-flex items-center gap-2 bg-terra px-3.5 py-2 text-sm font-medium text-ink transition-colors hover:bg-terra"
           >
             <Plus size={16} aria-hidden="true" />
             Add product
@@ -301,7 +301,7 @@ const ProductList = () => {
               action={
                 <Link
                   href="/dashboard/create-product"
-                  className="inline-flex items-center gap-2 rounded-lg bg-coral px-3.5 py-2 text-sm font-medium text-[#1a0d0b] transition-colors hover:bg-coral-dim"
+                  className="inline-flex items-center gap-2 bg-terra px-3.5 py-2 text-sm font-medium text-ink transition-colors hover:bg-terra"
                 >
                   <Plus size={16} aria-hidden="true" />
                   Add product

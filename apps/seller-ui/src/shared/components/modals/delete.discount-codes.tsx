@@ -29,7 +29,7 @@ const DeleteDiscountCodeModal = ({
         </>
       }
     >
-      <span className="font-medium text-[var(--text)]">
+      <span className="font-medium text-on-ink">
         {discount?.public_name}
       </span>
       <p className="mt-2">

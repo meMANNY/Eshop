@@ -69,15 +69,15 @@ export default function SellerHome() {
         <span className="flex h-14 w-14 items-center justify-center rounded-full bg-[#ff6f61]/10 text-[#ff6f61]">
           <Store size={24} />
         </span>
-        <h1 className="mt-4 text-xl font-semibold text-white">
+        <h1 className="mt-4 text-xl font-semibold text-on-ink">
           You don&apos;t have a shop yet
         </h1>
-        <p className="mt-1.5 max-w-sm text-sm text-slate-400">
+        <p className="mt-1.5 max-w-sm text-sm text-on-ink-muted">
           Set up your shop to start listing products and taking orders.
         </p>
         <Link
           href="/signup"
-          className="mt-6 rounded-lg bg-[#ff6f61] px-4 py-2 text-sm font-medium text-white shadow-lg shadow-[#ff6f61]/20 transition-colors hover:bg-[#e05a4d]"
+          className="mt-6 bg-[#ff6f61] px-4 py-2 text-sm font-medium text-on-ink shadow-[#ff6f61]/20 transition-colors hover:bg-[#e05a4d]"
         >
           Create your shop
         </Link>
@@ -105,11 +105,11 @@ export default function SellerHome() {
             <div className="flex items-end gap-4">
               <Avatar url={shop.avatar?.url} name={shop.name} />
               <div className="pb-1">
-                <h1 className="text-2xl font-semibold text-white sm:text-3xl">
+                <h1 className="text-2xl font-semibold text-on-ink sm:text-3xl">
                   {shop.name}
                 </h1>
-                <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-slate-400">
-                  <span className="inline-flex items-center rounded-full border border-slate-700 bg-white/[0.04] px-2.5 py-0.5 text-xs font-medium text-slate-300">
+                <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-on-ink-muted">
+                  <span className="inline-flex items-center rounded-full border border-ink-border bg-white/[0.04] px-2.5 py-0.5 text-xs font-medium text-on-ink-muted">
                     {shop.category}
                   </span>
                   <Rating value={shop.ratings} count={shop.totalRating} />
@@ -120,14 +120,14 @@ export default function SellerHome() {
             <div className="flex shrink-0 gap-3 pb-1">
               <Link
                 href="/edit-profile"
-                className="inline-flex items-center gap-2 rounded-lg bg-[#ff6f61] px-4 py-2 text-sm font-medium text-white shadow-lg shadow-[#ff6f61]/20 transition-colors hover:bg-[#e05a4d] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff6f61]"
+                className="inline-flex items-center gap-2 bg-[#ff6f61] px-4 py-2 text-sm font-medium text-on-ink shadow-[#ff6f61]/20 transition-colors hover:bg-[#e05a4d] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff6f61]"
               >
                 <Pencil size={16} />
                 Edit profile
               </Link>
               <Link
                 href="/dashboard"
-                className="inline-flex items-center gap-2 rounded-lg border border-slate-700 bg-white/[0.03] px-4 py-2 text-sm font-medium text-slate-200 transition-colors hover:border-slate-600 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff6f61]"
+                className="inline-flex items-center gap-2 border border-ink-border bg-white/[0.03] px-4 py-2 text-sm font-medium text-slate-200 transition-colors hover:border-ink-border hover:text-on-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff6f61]"
               >
                 <LayoutDashboard size={16} />
                 Dashboard
@@ -155,7 +155,7 @@ export default function SellerHome() {
           <aside className="w-full shrink-0 space-y-6 lg:w-[320px]">
             <Card>
               <SectionTitle>About the shop</SectionTitle>
-              <p className="text-sm leading-relaxed text-slate-300">
+              <p className="text-sm leading-relaxed text-on-ink-muted">
                 {shop.bio || "No description added yet."}
               </p>
             </Card>
@@ -239,12 +239,12 @@ export default function SellerHome() {
                     onClick={() => setTab(name)}
                     className={`relative px-4 py-3 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff6f61] ${
                       active
-                        ? "text-white"
-                        : "text-slate-400 hover:text-slate-200"
+                        ? "text-on-ink"
+                        : "text-on-ink-muted hover:text-slate-200"
                     }`}
                   >
                     {name}
-                    <span className="ml-1.5 text-xs text-slate-500">
+                    <span className="ml-1.5 text-xs text-on-ink-faint">
                       {count}
                     </span>
                     <span
@@ -293,7 +293,7 @@ export default function SellerHome() {
                   action={
                     <Link
                       href="/dashboard/create-product"
-                      className="mt-5 rounded-lg bg-[#ff6f61] px-4 py-2 text-sm font-medium text-white shadow-lg shadow-[#ff6f61]/20 transition-colors hover:bg-[#e05a4d]"
+                      className="mt-5 bg-[#ff6f61] px-4 py-2 text-sm font-medium text-on-ink shadow-[#ff6f61]/20 transition-colors hover:bg-[#e05a4d]"
                     >
                       Create a product
                     </Link>
@@ -321,12 +321,12 @@ const Avatar = ({ url, name }: { url?: string; name: string }) =>
     <img
       src={url}
       alt=""
-      className="h-24 w-24 shrink-0 rounded-2xl border-4 border-black object-cover sm:h-28 sm:w-28"
+      className="h-24 w-24 shrink-0 border-4 border-black object-cover sm:h-28 sm:w-28"
     />
   ) : (
     <span
       aria-hidden="true"
-      className="flex h-24 w-24 shrink-0 items-center justify-center rounded-2xl border-4 border-black bg-[#ff6f61] text-3xl font-bold text-white sm:h-28 sm:w-28"
+      className="flex h-24 w-24 shrink-0 items-center justify-center border-4 border-black bg-[#ff6f61] text-3xl font-bold text-on-ink sm:h-28 sm:w-28"
     >
       {name?.charAt(0).toUpperCase() ?? "S"}
     </span>
@@ -338,18 +338,18 @@ const Rating = ({ value, count }: { value?: number; count?: number }) => (
     <span className="font-medium text-slate-200">
       {Number(value ?? 0).toFixed(1)}
     </span>
-    <span className="text-slate-500">({count ?? 0})</span>
+    <span className="text-on-ink-faint">({count ?? 0})</span>
   </span>
 );
 
 const Card = ({ children }: { children: React.ReactNode }) => (
-  <div className="rounded-xl border border-slate-800 bg-[#141922] p-5 shadow-md">
+  <div className="border border-slate-800 bg-[#141922] p-5">
     {children}
   </div>
 );
 
 const SectionTitle = ({ children }: { children: React.ReactNode }) => (
-  <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-slate-400">
+  <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-on-ink-muted">
     {children}
   </h2>
 );
@@ -366,7 +366,7 @@ const Detail = ({
   <div className="flex items-start gap-3">
     {Icon && <Icon size={16} className="mt-0.5 shrink-0 text-[#ff6f61]" />}
     <div className="min-w-0 flex-1">
-      <dt className="text-xs text-slate-500">{label}</dt>
+      <dt className="text-xs text-on-ink-faint">{label}</dt>
       <dd className="mt-0.5 break-words text-sm text-slate-200">{children}</dd>
     </div>
   </div>
@@ -381,14 +381,14 @@ const Stat = ({
   label: string;
   value: React.ReactNode;
 }) => (
-  <div className="rounded-xl border border-slate-800 bg-[#141922] p-4 shadow-md">
-    <div className="flex items-center gap-2 text-slate-400">
+  <div className="border border-slate-800 bg-[#141922] p-4">
+    <div className="flex items-center gap-2 text-on-ink-muted">
       <Icon size={15} className="text-[#ff6f61]" />
       <span className="text-xs font-medium uppercase tracking-wider">
         {label}
       </span>
     </div>
-    <p className="mt-2 text-2xl font-semibold tabular-nums text-white">
+    <p className="mt-2 text-2xl font-semibold tabular-nums text-on-ink">
       {value}
     </p>
   </div>
@@ -401,7 +401,7 @@ const ProductCard = ({ product }: { product: any }) => {
   return (
     <Link
       href={`/dashboard/all-products`}
-      className="group flex flex-col overflow-hidden rounded-xl border border-slate-800 bg-[#141922] shadow-md transition-colors hover:border-slate-700"
+      className="group flex flex-col overflow-hidden border border-slate-800 bg-[#141922] transition-colors hover:border-ink-border"
     >
       <div className="aspect-[4/3] w-full overflow-hidden bg-[#0d1117]">
         {product.images?.[0]?.url ? (
@@ -421,11 +421,11 @@ const ProductCard = ({ product }: { product: any }) => {
           {product.title}
         </p>
         <div className="mt-2 flex items-baseline gap-2">
-          <span className="text-base font-semibold text-white">
+          <span className="text-base font-semibold text-on-ink">
             ${Number(product.sale_price ?? 0).toFixed(2)}
           </span>
           {discounted && (
-            <span className="text-xs text-slate-500 line-through">
+            <span className="text-xs text-on-ink-faint line-through">
               ${Number(discounted).toFixed(2)}
             </span>
           )}
@@ -433,12 +433,12 @@ const ProductCard = ({ product }: { product: any }) => {
         <div className="mt-3 flex items-center justify-between text-xs">
           <span
             className={
-              product.stock > 0 ? "text-slate-400" : "text-amber-400"
+              product.stock > 0 ? "text-on-ink-muted" : "text-amber-400"
             }
           >
             {product.stock > 0 ? `${product.stock} in stock` : "Out of stock"}
           </span>
-          <span className="flex items-center gap-1 text-slate-400">
+          <span className="flex items-center gap-1 text-on-ink-muted">
             <Star size={12} className="fill-[#ff6f61] text-[#ff6f61]" />
             {Number(product.ratings ?? 0).toFixed(1)}
           </span>
@@ -449,17 +449,17 @@ const ProductCard = ({ product }: { product: any }) => {
 };
 
 const ReviewRow = ({ review }: { review: any }) => (
-  <div className="flex items-start gap-4 rounded-xl border border-slate-800 bg-[#141922] p-4 shadow-md">
+  <div className="flex items-start gap-4 border border-slate-800 bg-[#141922] p-4">
     {review.user?.avatar?.url ? (
       <img
         src={review.user.avatar.url}
         alt=""
-        className="h-10 w-10 shrink-0 rounded-full border border-slate-700 object-cover"
+        className="h-10 w-10 shrink-0 rounded-full border border-ink-border object-cover"
       />
     ) : (
       <span
         aria-hidden="true"
-        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-slate-700 bg-white/[0.04] text-sm font-semibold text-slate-400"
+        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-ink-border bg-white/[0.04] text-sm font-semibold text-on-ink-muted"
       >
         {(review.user?.name ?? "?").charAt(0).toUpperCase()}
       </span>
@@ -483,7 +483,7 @@ const ReviewRow = ({ review }: { review: any }) => (
           ))}
         </span>
       </div>
-      <p className="mt-1 text-xs text-slate-500">
+      <p className="mt-1 text-xs text-on-ink-faint">
         {new Date(review.createdAt).toLocaleDateString(undefined, {
           day: "numeric",
           month: "short",
@@ -505,12 +505,12 @@ const Empty = ({
   description: string;
   action?: React.ReactNode;
 }) => (
-  <div className="flex flex-col items-center justify-center rounded-xl border border-slate-800 bg-[#141922] px-6 py-16 text-center">
+  <div className="flex flex-col items-center justify-center border border-slate-800 bg-[#141922] px-6 py-16 text-center">
     <span className="flex h-14 w-14 items-center justify-center rounded-full bg-[#ff6f61]/10 text-[#ff6f61]">
       <Icon size={24} />
     </span>
-    <h3 className="mt-4 text-base font-semibold text-white">{title}</h3>
-    <p className="mt-1.5 max-w-sm text-sm text-slate-400">{description}</p>
+    <h3 className="mt-4 text-base font-semibold text-on-ink">{title}</h3>
+    <p className="mt-1.5 max-w-sm text-sm text-on-ink-muted">{description}</p>
     {action}
   </div>
 );
@@ -520,7 +520,7 @@ const GridSkeleton = ({ rows }: { rows: number }) => (
     {[...Array(rows)].map((_, i) => (
       <div
         key={i}
-        className="h-56 animate-pulse rounded-xl border border-slate-800 bg-[#141922] motion-reduce:animate-none"
+        className="h-56 animate-pulse border border-slate-800 bg-[#141922] motion-reduce:animate-none"
       />
     ))}
   </div>
@@ -531,17 +531,17 @@ const HomeSkeleton = () => (
     <div className="h-44 w-full animate-pulse bg-slate-900 motion-reduce:animate-none sm:h-56" />
     <div className="mx-auto max-w-6xl px-6">
       <div className="-mt-14 flex items-end gap-4 sm:-mt-16">
-        <div className="h-24 w-24 shrink-0 animate-pulse rounded-2xl border-4 border-black bg-slate-800 motion-reduce:animate-none sm:h-28 sm:w-28" />
+        <div className="h-24 w-24 shrink-0 animate-pulse border-4 border-black bg-ink-raised motion-reduce:animate-none sm:h-28 sm:w-28" />
         <div className="space-y-2 pb-2">
-          <div className="h-7 w-56 animate-pulse rounded bg-slate-800 motion-reduce:animate-none" />
-          <div className="h-4 w-40 animate-pulse rounded bg-slate-800 motion-reduce:animate-none" />
+          <div className="h-7 w-56 animate-pulse rounded bg-ink-raised motion-reduce:animate-none" />
+          <div className="h-4 w-40 animate-pulse rounded bg-ink-raised motion-reduce:animate-none" />
         </div>
       </div>
       <div className="mt-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
         {[...Array(4)].map((_, i) => (
           <div
             key={i}
-            className="h-24 animate-pulse rounded-xl bg-[#141922] motion-reduce:animate-none"
+            className="h-24 animate-pulse bg-[#141922] motion-reduce:animate-none"
           />
         ))}
       </div>

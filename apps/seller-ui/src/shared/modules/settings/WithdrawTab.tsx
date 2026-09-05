@@ -159,7 +159,7 @@ export default function WithdrawMethodTab() {
             href={data.dashboardUrl ?? "https://dashboard.stripe.com/"}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 rounded-lg border border-rule bg-raised px-3.5 py-2 text-sm font-medium text-[var(--text)] transition-colors hover:border-[#2a3547]"
+            className="inline-flex items-center gap-2 border border-ink-border bg-ink-raised px-3.5 py-2 text-sm font-medium text-on-ink transition-colors hover:border-[#2a3547]"
           >
             Open Stripe
             <ExternalLink size={15} aria-hidden="true" />
@@ -167,19 +167,19 @@ export default function WithdrawMethodTab() {
         }
       />
 
-      <div className="flex items-center gap-3 border-b border-rule px-5 py-4">
+      <div className="flex items-center gap-3 border-b border-ink-border px-5 py-4">
         <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-pos/10">
           <CheckCircle2 className="h-4 w-4 text-pos" aria-hidden="true" />
         </span>
         <div className="min-w-0">
-          <p className="text-sm font-medium text-[var(--text)]">
+          <p className="text-sm font-medium text-on-ink">
             Connected to Stripe
           </p>
-          <p className="truncate text-xs text-[var(--faint)]">{data.email ?? "—"}</p>
+          <p className="truncate text-xs text-on-ink-faint">{data.email ?? "—"}</p>
         </div>
       </div>
 
-      <dl className="divide-y divide-rule">
+      <dl className="divide-y divide-ink-border">
         <Row label="Business name">{data.businessName ?? "—"}</Row>
         <Row label="Country">{data.country ?? "—"}</Row>
         <Row label="Payouts">
@@ -195,9 +195,9 @@ export default function WithdrawMethodTab() {
         </Row>
         <Row label="Last payout">
           {data.lastPayout ? (
-            <Figure className="text-[var(--text)]">{data.lastPayout}</Figure>
+            <Figure className="text-on-ink">{data.lastPayout}</Figure>
           ) : (
-            <span className="text-[var(--faint)]">No payouts yet</span>
+            <span className="text-on-ink-faint">No payouts yet</span>
           )}
         </Row>
       </dl>
@@ -214,10 +214,10 @@ function Row({
 }) {
   return (
     <div className="flex items-center justify-between gap-4 px-5 py-3">
-      <dt className="text-label font-semibold uppercase text-[var(--muted)]">
+      <dt className="text-label font-semibold uppercase text-on-ink-muted">
         {label}
       </dt>
-      <dd className="text-sm text-[var(--text)]">{children}</dd>
+      <dd className="text-sm text-on-ink">{children}</dd>
     </div>
   );
 }

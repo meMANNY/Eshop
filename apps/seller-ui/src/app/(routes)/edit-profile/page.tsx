@@ -110,13 +110,13 @@ export default function EditProfilePage() {
             aria-hidden="true"
             className="h-7 w-[3px] rounded-full bg-[#ff6f61] shadow-[0_0_10px_rgba(255,111,97,0.6)]"
           />
-          <h2 className="text-2xl font-semibold text-white">Edit profile</h2>
+          <h2 className="text-2xl font-semibold text-on-ink">Edit profile</h2>
         </div>
 
         <div className="mt-1 flex items-center text-sm">
           <Link
             href="/"
-            className="text-slate-400 transition-colors hover:text-[#ff8a7d]"
+            className="text-on-ink-muted transition-colors hover:text-[#ff8a7d]"
           >
             Shop
           </Link>
@@ -126,7 +126,7 @@ export default function EditProfilePage() {
 
         <Link
           href="/"
-          className="mt-5 inline-flex items-center gap-2 text-sm font-medium text-slate-400 transition-colors hover:text-[#ff8a7d] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff6f61]"
+          className="mt-5 inline-flex items-center gap-2 text-sm font-medium text-on-ink-muted transition-colors hover:text-[#ff8a7d] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff6f61]"
         >
           <ArrowLeft size={16} />
           Back to your shop
@@ -235,7 +235,7 @@ export default function EditProfilePage() {
                 value={seller?.email ?? ""}
                 readOnly
                 disabled
-                className="w-full cursor-not-allowed rounded-md border border-rule bg-white/[0.02] p-2 text-white/35 outline-none"
+                className="w-full cursor-not-allowed border border-ink-border bg-white/[0.02] p-2 text-on-ink/35 outline-none"
               />
             </Field>
           </Card>
@@ -243,14 +243,14 @@ export default function EditProfilePage() {
           <div className="flex items-center justify-end gap-3">
             <Link
               href="/"
-              className="rounded-lg border border-slate-700 bg-white/[0.03] px-4 py-2 text-sm font-medium text-slate-200 transition-colors hover:border-slate-600 hover:text-white"
+              className="border border-ink-border bg-white/[0.03] px-4 py-2 text-sm font-medium text-slate-200 transition-colors hover:border-ink-border hover:text-on-ink"
             >
               Cancel
             </Link>
             <button
               type="submit"
               disabled={mutation.isPending || !isDirty}
-              className="inline-flex items-center gap-2 rounded-lg bg-[#ff6f61] px-5 py-2 text-sm font-medium text-white shadow-lg shadow-[#ff6f61]/20 transition-colors hover:bg-[#e05a4d] disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff6f61]"
+              className="inline-flex items-center gap-2 bg-[#ff6f61] px-5 py-2 text-sm font-medium text-on-ink shadow-[#ff6f61]/20 transition-colors hover:bg-[#e05a4d] disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff6f61]"
             >
               {mutation.isPending && (
                 <Loader2 className="h-4 w-4 animate-spin motion-reduce:animate-none" />
@@ -273,9 +273,9 @@ const Card = ({
   description: string;
   children: React.ReactNode;
 }) => (
-  <div className="rounded-xl border border-slate-800 bg-[#141922] p-6 shadow-md">
-    <h3 className="text-lg font-semibold text-white">{title}</h3>
-    <p className="mt-1 text-sm text-slate-400">{description}</p>
+  <div className="border border-slate-800 bg-[#141922] p-6">
+    <h3 className="text-lg font-semibold text-on-ink">{title}</h3>
+    <p className="mt-1 text-sm text-on-ink-muted">{description}</p>
     <div className="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2">{children}</div>
   </div>
 );
@@ -294,14 +294,14 @@ const Field = ({
   children: React.ReactNode;
 }) => (
   <label className={`block ${full ? "sm:col-span-2" : ""}`}>
-    <span className="mb-1 block text-sm font-medium text-slate-300">
+    <span className="mb-1 block text-sm font-medium text-on-ink-muted">
       {label}
     </span>
     {children}
     {error ? (
       <span className="mt-1 block text-xs text-red-400">{error}</span>
     ) : hint ? (
-      <span className="mt-1 block text-xs text-slate-500">{hint}</span>
+      <span className="mt-1 block text-xs text-on-ink-faint">{hint}</span>
     ) : null}
   </label>
 );

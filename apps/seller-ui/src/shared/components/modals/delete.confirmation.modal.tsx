@@ -43,7 +43,7 @@ const DeleteConfirmationModal = ({
         </>
       }
     >
-      <span className="font-medium text-[var(--text)]">{product?.title}</span>
+      <span className="font-medium text-on-ink">{product?.title}</span>
       <p className="mt-2">
         {isDeleted
           ? 'It is currently scheduled for deletion. Restoring puts it back on the storefront immediately.'

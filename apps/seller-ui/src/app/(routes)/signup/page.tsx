@@ -216,12 +216,12 @@ const Signup = () => {
       were signing up for. These six constants are where that lived, so this is
       where it's fixed.
     */
-    const labelCls = 'mb-1.5 block text-label font-semibold uppercase text-[var(--muted)]';
-    const inputCls = 'w-full rounded-lg border border-rule bg-raised px-3.5 py-2.5 text-sm text-[var(--text)] outline-none transition-colors placeholder:text-[var(--faint)] focus:border-coral/60';
-    const triggerCls = 'flex w-full items-center justify-between rounded-lg border border-rule bg-raised px-3.5 py-2.5 text-left text-sm text-[var(--text)] outline-none transition-colors focus:border-coral/60';
-    const menuCls = 'absolute z-20 max-h-60 w-full overflow-auto rounded-xl border border-rule bg-panel shadow-pop';
+    const labelCls = 'mb-1.5 block text-label font-semibold uppercase text-on-ink-muted';
+    const inputCls = 'w-full  border border-ink-border bg-ink-raised px-3.5 py-2.5 text-sm text-on-ink outline-none transition-colors placeholder:text-on-ink-faint focus:border-terra/60';
+    const triggerCls = 'flex w-full items-center justify-between  border border-ink-border bg-ink-raised px-3.5 py-2.5 text-left text-sm text-on-ink outline-none transition-colors focus:border-terra/60';
+    const menuCls = 'absolute z-20 max-h-60 w-full overflow-auto  border border-ink-border bg-ink-soft shadow-pop';
     const errorCls = 'mt-1.5 text-xs text-neg';
-    const submitCls = 'mt-2 w-full rounded-lg bg-coral py-2.5 text-sm font-medium text-[#1a0d0b] transition-colors hover:bg-coral-dim disabled:cursor-not-allowed disabled:opacity-60';
+    const submitCls = 'mt-2 w-full  bg-terra py-2.5 text-sm font-medium text-ink transition-colors hover:bg-terra disabled:cursor-not-allowed disabled:opacity-60';
 
     // left-rail metadata — labels + icons for the setup journey
     const stepMeta = [
@@ -234,7 +234,7 @@ const Signup = () => {
         <div className="flex min-h-screen w-full bg-ink">
 
             {/* ── Left: setup-rail panel (storefront at night) ──────────── */}
-            <aside className="relative hidden lg:flex lg:sticky lg:top-0 h-screen w-[42%] flex-col justify-between overflow-hidden bg-[#171310] px-12 py-10 text-white">
+            <aside className="relative hidden lg:flex lg:sticky lg:top-0 h-screen w-[42%] flex-col justify-between overflow-hidden bg-[#171310] px-12 py-10 text-on-ink">
                 {/* ambient coral glow */}
                 <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_28%_18%,rgba(255,111,97,0.28),transparent_58%)]" />
                 <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_85%_100%,rgba(255,111,97,0.14),transparent_55%)]" />
@@ -242,7 +242,7 @@ const Signup = () => {
                 {/* brand */}
                 <div className="relative flex items-center gap-3">
                     <span className="font-display text-2xl font-bold tracking-tight">Eshop</span>
-                    <span className="rounded-full border border-white/20 bg-white/5 px-2.5 py-0.5 text-[11px] font-medium uppercase tracking-[0.18em] text-white/70">
+                    <span className="rounded-full border border-white/20 bg-white/5 px-2.5 py-0.5 text-[11px] font-medium uppercase tracking-[0.18em] text-on-ink/70">
                         Seller
                     </span>
                 </div>
@@ -252,7 +252,7 @@ const Signup = () => {
                     <h1 className="max-w-sm font-display text-4xl font-semibold leading-tight">
                         Let&apos;s open<br />your shop.
                     </h1>
-                    <p className="mt-4 mb-10 max-w-sm text-[15px] leading-relaxed text-white/55">
+                    <p className="mt-4 mb-10 max-w-sm text-[15px] leading-relaxed text-on-ink/55">
                         Three quick steps and your storefront is live.
                     </p>
 
@@ -274,18 +274,18 @@ const Signup = () => {
                                     <span
                                         className={`relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full border transition-all duration-300
                                         ${isCompleted
-                                                ? 'border-[#ff6f61] bg-[#ff6f61] text-white'
+                                                ? 'border-[#ff6f61] bg-[#ff6f61] text-on-ink'
                                                 : isActive
                                                     ? 'border-[#ff6f61] bg-white/[0.04] text-[#ff8a7d] shadow-[0_0_18px_rgba(255,111,97,0.55)]'
-                                                    : 'border-white/15 text-white/40'}`}
+                                                    : 'border-white/15 text-on-ink/40'}`}
                                     >
                                         {isCompleted ? <Check size={18} /> : <Icon size={18} />}
                                     </span>
                                     <div className="pt-0.5">
-                                        <p className={`text-[15px] font-medium ${isActive || isCompleted ? 'text-white' : 'text-white/45'}`}>
+                                        <p className={`text-[15px] font-medium ${isActive || isCompleted ? 'text-on-ink' : 'text-on-ink/45'}`}>
                                             {step.label}
                                         </p>
-                                        <p className={`text-[13px] ${isActive ? 'text-white/60' : 'text-white/35'}`}>
+                                        <p className={`text-[13px] ${isActive ? 'text-on-ink/60' : 'text-on-ink/35'}`}>
                                             {step.desc}
                                         </p>
                                     </div>
@@ -296,7 +296,7 @@ const Signup = () => {
                 </div>
 
                 {/* trust footer */}
-                <div className="relative flex items-center gap-2 text-sm text-white/45">
+                <div className="relative flex items-center gap-2 text-sm text-on-ink/45">
                     <ShieldCheck size={16} className="text-[#ff8a7d]" /> Secured with bank-grade encryption
                 </div>
             </aside>
@@ -307,8 +307,8 @@ const Signup = () => {
 
                     {/* mobile brand */}
                     <div className="mb-8 flex items-center gap-2 lg:hidden">
-                        <span className="font-display text-xl font-bold tracking-tight text-white">Eshop</span>
-                        <span className="rounded-full border border-rule px-2 py-0.5 text-label font-semibold uppercase text-[var(--muted)]">
+                        <span className="font-display text-xl font-bold tracking-tight text-on-ink">Eshop</span>
+                        <span className="rounded-full border border-ink-border px-2 py-0.5 text-label font-semibold uppercase text-on-ink-muted">
                             Seller
                         </span>
                     </div>
@@ -323,7 +323,7 @@ const Signup = () => {
                                 <React.Fragment key={step.label}>
                                     <span
                                         className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border text-sm font-semibold transition-colors
-                                        ${isCompleted || isActive ? 'border-[#ff6f61] bg-[#ff6f61] text-white' : 'border-rule text-[var(--faint)]'}`}
+                                        ${isCompleted || isActive ? 'border-[#ff6f61] bg-[#ff6f61] text-on-ink' : 'border-ink-border text-on-ink-faint'}`}
                                     >
                                         {isCompleted ? <Check size={16} /> : stepNumber}
                                     </span>
@@ -339,8 +339,8 @@ const Signup = () => {
                     {activeStep === 1 && (
                         !showOtp ? (
                             <>
-                                <h2 className="font-display text-3xl font-semibold text-white">Create your account</h2>
-                                <p className="mt-2 text-[15px] text-[var(--muted)]">
+                                <h2 className="font-display text-3xl font-semibold text-on-ink">Create your account</h2>
+                                <p className="mt-2 text-[15px] text-on-ink-muted">
                                     Already selling with us? <Link href="/login" className="font-medium text-[#ff6f61] hover:underline">Sign in</Link>
                                 </p>
 
@@ -392,14 +392,14 @@ const Signup = () => {
                                                 onClick={() => setCountryOpen((prev) => !prev)}
                                                 className={triggerCls}
                                             >
-                                                <span className={selectedCountry ? 'text-[var(--text)]' : 'text-[var(--faint)]'}>
+                                                <span className={selectedCountry ? 'text-on-ink' : 'text-on-ink-faint'}>
                                                     {selectedCountry
                                                         ? countries.find((c) => c.code === selectedCountry)?.name
                                                         : 'Select a country'}
                                                 </span>
                                                 <ChevronDown
                                                     size={18}
-                                                    className={`text-[var(--faint)] transition-transform duration-200 ${countryOpen ? 'rotate-180' : ''}`}
+                                                    className={`text-on-ink-faint transition-transform duration-200 ${countryOpen ? 'rotate-180' : ''}`}
                                                 />
                                             </button>
                                             {countryOpen && (
@@ -413,7 +413,7 @@ const Signup = () => {
                                                                     setCountryOpen(false);
                                                                 }}
                                                                 className={`w-full text-left px-4 py-2 text-sm transition-colors duration-150 hover:bg-[#ff6f61]/10 hover:text-[#ff6f61]
-                                                                ${selectedCountry === c.code ? 'bg-coral-soft font-medium text-coral' : 'text-[var(--muted)]'}`}
+                                                                ${selectedCountry === c.code ? 'bg-terra-soft font-medium text-terra' : 'text-on-ink-muted'}`}
                                                             >
                                                                 {c.name}
                                                             </button>
@@ -480,15 +480,15 @@ const Signup = () => {
                                 <button
                                     type="button"
                                     onClick={() => { setShowOtp(false); setServerError(''); }}
-                                    className="mb-6 inline-flex items-center gap-1.5 text-sm text-[var(--muted)] transition-colors hover:text-white"
+                                    className="mb-6 inline-flex items-center gap-1.5 text-sm text-on-ink-muted transition-colors hover:text-on-ink"
                                 >
                                     <ArrowLeft size={15} aria-hidden="true" />
                                     Change details
                                 </button>
 
-                                <h2 className="font-display text-3xl font-semibold text-white">Verify your email</h2>
-                                <p className="mt-2 text-[15px] text-[var(--muted)]">
-                                    Enter the {OTP_LENGTH}-digit code we sent to <span className="font-medium text-white">{sellerData?.email}</span>.
+                                <h2 className="font-display text-3xl font-semibold text-on-ink">Verify your email</h2>
+                                <p className="mt-2 text-[15px] text-on-ink-muted">
+                                    Enter the {OTP_LENGTH}-digit code we sent to <span className="font-medium text-on-ink">{sellerData?.email}</span>.
                                 </p>
 
                                 <div className="mt-7">
@@ -524,8 +524,8 @@ const Signup = () => {
                     {/* STEP 2 — Register Shop */}
                     {activeStep === 2 && (
                         <>
-                            <h2 className="font-display text-3xl font-semibold text-white">Register your shop</h2>
-                            <p className="mt-2 text-[15px] text-[var(--muted)]">
+                            <h2 className="font-display text-3xl font-semibold text-on-ink">Register your shop</h2>
+                            <p className="mt-2 text-[15px] text-on-ink-muted">
                                 Tell customers who you are.
                             </p>
 
@@ -623,14 +623,14 @@ const Signup = () => {
                                             onClick={toggleCategory}
                                             className={triggerCls}
                                         >
-                                            <span className={selectedCategory ? 'text-[var(--text)]' : 'text-[var(--faint)]'}>
+                                            <span className={selectedCategory ? 'text-on-ink' : 'text-on-ink-faint'}>
                                                 {selectedCategory
                                                     ? categories.find((c) => c.value === selectedCategory)?.name
                                                     : 'Select a category'}
                                             </span>
                                             <ChevronDown
                                                 size={18}
-                                                className={`text-[var(--faint)] transition-transform duration-200 ${categoryOpen ? 'rotate-180' : ''}`}
+                                                className={`text-on-ink-faint transition-transform duration-200 ${categoryOpen ? 'rotate-180' : ''}`}
                                             />
                                         </button>
                                         {categoryOpen && (
@@ -644,7 +644,7 @@ const Signup = () => {
                                                                 setCategoryOpen(false);
                                                             }}
                                                             className={`w-full text-left px-4 py-2 text-sm transition-colors duration-150 hover:bg-[#ff6f61]/10 hover:text-[#ff6f61]
-                                                            ${selectedCategory === c.value ? 'bg-coral-soft font-medium text-coral' : 'text-[var(--muted)]'}`}
+                                                            ${selectedCategory === c.value ? 'bg-terra-soft font-medium text-terra' : 'text-on-ink-muted'}`}
                                                         >
                                                             {c.name}
                                                         </button>
@@ -692,17 +692,17 @@ const Signup = () => {
                     {/* STEP 3 — Connect to Bank */}
                     {activeStep === 3 && (
                         <>
-                            <h2 className="font-display text-3xl font-semibold text-white">Connect payouts</h2>
-                            <p className="mt-2 text-[15px] text-[var(--muted)]">
+                            <h2 className="font-display text-3xl font-semibold text-on-ink">Connect payouts</h2>
+                            <p className="mt-2 text-[15px] text-on-ink-muted">
                                 Link a bank account through Stripe so your sales reach you.
                             </p>
 
-                            <div className="mt-7 rounded-xl border border-rule bg-raised p-4">
+                            <div className="mt-7 border border-ink-border bg-ink-raised p-4">
                                 <div className="flex items-start gap-3">
-                                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#ff6f61]/12 text-[#ff6f61]">
+                                    <span className="flex h-9 w-9 shrink-0 items-center justify-center bg-[#ff6f61]/12 text-[#ff6f61]">
                                         <Landmark size={18} />
                                     </span>
-                                    <p className="text-[13px] leading-relaxed text-[var(--muted)]">
+                                    <p className="text-[13px] leading-relaxed text-on-ink-muted">
                                         You&apos;ll be taken to Stripe to add your bank details securely. Eshop never sees or stores them.
                                     </p>
                                 </div>
@@ -719,7 +719,7 @@ const Signup = () => {
                             <button
                                 type="button"
                                 onClick={() => router.push('/login')}
-                                className="mt-3 w-full rounded-lg py-2.5 font-medium text-[var(--muted)] transition-colors duration-200 hover:text-white"
+                                className="mt-3 w-full py-2.5 font-medium text-on-ink-muted transition-colors duration-200 hover:text-on-ink"
                             >
                                 Skip for now
                             </button>

@@ -138,7 +138,7 @@ export default function GeneralTab() {
           <div className="space-y-6 p-5">
             <div>
               <Label htmlFor="lowStockThreshold">Low stock alert</Label>
-              <p className="mb-2 text-sm text-[var(--muted)]">
+              <p className="mb-2 text-sm text-on-ink-muted">
                 Warn me when a product drops to this many units or fewer.
               </p>
               <Controller
@@ -159,10 +159,10 @@ export default function GeneralTab() {
                     type="number"
                     min={0}
                     aria-invalid={errors.lowStockThreshold ? "true" : undefined}
-                    className={`w-40 rounded-lg border bg-raised px-3 py-2.5 text-sm text-[var(--text)] outline-none transition-colors ${
+                    className={`w-40  border bg-ink-raised px-3 py-2.5 text-sm text-on-ink outline-none transition-colors ${
                       errors.lowStockThreshold
                         ? "border-neg/60"
-                        : "border-rule focus:border-coral/60"
+                        : "border-ink-border focus:border-terra/60"
                     }`}
                     {...field}
                   />
@@ -175,9 +175,9 @@ export default function GeneralTab() {
               ) : null}
             </div>
 
-            <div className="border-t border-rule pt-5">
+            <div className="border-t border-ink-border pt-5">
               <Label>Order notifications</Label>
-              <p className="mb-3 text-sm text-[var(--muted)]">
+              <p className="mb-3 text-sm text-on-ink-muted">
                 Where to tell you when an order comes in.
               </p>
               <div className="flex flex-wrap gap-2">
@@ -209,8 +209,8 @@ export default function GeneralTab() {
             </div>
           </div>
 
-          <div className="flex items-center justify-between gap-4 border-t border-rule px-5 py-4">
-            <p className="text-xs text-[var(--faint)]">
+          <div className="flex items-center justify-between gap-4 border-t border-ink-border px-5 py-4">
+            <p className="text-xs text-on-ink-faint">
               {isDirty ? "You have unsaved changes." : "Everything is saved."}
             </p>
             <Button
@@ -240,7 +240,7 @@ export default function GeneralTab() {
               <div className="flex items-start gap-3">
                 <Trash2 className="mt-0.5 shrink-0 text-neg" size={18} aria-hidden="true" />
                 <div>
-                  <p className="text-sm font-medium text-[var(--text)]">
+                  <p className="text-sm font-medium text-on-ink">
                     Delete this shop
                   </p>
                   {/*
@@ -248,7 +248,7 @@ export default function GeneralTab() {
                     restore path that gives you 28 days — one of the two had to be
                     wrong, and it was the scarier one.
                   */}
-                  <p className="mt-0.5 text-sm text-[var(--muted)]">
+                  <p className="mt-0.5 text-sm text-on-ink-muted">
                     Comes off the storefront now. You have 28 days to change your
                     mind before it's permanent.
                   </p>
@@ -266,14 +266,14 @@ export default function GeneralTab() {
               <div className="flex items-start gap-3">
                 <RotateCcw className="mt-0.5 shrink-0 text-pos" size={18} aria-hidden="true" />
                 <div>
-                  <p className="text-sm font-medium text-[var(--text)]">
+                  <p className="text-sm font-medium text-on-ink">
                     Restore this shop
                   </p>
-                  <p className="mt-0.5 text-sm text-[var(--muted)]">
+                  <p className="mt-0.5 text-sm text-on-ink-muted">
                     {restoreDeadline ? (
                       <>
                         Restore before{" "}
-                        <Figure className="text-[var(--text)]">
+                        <Figure className="text-on-ink">
                           {restoreDeadline.toLocaleString()}
                         </Figure>
                         .
@@ -332,10 +332,10 @@ function Toggle({
       role="switch"
       aria-checked={checked}
       onClick={() => onChange(!checked)}
-      className={`flex items-center gap-2 rounded-lg border px-3 py-1.5 text-sm transition-colors ${
+      className={`flex items-center gap-2  border px-3 py-1.5 text-sm transition-colors ${
         checked
-          ? "border-coral/40 bg-coral-soft text-coral"
-          : "border-rule bg-raised text-[var(--muted)] hover:text-[var(--text)]"
+          ? "border-terra/40 bg-terra-soft text-terra"
+          : "border-ink-border bg-ink-raised text-on-ink-muted hover:text-on-ink"
       }`}
     >
       {icon}

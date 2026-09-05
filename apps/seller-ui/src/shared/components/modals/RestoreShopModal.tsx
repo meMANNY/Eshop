@@ -42,9 +42,9 @@ export default function RestoreShopModal({
       </p>
 
       {deadline ? (
-        <p className="mt-4 rounded-lg border border-rule bg-raised p-3 text-sm">
-          <span className="text-[var(--muted)]">Restore before</span>{" "}
-          <Figure className="text-[var(--text)]">{deadline}</Figure>
+        <p className="mt-4 border border-ink-border bg-ink-raised p-3 text-sm">
+          <span className="text-on-ink-muted">Restore before</span>{" "}
+          <Figure className="text-on-ink">{deadline}</Figure>
         </p>
       ) : null}
     </Modal>

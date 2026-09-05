@@ -61,12 +61,12 @@ export default function ChatInput({
   };
 
   const iconButton =
-    "grid h-9 w-9 shrink-0 place-items-center rounded-lg text-white/55 transition-colors hover:bg-raised hover:text-white/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-coral/40";
+    "grid h-9 w-9 shrink-0 place-items-center  text-on-ink/55 transition-colors hover:bg-ink-raised hover:text-on-ink/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-terra/40";
 
   return (
     <form
       onSubmit={onSendMessage}
-      className="relative flex items-center gap-2 border-t border-rule bg-panel px-3 py-3"
+      className="relative flex items-center gap-2 border-t border-ink-border bg-ink-soft px-3 py-3"
     >
       <label className={`${iconButton} cursor-pointer`} title="Attach an image">
         <ImageIcon className="h-[18px] w-[18px]" aria-hidden="true" />
@@ -90,7 +90,7 @@ export default function ChatInput({
           <Smile className="h-[18px] w-[18px]" aria-hidden="true" />
         </button>
         {showEmoji && (
-          <div className="absolute bottom-12 left-0 z-50 overflow-hidden rounded-panel border border-rule shadow-pop">
+          <div className="absolute bottom-12 left-0 z-50 overflow-hidden border border-ink-border shadow-pop">
             <EmojiPicker
               onEmojiClick={handleEmojiClick}
               previewConfig={{ showPreview: false }}
@@ -105,7 +105,7 @@ export default function ChatInput({
         onChange={(e) => setMessage(e.target.value)}
         placeholder="Write a reply"
         aria-label="Message"
-        className="min-w-0 flex-1 rounded-full border border-rule bg-ink px-4 py-2.5 text-sm text-white outline-none transition-colors placeholder:text-white/55 focus:border-coral focus:ring-2 focus:ring-coral/25"
+        className="min-w-0 flex-1 rounded-full border border-ink-border bg-ink px-4 py-2.5 text-sm text-on-ink outline-none transition-colors placeholder:text-on-ink/55 focus:border-terra focus:ring-2 focus:ring-terra/25"
       />
 
       {/*
@@ -117,7 +117,7 @@ export default function ChatInput({
         type="submit"
         disabled={!canSend}
         aria-label="Send message"
-        className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-coral text-[#2b0f0a] transition-all duration-200 hover:bg-coral-bright disabled:cursor-not-allowed disabled:bg-raised disabled:text-white/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-coral/50 focus-visible:ring-offset-2 focus-visible:ring-offset-panel"
+        className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-terra text-[#2b0f0a] transition-all duration-200 hover:bg-terra disabled:cursor-not-allowed disabled:bg-ink-raised disabled:text-on-ink/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-terra/50 focus-visible:ring-offset-2 focus-visible:ring-offset-panel"
       >
         <Send className="h-4 w-4" aria-hidden="true" />
       </button>

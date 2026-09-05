@@ -13,6 +13,12 @@ type FormData = {
   password: string;
 };
 
+const WHAT_YOU_GET = [
+  { n: "01", icon: <Package size={15} aria-hidden="true" />, label: "Orders", note: "as they land" },
+  { n: "02", icon: <Boxes size={15} aria-hidden="true" />, label: "Inventory", note: "stock and events" },
+  { n: "03", icon: <Wallet size={15} aria-hidden="true" />, label: "Payouts", note: "straight to Stripe" },
+];
+
 const Login = () => {
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [serverError, setServerError] = useState('');
@@ -60,74 +66,110 @@ const Login = () => {
       stays warm (#171310, a shop lit from inside) against the app's cooler ink.
     */
     <div className="flex min-h-screen w-full bg-ink">
-      {/* ── Left: storefront-at-night panel ───────────────────────── */}
-      <aside className="relative hidden w-[45%] flex-col justify-between overflow-hidden bg-[#171310] px-12 py-10 text-white lg:flex">
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_28%_18%,rgba(255,111,97,0.28),transparent_58%)]" />
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_85%_100%,rgba(255,111,97,0.14),transparent_55%)]" />
+      {/*
+        The neon "Open." sign lived here, set in Pacifico with a flicker
+        animation and a coral glow. It was the one piece of this app that
+        contradicted the editorial system outright — a glowing script sign on a
+        surface whose whole argument is print. What replaces it makes the same
+        promise in the theme's own voice: a sys-strip, a kicker, a display
+        heading with one serif word, and the three things you actually get, set
+        out as a ledger.
+      */}
+      <aside className="ink-section relative hidden w-[45%] flex-col justify-between overflow-hidden border-r border-ink-border px-12 py-10 lg:flex">
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute -left-16 -top-16 h-72 w-72 rounded-full bg-terra opacity-20 blur-[90px]"
+        />
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute -bottom-20 -right-16 h-64 w-64 rounded-full bg-glow-yellow opacity-[0.15] blur-[90px]"
+        />
 
-        <div className="relative flex items-center gap-3">
-          <span className="font-display text-2xl font-bold tracking-tight">
+        <div className="relative flex items-baseline gap-2.5">
+          <span
+            className="h-2 w-2 shrink-0 rounded-full bg-terra-2"
+            aria-hidden="true"
+          />
+          <span className="font-display text-xl font-medium tracking-tight text-on-ink">
             Eshop
           </span>
-          <span className="rounded-full border border-white/20 bg-white/5 px-2.5 py-0.5 text-label font-semibold uppercase text-white/70">
-            Seller
+          <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-on-ink-faint">
+            /seller
           </span>
         </div>
 
-        {/* The signature: a shop sign you flip to Open. */}
         <div className="relative">
-          <div className="inline-flex flex-col items-start rounded-2xl border border-white/10 bg-white/[0.03] px-9 py-7 backdrop-blur-sm">
-            <span className="neon-text neon-flicker font-sign text-7xl leading-none">
-              Open.
+          <div className="sys-strip mb-10">
+            <span className="sys-key">~/seller</span>
+            <span className="sys-dot" aria-hidden="true">
+              ●
             </span>
-            <span className="mt-3 text-sm text-white/45">
-              Your shop is one sign-in away.
+            <span className="sys-value">sign-in</span>
+            <span className="sys-dot" aria-hidden="true">
+              ●
             </span>
+            <span className="sys-value">status: open</span>
           </div>
 
-          <h1 className="mt-10 max-w-sm font-display text-4xl font-bold leading-tight tracking-[-0.01em]">
+          <span className="kicker">seller portal · trade with us</span>
+
+          <h1 className="mt-5 max-w-sm font-display text-4xl font-medium leading-[0.98] tracking-tight text-on-ink lg:text-5xl">
             Flip the sign.
             <br />
-            Start selling.
+            <span className="serif-hl">Start selling.</span>
           </h1>
-          <p className="mt-4 max-w-sm text-[15px] leading-relaxed text-white/55">
+
+          <p className="mt-5 max-w-sm text-[15px] leading-[1.55] text-on-ink-muted">
             Manage orders, inventory and payouts from one dashboard.
           </p>
+
+          <ul className="mt-9 max-w-sm border-t border-ink-border">
+            {WHAT_YOU_GET.map((row) => (
+              <li
+                key={row.n}
+                className="grid grid-cols-[auto_1fr_auto] items-baseline gap-4 border-b border-ink-border py-3.5"
+              >
+                <span className="font-mono text-[10px] font-semibold tracking-[0.14em] text-terra-2">
+                  {row.n}
+                </span>
+                <span className="flex items-center gap-2 text-sm text-on-ink">
+                  <span className="text-terra">{row.icon}</span>
+                  {row.label}
+                </span>
+                <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-on-ink-faint">
+                  {row.note}
+                </span>
+              </li>
+            ))}
+          </ul>
         </div>
 
-        <div className="relative flex items-center gap-8 text-white/60">
-          <span className="flex items-center gap-2 text-sm">
-            <Package size={17} className="text-coral-bright" aria-hidden="true" />{' '}
-            Orders
-          </span>
-          <span className="flex items-center gap-2 text-sm">
-            <Boxes size={17} className="text-coral-bright" aria-hidden="true" />{' '}
-            Inventory
-          </span>
-          <span className="flex items-center gap-2 text-sm">
-            <Wallet size={17} className="text-coral-bright" aria-hidden="true" />{' '}
-            Payouts
-          </span>
-        </div>
+        <p className="relative font-mono text-[10px] uppercase tracking-[0.16em] text-on-ink-faint">
+          independent sellers · shipped with care
+        </p>
       </aside>
 
       {/* ── Right: sign-in form ───────────────────────────────────── */}
       <main className="flex w-full items-center justify-center px-6 py-12 lg:w-[55%]">
         <div className="fade-up w-full max-w-[400px]">
           {/* Mobile brand — the storefront panel is hidden at this width. */}
-          <div className="mb-8 flex items-center gap-2 lg:hidden">
-            <span className="font-display text-xl font-bold tracking-tight text-white">
+          <div className="mb-8 flex items-baseline gap-2.5 lg:hidden">
+            <span
+              className="h-2 w-2 shrink-0 rounded-full bg-terra-2"
+              aria-hidden="true"
+            />
+            <span className="font-display text-xl font-medium tracking-tight text-on-ink">
               Eshop
             </span>
-            <span className="rounded-full border border-rule px-2 py-0.5 text-label font-semibold uppercase text-[var(--muted)]">
-              Seller
+            <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-on-ink-faint">
+              /seller
             </span>
           </div>
 
-          <h2 className="font-display text-3xl font-bold tracking-[-0.01em] text-white">
+          <h2 className="font-display text-3xl font-bold tracking-[-0.01em] text-on-ink">
             Welcome back
           </h2>
-          <p className="mt-2 text-[15px] text-[var(--muted)]">
+          <p className="mt-2 text-[15px] text-on-ink-muted">
             Sign in to manage your shop.
           </p>
 
@@ -147,8 +189,8 @@ const Login = () => {
                 autoComplete="email"
                 placeholder="you@yourshop.com"
                 aria-invalid={errors.email ? 'true' : undefined}
-                className={`w-full rounded-lg border bg-raised px-3.5 py-2.5 text-sm text-[var(--text)] outline-none transition-colors placeholder:text-[var(--faint)] ${
-                  errors.email ? 'border-neg/60' : 'border-rule focus:border-coral/60'
+                className={`w-full  border bg-ink-raised px-3.5 py-2.5 text-sm text-on-ink outline-none transition-colors placeholder:text-on-ink-faint ${
+                  errors.email ? 'border-neg/60' : 'border-ink-border focus:border-terra/60'
                 }`}
                 {...register('email', {
                   required: 'Enter your email address',
@@ -172,10 +214,10 @@ const Login = () => {
                   autoComplete="current-password"
                   placeholder="At least 6 characters"
                   aria-invalid={errors.password ? 'true' : undefined}
-                  className={`w-full rounded-lg border bg-raised px-3.5 py-2.5 pr-11 text-sm text-[var(--text)] outline-none transition-colors placeholder:text-[var(--faint)] ${
+                  className={`w-full  border bg-ink-raised px-3.5 py-2.5 pr-11 text-sm text-on-ink outline-none transition-colors placeholder:text-on-ink-faint ${
                     errors.password
                       ? 'border-neg/60'
-                      : 'border-rule focus:border-coral/60'
+                      : 'border-ink-border focus:border-terra/60'
                   }`}
                   {...register('password', {
                     required: 'Enter your password',
@@ -189,7 +231,7 @@ const Login = () => {
                   type="button"
                   onClick={() => setPasswordVisible(!passwordVisible)}
                   aria-label={passwordVisible ? 'Hide password' : 'Show password'}
-                  className="absolute inset-y-0 right-3 flex items-center text-[var(--faint)] transition-colors hover:text-[var(--text)]"
+                  className="absolute inset-y-0 right-3 flex items-center text-on-ink-faint transition-colors hover:text-on-ink"
                 >
                   {/* These two were the wrong way round: the open eye now means
                       "click to hide", which is what it does. */}
@@ -204,7 +246,7 @@ const Login = () => {
             <div className="flex justify-end pt-1">
               <Link
                 href="/forgot-password"
-                className="text-sm font-medium text-coral transition-colors hover:text-coral-bright"
+                className="text-sm font-medium text-terra transition-colors hover:text-terra"
               >
                 Forgot password?
               </Link>
@@ -213,7 +255,7 @@ const Login = () => {
             {serverError ? (
               <p
                 role="alert"
-                className="rounded-lg border border-neg/30 bg-neg/10 px-3 py-2 text-sm text-neg"
+                className="border border-neg/30 bg-neg/10 px-3 py-2 text-sm text-neg"
               >
                 {serverError}
               </p>
@@ -229,11 +271,11 @@ const Login = () => {
             </Button>
           </form>
 
-          <p className="mt-8 text-center text-sm text-[var(--muted)]">
+          <p className="mt-8 text-center text-sm text-on-ink-muted">
             New to Eshop?{' '}
             <Link
               href="/signup"
-              className="font-medium text-coral transition-colors hover:text-coral-bright"
+              className="font-medium text-terra transition-colors hover:text-terra"
             >
               Create a seller account
             </Link>

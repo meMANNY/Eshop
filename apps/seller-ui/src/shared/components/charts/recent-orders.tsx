@@ -42,9 +42,9 @@ export default function RecentOrdersTable() {
         cell: ({ row }: any) => (
           <Link
             href={`/order/${row.original.id}`}
-            className="transition-colors hover:text-coral"
+            className="transition-colors hover:text-terra"
           >
-            <Figure className="font-medium text-white">
+            <Figure className="font-medium text-on-ink">
               {shortId(row.original.id)}
             </Figure>
           </Link>
@@ -60,7 +60,7 @@ export default function RecentOrdersTable() {
         header: "Total",
         meta: { align: "right" },
         cell: ({ row }: any) => (
-          <Figure className="text-white">{money(row.original.total)}</Figure>
+          <Figure className="text-on-ink">{money(row.original.total)}</Figure>
         ),
       },
       {
@@ -84,17 +84,17 @@ export default function RecentOrdersTable() {
   });
 
   return (
-    <section className="overflow-hidden rounded-panel border border-rule bg-panel shadow-panel">
-      <header className="flex items-center justify-between gap-3 border-b border-rule px-5 py-4">
+    <section className="overflow-hidden border border-ink-border bg-ink-soft">
+      <header className="flex items-center justify-between gap-3 border-b border-ink-border px-5 py-4">
         <div>
-          <h2 className="text-[15px] font-semibold text-white">Recent orders</h2>
-          <p className="mt-0.5 text-xs text-[var(--muted)]">
+          <h2 className="text-[15px] font-semibold text-on-ink">Recent orders</h2>
+          <p className="mt-0.5 text-xs text-on-ink-muted">
             Your six most recent
           </p>
         </div>
         <Link
           href="/dashboard/orders"
-          className="text-sm text-[var(--muted)] transition-colors hover:text-coral"
+          className="text-sm text-on-ink-muted transition-colors hover:text-terra"
         >
           View all
         </Link>

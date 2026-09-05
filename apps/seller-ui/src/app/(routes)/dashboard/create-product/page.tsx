@@ -200,22 +200,22 @@ function Page() {
     }
 
     return (
-        <form className="w-full mx-auto p-8 shadow-md rounded-lg text-white"
+        <form className="w-full mx-auto p-8 text-on-ink"
         onSubmit={handleSubmit(onSubmit)}>
             {/*Heading and Breadcrumbs*/}
             <div className="flex items-center gap-3 py-2">
                 {/* Coral marker — echoes the sidebar's "you are here" accent. */}
                 <span aria-hidden="true" className="h-7 w-[3px] rounded-full bg-[#ff6f61] shadow-[0_0_10px_rgba(255,111,97,0.6)]"/>
-                <h2 className="text-2xl font-semibold font-display text-white">
+                <h2 className="text-2xl font-semibold font-display text-on-ink">
                     Create Product
                 </h2>
             </div>
             <div className="mt-1 flex items-center text-sm">
-                <span className="cursor-pointer text-[var(--muted)] transition-colors hover:text-coral-bright">
+                <span className="cursor-pointer text-on-ink-muted transition-colors hover:text-terra">
                     Dashboard
                 </span>
-                <ChevronRight size={16} className="mx-1 text-[var(--faint)]"/>
-                <span className="text-[var(--text)]">Create Product</span>
+                <ChevronRight size={16} className="mx-1 text-on-ink-faint"/>
+                <span className="text-on-ink">Create Product</span>
             </div>
             {/*Content Layout */}
             <div className="py-4 w-full flex flex-col lg:flex-row gap-6">
@@ -254,7 +254,7 @@ function Page() {
                     </div>
                 </div>
                 {/*Right side - form inputs*/}
-                <div className="w-full lg:w-[65%] rounded-xl border border-rule bg-panel p-6">
+                <div className="w-full lg:w-[65%] border border-ink-border bg-ink-soft p-6">
                     <div className="w-full flex flex-col md:flex-row gap-6">
                         {/*Product Title Input*/}
                         <div className="w-full md:w-2/4">
@@ -263,7 +263,7 @@ function Page() {
                                 {...register("title",{required: "Title is required"})}
                                 placeholder="Enter Product Title"
                             />
-                            {errors.title && (<p className="text-red-500 text-xs mt-1">{errors.title.message as string}</p>)}
+                            {errors.title && (<p className="text-neg text-xs mt-1">{errors.title.message as string}</p>)}
                         
                     
                     {/*Product Description Input*/}
@@ -282,7 +282,7 @@ function Page() {
                             })}
                             placeholder="Enter Product Description"
                         />
-                        {errors.description && (<p className="text-red-500 text-xs mt-1">{errors.description.message as string}</p>)}
+                        {errors.description && (<p className="text-neg text-xs mt-1">{errors.description.message as string}</p>)}
                     </div>
                     {/*Product Tags Input*/}
                     <div className="w-full mt-2">
@@ -291,7 +291,7 @@ function Page() {
                             {...register("tags",{required: "Separate related products tags with a comma"})}
                             placeholder="apple,flagship"
                         />
-                        {errors.tags && (<p className="text-red-500 text-xs mt-1">{errors.tags.message as string}</p>)}
+                        {errors.tags && (<p className="text-neg text-xs mt-1">{errors.tags.message as string}</p>)}
                     </div>
                     {/*Product Brand Input*/}
                     <div className="w-full mt-2">
@@ -300,7 +300,7 @@ function Page() {
                             {...register("brand")}
                             placeholder="Apple"
                         />
-                        {errors.brand && (<p className="text-red-500 text-xs mt-1">{errors.brand.message as string}</p>)}
+                        {errors.brand && (<p className="text-neg text-xs mt-1">{errors.brand.message as string}</p>)}
                     </div>
                     {/*Product Colors Selector*/}
                     <ColorSelector control={control} errors={errors} />
@@ -310,11 +310,11 @@ function Page() {
                     <CustomProperties control={control} errors={errors} />
                     {/*Mode of Payment*/}
                     <div className="w-full mt-2">
-                        <label className="block font-semibold text-[var(--muted)] mb-1">Mode of Payment*</label>
+                        <label className="block font-semibold text-on-ink-muted mb-1">Mode of Payment*</label>
                         <select
                             defaultValue=""
                             {...register("payment_mode",{required: "Please select a mode of payment"})}
-                            className="w-full rounded-md border border-rule bg-transparent p-2 text-white outline-none transition-colors focus:border-coral [&>option]:bg-panel [&>option]:text-white"
+                            className="w-full border border-ink-border bg-transparent p-2 text-on-ink outline-none transition-colors focus:border-terra [&>option]:bg-ink-soft [&>option]:text-on-ink"
                         >
                             <option value="" disabled>Select a payment mode</option>
                             <option value="card">Credit / Debit Card</option>
@@ -324,7 +324,7 @@ function Page() {
                             <option value="cod">Cash on Delivery</option>
                             <option value="emi">EMI</option>
                         </select>
-                        {errors.payment_mode && (<p className="text-red-500 text-xs mt-1">{errors.payment_mode.message as string}</p>)}
+                        {errors.payment_mode && (<p className="text-neg text-xs mt-1">{errors.payment_mode.message as string}</p>)}
                     </div>
                     {/*Product Warranty Input*/}
                     <div className="w-full mt-2">
@@ -333,7 +333,7 @@ function Page() {
                             {...register("warranty",{required: "Warranty is required"})}
                             placeholder="1 Year / No Warranty"
                         />
-                        {errors.warranty && (<p className="text-red-500 text-xs mt-1">{errors.warranty.message as string}</p>)}
+                        {errors.warranty && (<p className="text-neg text-xs mt-1">{errors.warranty.message as string}</p>)}
                     </div>
                     {/*Product Slug Input*/}
                     <div className="w-full mt-2">
@@ -356,21 +356,21 @@ function Page() {
                             })}
                             placeholder="product-slug"
                         />
-                        {errors.slug && (<p className="text-red-500 text-xs mt-1">{errors.slug.message as string}</p>)}
+                        {errors.slug && (<p className="text-neg text-xs mt-1">{errors.slug.message as string}</p>)}
                     </div>
                     </div>
                         <div className="w-full md:w-2/4">
-                            <label className="block font-semibold text-[var(--muted)] mb-1">
+                            <label className="block font-semibold text-on-ink-muted mb-1">
                                 Category*
                             </label>
                             {
                                 isLoading ? (
-                                    <p className="text-[var(--muted)]">
+                                    <p className="text-on-ink-muted">
                                         Loading Categories...
 
                                     </p>
                                 ) : isError ? (
-                                    <p className="text-red-500">
+                                    <p className="text-neg">
                                         Failed to load categories
                                     </p>
                                 ) : (
@@ -379,7 +379,7 @@ function Page() {
                                     control={control}
                                     rules={{required: "Category is required"}}
                                     render={({field})=>(
-                                        <select {...field} className="w-full rounded-md border border-rule bg-transparent p-2 text-white outline-none transition-colors focus:border-coral [&>option]:bg-panel [&>option]:text-white">
+                                        <select {...field} className="w-full border border-ink-border bg-transparent p-2 text-on-ink outline-none transition-colors focus:border-terra [&>option]:bg-ink-soft [&>option]:text-on-ink">
                                             {" "}
                                             <option value="">
                                                 Select Category
@@ -394,11 +394,11 @@ function Page() {
                                     )}/>
                                 )
                             }
-                            {errors.category && (<p className="text-red-500 text-xs mt-1">{errors.category.message as string}</p>)}
+                            {errors.category && (<p className="text-neg text-xs mt-1">{errors.category.message as string}</p>)}
 
                             {/*Subcategories*/}
                             <div className="w-full mt-2">
-                                <label className="block font-semibold text-[var(--muted)] mb-1">
+                                <label className="block font-semibold text-on-ink-muted mb-1">
                                     Subcategory*
                                 </label>
                                 <Controller
@@ -409,7 +409,7 @@ function Page() {
                                     <select
                                     {...field}
                                     disabled={!selectedCategory || subCategories.length === 0}
-                                    className="w-full rounded-md border border-rule bg-transparent p-2 text-white outline-none transition-colors focus:border-coral disabled:cursor-not-allowed disabled:opacity-50 [&>option]:bg-panel [&>option]:text-white">
+                                    className="w-full border border-ink-border bg-transparent p-2 text-on-ink outline-none transition-colors focus:border-terra disabled:cursor-not-allowed disabled:opacity-50 [&>option]:bg-ink-soft [&>option]:text-on-ink">
                                         {" "}
                                         <option value="">
                                             {selectedCategory ? "Select Subcategory" : "Select a category first"}
@@ -422,11 +422,11 @@ function Page() {
 
                                     </select>
                                 )}/>
-                                {errors.subCategory && (<p className="text-red-500 text-xs mt-1">{errors.subCategory.message as string}</p>)}
+                                {errors.subCategory && (<p className="text-neg text-xs mt-1">{errors.subCategory.message as string}</p>)}
                             </div>
                             {/*Detailed Description*/}
                             <div className="mt-2">
-                                <label className="block font-semibold text-[var(--muted)] mb-1">
+                                <label className="block font-semibold text-on-ink-muted mb-1">
                                     Detailed Description* (Min 100 words)
                                 </label>
                                 <Controller
@@ -449,7 +449,7 @@ function Page() {
                                 render={({field})=>(
                                     <RichTextEditor value={field.value} onChange={field.onChange} />
                                 )}/>
-                                {errors.detailed_description && (<p className="text-red-500 text-xs mt-1">{errors.detailed_description.message as string}</p>)}
+                                {errors.detailed_description && (<p className="text-neg text-xs mt-1">{errors.detailed_description.message as string}</p>)}
                             </div>
                             {/*Video URL*/}
                             <div className="w-full mt-2">
@@ -463,7 +463,7 @@ function Page() {
                                     })}
                                     placeholder="https://www.youtube.com/watch?v=xxxxxxxxxxx"
                                 />
-                                {errors.video_url && (<p className="text-red-500 text-xs mt-1">{errors.video_url.message as string}</p>)}
+                                {errors.video_url && (<p className="text-neg text-xs mt-1">{errors.video_url.message as string}</p>)}
                             </div>
                             {/*Regular Price*/}
                             <div className="mt-2">
@@ -478,7 +478,7 @@ function Page() {
                                     })}
                                     placeholder="20"
                                 />
-                                {errors.regular_price && (<p className="text-red-500 text-xs mt-1">{errors.regular_price.message as string}</p>)}
+                                {errors.regular_price && (<p className="text-neg text-xs mt-1">{errors.regular_price.message as string}</p>)}
                             </div>
                             {/*Sale Price*/}
                             <div className="mt-2">
@@ -499,7 +499,7 @@ function Page() {
                                     })}
                                     placeholder="15"
                                 />
-                                {errors.sale_price && (<p className="text-red-500 text-xs mt-1">{errors.sale_price.message as string}</p>)}
+                                {errors.sale_price && (<p className="text-neg text-xs mt-1">{errors.sale_price.message as string}</p>)}
                             </div>
                             {/*Stock*/}
                             <div className="mt-2">
@@ -519,7 +519,7 @@ function Page() {
                                     })} 
                                     placeholder="100"
                                 />
-                                {errors.stock && (<p className="text-red-500 text-xs mt-1">{errors.stock.message as string}</p>)}
+                                {errors.stock && (<p className="text-neg text-xs mt-1">{errors.stock.message as string}</p>)}
                             </div>
                             {/*Size Selector*/}
                             <div className="mt-2">
@@ -527,11 +527,11 @@ function Page() {
 
                             </div>
                             <div className="mt-3">
-                                <label className="block font-semibold text-[var(--muted)] mb-1">
+                                <label className="block font-semibold text-on-ink-muted mb-1">
                                     Select Discount Codes (Optional)
                                 </label>
                                 {discountLoading ? (
-                                    <p className="text-[var(--muted)]">
+                                    <p className="text-on-ink-muted">
                                         Loading discount codes ...
                                     </p>
                                 ): (
@@ -546,7 +546,7 @@ function Page() {
                                                 ) ? currentSelection.filter((id: string)=> id !== code.id) : [...currentSelection, code.id];
                                                 setValue("discountCodes",updatedSelection);
                                             }}
-                                            className={`px-3 py-1 rounded-md font-semibold border transition-colors ${watch("discountCodes")?.includes(code.id) ? "bg-[#ff6f61]/10 border-coral text-coral-bright" : "border-rule text-[var(--muted)] hover:border-rule hover:text-[var(--text)]"}`}>
+                                            className={`px-3 py-1  font-semibold border transition-colors ${watch("discountCodes")?.includes(code.id) ? "bg-[#ff6f61]/10 border-terra text-terra" : "border-ink-border text-on-ink-muted hover:border-ink-border hover:text-on-ink"}`}>
                                                 {code?.public_name} ({code.discountValue}{code.discountType === "percentage" ? "%" : "$"})
                                             </button>
                                         ))}
@@ -563,13 +563,13 @@ function Page() {
                 openImageModal && selectedImage && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
                         {/*Modal Content*/}
-                        <div className="w-[500px] max-w-full rounded-xl border border-rule bg-panel p-6 text-white shadow-2xl">
-                            <div className="flex justify-between items-center border-b border-rule pb-3 mb-4">
+                        <div className="w-[500px] max-w-full border border-ink-border bg-ink-soft p-6 text-on-ink shadow-2xl">
+                            <div className="flex justify-between items-center border-b border-ink-border pb-3 mb-4">
                                 <h2 className="font-semibold text-lg">Enhance Product Image</h2>
-                                <X size={20} className="cursor-pointer text-[var(--muted)] transition-colors hover:text-white" onClick={()=>setOpenImageModal(false)} />
+                                <X size={20} className="cursor-pointer text-on-ink-muted transition-colors hover:text-on-ink" onClick={()=>setOpenImageModal(false)} />
                             </div>
                             {/*Image Viewer*/}
-                            <div className="relative w-full h-[300px] rounded-md overflow-hidden border border-rule bg-[#0f172a]">
+                            <div className="relative w-full h-[300px] overflow-hidden border border-ink-border bg-[#0f172a]">
                                 <Image
                                     key={previewUrl}
                                     src={previewUrl}
@@ -582,13 +582,13 @@ function Page() {
                                 />
                                 {enhancing && (
                                     <div className="absolute inset-0 z-10 flex items-center justify-center bg-ink/70 backdrop-blur-sm">
-                                        <Loader2 size={30} className="animate-spin text-coral"/>
+                                        <Loader2 size={30} className="animate-spin text-terra"/>
                                     </div>
                                 )}
                             </div>
                             {/*AI IMAGE ENHANCEMENT*/}
                             <div className="mt-5">
-                                <h3 className="text-sm font-semibold text-[var(--muted)] mb-2">AI Enhancements</h3>
+                                <h3 className="text-sm font-semibold text-on-ink-muted mb-2">AI Enhancements</h3>
                                 <div className="grid grid-cols-2 gap-2">
                                     {aiEnhancements.map(({label, transformation})=>(
                                         <button
@@ -600,10 +600,10 @@ function Page() {
                                             setEnhancing(true);
                                             setActiveEffect(transformation);
                                         }}
-                                        className={`flex items-center gap-1.5 px-3 py-2 rounded-md text-sm font-medium border transition disabled:cursor-not-allowed ${
+                                        className={`flex items-center gap-1.5 px-3 py-2  text-sm font-medium border transition disabled:cursor-not-allowed ${
                                             activeEffect === transformation
-                                                ? "border-coral bg-coral-soft text-coral-bright"
-                                                : "border-rule text-[var(--muted)] hover:border-coral/50"
+                                                ? "border-terra bg-terra-soft text-terra"
+                                                : "border-ink-border text-on-ink-muted hover:border-terra/50"
                                         }`}>
                                             <WandSparkles size={15}/> {label}
                                         </button>
@@ -614,14 +614,14 @@ function Page() {
                                     type="button"
                                     onClick={()=>{setActiveEffect(null); setEnhancing(false);}}
                                     disabled={!activeEffect}
-                                    className="px-4 py-2 rounded-lg text-sm text-[var(--text)] border border-rule bg-white/[0.04] hover:bg-white/[0.08] transition disabled:opacity-50 disabled:cursor-not-allowed">
+                                    className="px-4 py-2 text-sm text-on-ink border border-ink-border bg-white/[0.04] hover:bg-white/[0.08] transition disabled:opacity-50 disabled:cursor-not-allowed">
                                         Reset
                                     </button>
                                     <button
                                     type="button"
                                     onClick={handleApplyEnhancement}
                                     disabled={!activeEffect}
-                                    className="px-4 py-2 rounded-md text-sm text-white bg-coral hover:bg-coral-dim transition disabled:opacity-50 disabled:cursor-not-allowed">
+                                    className="px-4 py-2 text-sm text-on-ink bg-terra hover:bg-terra transition disabled:opacity-50 disabled:cursor-not-allowed">
                                         Apply Enhancement
                                     </button>
                                 </div>
@@ -636,13 +636,13 @@ function Page() {
                     <button
                     type="button"
                     onClick={handleSaveDraft}
-                    className="rounded-lg border border-rule bg-white/[0.04] px-5 py-2 text-[var(--text)] transition-colors hover:bg-white/[0.08]">
+                    className="border border-ink-border bg-white/[0.04] px-5 py-2 text-on-ink transition-colors hover:bg-white/[0.08]">
                         Save Draft
                     </button>
                 )}
                 <button
                 type="submit"
-                className="rounded-lg bg-[#ff6f61] px-6 py-2 font-medium text-white shadow-lg shadow-[#ff6f61]/20 transition-colors hover:bg-[#e05a4d] disabled:cursor-not-allowed disabled:opacity-60"
+                className="bg-[#ff6f61] px-6 py-2 font-medium text-on-ink shadow-[#ff6f61]/20 transition-colors hover:bg-[#e05a4d] disabled:cursor-not-allowed disabled:opacity-60"
                 disabled = {loading}>
                     {loading? "Creating..." : "Create"}
                 </button>

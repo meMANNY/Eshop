@@ -1,4 +1,4 @@
-import React from 'react'
+import React from "react";
 
 interface Props {
   title: string;
@@ -7,8 +7,10 @@ interface Props {
 
 const SidebarMenu = ({ title, children }: Props) => {
   return (
-    <div className='mt-6 flex w-full flex-col gap-1 first:mt-0'>
-      <h2 className='px-3 text-label font-semibold uppercase text-[var(--faint)]'>
+    <div className="mt-7 flex w-full flex-col gap-1 first:mt-0">
+      {/* The kicker treatment without its leading rule — inside a 260px rail the
+          rule would eat a third of the line. */}
+      <h2 className="px-3 pb-1 font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-on-ink-faint">
         {title}
       </h2>
       {/*
@@ -16,11 +18,9 @@ const SidebarMenu = ({ title, children }: Props) => {
         <li>. A <ul> whose children aren't list items is invalid, and screen
         readers announce a list with zero entries.
       */}
-      <div className='space-y-0.5'>
-        {children}
-      </div>
+      <div>{children}</div>
     </div>
-  )
-}
+  );
+};
 
-export default SidebarMenu
+export default SidebarMenu;

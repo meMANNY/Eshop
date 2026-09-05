@@ -53,7 +53,7 @@ export default function Page() {
         accessorKey: "id",
         header: "Order",
         cell: ({ row }: any) => (
-          <Figure className="font-medium text-white">
+          <Figure className="font-medium text-on-ink">
             {shortId(row.original.id)}
           </Figure>
         ),
@@ -64,7 +64,7 @@ export default function Page() {
         cell: ({ row }: any) => (
           <div className="flex items-center gap-2.5">
             <span
-              className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-raised text-xs font-semibold text-[var(--muted)]"
+              className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-ink-raised text-xs font-semibold text-on-ink-muted"
               aria-hidden="true"
             >
               {row.original.user?.name?.[0]?.toUpperCase() ?? "G"}
@@ -78,7 +78,7 @@ export default function Page() {
         header: "Order total",
         meta: { align: "right" },
         cell: ({ row }: any) => (
-          <Figure className="text-[var(--muted)]">
+          <Figure className="text-on-ink-muted">
             {money(row.original.total)}
           </Figure>
         ),
@@ -88,7 +88,7 @@ export default function Page() {
         header: `Platform fee · ${COMMISSION * 100}%`,
         meta: { align: "right" },
         cell: ({ row }: any) => (
-          <Figure className="text-[var(--faint)]">
+          <Figure className="text-on-ink-faint">
             −{money(platformFee(row.original.total))}
           </Figure>
         ),
@@ -98,7 +98,7 @@ export default function Page() {
         header: "Your payout",
         meta: { align: "right" },
         cell: ({ row }: any) => (
-          <Figure className="font-medium text-coral">
+          <Figure className="font-medium text-terra">
             {money(payout(row.original.total))}
           </Figure>
         ),
@@ -116,7 +116,7 @@ export default function Page() {
         accessorKey: "createdAt",
         header: "Date",
         cell: ({ row }: any) => (
-          <Figure className="text-[var(--muted)]">
+          <Figure className="text-on-ink-muted">
             {shortDate(row.original.createdAt)}
           </Figure>
         ),
@@ -128,7 +128,7 @@ export default function Page() {
         cell: ({ row }: any) => (
           <Link
             href={`/order/${row.original.id}`}
-            className="inline-flex items-center gap-1.5 text-sm text-[var(--muted)] transition-colors hover:text-coral"
+            className="inline-flex items-center gap-1.5 text-sm text-on-ink-muted transition-colors hover:text-terra"
           >
             <Eye size={16} aria-hidden="true" />
             View
@@ -165,7 +165,7 @@ export default function Page() {
             <>
               <Figure>{rows.length}</Figure> order
               {rows.length === 1 ? "" : "s"} · your payout{" "}
-              <Figure className="text-coral">{money(payout(gross))}</Figure>
+              <Figure className="text-terra">{money(payout(gross))}</Figure>
             </>
           )
         }
@@ -204,20 +204,20 @@ export default function Page() {
               <th
                 scope="row"
                 colSpan={2}
-                className="px-4 py-3 text-left text-label font-semibold uppercase text-[var(--muted)]"
+                className="px-4 py-3 text-left text-label font-semibold uppercase text-on-ink-muted"
               >
                 Total
               </th>
               <td className="px-4 py-3 text-right">
-                <Figure className="text-[var(--muted)]">{money(gross)}</Figure>
+                <Figure className="text-on-ink-muted">{money(gross)}</Figure>
               </td>
               <td className="px-4 py-3 text-right">
-                <Figure className="text-[var(--faint)]">
+                <Figure className="text-on-ink-faint">
                   −{money(platformFee(gross))}
                 </Figure>
               </td>
               <td className="px-4 py-3 text-right">
-                <Figure className="font-semibold text-coral">
+                <Figure className="font-semibold text-terra">
                   {money(payout(gross))}
                 </Figure>
               </td>

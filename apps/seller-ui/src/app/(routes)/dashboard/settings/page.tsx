@@ -28,7 +28,7 @@ export default function Page() {
         control rather than three unrelated buttons — and it replaces the blue
         underline, which was the only blue left in a coral app.
       */}
-      <div role="tablist" className="mb-6 flex gap-1 border-b border-rule">
+      <div role="tablist" className="mb-6 flex gap-1 border-b border-ink-border">
         {TABS.map((tab) => (
           <button
             key={tab.id}
@@ -37,8 +37,8 @@ export default function Page() {
             onClick={() => setActiveTab(tab.id)}
             className={`-mb-px flex items-center gap-2 border-b-2 px-3.5 py-2.5 text-sm transition-colors ${
               activeTab === tab.id
-                ? "border-coral font-medium text-coral"
-                : "border-transparent text-[var(--muted)] hover:text-[var(--text)]"
+                ? "border-terra font-medium text-terra"
+                : "border-transparent text-on-ink-muted hover:text-on-ink"
             }`}
           >
             {tab.icon}

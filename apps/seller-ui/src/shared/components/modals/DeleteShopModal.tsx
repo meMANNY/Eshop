@@ -40,7 +40,7 @@ export default function DeleteShopModal({
     >
       <p>
         Your shop and its products come off the storefront now. You have{" "}
-        <strong className="text-[var(--text)]">28 days</strong> to restore it,
+        <strong className="text-on-ink">28 days</strong> to restore it,
         after which it is removed for good.
       </p>
 
@@ -49,9 +49,9 @@ export default function DeleteShopModal({
         panel below it. The genuinely surprising consequence is the email lockout,
         so that is what gets the callout.
       */}
-      <div className="mt-4 flex items-start gap-2.5 rounded-lg border border-warn/30 bg-warn/10 p-3">
+      <div className="mt-4 flex items-start gap-2.5 border border-warn/30 bg-warn/10 p-3">
         <AlertTriangle className="mt-0.5 shrink-0 text-warn" size={16} aria-hidden="true" />
-        <p className="text-sm text-[var(--text)]">
+        <p className="text-sm text-on-ink">
           After permanent deletion you cannot register a new account with this
           email address.
         </p>

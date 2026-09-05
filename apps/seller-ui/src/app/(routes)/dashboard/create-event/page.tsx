@@ -30,7 +30,7 @@ export default function CreateEventPage() {
           action={
             <Link
               href="/dashboard/create-product"
-              className="inline-flex items-center gap-2 rounded-lg bg-coral px-3.5 py-2 text-sm font-medium text-[#1a0d0b] transition-colors hover:bg-coral-dim"
+              className="inline-flex items-center gap-2 bg-terra px-3.5 py-2 text-sm font-medium text-ink transition-colors hover:bg-terra"
             >
               <Plus size={16} aria-hidden="true" />
               Create a product

@@ -121,7 +121,7 @@ const Page = () => {
         accessorKey: "public_name",
         header: "Title",
         cell: ({ row }: any) => (
-          <span className="font-medium text-[var(--text)]">
+          <span className="font-medium text-on-ink">
             {row.original.public_name}
           </span>
         ),
@@ -140,7 +140,7 @@ const Page = () => {
         header: "Value",
         meta: { align: "right" },
         cell: ({ row }: any) => (
-          <Figure className="font-medium text-white">
+          <Figure className="font-medium text-on-ink">
             {row.original.discountType === "percentage"
               ? `${row.original.discountValue}%`
               : `$${Number(row.original.discountValue).toFixed(2)}`}
@@ -161,16 +161,16 @@ const Page = () => {
             <button
               type="button"
               onClick={() => copyCode(code)}
-              className="group inline-flex items-center gap-2 rounded border border-rule bg-raised px-2 py-1 transition-colors hover:border-coral/50"
+              className="group inline-flex items-center gap-2 rounded border border-ink-border bg-ink-raised px-2 py-1 transition-colors hover:border-terra/50"
               aria-label={`Copy discount code ${code}`}
             >
-              <Figure className="text-coral-bright">{code}</Figure>
+              <Figure className="text-terra">{code}</Figure>
               {isCopied ? (
                 <Check size={13} className="text-pos" aria-hidden="true" />
               ) : (
                 <Copy
                   size={13}
-                  className="text-[var(--faint)] group-hover:text-coral"
+                  className="text-on-ink-faint group-hover:text-terra"
                   aria-hidden="true"
                 />
               )}
@@ -189,7 +189,7 @@ const Page = () => {
               setShowDeleteModal(true);
             }}
             aria-label={`Delete ${row.original.public_name}`}
-            className="text-[var(--muted)] transition-colors hover:text-neg"
+            className="text-on-ink-muted transition-colors hover:text-neg"
           >
             <Trash size={16} />
           </button>

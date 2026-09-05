@@ -58,7 +58,7 @@ function Presence({ online }: { online?: boolean }) {
         className={`h-1.5 w-1.5 rounded-full ${online ? "bg-pos" : "bg-white/25"}`}
         aria-hidden="true"
       />
-      <span className={online ? "text-pos" : "text-white/55"}>
+      <span className={online ? "text-pos" : "text-on-ink/55"}>
         {online ? "Online" : "Offline"}
       </span>
     </span>
@@ -84,7 +84,7 @@ function Avatar({
         width={size}
         height={size}
         unoptimized
-        className="rounded-full border border-rule object-cover"
+        className="rounded-full border border-ink-border object-cover"
         style={{ width: size, height: size }}
       />
       {online ? (
@@ -101,8 +101,8 @@ function ThreadSkeleton() {
   return (
     <div className="space-y-1 p-3">
       {[0, 1, 2, 3].map((i) => (
-        <div key={i} className="flex items-center gap-3 rounded-lg px-3 py-2.5">
-          <div className="h-10 w-10 shrink-0 rounded-full bg-raised" />
+        <div key={i} className="flex items-center gap-3 px-3 py-2.5">
+          <div className="h-10 w-10 shrink-0 rounded-full bg-ink-raised" />
           <div className="flex-1 space-y-2">
             <Bar className="h-3 w-1/2" />
             <Bar className="h-2.5 w-3/4" />
@@ -308,20 +308,20 @@ function InboxContent() {
     <div className="space-y-5">
       <div>
         <Crumbs trail={["Dashboard", "Inbox"]} />
-        <h1 className="mt-1 font-display text-xl font-semibold text-white">
+        <h1 className="mt-1 font-display text-xl font-semibold text-on-ink">
           Inbox
         </h1>
       </div>
 
-      <div className="flex h-[calc(100vh-13rem)] min-h-[520px] overflow-hidden rounded-panel border border-rule bg-panel shadow-panel">
+      <div className="flex h-[calc(100vh-13rem)] min-h-[520px] overflow-hidden border border-ink-border bg-ink-soft">
         {/* ---------------------------- THREAD LIST ---------------------------- */}
-        <aside className="flex w-[300px] shrink-0 flex-col border-r border-rule bg-ink max-md:hidden">
-          <div className="flex items-baseline justify-between border-b border-rule px-4 py-4">
-            <h2 className="text-label font-semibold uppercase text-white/60">
+        <aside className="flex w-[300px] shrink-0 flex-col border-r border-ink-border bg-ink max-md:hidden">
+          <div className="flex items-baseline justify-between border-b border-ink-border px-4 py-4">
+            <h2 className="text-label font-semibold uppercase text-on-ink/60">
               Conversations
             </h2>
             {chats.length > 0 ? (
-              <span className="font-mono text-xs tabular-nums text-white/55">
+              <span className="font-mono text-xs tabular-nums text-on-ink/55">
                 {chats.length}
               </span>
             ) : null}
@@ -331,7 +331,7 @@ function InboxContent() {
             {isLoading ? (
               <ThreadSkeleton />
             ) : chats.length === 0 ? (
-              <p className="px-4 py-8 text-center text-sm text-white/60">
+              <p className="px-4 py-8 text-center text-sm text-on-ink/60">
                 No conversations yet.
               </p>
             ) : (
@@ -344,15 +344,15 @@ function InboxContent() {
                       <button
                         onClick={() => handleChatSelect(chat)}
                         aria-current={isActive ? "true" : undefined}
-                        className={`relative w-full rounded-lg px-3 py-2.5 text-left transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-coral/40 ${
-                          isActive ? "bg-coral-soft" : "hover:bg-raised"
+                        className={`relative w-full  px-3 py-2.5 text-left transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-terra/40 ${
+                          isActive ? "bg-terra-soft" : "hover:bg-ink-raised"
                         }`}
                       >
                         {/* A coral edge rather than a fill: it reads at a glance
                             without competing with the unread pill beside it. */}
                         {isActive ? (
                           <span
-                            className="absolute inset-y-2 left-0 w-[3px] rounded-full bg-coral"
+                            className="absolute inset-y-2 left-0 w-[3px] rounded-full bg-terra"
                             aria-hidden="true"
                           />
                         ) : null}
@@ -373,22 +373,22 @@ function InboxContent() {
                               <span
                                 className={`truncate text-sm ${
                                   isActive
-                                    ? "font-semibold text-coral-bright"
-                                    : "font-medium text-white/90"
+                                    ? "font-semibold text-terra"
+                                    : "font-medium text-on-ink/90"
                                 }`}
                               >
                                 {chat.user?.name}
                               </span>
-                              <span className="shrink-0 font-mono text-[11px] tabular-nums text-white/55">
+                              <span className="shrink-0 font-mono text-[11px] tabular-nums text-on-ink/55">
                                 {clockTime(chat.lastMessageAt)}
                               </span>
                             </div>
                             <div className="mt-0.5 flex items-center justify-between gap-2">
-                              <p className="truncate text-xs text-white/60">
+                              <p className="truncate text-xs text-on-ink/60">
                                 {chat.lastMessage || "No messages yet"}
                               </p>
                               {chat?.unreadCount > 0 && (
-                                <span className="shrink-0 rounded-full bg-coral px-1.5 py-px font-mono text-[10px] font-semibold tabular-nums text-[#2b0f0a]">
+                                <span className="shrink-0 rounded-full bg-terra px-1.5 py-px font-mono text-[10px] font-semibold tabular-nums text-[#2b0f0a]">
                                   {chat?.unreadCount > 9
                                     ? "9+"
                                     : chat?.unreadCount}
@@ -410,14 +410,14 @@ function InboxContent() {
         <section className="flex min-w-0 flex-1 flex-col">
           {selectedChat ? (
             <>
-              <header className="flex items-center gap-3 border-b border-rule bg-panel px-5 py-3.5">
+              <header className="flex items-center gap-3 border-b border-ink-border bg-ink-soft px-5 py-3.5">
                 <Avatar
                   src={selectedChat.user?.avatar?.url}
                   name={selectedChat.user?.name}
                   size={38}
                 />
                 <div className="min-w-0">
-                  <h2 className="truncate text-sm font-semibold text-white">
+                  <h2 className="truncate text-sm font-semibold text-on-ink">
                     {selectedChat.user?.name}
                   </h2>
                   <p className="mt-0.5 text-xs">
@@ -434,7 +434,7 @@ function InboxContent() {
                   <div className="flex justify-center pb-3">
                     <button
                       onClick={loadMoreMessages}
-                      className="rounded-full border border-rule bg-panel px-3.5 py-1.5 text-xs font-medium text-white/60 transition-colors hover:border-coral/40 hover:text-coral-bright focus:outline-none focus-visible:ring-2 focus-visible:ring-coral/40"
+                      className="rounded-full border border-ink-border bg-ink-soft px-3.5 py-1.5 text-xs font-medium text-on-ink/60 transition-colors hover:border-terra/40 hover:text-terra focus:outline-none focus-visible:ring-2 focus-visible:ring-terra/40"
                     >
                       Load earlier messages
                     </button>
@@ -463,7 +463,7 @@ function InboxContent() {
                       {startsDay && (
                         <div className="flex items-center gap-3 py-4">
                           <span className="h-px flex-1 bg-rule" />
-                          <span className="text-label font-semibold uppercase text-white/55">
+                          <span className="text-label font-semibold uppercase text-on-ink/55">
                             {dayLabel(msg.createdAt)}
                           </span>
                           <span className="h-px flex-1 bg-rule" />
@@ -483,21 +483,21 @@ function InboxContent() {
                         <div
                           className={`max-w-[min(78%,34rem)] whitespace-pre-wrap break-words px-3.5 py-2 text-sm leading-relaxed ${
                             mine
-                              ? "bg-coral text-[#2b0f0a]"
-                              : "border border-rule bg-raised text-white/90"
+                              ? "bg-terra text-[#2b0f0a]"
+                              : "border border-ink-border bg-ink-raised text-on-ink/90"
                           } ${
                             endsRun
                               ? mine
-                                ? "rounded-2xl rounded-br-md"
-                                : "rounded-2xl rounded-bl-md"
-                              : "rounded-2xl"
+                                ? " rounded-br-md"
+                                : " rounded-bl-md"
+                              : ""
                           }`}
                         >
                           {msg.content}
                         </div>
 
                         {endsRun && (
-                          <span className="mt-1 px-1 font-mono text-[11px] tabular-nums text-white/55">
+                          <span className="mt-1 px-1 font-mono text-[11px] tabular-nums text-on-ink/55">
                             {clockTime(msg.createdAt)}
                           </span>
                         )}
@@ -537,7 +537,7 @@ export default function Page() {
   return (
     <Suspense
       fallback={
-        <div className="h-[calc(100vh-13rem)] min-h-[520px] animate-pulse rounded-panel border border-rule bg-panel" />
+        <div className="h-[calc(100vh-13rem)] min-h-[520px] animate-pulse border border-ink-border bg-ink-soft" />
       }
     >
       <InboxContent />

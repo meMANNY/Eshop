@@ -61,7 +61,7 @@ export default function Page() {
           `${row.id} ${row.id.slice(-6).toUpperCase()}`,
         header: "Order",
         cell: ({ row }: any) => (
-          <span className="font-mono text-sm font-medium text-white">
+          <span className="font-mono text-sm font-medium text-on-ink">
             #{row.original.id.slice(-6).toUpperCase()}
           </span>
         ),
@@ -79,7 +79,7 @@ export default function Page() {
         accessorKey: "total",
         header: "Total",
         cell: ({ row }: any) => (
-          <span className="font-semibold text-white">
+          <span className="font-semibold text-on-ink">
             ${Number(row.original.total ?? 0).toFixed(2)}
           </span>
         ),
@@ -94,7 +94,7 @@ export default function Page() {
                 ? "bg-emerald-500/10 text-emerald-400 ring-emerald-500/30"
                 : row.original.status === "Pending"
                 ? "bg-amber-500/10 text-amber-400 ring-amber-500/30"
-                : "bg-white/[0.04] text-slate-300 ring-slate-700"
+                : "bg-white/[0.04] text-on-ink-muted ring-slate-700"
             }`}
           >
             {row.original.status}
@@ -112,7 +112,7 @@ export default function Page() {
         accessorKey: "createdAt",
         header: "Date",
         cell: ({ row }: any) => (
-          <span className="text-sm text-slate-400">
+          <span className="text-sm text-on-ink-muted">
             {new Date(row.original.createdAt).toLocaleDateString(undefined, {
               day: "numeric",
               month: "short",
@@ -127,7 +127,7 @@ export default function Page() {
         cell: ({ row }: any) => (
           <Link
             href={`/order/${row.original.id}`}
-            className="inline-flex items-center gap-1 text-sm font-medium text-slate-400 transition-colors hover:text-[#ff8a7d] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff6f61]"
+            className="inline-flex items-center gap-1 text-sm font-medium text-on-ink-muted transition-colors hover:text-[#ff8a7d] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff6f61]"
           >
             Open
             <ChevronRight size={14} />
@@ -159,13 +159,13 @@ export default function Page() {
           aria-hidden="true"
           className="h-7 w-[3px] rounded-full bg-[#ff6f61] shadow-[0_0_10px_rgba(255,111,97,0.6)]"
         />
-        <h2 className="text-2xl font-semibold text-white">Orders</h2>
+        <h2 className="text-2xl font-semibold text-on-ink">Orders</h2>
       </div>
 
       <div className="mt-1 flex items-center text-sm">
         <Link
           href="/dashboard"
-          className="text-slate-400 transition-colors hover:text-[#ff8a7d]"
+          className="text-on-ink-muted transition-colors hover:text-[#ff8a7d]"
         >
           Dashboard
         </Link>
@@ -181,7 +181,7 @@ export default function Page() {
           active={stage === null}
           onClick={() => setStage(null)}
         />
-        <span aria-hidden="true" className="mx-1 h-5 w-px bg-slate-800" />
+        <span aria-hidden="true" className="mx-1 h-5 w-px bg-ink-raised" />
         {STAGES.map((name, i) => (
           <div key={name} className="flex items-center gap-2">
             {i > 0 && (
@@ -202,23 +202,23 @@ export default function Page() {
       </div>
 
       {/* PANEL */}
-      <div className="mt-6 rounded-xl border border-slate-800 bg-[#141922] shadow-md">
+      <div className="mt-6 border border-slate-800 bg-[#141922]">
         <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-800 p-5">
-          <div className="flex min-w-[260px] flex-1 items-center gap-2 rounded-lg border border-slate-700 bg-white/[0.03] px-3 py-2 transition-colors focus-within:border-[#ff6f61] focus-within:ring-2 focus-within:ring-[#ff6f61]/25">
-            <Search size={16} className="shrink-0 text-slate-500" />
+          <div className="flex min-w-[260px] flex-1 items-center gap-2 border border-ink-border bg-white/[0.03] px-3 py-2 transition-colors focus-within:border-[#ff6f61] focus-within:ring-2 focus-within:ring-[#ff6f61]/25">
+            <Search size={16} className="shrink-0 text-on-ink-faint" />
             <input
               type="search"
               value={globalFilter}
               onChange={(e) => setGlobalFilter(e.target.value)}
               placeholder="Search by order ID, buyer name, or email"
               aria-label="Search orders"
-              className="w-full bg-transparent text-sm text-white outline-none placeholder:text-slate-500"
+              className="w-full bg-transparent text-sm text-on-ink outline-none placeholder:text-on-ink-faint"
             />
           </div>
-          <p className="text-sm text-slate-400" aria-live="polite">
-            <span className="font-semibold text-white">{rows.length}</span>{" "}
+          <p className="text-sm text-on-ink-muted" aria-live="polite">
+            <span className="font-semibold text-on-ink">{rows.length}</span>{" "}
             {rows.length === 1 ? "order" : "orders"}
-            {stage && <span className="text-slate-500"> in {stage}</span>}
+            {stage && <span className="text-on-ink-faint"> in {stage}</span>}
           </p>
         </div>
 
@@ -248,7 +248,7 @@ export default function Page() {
                   setStage(null);
                   setGlobalFilter("");
                 }}
-                className="mt-5 rounded-lg bg-[#ff6f61] px-4 py-2 text-sm font-medium text-white shadow-lg shadow-[#ff6f61]/20 transition-colors hover:bg-[#e05a4d] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff6f61]"
+                className="mt-5 bg-[#ff6f61] px-4 py-2 text-sm font-medium text-on-ink shadow-[#ff6f61]/20 transition-colors hover:bg-[#e05a4d] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff6f61]"
               >
                 Clear filters
               </button>
@@ -264,7 +264,7 @@ export default function Page() {
                       <th
                         key={header.id}
                         scope="col"
-                        className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-400"
+                        className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-on-ink-muted"
                       >
                         {header.isPlaceholder
                           ? null
@@ -323,13 +323,13 @@ const StageChip = ({
     className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff6f61] ${
       active
         ? "border-[#ff6f61] bg-[#ff6f61]/15 text-[#ff8a7d]"
-        : "border-slate-700 bg-white/[0.03] text-slate-300 hover:border-slate-600 hover:text-white"
+        : "border-ink-border bg-white/[0.03] text-on-ink-muted hover:border-ink-border hover:text-on-ink"
     }`}
   >
     {label}
     <span
       className={`rounded-full px-1.5 py-0.5 text-xs font-semibold tabular-nums ${
-        active ? "bg-[#ff6f61] text-white" : "bg-white/[0.06] text-slate-400"
+        active ? "bg-[#ff6f61] text-on-ink" : "bg-white/[0.06] text-on-ink-muted"
       }`}
     >
       {count}
@@ -361,7 +361,7 @@ const StageMeter = ({ status }: { status: string }) => {
           <span
             key={s}
             className={`h-1 w-4 rounded-full ${
-              i <= activeIndex ? "bg-[#ff6f61]" : "bg-slate-700"
+              i <= activeIndex ? "bg-[#ff6f61]" : "bg-ink-raised"
             }`}
           />
         ))}
@@ -376,12 +376,12 @@ const Buyer = ({ user }: { user: any }) => (
       <img
         src={user.avatar.url}
         alt=""
-        className="h-9 w-9 shrink-0 rounded-full border border-slate-700 object-cover"
+        className="h-9 w-9 shrink-0 rounded-full border border-ink-border object-cover"
       />
     ) : (
       <span
         aria-hidden="true"
-        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-slate-700 bg-white/[0.04] text-sm font-semibold text-slate-400"
+        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-ink-border bg-white/[0.04] text-sm font-semibold text-on-ink-muted"
       >
         {(user?.name ?? "G").charAt(0).toUpperCase()}
       </span>
@@ -391,7 +391,7 @@ const Buyer = ({ user }: { user: any }) => (
         {user?.name ?? "Guest"}
       </p>
       {user?.email && (
-        <p className="truncate text-xs text-slate-500">{user.email}</p>
+        <p className="truncate text-xs text-on-ink-faint">{user.email}</p>
       )}
     </div>
   </div>
@@ -412,8 +412,8 @@ const EmptyState = ({
     <span className="flex h-14 w-14 items-center justify-center rounded-full bg-[#ff6f61]/10 text-[#ff6f61]">
       <Icon size={24} />
     </span>
-    <h3 className="mt-4 text-base font-semibold text-white">{title}</h3>
-    <p className="mt-1.5 max-w-sm text-sm text-slate-400">{description}</p>
+    <h3 className="mt-4 text-base font-semibold text-on-ink">{title}</h3>
+    <p className="mt-1.5 max-w-sm text-sm text-on-ink-muted">{description}</p>
     {action}
   </div>
 );
@@ -422,9 +422,9 @@ const TableSkeleton = () => (
   <div className="divide-y divide-slate-800/60">
     {[...Array(5)].map((_, i) => (
       <div key={i} className="flex items-center gap-4 px-5 py-4">
-        <div className="h-9 w-9 shrink-0 animate-pulse rounded-full bg-slate-800 motion-reduce:animate-none" />
-        <div className="h-3 w-full max-w-xs animate-pulse rounded bg-slate-800 motion-reduce:animate-none" />
-        <div className="ml-auto h-3 w-20 shrink-0 animate-pulse rounded bg-slate-800 motion-reduce:animate-none" />
+        <div className="h-9 w-9 shrink-0 animate-pulse rounded-full bg-ink-raised motion-reduce:animate-none" />
+        <div className="h-3 w-full max-w-xs animate-pulse rounded bg-ink-raised motion-reduce:animate-none" />
+        <div className="ml-auto h-3 w-20 shrink-0 animate-pulse rounded bg-ink-raised motion-reduce:animate-none" />
       </div>
     ))}
   </div>

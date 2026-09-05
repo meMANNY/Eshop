@@ -37,7 +37,7 @@ const BANDS = [
   { min: 1, fill: "#256abf", label: "1–69" },
 ];
 
-const EMPTY_FILL = "#1c2230";
+const EMPTY_FILL = "#302B27";
 
 function getFill(users: number) {
   return BANDS.find((band) => users >= band.min)?.fill ?? EMPTY_FILL;
@@ -96,23 +96,23 @@ export default function GeoMap() {
   );
 
   return (
-    <section className="relative rounded-panel border border-rule bg-panel shadow-panel">
-      <header className="border-b border-rule px-5 py-4">
-        <h2 className="text-[15px] font-semibold text-white">
+    <section className="relative border border-ink-border bg-ink-soft">
+      <header className="border-b border-ink-border px-5 py-4">
+        <h2 className="text-[15px] font-semibold text-on-ink">
           Where your buyers are
         </h2>
-        <p className="mt-0.5 text-xs text-[var(--muted)]">
+        <p className="mt-0.5 text-xs text-on-ink-muted">
           Buyers and sellers by country
         </p>
       </header>
 
       {status === "error" ? (
-        <p className="px-5 py-16 text-center text-sm text-[var(--muted)]">
+        <p className="px-5 py-16 text-center text-sm text-on-ink-muted">
           Map data didn&apos;t load. Check your connection and refresh.
         </p>
       ) : status === "loading" ? (
         <div className="px-5 py-16">
-          <div className="mx-auto h-3 w-40 animate-pulse rounded bg-raised motion-reduce:animate-none" />
+          <div className="mx-auto h-3 w-40 animate-pulse rounded bg-ink-raised motion-reduce:animate-none" />
         </div>
       ) : (
         <div className="p-5">
@@ -131,7 +131,7 @@ export default function GeoMap() {
                       key={geo.id ?? i}
                       d={toPath(geo) ?? undefined}
                       fill={match ? getFill(match.users) : EMPTY_FILL}
-                      stroke="#141922"
+                      stroke="#3A3530"
                       strokeWidth={0.5}
                       className={
                         match
@@ -157,21 +157,21 @@ export default function GeoMap() {
 
             {tooltip && (
               <div
-                className="pointer-events-none fixed z-50 rounded-lg border border-rule bg-raised px-3 py-2 text-xs shadow-pop"
+                className="pointer-events-none fixed z-50 border border-ink-border bg-ink-raised px-3 py-2 text-xs shadow-pop"
                 style={{
                   left: tooltip.x + 12,
                   top: tooltip.y + 12,
                   whiteSpace: "nowrap",
                 }}
               >
-                <div className="font-semibold text-white">{tooltip.name}</div>
-                <div className="mt-1 text-[var(--muted)]">
+                <div className="font-semibold text-on-ink">{tooltip.name}</div>
+                <div className="mt-1 text-on-ink-muted">
                   Users{" "}
-                  <span className="figure text-[var(--text)]">{tooltip.users}</span>
+                  <span className="figure text-on-ink">{tooltip.users}</span>
                 </div>
-                <div className="text-[var(--muted)]">
+                <div className="text-on-ink-muted">
                   Sellers{" "}
-                  <span className="figure text-[var(--text)]">
+                  <span className="figure text-on-ink">
                     {tooltip.sellers}
                   </span>
                 </div>
@@ -180,15 +180,15 @@ export default function GeoMap() {
           </div>
 
           {/* A choropleth without a legend is unreadable — the old one had none. */}
-          <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-[var(--muted)]">
-            <span className="text-label font-semibold uppercase text-[var(--faint)]">
+          <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-on-ink-muted">
+            <span className="text-label font-semibold uppercase text-on-ink-faint">
               Users
             </span>
             {BANDS.map((band) => (
               <span key={band.label} className="flex items-center gap-1.5">
                 <span
                   aria-hidden="true"
-                  className="h-2.5 w-2.5 rounded-sm"
+                  className="h-2.5 w-2.5"
                   style={{ backgroundColor: band.fill }}
                 />
                 <span className="figure">{band.label}</span>
@@ -197,7 +197,7 @@ export default function GeoMap() {
             <span className="flex items-center gap-1.5">
               <span
                 aria-hidden="true"
-                className="h-2.5 w-2.5 rounded-sm ring-1 ring-inset ring-rule"
+                className="h-2.5 w-2.5 ring-1 ring-inset ring-ink-border"
                 style={{ backgroundColor: EMPTY_FILL }}
               />
               None

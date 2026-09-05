@@ -50,13 +50,13 @@ const ImagePlaceHolder = ({
       roughly 7:1 on either. Same reasoning as the primary Button.
     */
     const actionBtn =
-        'flex h-9 w-9 items-center justify-center rounded-lg bg-panel/85 text-[var(--text)] shadow-lg ring-1 ring-white/10 backdrop-blur-sm transition-colors duration-150 focus-visible:outline-none';
+        'flex h-9 w-9 items-center justify-center  bg-ink-soft/85 text-on-ink  ring-1 ring-white/10 backdrop-blur-sm transition-colors duration-150 focus-visible:outline-none';
 
   return (
     <div
     className={`group relative ${
         small ? "h-[180px]" : "h-[450px]"
-    } w-full overflow-hidden rounded-panel border border-rule bg-panel transition-colors duration-200`}>
+    } w-full overflow-hidden  border border-ink-border bg-ink-soft transition-colors duration-200`}>
         <input type="file"
         accept='image/*'
         className='hidden'
@@ -66,7 +66,7 @@ const ImagePlaceHolder = ({
 
         {uploading && (
             <div className='absolute inset-0 z-20 flex items-center justify-center bg-ink/70 backdrop-blur-sm'>
-                <Loader2 size={small ? 22 : 30} className='animate-spin text-coral'/>
+                <Loader2 size={small ? 22 : 30} className='animate-spin text-terra'/>
             </div>
         )}
 
@@ -76,12 +76,12 @@ const ImagePlaceHolder = ({
                 <div className='absolute right-3 top-3 z-10 flex gap-2 opacity-0 transition-opacity duration-200 focus-within:opacity-100 group-hover:opacity-100'>
                     <button type='button' onClick={() => onEnhance ? onEnhance() : setOpenImageModal(true)}
                         aria-label='Enhance image'
-                        className={`${actionBtn} hover:bg-coral hover:text-[#1a0d0b] focus-visible:ring-2 focus-visible:ring-coral`}>
+                        className={`${actionBtn} hover:bg-terra hover:text-ink focus-visible:ring-2 focus-visible:ring-terra`}>
                         <WandSparkles size={16}/>
                     </button>
                     <button type='button' onClick={() => onRemove?.(index!)}
                         aria-label='Remove image'
-                        className={`${actionBtn} hover:bg-neg hover:text-[#1a0d0b] focus-visible:ring-2 focus-visible:ring-neg`}>
+                        className={`${actionBtn} hover:bg-neg hover:text-ink focus-visible:ring-2 focus-visible:ring-neg`}>
                         <X size={16}/>
                     </button>
                 </div>
@@ -97,28 +97,28 @@ const ImagePlaceHolder = ({
         ):(
             // The whole empty area is the upload target — not just a corner button.
             <label htmlFor={inputId}
-            className='absolute inset-0 flex cursor-pointer flex-col items-center justify-center gap-4 rounded-panel border border-dashed border-rule bg-transparent px-6 text-center transition-colors duration-200 group-hover:border-coral/60 group-hover:bg-coral-soft'>
-                <span className={`flex items-center justify-center rounded-full bg-coral-soft text-coral ring-1 ring-coral/20 transition-transform duration-200 group-hover:scale-105 ${
+            className='absolute inset-0 flex cursor-pointer flex-col items-center justify-center gap-4  border border-dashed border-ink-border bg-transparent px-6 text-center transition-colors duration-200 group-hover:border-terra/60 group-hover:bg-terra-soft'>
+                <span className={`flex items-center justify-center rounded-full bg-terra-soft text-terra ring-1 ring-terra/20 transition-transform duration-200 group-hover:scale-105 ${
                     small ? "h-11 w-11" : "h-16 w-16"
                 }`}>
                     <ImagePlus size={small ? 20 : 28} strokeWidth={1.75} />
                 </span>
 
                 <div className='space-y-1.5'>
-                    <p className={`font-semibold tracking-tight text-[var(--text)] ${
+                    <p className={`font-semibold tracking-tight text-on-ink ${
                         small ? "text-base" : "text-2xl"
                     }`}>
-                        <span className='text-coral-bright'>Click to upload</span> an image
+                        <span className='text-terra'>Click to upload</span> an image
                     </p>
-                    <p className={`text-[var(--muted)] ${
+                    <p className={`text-on-ink-muted ${
                         small ? "text-xs" : "text-sm"
                     }`}>
-                        Recommended ratio <span className='figure text-[var(--text)]'>{size}</span> · PNG or JPG
+                        Recommended ratio <span className='figure text-on-ink'>{size}</span> · PNG or JPG
                     </p>
                 </div>
 
                 <span aria-hidden='true'
-                className='pointer-events-none flex items-center gap-1.5 rounded-full bg-raised px-3 py-1 text-[11px] font-medium text-[var(--muted)] ring-1 ring-white/5'>
+                className='pointer-events-none flex items-center gap-1.5 rounded-full bg-ink-raised px-3 py-1 text-[11px] font-medium text-on-ink-muted ring-1 ring-white/5'>
                     <Pencil size={12} />
                     Browse files
                 </span>

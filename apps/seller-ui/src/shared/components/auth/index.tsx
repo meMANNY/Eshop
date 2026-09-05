@@ -16,7 +16,7 @@ export const OTP_LENGTH = 4;
 /* ----------------------------------------------------------------- fields -- */
 
 const CONTROL =
-  'w-full rounded-lg border bg-raised py-2.5 pl-3.5 pr-11 text-sm text-[var(--text)] outline-none transition-colors placeholder:text-[var(--faint)]';
+  'w-full  border bg-ink-raised py-2.5 pl-3.5 pr-11 text-sm text-on-ink outline-none transition-colors placeholder:text-on-ink-faint';
 
 /** A password input with its own show/hide control, which `Field` cannot carry. */
 export const PasswordField = React.forwardRef<
@@ -38,14 +38,14 @@ export const PasswordField = React.forwardRef<
           aria-describedby={error ? `${fieldId}-error` : undefined}
           {...props}
           className={`${CONTROL} ${
-            error ? 'border-neg/60' : 'border-rule focus:border-coral/60'
+            error ? 'border-neg/60' : 'border-ink-border focus:border-terra/60'
           }`}
         />
         <button
           type="button"
           onClick={() => setVisible((v) => !v)}
           aria-label={visible ? 'Hide password' : 'Show password'}
-          className="absolute inset-y-0 right-0 flex items-center px-3.5 text-[var(--faint)] transition-colors hover:text-[var(--text)]"
+          className="absolute inset-y-0 right-0 flex items-center px-3.5 text-on-ink-faint transition-colors hover:text-on-ink"
         >
           {visible ? <EyeOff size={18} /> : <Eye size={18} />}
         </button>
@@ -68,7 +68,7 @@ export function FormError({ children }: { children?: React.ReactNode }) {
   return (
     <p
       role="alert"
-      className="rounded-lg border border-neg/30 bg-neg/10 px-3.5 py-2.5 text-sm text-neg"
+      className="border border-neg/30 bg-neg/10 px-3.5 py-2.5 text-sm text-neg"
     >
       {children}
     </p>
@@ -141,7 +141,7 @@ export function OtpInput({
           onChange={(e) => setDigit(index, e.target.value)}
           onKeyDown={(e) => onKeyDown(index, e)}
           aria-label={`Digit ${index + 1} of ${OTP_LENGTH}`}
-          className="figure h-14 w-14 rounded-lg border border-rule bg-raised text-center text-2xl font-semibold text-[var(--text)] outline-none transition-colors focus:border-coral/60 disabled:opacity-50"
+          className="figure h-14 w-14 border border-ink-border bg-ink-raised text-center text-2xl font-semibold text-on-ink outline-none transition-colors focus:border-terra/60 disabled:opacity-50"
         />
       ))}
     </div>
@@ -193,19 +193,19 @@ export function ResendLine({
   onResend: () => void;
 }) {
   return (
-    <p className="text-center text-sm text-[var(--muted)]">
+    <p className="text-center text-sm text-on-ink-muted">
       {canResend ? (
         <button
           type="button"
           onClick={onResend}
-          className="font-medium text-coral underline-offset-4 hover:underline"
+          className="font-medium text-terra underline-offset-4 hover:underline"
         >
           Send a new code
         </button>
       ) : (
         <>
           Didn&apos;t get it? You can ask for a new code in{' '}
-          <span className="figure text-[var(--text)]">{remaining}s</span>
+          <span className="figure text-on-ink">{remaining}s</span>
         </>
       )}
     </p>
