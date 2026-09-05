@@ -53,36 +53,53 @@ export default function Dashboard() {
   });
 
   const orderList = orders.data ?? [];
+  const today = new Date().toLocaleDateString(undefined, {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+
   const gross = orderList.reduce((sum, o: any) => sum + (o.total ?? 0), 0);
 
   return (
-    <PageShell>
+    <PageShell
+      sys={[
+        { key: "~/dashboard", value: `${orderList.length} orders` },
+        { value: `${products.data ?? 0} products`, hideOnMobile: true },
+        { value: today, trailing: true },
+      ]}
+    >
       <PageTitle
-        title="Overview"
-        meta="Everything moving through the marketplace right now."
+        kicker="/overview"
+        title="Everything moving through the marketplace"
+        meta="right now"
       />
 
-      <div className="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
+      <div className="mb-8 grid grid-cols-2 gap-px border border-ink-border bg-ink-border lg:grid-cols-4">
         <StatTile
           label="Buyers"
+          index={1}
           value={users.data ?? 0}
           loading={users.isLoading}
           note="Registered accounts"
         />
         <StatTile
           label="Sellers"
+          index={2}
           value={sellers.data ?? 0}
           loading={sellers.isLoading}
           note="Onboarded shops"
         />
         <StatTile
           label="Products"
+          index={3}
           value={products.data ?? 0}
           loading={products.isLoading}
           note="Live listings"
         />
         <StatTile
           label="Gross volume"
+          index={4}
           value={money(gross)}
           loading={orders.isLoading}
           note={`${orderList.length} order${orderList.length === 1 ? "" : "s"}`}
@@ -94,7 +111,7 @@ export default function Dashboard() {
         bare `col-span-2` creates a phantom second column and pushes the page
         sideways.
       */}
-      <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <div className="lg:col-span-2">
           <SalesChart />
         </div>
