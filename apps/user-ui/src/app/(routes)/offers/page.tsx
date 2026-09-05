@@ -3,82 +3,87 @@
 import ProductCard from "@/shared/components/cards/product-card";
 import axiosInstance from "@/utils/axiosInstance";
 import { useQuery } from "@tanstack/react-query";
-
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Tag } from "lucide-react";
 import { Range } from "react-range";
+import {
+  Button,
+  CardSkeleton,
+  CheckRow,
+  Container,
+  Crumbs,
+  EmptyState,
+  FilterGroup,
+  PageHeading,
+  Pager,
+  SysStrip,
+} from "@/shared/components/ui";
 
 const MIN = 0,
   MAX = 1199;
 
+const COLORS = [
+  { name: "Black", code: "#000000" },
+  { name: "Red", code: "#ff0000" },
+  { name: "Green", code: "#00ff00" },
+  { name: "Blue", code: "#0000ff" },
+  { name: "Yellow", code: "#ffff00" },
+  { name: "Magenta", code: "#ff00ff" },
+  { name: "Cyan", code: "#00ffff" },
+];
+const SIZES = ["XS", "S", "M", "L", "XL", "XXL"];
+
+const GRID = "grid grid-cols-2 gap-6 lg:grid-cols-3 lg:gap-8 2xl:grid-cols-4";
+
 export default function Page() {
   const router = useRouter();
 
-  const [isProductLoading, setisProductLoading] = useState(false);
-  const [priceRange, setPriceRange] = useState([0, 1199]);
+  const [isProductLoading, setIsProductLoading] = useState(false);
+  const [priceRange, setPriceRange] = useState([MIN, MAX]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
   const [selectedColors, setSelectedColors] = useState<string[]>([]);
   const [page, setPage] = useState(1);
   const [products, setProducts] = useState<any[]>([]);
   const [totalPages, setTotalPages] = useState(1);
-  const [tempPriceRange, setTempPriceRange] = useState([0, 1199]);
+  const [tempPriceRange, setTempPriceRange] = useState([MIN, MAX]);
 
-  const colors = [
-    { name: "Black", code: "#000" },
-    { name: "Red", code: "#ff0000" },
-    { name: "Green", code: "#00ff00" },
-    { name: "Blue", code: "#0000ff" },
-    { name: "Yellow", code: "#ffff00" },
-    { name: "Magenta", code: "#ff00ff" },
-    { name: "Cyan", code: "#00ffff" },
-  ];
-  const sizes = ["XS", "S", "M", "L", "XL", "XXL"];
-
-  const updateURL = () => {
-    const params = new URLSearchParams();
-    params.set("priceRange", priceRange.join(","));
-    if (selectedCategories?.length > 0)
-      params.set("categories", selectedCategories.join(","));
-    if (selectedColors?.length > 0)
-      params.set("colors", selectedColors.join(","));
-    if (selectedSizes?.length > 0) params.set("sizes", selectedSizes.join(","));
-    params.set("page", page.toString());
-    params.set("limit", "12");
-    router.replace(`/offers?${decodeURIComponent(params.toString())}`);
-  };
-
-  const fetchFilteredProducts = async () => {
-    setisProductLoading(true);
-    try {
-      const query = new URLSearchParams();
-      query.set("priceRange", priceRange.join(","));
-      if (selectedCategories?.length > 0)
-        query.set("categories", selectedCategories.join(","));
-      if (selectedColors?.length > 0)
-        query.set("colors", selectedColors.join(","));
-      if (selectedSizes?.length > 0)
-        query.set("sizes", selectedSizes.join(","));
-      query.set("page", page.toString());
-      query.set("limit", "12");
-
-      const res = await axiosInstance.get(
-        `product/api/get-filtered-offers?${query.toString()}`
-      );
-      setProducts(res.data.products);
-      setTotalPages(res.data.pagination.totalPages);
-    } catch (err) {
-      console.error("Failed to fetch filtered products.", err);
-    } finally {
-      setisProductLoading(false);
-    }
+  const buildQuery = () => {
+    const query = new URLSearchParams();
+    query.set("priceRange", priceRange.join(","));
+    if (selectedCategories.length) query.set("categories", selectedCategories.join(","));
+    if (selectedColors.length) query.set("colors", selectedColors.join(","));
+    if (selectedSizes.length) query.set("sizes", selectedSizes.join(","));
+    query.set("page", String(page));
+    query.set("limit", "12");
+    return query;
   };
 
   useEffect(() => {
-    updateURL();
-    fetchFilteredProducts();
+    const query = buildQuery();
+    router.replace(`/offers?${decodeURIComponent(query.toString())}`);
+
+    /*
+      The old effect fired a fetch with no cancellation, so changing two filters
+      quickly could land the slower response last and paint stale results.
+    */
+    let cancelled = false;
+    setIsProductLoading(true);
+    axiosInstance
+      .get(`product/api/get-filtered-offers?${query.toString()}`)
+      .then((res) => {
+        if (cancelled) return;
+        setProducts(res.data.products);
+        setTotalPages(res.data.pagination.totalPages);
+      })
+      .catch((err) => console.error("Failed to fetch filtered offers.", err))
+      .finally(() => !cancelled && setIsProductLoading(false));
+
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [priceRange, selectedCategories, selectedColors, selectedSizes, page]);
 
   const { data: categories, isLoading } = useQuery({
@@ -90,81 +95,88 @@ export default function Page() {
     staleTime: 1000 * 60 * 30,
   });
 
-  const toggleCategory = (label: string) => {
-    setSelectedCategories((prev) =>
-      prev.includes(label)
-        ? prev.filter((cat: string) => cat !== label)
-        : [...prev, label]
-    );
+  const toggle =
+    (setter: React.Dispatch<React.SetStateAction<string[]>>) => (value: string) => {
+      setter((prev) =>
+        prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value]
+      );
+      setPage(1);
+    };
+
+  const clearAll = () => {
+    setSelectedCategories([]);
+    setSelectedColors([]);
+    setSelectedSizes([]);
+    setPriceRange([MIN, MAX]);
+    setTempPriceRange([MIN, MAX]);
+    setPage(1);
   };
-  const toggleColor = (color: string) => {
-    setSelectedColors((prev) =>
-      prev.includes(color)
-        ? prev.filter((c: string) => c !== color)
-        : [...prev, color]
-    );
-  };
-  const toggleSize = (size: string) => {
-    setSelectedSizes((prev) =>
-      prev.includes(size)
-        ? prev.filter((s: string) => s !== size)
-        : [...prev, size]
-    );
-  };
+
+  const filterCount =
+    selectedCategories.length +
+    selectedColors.length +
+    selectedSizes.length +
+    (priceRange[0] !== MIN || priceRange[1] !== MAX ? 1 : 0);
 
   return (
-    <div className="w-full bg-canvas pb-14">
-      <div className="w-[90%] lg:w-[80%] mx-auto">
-        {/* Header */}
-        <div className="pb-10">
-          <div className="md:pt-10 pt-8 flex items-center gap-3 mb-3">
-            {/* Coral marker — the same "you are here" accent used across the app. */}
-            <span
-              aria-hidden="true"
-              className="h-10 w-[4px] rounded-full bg-coral "
-            />
-            <h1 className="font-semibold text-[40px] sm:text-[44px] leading-tight font-jost text-ink">
-              All Offers
-            </h1>
-          </div>
-          <div className="flex items-center text-sm text-ink-muted gap-2">
-            <Link href={"/"} className="hover:text-coral-ink transition-colors">
-              Home
-            </Link>
-            <span className="text-ink-faint">/</span>
-            <span className="text-ink">All Offers</span>
-          </div>
+    <div className="pb-16">
+      {/* This page laid itself out with a bare `w-[90%] lg:w-[80%]` wrapper, so
+          its gutter did not agree with any other page in the app. */}
+      <Container className="pt-8">
+        <Crumbs trail={[{ label: "Offers" }]} />
+
+        <div className="mt-6">
+          <PageHeading
+            kicker={`/offers${filterCount ? ` · ${filterCount} filters` : ""}`}
+            title="On offer, briefly"
+            actions={
+              filterCount > 0 ? (
+                <Button variant="ghost" mono onClick={clearAll}>
+                  clear filters ×
+                </Button>
+              ) : null
+            }
+          />
         </div>
 
-        <div className="w-full flex flex-col lg:flex-row gap-8">
-          {/* SIDEBAR */}
-          <aside className="w-full lg:w-[270px] shrink-0 rounded-xl bg-surface p-6 space-y-6 shadow-sm border border-rule h-max">
-            {/* PRICE FILTER */}
-            <div className="space-y-3">
-              <h3 className="text-base font-semibold text-ink">Price</h3>
-              <div className="ml-2">
+        <SysStrip
+          className="mb-10"
+          items={[
+            {
+              key: "~/offers",
+              value: isProductLoading ? "loading…" : `${products.length} running`,
+            },
+            { value: `${filterCount} filters`, hideOnMobile: true },
+            {
+              value: `page ${String(page).padStart(2, "0")} / ${String(totalPages).padStart(2, "0")}`,
+              trailing: true,
+            },
+          ]}
+        />
+
+        <div className="flex w-full flex-col gap-10 lg:flex-row">
+          <aside className="h-max w-full shrink-0 space-y-6 border border-line bg-paper p-5 lg:w-[260px]">
+            <FilterGroup title="Price">
+              <div className="px-1">
                 <Range
                   values={tempPriceRange}
                   step={1}
                   min={MIN}
                   max={MAX}
-                  onChange={(values) => setTempPriceRange(values)}
+                  onChange={setTempPriceRange}
                   renderTrack={({ props, children }) => {
                     const [min, max] = tempPriceRange;
-                    const percentageLeft = ((min - MIN) / (MAX - MIN)) * 100;
-                    const percentageRight = ((max - MIN) / (MAX - MIN)) * 100;
+                    const left = ((min - MIN) / (MAX - MIN)) * 100;
+                    const right = ((max - MIN) / (MAX - MIN)) * 100;
                     return (
                       <div
                         {...props}
-                        className="h-[6px] bg-slate-200 rounded-full relative cursor-pointer"
+                        className="relative h-px cursor-pointer bg-line"
                         style={{ ...props.style }}
                       >
                         <div
-                          className="absolute h-full bg-coral rounded-full"
-                          style={{
-                            left: `${percentageLeft}%`,
-                            width: `${percentageRight - percentageLeft}%`,
-                          }}
+                          className="absolute h-full bg-terra-2"
+                          style={{ left: `${left}%`, width: `${right - left}%` }}
                         />
                         {children}
                       </div>
@@ -176,163 +188,115 @@ export default function Page() {
                       <div
                         key={key}
                         {...rest}
-                        className="w-[18px] h-[18px] bg-coral rounded-full border-2 border-white shadow-md hover:scale-110 transform transition-transform duration-150"
+                        className="h-4 w-4 border border-ink-line bg-paper"
                       />
                     );
                   }}
                 />
               </div>
-
-              <div className="flex justify-between items-center mt-3">
-                <div className="text-sm text-ink-muted font-medium">
-                  ${tempPriceRange[0]} - ${tempPriceRange[1]}
-                </div>
-                <button
+              <div className="mt-5 flex items-center justify-between gap-2">
+                <span className="figure text-sm text-ink-500">
+                  ${tempPriceRange[0]} – ${tempPriceRange[1]}
+                </span>
+                <Button
+                  variant="primary"
+                  mono
+                  arrow="→"
+                  className="!px-3 !py-1.5"
                   onClick={() => {
                     setPriceRange(tempPriceRange);
                     setPage(1);
                   }}
-                  className="text-sm px-4 py-1.5 bg-coral text-[#2b0f0a] font-medium rounded-md shadow-sm hover:bg-coral-dim transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-coral"
                 >
-                  Apply
-                </button>
+                  apply
+                </Button>
               </div>
-            </div>
+            </FilterGroup>
 
-            {/* CATEGORY FILTER */}
-            <div className="pt-4 border-t border-rule">
-              <h3 className="text-base font-semibold text-ink mb-2">
-                Category
-              </h3>
-              <ul className="space-y-1 mt-2">
-                {isLoading ? (
-                  <li className="text-center text-ink-muted animate-pulse">
-                    Loading...
-                  </li>
-                ) : (
-                  categories?.map((category: any) => (
+            <FilterGroup title="Category" bordered>
+              {isLoading ? (
+                <p className="font-mono text-[11px] uppercase tracking-[0.12em] text-ink-300">
+                  loading…
+                </p>
+              ) : (
+                <ul>
+                  {categories?.map((category: any) => (
                     <li key={category}>
-                      <label className="flex items-center gap-3 text-sm text-ink-muted cursor-pointer w-full rounded-md px-2 py-1.5 transition-colors hover:bg-coral/5 hover:text-ink">
-                        <input
-                          type="checkbox"
-                          checked={selectedCategories.includes(category)}
-                          onChange={() => toggleCategory(category)}
-                          className="accent-[#ff6f61] cursor-pointer"
-                        />
-                        <span>{category}</span>
-                      </label>
+                      <CheckRow
+                        checked={selectedCategories.includes(category)}
+                        onChange={() => toggle(setSelectedCategories)(category)}
+                        label={category}
+                      />
                     </li>
-                  ))
-                )}
-              </ul>
-            </div>
+                  ))}
+                </ul>
+              )}
+            </FilterGroup>
 
-            {/* COLOR FILTER */}
-            <div className="pt-4 border-t border-rule">
-              <h3 className="text-base font-semibold text-ink mb-2">
-                Color
-              </h3>
-              <ul className="space-y-1 mt-2">
-                {colors?.map((color) => (
+            <FilterGroup title="Colour" bordered>
+              <ul>
+                {COLORS.map((color) => (
                   <li key={color.name}>
-                    <label className="flex items-center gap-2 text-sm text-ink-muted cursor-pointer rounded-md px-2 py-1.5 transition-colors hover:bg-coral/5 hover:text-ink">
-                      <input
-                        type="checkbox"
-                        checked={selectedColors.includes(color.name)}
-                        onChange={() => toggleColor(color.name)}
-                        className="accent-[#ff6f61] cursor-pointer"
-                      />
-                      <span
-                        className="w-[16px] h-[16px] rounded-full ring-1 ring-slate-300"
-                        style={{ backgroundColor: color.code }}
-                      />
-                      <span>{color.name}</span>
-                    </label>
+                    <CheckRow
+                      checked={selectedColors.includes(color.name)}
+                      onChange={() => toggle(setSelectedColors)(color.name)}
+                      label={color.name}
+                      swatch={color.code}
+                    />
                   </li>
                 ))}
               </ul>
-            </div>
+            </FilterGroup>
 
-            {/* SIZE FILTER */}
-            <div className="pt-4 border-t border-rule">
-              <h3 className="text-base font-semibold text-ink mb-2">
-                Size
-              </h3>
-              <ul className="space-y-1 mt-2">
-                {sizes?.map((size) => (
+            <FilterGroup title="Size" bordered>
+              <ul>
+                {SIZES.map((size) => (
                   <li key={size}>
-                    <label className="flex items-center gap-2 text-sm text-ink-muted cursor-pointer rounded-md px-2 py-1.5 transition-colors hover:bg-coral/5 hover:text-ink">
-                      <input
-                        type="checkbox"
-                        checked={selectedSizes.includes(size)}
-                        onChange={() => toggleSize(size)}
-                        className="accent-[#ff6f61] cursor-pointer"
-                      />
-                      <span className="font-medium">{size}</span>
-                    </label>
+                    <CheckRow
+                      checked={selectedSizes.includes(size)}
+                      onChange={() => toggle(setSelectedSizes)(size)}
+                      label={size}
+                    />
                   </li>
                 ))}
               </ul>
-            </div>
+            </FilterGroup>
           </aside>
 
-          {/* GRID */}
           <div className="flex-1">
             {isProductLoading ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-5 animate-fadeIn">
-                {Array.from({ length: 10 }).map((_, i) => (
-                  <div
-                    className="h-[250px] bg-slate-200 rounded-xl animate-pulse"
-                    key={i}
-                  />
+              <div className={GRID}>
+                {Array.from({ length: 9 }).map((_, i) => (
+                  <CardSkeleton key={i} />
                 ))}
               </div>
             ) : products.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 3xl:grid-cols-5 gap-5 transition-all duration-500 animate-fadeIn">
-                {products?.map((product) => (
-                  <ProductCard
-                    key={product.id}
-                    product={product}
-                    isEvent={product.starting_date}
-                  />
+              <div className={GRID}>
+                {products.map((product) => (
+                  <ProductCard key={product.id} product={product} isEvent />
                 ))}
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center rounded-card border border-rule bg-surface py-20 px-6 text-center animate-fadeIn">
-                <span className="flex h-16 w-16 items-center justify-center rounded-full bg-coral/10 text-coral-ink">
-                  <Tag size={28} />
-                </span>
-                <h2 className="mt-5 text-xl font-semibold text-ink">
-                  No offers match these filters
-                </h2>
-                <p className="mt-2 max-w-sm text-ink-muted">
-                  Try widening the price range or clearing a filter.
-                </p>
+              <div className="border border-line bg-paper">
+                <EmptyState
+                  icon={<Tag size={28} />}
+                  title="No offers match these filters"
+                  hint="Promotions come and go — try widening the price range or clearing a filter."
+                  action={
+                    filterCount > 0 ? (
+                      <Button variant="ghost" mono onClick={clearAll}>
+                        clear filters
+                      </Button>
+                    ) : null
+                  }
+                />
               </div>
             )}
 
-            {/* PAGINATION */}
-            {totalPages > 1 && (
-              <div className="flex justify-center mt-10 gap-2">
-                {Array.from({ length: totalPages }).map((_, i) => (
-                  <button
-                    key={i + 1}
-                    onClick={() => setPage(i + 1)}
-                    aria-current={page === i + 1 ? "page" : undefined}
-                    className={`px-4 py-2 rounded-lg border text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-coral ${
-                      page === i + 1
-                        ? "border-coral bg-coral text-[#2b0f0a] shadow-sm"
-                        : "border-rule bg-surface text-ink-muted hover:border-coral hover:text-coral-ink"
-                    }`}
-                  >
-                    {i + 1}
-                  </button>
-                ))}
-              </div>
-            )}
+            <Pager page={page} totalPages={totalPages} onChange={setPage} />
           </div>
         </div>
-      </div>
+      </Container>
     </div>
   );
 }

@@ -5,16 +5,19 @@ import axiosInstance from "@/utils/axiosInstance";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useMemo, useState } from "react";
-import { PackageSearch, SearchX, X } from "lucide-react";
+import { PackageSearch, SearchX } from "lucide-react";
 import { Range } from "react-range";
 import {
   Button,
   CardSkeleton,
+  CheckRow,
   Container,
   Crumbs,
   EmptyState,
-  Figure,
+  FilterGroup,
   PageHeading,
+  Pager,
+  SysStrip,
 } from "@/shared/components/ui";
 
 const MIN = 0,
@@ -30,6 +33,8 @@ const COLORS = [
   { name: "Cyan", code: "#00ffff" },
 ];
 const SIZES = ["XS", "S", "M", "L", "XL", "XXL"];
+
+const GRID = "grid grid-cols-2 gap-6 lg:grid-cols-3 lg:gap-8 2xl:grid-cols-4";
 
 function ProductsPage() {
   const router = useRouter();
@@ -143,36 +148,38 @@ function ProductsPage() {
     (term ? 1 : 0);
 
   return (
-    <main className="pb-16">
+    <div className="pb-16">
       <Container className="pt-8">
         <Crumbs trail={[{ label: term ? `Search: ${term}` : "All products" }]} />
-        <div className="mt-4">
+
+        <div className="mt-6">
           <PageHeading
+            kicker={`/products${filterCount ? ` · ${filterCount} filters` : ""}`}
             title={term ? `Results for “${term}”` : "All products"}
-            meta={
-              isProductLoading ? (
-                "Loading…"
-              ) : (
-                <>
-                  <Figure>{visible.length}</Figure> product
-                  {visible.length === 1 ? "" : "s"}
-                  {filterCount > 0 ? " matching your filters" : ""}
-                </>
-              )
-            }
             actions={
               filterCount > 0 ? (
-                <Button variant="ghost" onClick={clearAll}>
-                  <X size={15} aria-hidden="true" />
-                  Clear filters
+                <Button variant="ghost" mono onClick={clearAll}>
+                  clear filters ×
                 </Button>
               ) : null
             }
           />
         </div>
 
-        <div className="flex w-full flex-col gap-8 lg:flex-row">
-          <aside className="h-max w-full shrink-0 space-y-6 rounded-card border border-rule bg-surface p-5 shadow-card lg:w-[260px]">
+        <SysStrip
+          className="mb-10"
+          items={[
+            { key: "~/products", value: isProductLoading ? "loading…" : `${visible.length} results` },
+            { value: `${filterCount} filters`, hideOnMobile: true },
+            {
+              value: `page ${String(page).padStart(2, "0")} / ${String(totalPages).padStart(2, "0")}`,
+              trailing: true,
+            },
+          ]}
+        />
+
+        <div className="flex w-full flex-col gap-10 lg:flex-row">
+          <aside className="h-max w-full shrink-0 space-y-6 border border-line bg-paper p-5 lg:w-[260px]">
             <FilterGroup title="Price">
               <div className="px-1">
                 <Range
@@ -188,11 +195,11 @@ function ProductsPage() {
                     return (
                       <div
                         {...props}
-                        className="relative h-1.5 cursor-pointer rounded-full bg-rule"
+                        className="relative h-px cursor-pointer bg-line"
                         style={{ ...props.style }}
                       >
                         <div
-                          className="absolute h-full rounded-full bg-coral"
+                          className="absolute h-full bg-terra-2"
                           style={{ left: `${left}%`, width: `${right - left}%` }}
                         />
                         {children}
@@ -205,34 +212,38 @@ function ProductsPage() {
                       <div
                         key={key}
                         {...rest}
-                        className="h-[18px] w-[18px] rounded-full border-2 border-surface bg-coral shadow-card"
+                        className="h-4 w-4 border border-ink-line bg-paper"
                       />
                     );
                   }}
                 />
               </div>
-              <div className="mt-4 flex items-center justify-between gap-2">
-                <span className="figure text-sm text-ink-muted">
+              <div className="mt-5 flex items-center justify-between gap-2">
+                <span className="figure text-sm text-ink-500">
                   ${tempPriceRange[0]} – ${tempPriceRange[1]}
                 </span>
                 <Button
                   variant="primary"
-                  className="px-3 py-1.5"
+                  mono
+                  arrow="→"
+                  className="!px-3 !py-1.5"
                   onClick={() => {
                     setPriceRange(tempPriceRange);
                     setPage(1);
                   }}
                 >
-                  Apply
+                  apply
                 </Button>
               </div>
             </FilterGroup>
 
             <FilterGroup title="Category" bordered>
               {isLoading ? (
-                <p className="text-sm text-ink-faint">Loading…</p>
+                <p className="font-mono text-[11px] uppercase tracking-[0.12em] text-ink-300">
+                  loading…
+                </p>
               ) : (
-                <ul className="space-y-0.5">
+                <ul>
                   {categories?.map((category: any) => (
                     <li key={category}>
                       <CheckRow
@@ -247,7 +258,7 @@ function ProductsPage() {
             </FilterGroup>
 
             <FilterGroup title="Colour" bordered>
-              <ul className="space-y-0.5">
+              <ul>
                 {COLORS.map((color) => (
                   <li key={color.name}>
                     <CheckRow
@@ -262,7 +273,7 @@ function ProductsPage() {
             </FilterGroup>
 
             <FilterGroup title="Size" bordered>
-              <ul className="space-y-0.5">
+              <ul>
                 {SIZES.map((size) => (
                   <li key={size}>
                     <CheckRow
@@ -278,13 +289,13 @@ function ProductsPage() {
 
           <div className="flex-1">
             {isProductLoading ? (
-              <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
+              <div className={GRID}>
                 {Array.from({ length: 9 }).map((_, i) => (
                   <CardSkeleton key={i} />
                 ))}
               </div>
             ) : visible.length > 0 ? (
-              <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
+              <div className={GRID}>
                 {visible.map((product) => (
                   <ProductCard
                     key={product.id}
@@ -294,7 +305,7 @@ function ProductsPage() {
                 ))}
               </div>
             ) : (
-              <div className="rounded-card border border-rule bg-surface">
+              <div className="border border-line bg-paper">
                 {/* The two empties need different next steps, so they say
                     different things. */}
                 {term ? (
@@ -303,8 +314,8 @@ function ProductsPage() {
                     title={`Nothing matched “${term}”`}
                     hint="Try a shorter or more general term, or browse by department."
                     action={
-                      <Button variant="ghost" onClick={clearAll}>
-                        Clear search
+                      <Button variant="ghost" mono onClick={clearAll}>
+                        clear search
                       </Button>
                     }
                   />
@@ -315,8 +326,8 @@ function ProductsPage() {
                     hint="Try widening the price range or clearing a filter."
                     action={
                       filterCount > 0 ? (
-                        <Button variant="ghost" onClick={clearAll}>
-                          Clear filters
+                        <Button variant="ghost" mono onClick={clearAll}>
+                          clear filters
                         </Button>
                       ) : null
                     }
@@ -329,109 +340,7 @@ function ProductsPage() {
           </div>
         </div>
       </Container>
-    </main>
-  );
-}
-
-function FilterGroup({
-  title,
-  children,
-  bordered,
-}: {
-  title: string;
-  children: React.ReactNode;
-  bordered?: boolean;
-}) {
-  return (
-    <div className={bordered ? "border-t border-rule pt-5" : undefined}>
-      <h3 className="mb-3 text-label font-semibold uppercase text-ink-muted">
-        {title}
-      </h3>
-      {children}
     </div>
-  );
-}
-
-function CheckRow({
-  checked,
-  onChange,
-  label,
-  swatch,
-}: {
-  checked: boolean;
-  onChange: () => void;
-  label: string;
-  swatch?: string;
-}) {
-  return (
-    <label className="flex w-full cursor-pointer items-center gap-2.5 rounded-md px-2 py-1.5 text-sm text-ink-muted transition-colors hover:bg-sunken hover:text-ink">
-      <input
-        type="checkbox"
-        checked={checked}
-        onChange={onChange}
-        className="cursor-pointer accent-coral"
-      />
-      {swatch ? (
-        <span
-          aria-hidden="true"
-          className="h-4 w-4 shrink-0 rounded-full ring-1 ring-inset ring-rule"
-          style={{ backgroundColor: swatch }}
-        />
-      ) : null}
-      <span className="capitalize">{label}</span>
-    </label>
-  );
-}
-
-/**
- * Windowed pagination. The old control rendered one button per page, so a
- * catalogue of fifty pages produced a fifty-button wall under the grid.
- */
-function Pager({
-  page,
-  totalPages,
-  onChange,
-}: {
-  page: number;
-  totalPages: number;
-  onChange: (p: number) => void;
-}) {
-  if (totalPages <= 1) return null;
-
-  const pages = new Set<number>([1, totalPages, page, page - 1, page + 1]);
-  const list = [...pages].filter((p) => p >= 1 && p <= totalPages).sort((a, b) => a - b);
-
-  return (
-    <nav aria-label="Pagination" className="mt-10 flex flex-wrap justify-center gap-2">
-      <Button variant="ghost" disabled={page <= 1} onClick={() => onChange(page - 1)}>
-        Previous
-      </Button>
-      {list.map((p, i) => (
-        <span key={p} className="flex items-center gap-2">
-          {i > 0 && p - list[i - 1] > 1 ? (
-            <span className="px-1 text-ink-faint">…</span>
-          ) : null}
-          <button
-            onClick={() => onChange(p)}
-            aria-current={page === p ? "page" : undefined}
-            className={`min-w-[40px] rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${
-              page === p
-                ? "border-coral bg-coral text-[#2b0f0a]"
-                : "border-rule bg-surface text-ink-muted hover:border-coral hover:text-coral-ink"
-            }`}
-          >
-            <span className="figure">{p}</span>
-          </button>
-        </span>
-      ))}
-      <Button
-        variant="ghost"
-        disabled={page >= totalPages}
-        onClick={() => onChange(page + 1)}
-      >
-        Next
-      </Button>
-    </nav>
   );
 }
 
@@ -444,7 +353,7 @@ export default function Page() {
     <Suspense
       fallback={
         <Container className="py-16">
-          <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+          <div className={GRID}>
             {Array.from({ length: 8 }).map((_, i) => (
               <CardSkeleton key={i} />
             ))}

@@ -585,6 +585,130 @@ export function Reveal({
   );
 }
 
+/* --------------------------------------------------------------- filtering -- */
+
+/** A titled block in a filter rail, ruled off from the one above it. */
+export function FilterGroup({
+  title,
+  children,
+  bordered,
+}: {
+  title: string;
+  children: React.ReactNode;
+  bordered?: boolean;
+}) {
+  return (
+    <div className={bordered ? "border-t border-line pt-5" : undefined}>
+      <h3 className="mb-3 font-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-ink-400">
+        {title}
+      </h3>
+      {children}
+    </div>
+  );
+}
+
+export function CheckRow({
+  checked,
+  onChange,
+  label,
+  swatch,
+}: {
+  checked: boolean;
+  onChange: () => void;
+  label: string;
+  /** A physical colour this option stands for, shown as a round chip. */
+  swatch?: string;
+}) {
+  return (
+    <label className="flex w-full cursor-pointer items-center gap-2.5 px-2 py-1.5 font-mono text-[11px] uppercase tracking-[0.1em] text-ink-500 transition-colors hover:bg-surface hover:text-ink">
+      {/*
+        A square that fills terracotta when checked. `appearance-none` is what
+        makes it square in the first place — the native control is a rounded
+        rectangle on every platform, and that is the one shape this theme avoids.
+      */}
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={onChange}
+        className="h-3.5 w-3.5 shrink-0 cursor-pointer appearance-none border border-ink-line bg-paper transition-colors checked:border-terra-2 checked:bg-terra-2"
+      />
+      {swatch ? (
+        /* The swatch stays a circle: it stands for a physical colour, not for a
+           piece of this interface. */
+        <span
+          aria-hidden="true"
+          className="h-4 w-4 shrink-0 rounded-full ring-1 ring-inset ring-line"
+          style={{ backgroundColor: swatch }}
+        />
+      ) : null}
+      <span className="truncate">{label}</span>
+    </label>
+  );
+}
+
+/**
+ * Windowed pagination. Both list pages used to render one button per page, so a
+ * catalogue of fifty pages produced a fifty-button wall under the grid. This
+ * shows the first, the last, and the three around the cursor, with an ellipsis
+ * wherever the sequence jumps.
+ */
+export function Pager({
+  page,
+  totalPages,
+  onChange,
+}: {
+  page: number;
+  totalPages: number;
+  onChange: (p: number) => void;
+}) {
+  if (totalPages <= 1) return null;
+
+  const pages = new Set<number>([1, totalPages, page, page - 1, page + 1]);
+  const list = [...pages]
+    .filter((p) => p >= 1 && p <= totalPages)
+    .sort((a, b) => a - b);
+
+  return (
+    <nav
+      aria-label="Pagination"
+      className="mt-12 flex flex-wrap items-center justify-center gap-2 border-t border-line pt-8"
+    >
+      <Button variant="ghost" mono disabled={page <= 1} onClick={() => onChange(page - 1)}>
+        <span aria-hidden="true">←</span> prev
+      </Button>
+      {list.map((p, i) => (
+        <span key={p} className="flex items-center gap-2">
+          {i > 0 && p - list[i - 1] > 1 ? (
+            <span className="px-1 text-ink-300" aria-hidden="true">
+              …
+            </span>
+          ) : null}
+          <button
+            onClick={() => onChange(p)}
+            aria-current={page === p ? "page" : undefined}
+            className={`min-w-[40px] border px-3 py-2 font-mono text-[11px] transition-colors ${
+              page === p
+                ? "border-ink bg-ink text-paper"
+                : "border-line text-ink-500 hover:border-ink hover:text-ink"
+            }`}
+          >
+            <span className="figure">{String(p).padStart(2, "0")}</span>
+          </button>
+        </span>
+      ))}
+      <Button
+        variant="ghost"
+        mono
+        arrow="→"
+        disabled={page >= totalPages}
+        onClick={() => onChange(page + 1)}
+      >
+        next
+      </Button>
+    </nav>
+  );
+}
+
 /* ---------------------------------------------------------------- controls -- */
 
 const PILL =
