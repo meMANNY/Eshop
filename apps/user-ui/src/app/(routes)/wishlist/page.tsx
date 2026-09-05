@@ -1,13 +1,24 @@
 "use client";
 
-
 import useDeviceTracking from "@/hooks/useDeviceTracking";
 import useLocationTracking from "@/hooks/useLocationTracking";
 import useUser from "@/hooks/useUser";
 import { useStore } from "@/store";
-import { Heart, Minus, Plus, X } from "lucide-react";
+import { Heart } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import {
+  Button,
+  ButtonLink,
+  Card,
+  Container,
+  Crumbs,
+  EmptyState,
+  Figure,
+  PageHeading,
+  SysStrip,
+  money,
+} from "@/shared/components/ui";
 
 export default function Wishlist() {
   const { user } = useUser();
@@ -39,134 +50,129 @@ export default function Wishlist() {
   };
 
   return (
-    <div className="w-full bg-canvas">
-      <div className="md:w-[80%] w-[95%] mx-auto min-h-screen">
-        <div className="pb-10">
-          <div className="md:pt-12 pt-8 flex items-center gap-3 mb-4">
-            {/* Coral marker — the same "you are here" accent used across the app. */}
-            <span
-              aria-hidden="true"
-              className="h-9 w-[4px] rounded-full bg-coral "
-            />
-            <h1 className="font-semibold text-4xl leading-tight font-jost text-ink">
-              Wishlist
-            </h1>
-            {wishlist.length > 0 && (
-              <span className="ml-1 rounded-full bg-coral/10 px-3 py-1 text-sm font-medium text-coral-ink">
-                {wishlist.length} {wishlist.length === 1 ? "item" : "items"}
-              </span>
-            )}
-          </div>
-          <div className="text-sm text-ink-muted flex items-center gap-2">
-            <Link href="/" className="hover:text-coral-ink transition-colors">
-              Home
-            </Link>
-            <span className="text-ink-faint">/</span>
-            <span className="text-ink">Wishlist</span>
-          </div>
+    <div className="pb-16">
+      {/* This page laid itself out with a bare `md:w-[80%] w-[95%]` wrapper, so
+          its gutter did not agree with any other page in the app. */}
+      <Container className="pt-8">
+        <Crumbs trail={[{ label: "Wishlist" }]} />
+
+        <div className="mt-6">
+          <PageHeading kicker="/wishlist · saved for later" title="Wishlist" />
         </div>
 
+        {wishlist.length ? (
+          <SysStrip
+            className="mb-10"
+            items={[
+              {
+                key: "~/wishlist",
+                value: `${wishlist.length} ${wishlist.length === 1 ? "item" : "items"}`,
+              },
+              { value: "saved", trailing: true },
+            ]}
+          />
+        ) : null}
+
         {wishlist.length === 0 ? (
-          <div className="flex flex-col items-center justify-center rounded-card border border-rule bg-surface py-20 px-6 text-center">
-            <span className="flex h-16 w-16 items-center justify-center rounded-full bg-coral/10 text-coral-ink">
-              <Heart size={28} />
-            </span>
-            <h2 className="mt-5 text-xl font-semibold text-ink">
-              Your wishlist is empty
-            </h2>
-            <p className="mt-2 max-w-sm text-ink-muted">
-              Save the products you love and they&apos;ll show up here.
-            </p>
-            <Link
-              href="/"
-              className="mt-6 rounded-lg bg-coral px-6 py-2.5 font-medium text-[#2b0f0a] shadow-sm transition-colors hover:bg-coral-dim focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-coral"
-            >
-              Browse products
-            </Link>
-          </div>
+          <Card>
+            <EmptyState
+              icon={<Heart size={28} />}
+              title="Your wishlist is empty"
+              hint="Save the products you love and they'll show up here."
+              action={
+                <ButtonLink href="/products" variant="primary" arrow="→">
+                  Browse products
+                </ButtonLink>
+              }
+            />
+          </Card>
         ) : (
-          <div className="overflow-x-auto rounded-card border border-rule bg-surface shadow-sm">
-            <table className="w-full border-collapse text-ink-muted">
-              <thead className="border-b border-rule text-left text-xs font-semibold uppercase tracking-wider text-ink-muted">
-                <tr>
-                  <th className="py-4 pl-6">Product</th>
-                  <th className="py-4">Price</th>
-                  <th className="py-4">Quantity</th>
-                  <th className="py-4">Action</th>
-                  <th className="py-4 pr-6"></th>
-                </tr>
-              </thead>
-              <tbody>
-                {wishlist?.map((item: any) => (
-                  <tr
-                    key={item.id}
-                    className="border-b border-rule last:border-0 transition-colors hover:bg-coral/[0.04]"
+          /*
+            Was a five-column <table>. A wishlist row is one product with two
+            controls, not a record with five fields — as a table it could not wrap
+            on a phone and scrolled sideways instead. It is a ruled list now, the
+            same ledger shape the cart uses.
+          */
+          <ul className="border-t border-ink-line">
+            {wishlist?.map((item: any) => (
+              <li
+                key={item.id}
+                className="flex flex-wrap items-start gap-5 border-b border-line py-6 sm:flex-nowrap"
+              >
+                <div className="relative h-24 w-24 shrink-0 overflow-hidden border border-line bg-surface">
+                  <Image
+                    src={item?.images?.[0]?.url || "/placeholder.png"}
+                    alt=""
+                    fill
+                    unoptimized
+                    sizes="96px"
+                    className="object-cover"
+                  />
+                </div>
+
+                <div className="min-w-0 flex-1">
+                  <Link
+                    href={`/product/${item?.slug}`}
+                    className="clamp-2 font-display text-base font-medium tracking-tight text-ink transition-colors hover:text-terra"
                   >
-                    <td className="flex items-center gap-4 py-4 pl-6">
-                      <Image
-                        src={
-                          item?.images?.[0]?.url ||
-                          "https://cdn-icons-png.flaticon.com/512/6134/6134065.png"
-                        }
-                        alt={item?.title}
-                        width={80}
-                        height={80}
-                        className="h-20 w-20 rounded-lg border border-rule object-cover"
-                      />
-                      <span className="font-medium text-ink">
-                        {item.title}
-                      </span>
-                    </td>
-                    <td className="px-6 font-semibold text-ink">
-                      ${item.sale_price.toFixed(2)}
-                    </td>
-                    <td>
-                      <div className="flex items-center justify-between rounded-full border border-rule w-[110px] p-1">
-                        <button
-                          aria-label={`Decrease quantity of ${item.title}`}
-                          onClick={() => decreaseQuantity(item?.id)}
-                          className="flex h-7 w-7 items-center justify-center rounded-full text-ink-muted transition-colors hover:bg-coral/10 hover:text-coral-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-coral"
-                        >
-                          <Minus size={14} />
-                        </button>
-                        <span className="text-sm font-medium text-ink">
-                          {item?.quantity ?? 1}
-                        </span>
-                        <button
-                          aria-label={`Increase quantity of ${item.title}`}
-                          onClick={() => increaseQuantity(item?.id)}
-                          className="flex h-7 w-7 items-center justify-center rounded-full text-ink-muted transition-colors hover:bg-coral/10 hover:text-coral-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-coral"
-                        >
-                          <Plus size={14} />
-                        </button>
-                      </div>
-                    </td>
-                    <td>
+                    {item.title}
+                  </Link>
+
+                  <div className="mt-4 flex flex-wrap items-center gap-3">
+                    <div className="flex items-stretch border border-line">
                       <button
-                        onClick={() =>
-                          addToCart(item, user, location, deviceInfo)
-                        }
-                        className="rounded-lg bg-coral px-5 py-2 font-medium text-[#2b0f0a] shadow-sm transition-colors hover:bg-coral-dim focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-coral"
+                        aria-label={`Decrease quantity of ${item.title}`}
+                        onClick={() => decreaseQuantity(item?.id)}
+                        disabled={(item.quantity ?? 1) <= 1}
+                        className="grid h-9 w-9 place-items-center border-r border-line font-mono text-sm text-ink-500 transition-colors hover:bg-surface hover:text-ink disabled:opacity-40"
                       >
-                        Add to cart
+                        <span aria-hidden="true">−</span>
                       </button>
-                    </td>
-                    <td className="pr-6">
+                      <Figure className="grid w-11 place-items-center text-sm text-ink">
+                        {item?.quantity ?? 1}
+                      </Figure>
                       <button
-                        onClick={() => removeItem(item.id)}
-                        aria-label={`Remove ${item.title} from wishlist`}
-                        className="flex items-center gap-1.5 text-sm text-ink-faint transition-colors hover:text-neg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-500"
+                        aria-label={`Increase quantity of ${item.title}`}
+                        onClick={() => increaseQuantity(item?.id)}
+                        className="grid h-9 w-9 place-items-center border-l border-line font-mono text-sm text-ink-500 transition-colors hover:bg-surface hover:text-ink"
                       >
-                        <X size={16} /> Remove
+                        <span aria-hidden="true">+</span>
                       </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                    </div>
+
+                    <Button
+                      variant="primary"
+                      mono
+                      arrow="→"
+                      onClick={() => addToCart(item, user, location, deviceInfo)}
+                    >
+                      Add to cart
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="flex shrink-0 flex-col items-end gap-1.5">
+                  <Figure className="text-base font-semibold text-ink">
+                    {money(item.sale_price * (item.quantity ?? 1))}
+                  </Figure>
+                  {(item.quantity ?? 1) > 1 ? (
+                    <span className="figure text-xs text-ink-300">
+                      {money(item.sale_price)} each
+                    </span>
+                  ) : null}
+                  <button
+                    onClick={() => removeItem(item.id)}
+                    aria-label={`Remove ${item.title} from wishlist`}
+                    className="link-underline mt-2 font-mono text-[10px] uppercase tracking-[0.14em] text-ink-400 transition-colors hover:text-neg"
+                  >
+                    remove ×
+                  </button>
+                </div>
+              </li>
+            ))}
+          </ul>
         )}
-      </div>
+      </Container>
     </div>
   );
 }

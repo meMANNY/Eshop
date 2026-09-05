@@ -9,7 +9,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import { Minus, Plus, ShoppingCart, X } from "lucide-react";
+import { ShoppingCart } from "lucide-react";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import Loader from "@/shared/components/Loader";
@@ -17,12 +17,17 @@ import {
   Button,
   ButtonLink,
   Card,
+  CardHead,
+  Chip,
   Container,
   Crumbs,
   EmptyState,
   Figure,
+  Label,
   PageHeading,
+  Select,
   StatusPill,
+  SysStrip,
   money,
 } from "@/shared/components/ui";
 
@@ -136,23 +141,24 @@ export default function Cart() {
   }, [addresses, selectedAddressId]);
 
   return (
-    <main className="pb-16">
+    <div className="pb-16">
       <Container className="pt-8">
         <Crumbs trail={[{ label: "Cart" }]} />
-        <div className="mt-4">
-          <PageHeading
-            title="Your cart"
-            meta={
-              cart.length ? (
-                <>
-                  <Figure>{cart.length}</Figure>{" "}
-                  {cart.length === 1 ? "item" : "items"} · subtotal{" "}
-                  <Figure className="text-ink">{money(subTotal)}</Figure>
-                </>
-              ) : undefined
-            }
-          />
+
+        <div className="mt-6">
+          <PageHeading kicker="/cart · your basket" title="Your cart" />
         </div>
+
+        {cart.length ? (
+          <SysStrip
+            className="mb-10"
+            items={[
+              { key: "~/cart", value: `${cart.length} ${cart.length === 1 ? "item" : "items"}` },
+              { value: `subtotal ${money(subTotal)}` },
+              { value: `total ${money(total)}`, trailing: true },
+            ]}
+          />
+        ) : null}
 
         {cart.length === 0 ? (
           <Card>
@@ -160,14 +166,18 @@ export default function Cart() {
               icon={<ShoppingCart size={28} />}
               title="Your cart is empty"
               hint="Add a few products and they'll show up here, ready to check out."
-              action={<ButtonLink href="/products">Browse products</ButtonLink>}
+              action={
+                <ButtonLink href="/products" variant="primary" arrow="→">
+                  Browse products
+                </ButtonLink>
+              }
             />
           </Card>
         ) : (
-          <div className="flex flex-col items-start gap-6 lg:flex-row">
-            {/* Line items */}
-            <Card className="w-full overflow-hidden lg:w-[68%]">
-              <ul className="divide-y divide-rule">
+          <div className="flex flex-col items-start gap-8 lg:flex-row">
+            {/* Line items, as a ruled ledger rather than a stack of cards. */}
+            <div className="w-full lg:w-[66%]">
+              <ul className="border-t border-ink-line">
                 {cart.map((item: any) => {
                   const discounted = item.id === discountedProductId;
                   const unit = discounted
@@ -176,207 +186,214 @@ export default function Cart() {
                   return (
                     <li
                       key={item.id}
-                      className="flex flex-wrap items-start gap-4 p-4 sm:flex-nowrap sm:p-5"
+                      className="flex flex-wrap items-start gap-5 border-b border-line py-6 sm:flex-nowrap"
                     >
-                      <Image
-                        src={item?.images?.[0]?.url || "/placeholder.png"}
-                        alt=""
-                        width={88}
-                        height={88}
-                        unoptimized
-                        className="h-20 w-20 shrink-0 rounded-lg border border-rule object-cover sm:h-[88px] sm:w-[88px]"
-                      />
+                      <div className="relative h-24 w-24 shrink-0 overflow-hidden border border-line bg-surface">
+                        <Image
+                          src={item?.images?.[0]?.url || "/placeholder.png"}
+                          alt=""
+                          fill
+                          unoptimized
+                          sizes="96px"
+                          className="object-cover"
+                        />
+                      </div>
 
                       <div className="min-w-0 flex-1">
                         <Link
                           href={`/product/${item?.slug}`}
-                          className="clamp-2 font-medium text-ink transition-colors hover:text-coral-ink"
+                          className="clamp-2 font-display text-base font-medium tracking-tight text-ink transition-colors hover:text-terra"
                         >
                           {item?.title}
                         </Link>
 
                         {item?.selectedOptions ? (
-                          <div className="mt-1.5 flex flex-wrap items-center gap-3 text-sm text-ink-muted">
+                          <div className="mt-2 flex flex-wrap items-center gap-3 font-mono text-[10px] uppercase tracking-[0.14em] text-ink-400">
                             {item.selectedOptions.color ? (
                               <span className="flex items-center gap-1.5">
-                                Colour
+                                colour
                                 <span
-                                  className="inline-block h-3.5 w-3.5 rounded-full ring-1 ring-inset ring-rule"
+                                  className="inline-block h-3.5 w-3.5 rounded-full ring-1 ring-inset ring-line"
                                   style={{ backgroundColor: item.selectedOptions.color }}
                                 />
                               </span>
                             ) : null}
                             {item.selectedOptions.size ? (
-                              <span>Size {item.selectedOptions.size}</span>
+                              <span>size {item.selectedOptions.size}</span>
                             ) : null}
                           </div>
                         ) : null}
 
                         {discounted ? (
-                          <span className="mt-2 inline-block">
+                          <span className="mt-2.5 inline-block">
                             <StatusPill tone="pos">
-                              Coupon applied · −{discountPercent}%
+                              coupon · −{discountPercent}%
                             </StatusPill>
                           </span>
                         ) : null}
 
                         {/* Quantity stepper sits with the item on narrow screens
                             rather than in a column that can't fit. */}
-                        <div className="mt-3 flex w-[124px] items-center justify-between rounded-full border border-rule p-1">
+                        <div className="mt-4 flex w-fit items-stretch border border-line">
                           <button
                             aria-label={`Decrease quantity of ${item?.title}`}
                             onClick={() => setQuantity(item.id, -1)}
                             disabled={(item.quantity ?? 1) <= 1}
-                            className="grid h-7 w-7 place-items-center rounded-full text-ink-muted transition-colors hover:bg-coral-soft hover:text-coral-ink disabled:opacity-40"
+                            className="grid h-9 w-9 place-items-center border-r border-line font-mono text-sm text-ink-500 transition-colors hover:bg-surface hover:text-ink disabled:opacity-40"
                           >
-                            <Minus size={14} />
+                            <span aria-hidden="true">−</span>
                           </button>
-                          <Figure className="text-sm font-medium text-ink">
+                          <Figure className="grid w-11 place-items-center text-sm text-ink">
                             {item?.quantity ?? 1}
                           </Figure>
                           <button
                             aria-label={`Increase quantity of ${item?.title}`}
                             onClick={() => setQuantity(item.id, 1)}
-                            className="grid h-7 w-7 place-items-center rounded-full text-ink-muted transition-colors hover:bg-coral-soft hover:text-coral-ink"
+                            className="grid h-9 w-9 place-items-center border-l border-line font-mono text-sm text-ink-500 transition-colors hover:bg-surface hover:text-ink"
                           >
-                            <Plus size={14} />
+                            <span aria-hidden="true">+</span>
                           </button>
                         </div>
                       </div>
 
-                      <div className="flex shrink-0 flex-col items-end gap-2">
+                      <div className="flex shrink-0 flex-col items-end gap-1.5">
                         {/* Line total, not unit price — what this row adds to the
                             bill is the number you're checking. */}
                         <Figure className="text-base font-semibold text-ink">
                           {money(unit * (item.quantity ?? 1))}
                         </Figure>
                         {(item.quantity ?? 1) > 1 || discounted ? (
-                          <span className="figure text-xs text-ink-faint">
+                          <span className="figure text-xs text-ink-300">
                             {money(unit)} each
                           </span>
                         ) : null}
                         <button
                           onClick={() => removeFromCart(item.id, user, location, deviceInfo)}
                           aria-label={`Remove ${item?.title} from cart`}
-                          className="mt-1 inline-flex items-center gap-1 text-sm text-ink-faint transition-colors hover:text-neg"
+                          className="link-underline mt-2 font-mono text-[10px] uppercase tracking-[0.14em] text-ink-400 transition-colors hover:text-neg"
                         >
-                          <X size={14} /> Remove
+                          remove ×
                         </button>
                       </div>
                     </li>
                   );
                 })}
               </ul>
-            </Card>
+            </div>
 
             {/* Order summary */}
-            <Card className="w-full p-5 lg:sticky lg:top-24 lg:w-[32%]">
-              <h2 className="font-jost text-lg font-semibold text-ink">
-                Order summary
-              </h2>
+            <Card className="w-full lg:sticky lg:top-24 lg:w-[34%]">
+              <CardHead
+                title="Order summary"
+                note={`~/cart · ${cart.length} ${cart.length === 1 ? "item" : "items"}`}
+              />
 
-              <dl className="mt-4 space-y-2.5 text-sm">
-                <Row label="Subtotal" value={money(subTotal)} />
-                {discountAmount > 0 ? (
-                  <Row
-                    label={`Discount (${discountPercent}%)`}
-                    value={`−${money(discountAmount)}`}
-                    tone="pos"
-                  />
-                ) : null}
-              </dl>
+              <div className="p-5">
+                <dl className="space-y-3 text-sm">
+                  <Row label="Subtotal" value={money(subTotal)} />
+                  {discountAmount > 0 ? (
+                    <Row
+                      label={`Discount (${discountPercent}%)`}
+                      value={`−${money(discountAmount)}`}
+                      tone="pos"
+                    />
+                  ) : null}
+                </dl>
 
-              <div className="mt-4 flex items-baseline justify-between border-t border-rule pt-4">
-                <span className="font-jost text-lg font-semibold text-ink">Total</span>
-                <Figure className="text-xl font-semibold text-ink">
-                  {money(total)}
-                </Figure>
-              </div>
-
-              <div className="mt-5 border-t border-rule pt-5">
-                <label
-                  htmlFor="coupon"
-                  className="mb-1.5 block text-label font-semibold uppercase text-ink-muted"
-                >
-                  Coupon code
-                </label>
-                <div className="flex">
-                  <input
-                    id="coupon"
-                    type="text"
-                    value={couponCode}
-                    onChange={(e) => setCouponCode(e.target.value)}
-                    placeholder="Enter a code"
-                    className="w-full rounded-l-lg border border-rule px-3 py-2 text-sm text-ink outline-none transition-colors focus:border-coral placeholder:text-ink-faint"
-                  />
-                  <button
-                    onClick={couponCodeApply}
-                    className="rounded-r-lg bg-coral px-4 text-sm font-medium text-[#2b0f0a] transition-colors hover:bg-coral-dim"
-                  >
-                    Apply
-                  </button>
+                <div className="mt-4 flex items-baseline justify-between border-t border-ink-line pt-4">
+                  <span className="font-display text-lg font-medium tracking-tight text-ink">
+                    Total
+                  </span>
+                  <Figure className="text-xl font-semibold text-ink">
+                    {money(total)}
+                  </Figure>
                 </div>
-                {error ? (
-                  <p role="alert" className="pt-2 text-sm text-neg">
-                    {error}
-                  </p>
-                ) : null}
-              </div>
 
-              <div className="mt-5 border-t border-rule pt-5">
-                <label
-                  htmlFor="address"
-                  className="mb-1.5 block text-label font-semibold uppercase text-ink-muted"
-                >
-                  Deliver to
-                </label>
-                {addresses?.length ? (
-                  <select
-                    id="address"
-                    className="w-full rounded-lg border border-rule px-3 py-2 text-sm text-ink outline-none transition-colors focus:border-coral"
-                    value={selectedAddressId}
-                    onChange={(e) => setSelectedAddressId(e.target.value)}
-                  >
-                    {addresses.map((address: any) => (
-                      <option key={address.id} value={address.id}>
-                        {address?.label} — {address?.city}, {address?.country}
-                      </option>
-                    ))}
-                  </select>
-                ) : (
-                  <div className="rounded-lg bg-coral-soft px-3 py-2.5 text-sm text-ink-muted">
-                    You need an address before you can order.{" "}
-                    <Link
-                      href="/profile"
-                      className="font-medium text-coral-ink hover:underline"
+                <div className="mt-6 border-t border-line pt-5">
+                  <Label htmlFor="coupon">Coupon code</Label>
+                  <div className="flex items-stretch border border-line">
+                    <input
+                      id="coupon"
+                      type="text"
+                      value={couponCode}
+                      onChange={(e) => setCouponCode(e.target.value)}
+                      placeholder="Enter a code"
+                      className="w-full bg-surface px-3.5 py-2.5 text-sm text-ink outline-none transition-colors placeholder:font-mono placeholder:text-[11px] placeholder:uppercase placeholder:tracking-[0.1em] placeholder:text-ink-400 focus:bg-paper"
+                    />
+                    <button
+                      onClick={couponCodeApply}
+                      className="shrink-0 border-l border-line bg-ink px-4 font-mono text-[10px] uppercase tracking-[0.12em] text-paper transition-colors hover:bg-terra hover:text-white"
                     >
-                      Add one
-                    </Link>
+                      apply →
+                    </button>
                   </div>
-                )}
+                  {error ? (
+                    <p
+                      role="alert"
+                      className="pt-2 font-mono text-[10px] uppercase tracking-[0.12em] text-neg"
+                    >
+                      {error}
+                    </p>
+                  ) : null}
+                  {storedCouponCode ? (
+                    <span className="mt-2.5 inline-block">
+                      <Chip className="border-terra-2/40 text-terra-2">
+                        {storedCouponCode}
+                      </Chip>
+                    </span>
+                  ) : null}
+                </div>
+
+                <div className="mt-5 border-t border-line pt-5">
+                  <Label htmlFor="address">Deliver to</Label>
+                  {addresses?.length ? (
+                    <Select
+                      id="address"
+                      label="Delivery address"
+                      className="w-full"
+                      value={selectedAddressId}
+                      onChange={(e) => setSelectedAddressId(e.target.value)}
+                    >
+                      {addresses.map((address: any) => (
+                        <option key={address.id} value={address.id}>
+                          {address?.label} — {address?.city}, {address?.country}
+                        </option>
+                      ))}
+                    </Select>
+                  ) : (
+                    <div className="border border-terra-2/40 bg-terra-soft px-3 py-2.5 text-sm text-ink-500">
+                      You need an address before you can order.{" "}
+                      <Link href="/profile" className="link-underline text-terra-2">
+                        Add one
+                      </Link>
+                    </div>
+                  )}
+                </div>
+
+                {/*
+                  A "Payment method" select used to sit here offering online payment
+                  or cash on delivery. Its value was never held in state and never
+                  sent with the order, so whichever option you picked, checkout went
+                  to Stripe. Removed until it's wired.
+                */}
+
+                <Button
+                  variant="primary"
+                  mono
+                  arrow="→"
+                  onClick={createPaymentSession}
+                  disabled={loading || !addresses?.length}
+                  className="mt-6 w-full !justify-between"
+                >
+                  {loading ? <Loader size={16} color="text-paper" /> : null}
+                  {loading ? "Redirecting…" : "Continue to payment"}
+                </Button>
               </div>
-
-              {/*
-                A "Payment method" select used to sit here offering online payment
-                or cash on delivery. Its value was never held in state and never
-                sent with the order, so whichever option you picked, checkout went
-                to Stripe. Removed until it's wired.
-              */}
-
-              <Button
-                variant="primary"
-                onClick={createPaymentSession}
-                disabled={loading || !addresses?.length}
-                className="mt-6 w-full"
-              >
-                {loading ? <Loader size={18} color="text-[#2b0f0a]" /> : null}
-                {loading ? "Redirecting…" : "Proceed to checkout"}
-              </Button>
             </Card>
           </div>
         )}
       </Container>
-    </main>
+    </div>
   );
 }
 
@@ -390,9 +407,15 @@ function Row({
   tone?: "pos";
 }) {
   return (
-    <div className="flex items-center justify-between">
-      <dt className="text-ink-muted">{label}</dt>
-      <dd>
+    /* A dotted leader between the label and the figure — the ledger device from
+       the auth slip, which is what a receipt line actually looks like in print. */
+    <div className="flex items-baseline gap-2">
+      <dt className="shrink-0 text-ink-500">{label}</dt>
+      <span
+        aria-hidden="true"
+        className="min-w-4 flex-1 translate-y-[-3px] border-b border-dotted border-ink-200"
+      />
+      <dd className="shrink-0">
         <span className={`figure ${tone === "pos" ? "text-pos" : "text-ink"}`}>
           {value}
         </span>

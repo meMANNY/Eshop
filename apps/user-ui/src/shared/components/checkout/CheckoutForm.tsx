@@ -5,8 +5,15 @@ import {
   useElements,
   useStripe,
 } from "@stripe/react-stripe-js";
-import { CheckCircle, Loader2, XCircle } from "lucide-react";
 import { useMemo, useState } from "react";
+import {
+  Button,
+  Card,
+  CardHead,
+  Container,
+  Figure,
+  SysStrip,
+} from "@/shared/components/ui";
 
 type Coupon = null | {
   discountAmount?: number | string;
@@ -99,69 +106,126 @@ export default function CheckoutForm({
   };
 
   return (
-    <div className="flex justify-center items-center min-h-[80vh] px-4 my-10">
-      <form
-        onSubmit={handleSubmit}
-        className="bg-surface w-full max-w-lg p-8 rounded-md shadow space-y-6"
-      >
-        <h2 className="text-3xl font-bold text-center mb-2">
-          Secure Payment Checkout
-        </h2>
+    <Container className="py-12 lg:py-16">
+      <div className="mx-auto w-full max-w-xl">
+        <SysStrip
+          className="mb-10"
+          items={[
+            { key: "~/checkout", value: "secure payment" },
+            { value: "stripe", trailing: true },
+          ]}
+        />
 
-        <div className="bg-sunken border border-rule p-4 rounded-card text-sm text-ink-muted space-y-2">
-          {(cartItems || []).map((item: any, i: number) => {
-            const line = num(item?.quantity) * num(item?.sale_price);
-            return (
-              <div key={i} className="flex justify-between text-sm pb-1">
-                <span>
-                  {num(item?.quantity)} * {item?.title || "Item"}
+        <h1 className="mb-8 font-display text-3xl font-medium leading-[1.05] tracking-tight text-ink lg:text-4xl">
+          Confirm and pay
+        </h1>
+
+        <form onSubmit={handleSubmit}>
+          <Card>
+            <CardHead title="Order summary" note={`~/session · ${cartItems?.length ?? 0} items`} />
+
+            <div className="p-5">
+              {/* The ledger: a dotted leader between each line and its figure,
+                  which is what a receipt actually looks like in print. */}
+              <ul>
+                {(cartItems || []).map((item: any, i: number) => {
+                  const line = num(item?.quantity) * num(item?.sale_price);
+                  return (
+                    <li
+                      key={i}
+                      className="flex items-baseline gap-3 border-b border-line py-3 first:pt-0"
+                    >
+                      <span className="w-8 shrink-0 font-mono text-[10px] font-semibold tracking-[0.14em] text-terra-2">
+                        {String(i + 1).padStart(2, "0")}
+                      </span>
+                      <span className="min-w-0 flex-1 truncate text-sm text-ink-500">
+                        {item?.title || "Item"}
+                        <span className="ml-2 font-mono text-[10px] uppercase tracking-[0.12em] text-ink-400">
+                          ×{num(item?.quantity)}
+                        </span>
+                      </span>
+                      <Figure className="shrink-0 text-sm text-ink">
+                        {fmt.format(line)}
+                      </Figure>
+                    </li>
+                  );
+                })}
+              </ul>
+
+              <dl className="mt-4 space-y-2.5 text-sm">
+                <div className="flex items-baseline justify-between">
+                  <dt className="text-ink-500">Subtotal</dt>
+                  <dd>
+                    <Figure className="text-ink">{fmt.format(subtotal)}</Figure>
+                  </dd>
+                </div>
+                {discount > 0 ? (
+                  <div className="flex items-baseline justify-between">
+                    <dt className="text-ink-500">
+                      Discount
+                      {coupon?.code ? (
+                        <span className="ml-2 font-mono text-[10px] uppercase tracking-[0.12em] text-terra-2">
+                          {coupon.code}
+                        </span>
+                      ) : null}
+                    </dt>
+                    <dd>
+                      <Figure className="text-pos">−{fmt.format(discount)}</Figure>
+                    </dd>
+                  </div>
+                ) : null}
+              </dl>
+
+              <div className="mt-4 flex items-baseline justify-between border-t border-ink-line pt-4">
+                <span className="font-display text-lg font-medium tracking-tight text-ink">
+                  Total
                 </span>
-                <span>{fmt.format(line)}</span>
+                <Figure className="text-xl font-semibold text-ink">
+                  {fmt.format(total)}
+                </Figure>
               </div>
-            );
-          })}
+            </div>
+          </Card>
 
-          <div className="flex justify-between font-semibold pt-2 border-t border-t-gray-300 mt-2">
-            <span>Discount</span>
-            <span className="text-ink-muted">{fmt.format(discount)}</span>
-          </div>
+          <Card className="mt-6">
+            <CardHead title="Payment" note="~/card" />
+            <div className="p-5">
+              <PaymentElement />
+            </div>
+          </Card>
 
-          <div className="flex justify-between font-semibold mt-2">
-            <span>Total</span>
-            <span>{fmt.format(total)}</span>
-          </div>
-        </div>
+          <Button
+            type="submit"
+            variant="primary"
+            mono
+            arrow="→"
+            disabled={!stripe || loading}
+            className="mt-6 w-full !justify-between"
+          >
+            {loading ? "Processing…" : `Pay ${fmt.format(total)}`}
+          </Button>
 
-        <PaymentElement />
-        <button
-          type="submit"
-          disabled={!stripe || loading}
-          className="w-full bg-coral text-[#2b0f0a] py-2.5 rounded-lg font-medium hover:bg-coral-dim hover:text-white transition-colors flex items-center justify-center disabled:opacity-60 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-coral/40"
-        >
-          {loading && <Loader2 className="animate-spin w-5 h-5 mr-2" />}
-          {loading ? "Processing" : "Pay Now"}
-        </button>
+          {errorMsg ? (
+            <p
+              role="alert"
+              className="mt-4 border border-neg/40 bg-neg/5 px-4 py-3 font-mono text-[10px] uppercase tracking-[0.12em] text-neg"
+            >
+              {errorMsg}
+            </p>
+          ) : null}
 
-        {errorMsg && (
-          <div className="flex items-center gap-2 text-neg text-sm justify-center">
-            <XCircle className="w-5 h-5" />
-            {errorMsg}
-          </div>
-        )}
-
-        {status === "success" && (
-          <div className="flex items-center gap-2 text-green-600 text-sm justify-center">
-            <CheckCircle className="w-5 h-5" />
-            Payment Successful!
-          </div>
-        )}
-        {status === "failed" && (
-          <div className="flex items-center gap-2 text-neg text-sm justify-center">
-            <XCircle className="w-5 h-5" />
-            Payment Failed. Please try again!
-          </div>
-        )}
-      </form>
-    </div>
+          {status === "success" ? (
+            <p className="mt-4 border border-pos/40 bg-pos/5 px-4 py-3 font-mono text-[10px] uppercase tracking-[0.12em] text-pos">
+              payment successful
+            </p>
+          ) : null}
+          {status === "failed" && !errorMsg ? (
+            <p className="mt-4 border border-neg/40 bg-neg/5 px-4 py-3 font-mono text-[10px] uppercase tracking-[0.12em] text-neg">
+              payment failed — please try again
+            </p>
+          ) : null}
+        </form>
+      </div>
+    </Container>
   );
 }

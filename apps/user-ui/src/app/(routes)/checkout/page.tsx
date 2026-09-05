@@ -98,7 +98,35 @@ function CheckoutContent() {
     fetchSessionAndClientSecret();
   }, [sessionId]);
 
-  const appearance: Appearance = { theme: "stripe" };
+  /*
+    Stripe renders the card fields inside its own iframe, so they cannot inherit
+    a single class from this app. `theme: "flat"` drops Stripe's default rounded,
+    shadowed inputs, and these variables hand it the theme's actual tokens — most
+    importantly `borderRadius: "0px"`, without which the one rounded rectangle on
+    the whole storefront would be the payment form.
+  */
+  const appearance: Appearance = {
+    theme: "flat",
+    variables: {
+      colorPrimary: "#C24A1B",
+      colorBackground: "#F2EDE0",
+      colorText: "#1A1A1A",
+      colorDanger: "#A6321E",
+      borderRadius: "0px",
+      fontFamily: "Inter, ui-sans-serif, system-ui, sans-serif",
+      spacingUnit: "4px",
+    },
+    rules: {
+      ".Input": { border: "1px solid #D8D2C2", boxShadow: "none" },
+      ".Input:focus": { border: "1px solid #FF6B35", boxShadow: "none" },
+      ".Label": {
+        fontSize: "10px",
+        textTransform: "uppercase",
+        letterSpacing: "0.16em",
+        color: "#4D4639",
+      },
+    },
+  };
 
   if (loading)
     return (
