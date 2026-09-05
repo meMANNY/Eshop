@@ -28,9 +28,10 @@ export default function SalesChart({ ordersData }: { ordersData?: OrdersData }) 
       type: "area",
       toolbar: { show: false },
       foreColor: "#A89E8F",
-      fontFamily: "var(--font-mono), ui-monospace, monospace",
       background: "transparent",
-      fontFamily: "var(--font-sans), sans-serif",
+      // Axis labels are metadata, and metadata is mono everywhere else in this
+      // theme — a chart is the one place that rule is easy to forget.
+      fontFamily: "var(--font-mono), ui-monospace, monospace",
       animations: { enabled: true, speed: 600 },
     },
     /*

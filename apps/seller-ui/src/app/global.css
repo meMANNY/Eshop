@@ -357,44 +357,8 @@
     box-shadow: none;
   }
 
-  /*
-    Transitional: the neon shop sign on the login screen. It contradicts the
-    print aesthetic and is on the Phase 3 delete list, but the login page still
-    references all three classes — removing them now would leave that screen
-    visibly broken for the several phases until it is rewritten.
-  */
-  .neon-text {
-    color: var(--terra);
-    text-shadow:
-      0 0 6px rgba(255, 107, 53, 0.9),
-      0 0 18px rgba(255, 107, 53, 0.6),
-      0 0 42px rgba(255, 107, 53, 0.35);
-  }
-  .neon-flicker {
-    animation: neon-flicker 5.5s infinite steps(1);
-  }
   .fade-up {
     animation: fade-up 0.6s ease-out both;
-  }
-}
-
-@keyframes neon-flicker {
-  0%,
-  90%,
-  100% {
-    opacity: 1;
-  }
-  91% {
-    opacity: 0.72;
-  }
-  92% {
-    opacity: 1;
-  }
-  94% {
-    opacity: 0.85;
-  }
-  95% {
-    opacity: 1;
   }
 }
 

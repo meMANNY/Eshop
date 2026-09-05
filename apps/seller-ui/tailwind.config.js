@@ -98,9 +98,6 @@ module.exports = {
         display: ["var(--font-display)", "Inter Tight", "Helvetica Neue", "Arial", "sans-serif"],
         serif: ["var(--font-serif)", "Instrument Serif", "Georgia", "serif"],
         mono: ["var(--font-mono)", "JetBrains Mono", "ui-monospace", "monospace"],
-        // Transitional: only the neon shop sign on the login screen wears this,
-        // and that screen is rewritten in Phase 3. It leaves with the sign.
-        sign: ["var(--font-sign)", "cursive"],
       },
       fontSize: {
         // The uppercase micro-label used for field labels, table heads and

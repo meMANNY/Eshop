@@ -4,7 +4,6 @@ import {
   Inter_Tight,
   Instrument_Serif,
   JetBrains_Mono,
-  Pacifico,
 } from 'next/font/google';
 import { Toaster } from 'react-hot-toast';
 import Providers from './providers';
@@ -26,9 +25,6 @@ export const metadata = {
   JetBrains Mono does the heaviest lifting in a back-office: every label, table
   head, price, stock count, order id and date. Instrument Serif appears only as
   an italic accent word inside a heading.
-
-  Pacifico is transitional. It exists for exactly one element — the neon "Open."
-  shop sign on the login screen — which Phase 3 replaces. It leaves with the sign.
 */
 const sans = Inter({
   subsets: ['latin'],
@@ -57,13 +53,6 @@ const mono = JetBrains_Mono({
   display: 'swap',
 });
 
-const sign = Pacifico({
-  subsets: ['latin'],
-  weight: '400',
-  variable: '--font-sign',
-  display: 'swap',
-});
-
 export default function RootLayout({
   children,
 }: {
@@ -85,7 +74,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${sans.variable} ${display.variable} ${serif.variable} ${mono.variable} ${sign.variable} min-h-screen bg-ink font-sans text-on-ink antialiased selection:bg-terra/30`}
+        className={`${sans.variable} ${display.variable} ${serif.variable} ${mono.variable} min-h-screen bg-ink font-sans text-on-ink antialiased selection:bg-terra/30`}
       >
         <Providers>{children}</Providers>
         {/*
