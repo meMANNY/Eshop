@@ -1,8 +1,9 @@
 import './global.css';
 import {
-  Bricolage_Grotesque,
-  IBM_Plex_Mono,
-  IBM_Plex_Sans,
+  Inter,
+  Inter_Tight,
+  Instrument_Serif,
+  JetBrains_Mono,
   Pacifico,
 } from 'next/font/google';
 import { Toaster } from 'react-hot-toast';
@@ -14,33 +15,45 @@ export const metadata = {
 };
 
 /*
-  Fonts move from a render-blocking <link> to next/font: self-hosted, preloaded,
-  and no layout shift on first paint. Roboto was in that link tag and used
-  nowhere in the app, so it was a wasted request on every page load.
+  Four faces, four jobs — the same set the storefront and the ops console load,
+  so all three surfaces of the product speak in one voice.
 
-  Plex Sans and Plex Mono are one superfamily drawn for technical interfaces, so
-  the interface text and the figures share a voice while staying different in
-  kind. Bricolage carries page titles only. Pacifico exists for exactly one
-  element — the neon "Open." shop sign on the login screen.
+  The theme this is ported from sets its headings in Helvetica Neue, self-hosted.
+  That face is proprietary and cannot ship in this repository, so `display` is
+  Inter Tight: a genuine grotesque with the same tight, neutral character. Inter
+  carries body copy — the same superfamily at a different width.
+
+  JetBrains Mono does the heaviest lifting in a back-office: every label, table
+  head, price, stock count, order id and date. Instrument Serif appears only as
+  an italic accent word inside a heading.
+
+  Pacifico is transitional. It exists for exactly one element — the neon "Open."
+  shop sign on the login screen — which Phase 3 replaces. It leaves with the sign.
 */
-const sans = IBM_Plex_Sans({
+const sans = Inter({
   subsets: ['latin'],
-  weight: ['400', '500', '600'],
   variable: '--font-sans',
   display: 'swap',
 });
 
-const mono = IBM_Plex_Mono({
+const display = Inter_Tight({
   subsets: ['latin'],
-  weight: ['400', '500', '600'],
-  variable: '--font-mono',
+  variable: '--font-display',
   display: 'swap',
 });
 
-const display = Bricolage_Grotesque({
+// Instrument Serif is not a variable font; the two styles are separate files.
+const serif = Instrument_Serif({
   subsets: ['latin'],
-  weight: ['600', '700'],
-  variable: '--font-display',
+  weight: '400',
+  style: ['normal', 'italic'],
+  variable: '--font-serif',
+  display: 'swap',
+});
+
+const mono = JetBrains_Mono({
+  subsets: ['latin'],
+  variable: '--font-mono',
   display: 'swap',
 });
 
@@ -58,8 +71,21 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <head>
+        {/*
+          Marks the document as scripted before first paint. The scroll-reveal
+          CSS is gated on `html.js`, so without this the reveal never starts —
+          and, more importantly, a visitor with JavaScript disabled sees the
+          content rather than a page of elements stuck at opacity 0.
+        */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `document.documentElement.classList.add('js')`,
+          }}
+        />
+      </head>
       <body
-        className={`${sans.variable} ${mono.variable} ${display.variable} ${sign.variable} min-h-screen bg-ink font-sans text-[var(--text)] antialiased`}
+        className={`${sans.variable} ${display.variable} ${serif.variable} ${mono.variable} ${sign.variable} min-h-screen bg-ink font-sans text-on-ink antialiased selection:bg-terra/30`}
       >
         <Providers>{children}</Providers>
         {/*
@@ -72,11 +98,11 @@ export default function RootLayout({
           position="top-right"
           toastOptions={{
             className:
-              '!bg-panel !text-[#e8eaed] !border !border-rule !rounded-xl !text-sm !font-medium !shadow-pop',
+              '!rounded-none !border !border-ink-border !bg-ink-soft !text-on-ink !font-mono !text-[11px] !uppercase !tracking-[0.12em] !shadow-pop',
             style: { padding: '12px 14px', maxWidth: '360px' },
-            success: { iconTheme: { primary: '#4ade80', secondary: '#0d1117' } },
-            error: { iconTheme: { primary: '#f87171', secondary: '#0d1117' } },
-            loading: { iconTheme: { primary: '#ff6f61', secondary: '#0d1117' } },
+            success: { iconTheme: { primary: '#6FBF9A', secondary: '#1A1A1A' } },
+            error: { iconTheme: { primary: '#E8735A', secondary: '#1A1A1A' } },
+            loading: { iconTheme: { primary: '#FF6B35', secondary: '#1A1A1A' } },
             duration: 4000,
           }}
         />

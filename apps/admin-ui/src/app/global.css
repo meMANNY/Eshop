@@ -3,41 +3,86 @@
 @tailwind utilities;
 
 /*
-  The previous contents of this file were the generated Nx welcome-page styles.
-  Besides being dead, they redefined `.container`, `.rounded` and `.shadow` at
-  the top level — three real Tailwind utility names — so any element using those
-  classes silently got the welcome page's geometry instead of Tailwind's.
+  The editorial theme, ink half — identical to seller-ui. The two consoles used
+  to differ by a few points of blue in their surfaces for no reason anyone could
+  name; they now share one warm near-black, which is also the storefront's footer
+  band. One system, three surfaces.
+
+  The `--text` / `--muted` / `--faint` variables below are load-bearing. They are
+  read directly by hundreds of `text-[var(--muted)]`-style call sites across the
+  two consoles, which is more than any Tailwind token covers, so repointing them
+  here is what actually moves this app onto the new palette without editing a
+  single component. Phase 4 replaces the call sites with `text-on-ink-muted`;
+  until then these three lines are doing most of the work.
 */
 
 :root {
   color-scheme: dark;
 
-  --ink: #08090c;
-  --panel: #12161f;
-  --raised: #1a1f2b;
-  --rule: #232a38;
+  --ink: #1a1a1a;
+  --ink-soft: #262220;
+  --ink-raised: #302b27;
+  --ink-border: #3a3530;
 
-  --coral: #ff6f61;
-  --coral-dim: #e05a4d;
+  --on-ink: #faf7f0;
+  --on-ink-muted: #a89e8f;
+  --on-ink-faint: #6e665a;
 
-  --text: #e8eaed;
-  --muted: #8b95a7;
-  --faint: #5c6675;
+  --paper: #faf7f0;
+  --terra: #ff6b35;
+  --terra-2: #c24a1b;
+
+  --pos: #6fbf9a;
+  --warn: #e8a44b;
+  --neg: #e8735a;
+
+  /* ---- transitional aliases (deleted in Phase 7) ---- */
+  --panel: #262220;
+  --raised: #302b27;
+  --rule: #3a3530;
+  --coral: #ff6b35;
+  --coral-dim: #c24a1b;
+  --text: #faf7f0;
+  --muted: #a89e8f;
+  --faint: #6e665a;
 }
 
 @layer base {
   html {
+    /* Fluid root size: the whole type scale is relative, so this tunes every
+       heading and label at once between a laptop and a large desktop. */
+    font-size: clamp(15px, 12px + 0.2vw, 18px);
     -webkit-text-size-adjust: 100%;
     tab-size: 4;
     scroll-behavior: smooth;
+    /* `clip` rather than `hidden`: it stops sideways scroll from oversized ghost
+       numerals without turning <html> into a scroll container, which would break
+       `position: sticky` on the sidebar rail. */
+    overflow-x: clip;
   }
 
   body {
     background-color: var(--ink);
-    color: var(--text);
-    font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+    color: var(--on-ink);
+    font-family: var(--font-sans), Inter, ui-sans-serif, system-ui, sans-serif;
     line-height: 1.5;
+    letter-spacing: -0.41px;
     -webkit-font-smoothing: antialiased;
+  }
+
+  /*
+    Grain only on the consoles — no colour glows. The storefront's warm radial
+    washes are a shop-window device; an operations console wants the paper
+    texture and nothing else competing with a table of numbers.
+  */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-color: var(--ink);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
   }
 
   /*
@@ -47,31 +92,238 @@
     layer rather than being remembered at each call site.
   */
   .figure {
-    font-family: var(--font-mono), ui-monospace, monospace;
+    font-family: var(--font-mono), "JetBrains Mono", ui-monospace, monospace;
     font-variant-numeric: tabular-nums;
     font-feature-settings: "tnum";
+  }
+
+  /* Instrument Serif earns its place only as an italic accent word; there is no
+     upright use of it anywhere in this theme. */
+  .font-serif {
+    font-style: italic;
   }
 
   /*
     One focus treatment for the whole app. `:focus-visible` keeps it off mouse
     clicks, and the offset lifts the ring clear of the element's own border.
+    Square, because nothing else in this theme is round.
   */
   :focus-visible {
-    outline: 2px solid var(--coral);
+    outline: 2px solid var(--terra);
     outline-offset: 2px;
-    border-radius: 2px;
+    border-radius: 0;
   }
 
   ::selection {
-    background: rgba(255, 111, 97, 0.28);
+    background: rgba(255, 107, 53, 0.3);
+    color: var(--on-ink);
   }
 }
 
 @layer components {
-  /* Dark scrollbars — the default light ones cut a bright stripe into the shell. */
+  /*
+    ---- kicker -------------------------------------------------------------
+    The small terracotta label above a heading, preceded by a 24px rule. On ink,
+    terracotta reads at 6.1:1, so unlike on the cream storefront the bright step
+    is genuinely legible here rather than decorative.
+  */
+  .kicker {
+    @apply inline-flex items-center gap-2 font-mono text-[0.7rem] font-semibold uppercase tracking-kicker text-terra;
+  }
+  .kicker::before {
+    content: "";
+    @apply inline-block h-px w-6 bg-terra;
+  }
+
+  /*
+    ---- sys-strip ----------------------------------------------------------
+    A metadata bar in the filesystem voice (`~/logs ● ws: connected ● 412 lines`),
+    ruled top and bottom. It gives every console page a header line that says
+    where you are and how much of it there is.
+  */
+  .sys-strip {
+    @apply flex flex-wrap items-center gap-[0.6rem] border-y border-ink-border py-[0.55rem] font-mono text-[0.7rem] uppercase tracking-[0.08em] text-on-ink-muted;
+  }
+  .sys-strip .sys-key {
+    @apply font-semibold text-on-ink;
+  }
+  .sys-strip .sys-dot {
+    @apply text-terra-2;
+  }
+  .sys-strip .sys-value {
+    @apply text-on-ink-muted;
+  }
+
+  /* ---- ghost index ---- */
+  .ghost-index {
+    @apply pointer-events-none absolute right-0 top-[-0.18em] z-0 select-none font-display font-bold leading-none text-transparent;
+    font-size: clamp(5rem, 14vw, 11rem);
+    letter-spacing: -0.04em;
+    -webkit-text-stroke: 1px var(--ink-border);
+  }
+  @media (max-width: 640px) {
+    .ghost-index {
+      font-size: 4.5rem;
+      top: -0.1em;
+    }
+  }
+
+  /* ---- tag chip ---- */
+  .tag-chip {
+    @apply inline-flex items-center whitespace-nowrap border border-ink-border px-[0.55rem] py-[0.2rem] font-mono text-[0.66rem] uppercase tracking-[0.12em] text-on-ink-muted transition-colors;
+  }
+  .group:hover .tag-chip {
+    border-color: var(--on-ink-faint);
+  }
+
+  /*
+    ---- card hover ---------------------------------------------------------
+    The offset shadow is terracotta here, not cream: a cream one at full opacity
+    blows out against the near-black and reads as a glow, which is the exact
+    thing this theme replaced.
+  */
+  .card-hover {
+    transition:
+      transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+      border-color 0.3s ease;
+  }
+  .card-hover:hover {
+    transform: translateY(-4px);
+    box-shadow:
+      4px 4px 0 0 var(--terra-2),
+      0 16px 30px -14px rgba(0, 0, 0, 0.5);
+    border-color: var(--on-ink);
+  }
+
+  /*
+    ---- buttons ------------------------------------------------------------
+    Inverted from the storefront: primary rests as paper on ink and goes
+    terracotta on hover. The pill is the one round shape in the system, which is
+    what makes it read as an action.
+  */
+  .btn-primary {
+    @apply inline-flex items-center gap-2 rounded-full border border-paper bg-paper px-6 py-3 text-sm font-medium tracking-tight text-ink transition-all duration-200 hover:-translate-y-px hover:border-terra hover:bg-terra hover:text-ink disabled:pointer-events-none disabled:opacity-45;
+  }
+  .btn-ghost {
+    @apply inline-flex items-center gap-2 rounded-full border border-ink-border bg-transparent px-[1.4rem] py-[0.65rem] text-sm font-medium tracking-tight text-on-ink transition-colors duration-200 hover:border-paper hover:bg-ink-soft disabled:pointer-events-none disabled:opacity-45;
+  }
+  /* Added alongside btn-primary/btn-ghost for label-style buttons. */
+  .btn-mono {
+    @apply font-mono text-[11px] font-semibold uppercase tracking-[0.12em];
+  }
+
+  /* ---- link underline ---- */
+  .link-underline {
+    @apply relative no-underline;
+  }
+  .link-underline::after {
+    content: "";
+    @apply absolute -bottom-0.5 left-0 h-0.5 w-0 bg-terra transition-[width] duration-[250ms];
+  }
+  .link-underline:hover::after {
+    @apply w-full;
+  }
+
+  /*
+    ---- rules --------------------------------------------------------------
+    On cream the hard rule is near-black. On ink it inverts to cream — the rule
+    is always the highest-contrast line available, because its whole job is to
+    separate one section of a page from the next without a heading.
+  */
+  .rule-hard {
+    @apply h-px border-0 bg-on-ink;
+  }
+  .rule-soft {
+    @apply h-px border-0 bg-ink-border;
+  }
+
+  /* ---- serif highlight ---- */
+  .serif-hl {
+    @apply font-serif font-normal italic text-terra;
+  }
+
+  /*
+    ---- corner crosshairs --------------------------------------------------
+    Four L-shaped marks inside a framed panel, like registration marks on a
+    printing plate. Applied to a `relative` frame; the bottom pair needs a
+    `<span class="xh-b">` child because one element only has two pseudos.
+  */
+  .crosshairs::before,
+  .crosshairs::after,
+  .crosshairs > .xh-b::before,
+  .crosshairs > .xh-b::after {
+    content: "";
+    position: absolute;
+    width: 0.875rem;
+    height: 0.875rem;
+    border-color: var(--terra);
+    border-style: solid;
+    border-width: 0;
+    pointer-events: none;
+  }
+  .crosshairs::before {
+    top: 0.625rem;
+    left: 0.625rem;
+    border-left-width: 1px;
+    border-top-width: 1px;
+  }
+  .crosshairs::after {
+    top: 0.625rem;
+    right: 0.625rem;
+    border-right-width: 1px;
+    border-top-width: 1px;
+  }
+  .crosshairs > .xh-b::before {
+    bottom: 0.625rem;
+    left: 0.625rem;
+    border-left-width: 1px;
+    border-bottom-width: 1px;
+  }
+  .crosshairs > .xh-b::after {
+    bottom: 0.625rem;
+    right: 0.625rem;
+    border-right-width: 1px;
+    border-bottom-width: 1px;
+  }
+
+  /* ---- marquee page title ---- */
+  .marquee-title {
+    @apply whitespace-nowrap font-display font-bold leading-[0.9] text-on-ink;
+    letter-spacing: -0.04em;
+  }
+
+  /*
+    ---- scroll reveal ------------------------------------------------------
+    Gated on `html.js` so that with JavaScript disabled — or before hydration —
+    the content is simply visible rather than stuck at opacity 0. Phase 6 adds
+    the IntersectionObserver that sets `.is-revealed`.
+  */
+  @media (prefers-reduced-motion: no-preference) {
+    html.js [data-reveal] {
+      opacity: 0;
+      transform: translateY(22px);
+      transition:
+        opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+        transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+      transition-delay: calc(var(--reveal-delay, 0) * 90ms);
+    }
+    html.js [data-reveal].is-revealed {
+      opacity: 1;
+      transform: none;
+    }
+
+    .hero-reveal {
+      opacity: 0;
+      animation: hero-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      animation-delay: calc(var(--reveal-d, 0) * 0.1s + 0.15s);
+    }
+  }
+
+  /* ---- scrollbars ---- */
   .scroll-slim {
     scrollbar-width: thin;
-    scrollbar-color: var(--rule) transparent;
+    scrollbar-color: var(--ink-border) transparent;
   }
   .scroll-slim::-webkit-scrollbar {
     width: 8px;
@@ -81,11 +333,10 @@
     background: transparent;
   }
   .scroll-slim::-webkit-scrollbar-thumb {
-    background-color: var(--rule);
-    border-radius: 9999px;
+    background-color: var(--ink-border);
   }
   .scroll-slim::-webkit-scrollbar-thumb:hover {
-    background-color: #2f3949;
+    background-color: var(--on-ink-faint);
   }
 
   /* Hides the scrollbar without losing the ability to scroll (sidebar rail). */
@@ -98,15 +349,15 @@
   }
 
   /*
-    The signature marker: a short coral bar that names the thing you are looking
-    at. It appears once per page beside the title, and once in the sidebar
-    against the active route, so the two always agree.
+    Transitional: the old coral edge marker, now a 1px terracotta hairline with
+    no glow — the glow is the single most anti-editorial thing in the old system.
+    Phase 4 replaces the five call sites with the nav-index treatment.
   */
   .marker {
-    width: 3px;
-    border-radius: 9999px;
-    background-color: var(--coral);
-    box-shadow: 0 0 10px rgba(255, 111, 97, 0.55);
+    width: 1px;
+    border-radius: 0;
+    background-color: var(--terra);
+    box-shadow: none;
   }
 }
 
@@ -120,5 +371,16 @@
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+  /* Reveal and lift are opt-in motion, so under `reduce` they are not sped up —
+     they are removed, and the content simply is where it belongs. */
+  .hero-reveal,
+  [data-reveal] {
+    opacity: 1 !important;
+    transform: none !important;
+    animation: none !important;
+  }
+  .card-hover:hover {
+    transform: none;
   }
 }
