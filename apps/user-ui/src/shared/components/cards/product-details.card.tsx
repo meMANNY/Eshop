@@ -70,12 +70,12 @@ const ProductDetailsCard = ({data,setOpen}: {data:any,setOpen:(open: boolean) =>
     onClick={() => setOpen(false)}
     >
         <div
-            className="w-[90%] md:w-[70%] min-h-[70vh] h-max bg-surface shadow-pop rounded-card flex items-center p-6 relative overflow-y-scroll animate-slideDown"
+            className="w-[90%] md:w-[70%] min-h-[70vh] h-max bg-paper shadow-pop flex items-center p-6 relative overflow-y-scroll animate-slideDown"
             onClick={(e) => e.stopPropagation()}
         >
                 <button
             onClick={() => setOpen(false)}
-            className="absolute top-3 right-3 grid h-9 w-9 place-items-center rounded-full bg-sunken text-ink-muted shadow-card transition-colors hover:bg-canvas hover:text-ink focus:outline-none focus-visible:ring-2 focus-visible:ring-coral/40"
+            className="absolute top-3 right-3 grid h-9 w-9 place-items-center rounded-full bg-paper-x text-ink-500 transition-colors hover:bg-paper hover:text-ink focus:outline-none focus-visible:ring-2 focus-visible:ring-terra/40"
             >
             <X size={20} />
             {""}
@@ -93,9 +93,9 @@ const ProductDetailsCard = ({data,setOpen}: {data:any,setOpen:(open: boolean) =>
                             {data?.images?.map((image: any, i: number) => (
                                 <div
                                 key={i}
-                                className={`cursor-pointer border rounded-md transition-all duration-200 ${
+                                className={`cursor-pointer border  transition-all duration-200 ${
                                     activeImage === i
-                                    ? "border-coral shadow-md scale-105"
+                                    ? "border-terra  scale-105"
                                     : "border-transparent opacity-70 hover:opacity-100"
                                 }`}
                                 onClick={() => setActiveImage(i)}
@@ -105,7 +105,7 @@ const ProductDetailsCard = ({data,setOpen}: {data:any,setOpen:(open: boolean) =>
                                     alt={`Thumbnail ${i}`}
                                     width={75}
                                     height={75}
-                                    className="rounded-md"
+                                    className=""
                                 />
                                 </div>
                             ))}
@@ -138,14 +138,14 @@ const ProductDetailsCard = ({data,setOpen}: {data:any,setOpen:(open: boolean) =>
                                     <Ratings rating={data?.Shop?.ratings}  />
                                 </span>
                                 
-                                    <p className="text-ink-muted flex items-center gap-2">
+                                    <p className="text-ink-500 flex items-center gap-2">
                                         <MapPin size={18} />{" "}
                                         {data?.Shop?.address || "Location Not Available"}
                                     </p>
                             </div>
                                 <button
                                 disabled={isLoading}
-                                className="inline-flex items-center gap-2 rounded-lg border border-coral/40 bg-coral-soft px-4 py-2 text-sm font-medium text-coral-ink transition-colors hover:bg-coral hover:text-[#2b0f0a] disabled:opacity-60 focus:outline-none focus-visible:ring-2 focus-visible:ring-coral/40"
+                                className="inline-flex items-center gap-2 border border-terra/40 bg-terra-soft px-4 py-2 text-sm font-medium text-terra-2 transition-colors hover:bg-terra hover:text-paper disabled:opacity-60 focus:outline-none focus-visible:ring-2 focus-visible:ring-terra/40"
                                 onClick={() => handleChat()}
                             >
                                 <MessageCircle className="h-4 w-4" aria-hidden="true" />
@@ -156,9 +156,9 @@ const ProductDetailsCard = ({data,setOpen}: {data:any,setOpen:(open: boolean) =>
                     </div>
 
                     <h3 className="text-xl font-semibold">{data?.title}</h3>
-                    <p className="text-ink-muted">{data?.short_description}</p>
+                    <p className="text-ink-500">{data?.short_description}</p>
                     {data?.brand && (
-                        <p className="text-ink-muted">
+                        <p className="text-ink-500">
                             <strong>Brand:</strong> {data?.brand}
                         </p>
                     )}
@@ -173,8 +173,8 @@ const ProductDetailsCard = ({data,setOpen}: {data:any,setOpen:(open: boolean) =>
                                     key={i}
                                     className={`w-8 h-8 rounded-full transition-all ${
                                     isSelected === color
-                                        ? "scale-110 ring-2 ring-coral ring-offset-2 ring-offset-surface shadow-md"
-                                        : "border border-rule shadow-sm"
+                                        ? "scale-110 ring-2 ring-terra ring-offset-2 ring-offset-surface "
+                                        : "border border-line "
                                     }`}
                                     style={{ backgroundColor: color }}
                                     onClick={() => setIsSelected(color)}
@@ -191,10 +191,10 @@ const ProductDetailsCard = ({data,setOpen}: {data:any,setOpen:(open: boolean) =>
                                 {data.sizes.map((size: string, i: number) => (
                                 <button
                                     key={i}
-                                    className={`rounded-lg px-4 py-2 text-sm transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-coral/40 ${
+                                    className={` px-4 py-2 text-sm transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-terra/40 ${
                                     isSizeSelected === size
-                                        ? "bg-coral font-medium text-[#2b0f0a]"
-                                        : "border border-rule bg-surface text-ink-muted hover:border-coral/40 hover:text-coral-ink"
+                                        ? "bg-terra font-medium text-paper"
+                                        : "border border-line bg-paper text-ink-500 hover:border-terra/40 hover:text-terra-2"
                                     }`}
                                     onClick={() => setIsSizeSelected(size)}
                                 >
@@ -217,18 +217,18 @@ const ProductDetailsCard = ({data,setOpen}: {data:any,setOpen:(open: boolean) =>
                     
                     <div className="flex items-center gap-3">
                         <button
-                            className={`grid h-8 w-8 place-items-center rounded-lg border border-rule bg-surface text-ink-muted transition-colors hover:border-coral/40 hover:text-coral-ink focus:outline-none focus-visible:ring-2 focus-visible:ring-coral/40 ${
+                            className={`grid h-8 w-8 place-items-center  border border-line bg-paper text-ink-500 transition-colors hover:border-terra/40 hover:text-terra-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-terra/40 ${
                             quantity <= 1 ? "animate-shake" : ""
                             }`}
                             onClick={() => setQuantity((prev) => Math.max(1, prev - 1))}
                         >
                             -
                         </button>
-                        <span className="min-w-[2.5rem] rounded-lg border border-rule bg-sunken px-3 py-1 text-center font-mono text-sm tabular-nums text-ink">
+                        <span className="min-w-[2.5rem] border border-line bg-paper-x px-3 py-1 text-center font-mono text-sm tabular-nums text-ink">
                             {quantity}
                         </span>
                         <button
-                            className="grid h-8 w-8 place-items-center rounded-lg border border-rule bg-surface text-ink-muted transition-colors hover:border-coral/40 hover:text-coral-ink focus:outline-none focus-visible:ring-2 focus-visible:ring-coral/40"
+                            className="grid h-8 w-8 place-items-center border border-line bg-paper text-ink-500 transition-colors hover:border-terra/40 hover:text-terra-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-terra/40"
                             onClick={() => setQuantity((prev) => prev + 1)}
                         >
                             +
@@ -245,10 +245,10 @@ const ProductDetailsCard = ({data,setOpen}: {data:any,setOpen:(open: boolean) =>
                                     deviceInfo
                                 )
                                 }
-                                className={`flex items-center gap-2 px-5 py-2 bg-[#ff5722] hover:bg-[#e64a19] text-white rounded-lg font-medium transition relative overflow-hidden "
+                                className={`flex items-center gap-2 px-5 py-2 bg-[#ff5722] hover:bg-[#e64a19] text-white  font-medium transition relative overflow-hidden "
                                 }`}
                             >
-                                <span className="absolute inset-0 bg-surface/20 animate-shine" />
+                                <span className="absolute inset-0 bg-paper/20 animate-shine" />
                                 <CartIcon size={18} /> Add to Cart
                             </button>
                         <Heart
@@ -269,12 +269,12 @@ const ProductDetailsCard = ({data,setOpen}: {data:any,setOpen:(open: boolean) =>
                         />
                     </div>
                     <span
-                    className={data?.stock > 0 ? "text-green-600" : "text-neg"}
+                    className={data?.stock > 0 ? "text-pos" : "text-neg"}
                     >
                     {data?.stock > 0 ? "In Stock" : "Out of Stock"}
                     </span>
                     <div className="mt-4">
-                        <span className="text-ink-muted text-sm">
+                        <span className="text-ink-500 text-sm">
                             Estimated Delivery:{" "}
                             <strong>{estimatedDelivery.toDateString()}</strong>
                         </span>

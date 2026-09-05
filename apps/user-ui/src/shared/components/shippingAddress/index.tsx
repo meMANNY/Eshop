@@ -71,7 +71,7 @@ export default function ShippingAddressSection() {
         </h2>
         <button
           onClick={() => setShowModal(true)}
-          className="flex items-center gap-2 bg-coral text-[#2b0f0a] px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-coral-dim hover:text-white transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-coral/40"
+          className="flex items-center gap-2 bg-ink text-paper px-3 py-1.5 text-sm font-medium hover:bg-terra hover:text-white transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-terra/40"
         >
           <Plus className="w-4 h-4" />
           Add New
@@ -81,11 +81,11 @@ export default function ShippingAddressSection() {
       {/* Addresses */}
       <div>
         {addressesLoading ? (
-          <p className="text-sm text-ink-muted text-center py-4">
+          <p className="text-sm text-ink-500 text-center py-4">
             Loading addresses...
           </p>
         ) : !addresses || addresses.length === 0 ? (
-          <p className="text-sm text-ink-muted text-center py-4">
+          <p className="text-sm text-ink-500 text-center py-4">
             No saved addresses found.
           </p>
         ) : (
@@ -93,23 +93,23 @@ export default function ShippingAddressSection() {
             {addresses.map((address: any) => (
               <div
                 key={address.id}
-                className="relative border border-rule rounded-card p-5 shadow-card bg-surface hover:border-coral/40 hover:shadow-lift hover:-translate-y-1 transition-all duration-300"
+                className="relative border border-line p-5 bg-paper hover:border-terra/40 hover:shadow-lift hover:-translate-y-1 transition-all duration-300"
               >
                 {address?.isDefault && (
-                  <span className="absolute top-3 right-3 bg-coral-soft text-coral-ink text-label font-semibold uppercase px-2 py-0.5 rounded-full">
+                  <span className="absolute top-3 right-3 bg-terra-soft text-terra-2 text-label font-semibold uppercase px-2 py-0.5 rounded-full">
                     Default
                   </span>
                 )}
 
-                <div className="flex items-start gap-3 text-ink-muted">
+                <div className="flex items-start gap-3 text-ink-500">
                   <div className="mt-0.5 flex-shrink-0">
-                    <MapPin className="w-5 h-5 text-coral-ink" />
+                    <MapPin className="w-5 h-5 text-terra-2" />
                   </div>
                   <div className="text-sm leading-relaxed">
                     <p className="font-semibold text-ink">
                       {address?.label} — {address?.name}
                     </p>
-                    <p className="text-ink-muted">
+                    <p className="text-ink-500">
                       {address?.street}, {address?.city}, {address?.zip},{" "}
                       {address?.country}
                     </p>
@@ -134,11 +134,11 @@ export default function ShippingAddressSection() {
       {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm transition-all duration-300">
-          <div className="bg-surface w-full max-w-md p-6 rounded-card shadow-pop relative animate-fadeIn border border-rule">
+          <div className="bg-paper w-full max-w-md p-6 shadow-pop relative animate-fadeIn border border-line">
             {/* Close button */}
             <button
               onClick={() => setShowModal(false)}
-              className="absolute top-4 right-4 text-ink-faint hover:text-ink-muted transition"
+              className="absolute top-4 right-4 text-ink-400 hover:text-ink-500 transition"
             >
               <X className="w-5 h-5" />
               {""}
@@ -153,12 +153,12 @@ export default function ShippingAddressSection() {
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               {/* Address Type */}
               <div>
-                <label className="block text-sm font-medium text-ink-muted mb-1">
+                <label className="block text-sm font-medium text-ink-500 mb-1">
                   Address Type
                 </label>
                 <select
                   {...register("label")}
-                  className="w-full border border-rule rounded-md px-3 py-2 text-sm focus:border-coral focus:ring-2 focus:ring-coral/25 focus:outline-none transition-colors"
+                  className="w-full border border-line px-3 py-2 text-sm focus:border-terra focus:ring-2 focus:ring-terra/25 focus:outline-none transition-colors"
                 >
                   <option value="Home">Home</option>
                   <option value="Work">Work</option>
@@ -171,7 +171,7 @@ export default function ShippingAddressSection() {
                 <input
                   placeholder="Full Name"
                   {...register("name", { required: "Name is required!" })}
-                  className="w-full border border-rule rounded-md px-3 py-2 text-sm focus:border-coral focus:ring-2 focus:ring-coral/25 focus:outline-none transition-colors"
+                  className="w-full border border-line px-3 py-2 text-sm focus:border-terra focus:ring-2 focus:ring-terra/25 focus:outline-none transition-colors"
                 />
                 {errors.name && (
                   <p className="text-neg text-xs mt-1">
@@ -185,7 +185,7 @@ export default function ShippingAddressSection() {
                 <input
                   placeholder="Street Address"
                   {...register("street", { required: "Street is required!" })}
-                  className="w-full border border-rule rounded-md px-3 py-2 text-sm focus:border-coral focus:ring-2 focus:ring-coral/25 focus:outline-none transition-colors"
+                  className="w-full border border-line px-3 py-2 text-sm focus:border-terra focus:ring-2 focus:ring-terra/25 focus:outline-none transition-colors"
                 />
                 {errors.street && (
                   <p className="text-neg text-xs mt-1">
@@ -199,7 +199,7 @@ export default function ShippingAddressSection() {
                 <input
                   placeholder="City"
                   {...register("city", { required: "City is required!" })}
-                  className="w-full border border-rule rounded-md px-3 py-2 text-sm focus:border-coral focus:ring-2 focus:ring-coral/25 focus:outline-none transition-colors"
+                  className="w-full border border-line px-3 py-2 text-sm focus:border-terra focus:ring-2 focus:ring-terra/25 focus:outline-none transition-colors"
                 />
                 {errors.city && (
                   <p className="text-neg text-xs mt-1">
@@ -213,7 +213,7 @@ export default function ShippingAddressSection() {
                 <input
                   placeholder="ZIP / Postal Code"
                   {...register("zip", { required: "ZIP Code is required!" })}
-                  className="w-full border border-rule rounded-md px-3 py-2 text-sm focus:border-coral focus:ring-2 focus:ring-coral/25 focus:outline-none transition-colors"
+                  className="w-full border border-line px-3 py-2 text-sm focus:border-terra focus:ring-2 focus:ring-terra/25 focus:outline-none transition-colors"
                 />
                 {errors.zip && (
                   <p className="text-neg text-xs mt-1">
@@ -224,12 +224,12 @@ export default function ShippingAddressSection() {
 
               {/* Country */}
               <div>
-                <label className="block text-sm font-medium text-ink-muted mb-1">
+                <label className="block text-sm font-medium text-ink-500 mb-1">
                   Country
                 </label>
                 <select
                   {...register("country")}
-                  className="w-full border border-rule rounded-md px-3 py-2 text-sm focus:border-coral focus:ring-2 focus:ring-coral/25 focus:outline-none transition-colors"
+                  className="w-full border border-line px-3 py-2 text-sm focus:border-terra focus:ring-2 focus:ring-terra/25 focus:outline-none transition-colors"
                 >
                   {countries.map((country) => (
                     <option key={country.code} value={country.name}>
@@ -241,12 +241,12 @@ export default function ShippingAddressSection() {
 
               {/* Default Option */}
               <div>
-                <label className="block text-sm font-medium text-ink-muted mb-1">
+                <label className="block text-sm font-medium text-ink-500 mb-1">
                   Default Setting
                 </label>
                 <select
                   {...register("isDefault")}
-                  className="w-full border border-rule rounded-md px-3 py-2 text-sm focus:border-coral focus:ring-2 focus:ring-coral/25 focus:outline-none transition-colors"
+                  className="w-full border border-line px-3 py-2 text-sm focus:border-terra focus:ring-2 focus:ring-terra/25 focus:outline-none transition-colors"
                 >
                   <option value="true">Set as Default</option>
                   <option value="false">Not Default</option>
@@ -255,7 +255,7 @@ export default function ShippingAddressSection() {
 
               {/* Submit */}
               <button
-                className="w-full bg-coral text-[#2b0f0a] font-medium text-sm py-2.5 rounded-lg hover:bg-coral-dim hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-coral/40 transition-colors duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
+                className="w-full bg-ink text-paper font-medium text-sm py-2.5 hover:bg-terra hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-terra/40 transition-colors duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
                 type="submit"
                 disabled={isPending}
               >

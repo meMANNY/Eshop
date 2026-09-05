@@ -200,7 +200,7 @@ export default function SellerProfile({
       };
 
   return (
-    <div className="min-h-screen bg-canvas pb-16">
+    <div className="min-h-screen bg-paper pb-16">
       <ShopWindow
         shopName={shop?.name}
         coverBanner={shop?.coverBanner}
@@ -211,9 +211,9 @@ export default function SellerProfile({
       <Container>
         {/* MASTHEAD — lifted over the window band. */}
         <motion.div {...rise} className="relative z-10 -mt-14 sm:-mt-20">
-          <div className="rounded-card border border-rule bg-surface p-5 shadow-lift sm:p-7">
+          <div className="border border-line bg-paper p-5 shadow-lift sm:p-7">
             <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
-              <div className="relative grid h-20 w-20 shrink-0 place-items-center overflow-hidden rounded-full border-4 border-surface bg-sunken shadow-card sm:h-24 sm:w-24">
+              <div className="relative grid h-20 w-20 shrink-0 place-items-center overflow-hidden rounded-full border-4 border-paper bg-paper-x sm:h-24 sm:w-24">
                 {shop?.avatar ? (
                   <Image
                     src={shop.avatar}
@@ -223,7 +223,7 @@ export default function SellerProfile({
                     className="object-cover"
                   />
                 ) : (
-                  <span className="font-jost text-3xl font-semibold text-ink-muted">
+                  <span className="font-display text-3xl font-semibold text-ink-500">
                     {shop?.name?.[0]?.toUpperCase() ?? "S"}
                   </span>
                 )}
@@ -234,10 +234,10 @@ export default function SellerProfile({
                   {/* The coral rail the whole product uses to say "here". */}
                   <span className="marker mt-1.5 h-8" aria-hidden="true" />
                   <div className="min-w-0">
-                    <h1 className="font-jost text-[28px] font-semibold leading-none tracking-[-0.02em] text-ink sm:text-[34px]">
+                    <h1 className="font-display text-[28px] font-semibold leading-none tracking-[-0.02em] text-ink sm:text-[34px]">
                       {shop?.name}
                     </h1>
-                    <p className="mt-2 max-w-xl text-sm leading-relaxed text-ink-muted">
+                    <p className="mt-2 max-w-xl text-sm leading-relaxed text-ink-500">
                       {shop?.bio ||
                         "This seller hasn't written a description yet."}
                     </p>
@@ -254,7 +254,7 @@ export default function SellerProfile({
               >
                 <Heart
                   size={16}
-                  className={isFollowing ? "fill-coral-ink text-coral-ink" : ""}
+                  className={isFollowing ? "fill-terra-ink text-terra-2" : ""}
                   aria-hidden="true"
                 />
                 {isFollowing ? "Following" : "Follow shop"}
@@ -267,7 +267,7 @@ export default function SellerProfile({
               paginated, so any number here would be the page size, not the
               catalogue.
             */}
-            <dl className="mt-6 grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-rule bg-rule sm:grid-cols-4">
+            <dl className="mt-6 grid grid-cols-2 gap-px overflow-hidden border border-line bg-rule sm:grid-cols-4">
               <Fact label="Rating">
                 {reviews.length > 0 || shop?.ratings ? (
                   <span className="inline-flex items-center gap-1.5">
@@ -275,7 +275,7 @@ export default function SellerProfile({
                     <Figure>{(shop?.ratings ?? 0).toFixed(1)}</Figure>
                   </span>
                 ) : (
-                  <span className="text-base text-ink-faint">Not rated</span>
+                  <span className="text-base text-ink-400">Not rated</span>
                 )}
               </Fact>
               <Fact label="Reviews">
@@ -298,7 +298,7 @@ export default function SellerProfile({
               shop?.address ||
               shop?.website ||
               (shop?.socialLinks?.length ?? 0) > 0) && (
-              <div className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-2.5 border-t border-rule pt-5 text-sm text-ink-muted">
+              <div className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-2.5 border-t border-line pt-5 text-sm text-ink-500">
                 {shop?.opening_hours ? (
                   <Meta icon={Clock}>{shop.opening_hours}</Meta>
                 ) : null}
@@ -309,7 +309,7 @@ export default function SellerProfile({
                       href={shop.website}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-coral-ink underline-offset-4 hover:underline"
+                      className="text-terra-2 underline-offset-4 hover:underline"
                     >
                       {shop.website.replace(/^https?:\/\//, "")}
                     </Link>
@@ -322,7 +322,7 @@ export default function SellerProfile({
                       href={link.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-ink-faint transition-colors hover:text-coral-ink"
+                      className="text-ink-400 transition-colors hover:text-terra-2"
                       aria-label={link.type ?? "Social link"}
                     >
                       {link.type === "youtube" ? (
@@ -343,7 +343,7 @@ export default function SellerProfile({
           <div
             role="tablist"
             aria-label="Shop sections"
-            className="scroll-slim flex gap-1 overflow-x-auto border-b border-rule"
+            className="scroll-slim flex gap-1 overflow-x-auto border-b border-line"
           >
             {TABS.map((tab) => {
               const selected = activeTab === tab.id;
@@ -357,14 +357,14 @@ export default function SellerProfile({
                   onClick={() => setActiveTab(tab.id)}
                   className={`-mb-px flex shrink-0 items-center gap-2 border-b-2 px-4 py-3 text-sm font-medium transition-colors ${
                     selected
-                      ? "border-coral text-ink"
-                      : "border-transparent text-ink-muted hover:text-coral-ink"
+                      ? "border-terra text-ink"
+                      : "border-transparent text-ink-500 hover:text-terra-2"
                   }`}
                 >
                   <tab.icon size={15} aria-hidden="true" />
                   {tab.label}
                   {tab.id === "Reviews" && reviews.length > 0 ? (
-                    <Figure className="text-xs text-ink-faint">
+                    <Figure className="text-xs text-ink-400">
                       {reviews.length}
                     </Figure>
                   ) : null}
@@ -438,7 +438,7 @@ function ShopWindow({
   const hasWindow = !coverBanner && images.length >= 3;
 
   return (
-    <div className="relative h-[190px] w-full overflow-hidden bg-sunken sm:h-[280px]">
+    <div className="relative h-[190px] w-full overflow-hidden bg-paper-x sm:h-[280px]">
       {coverBanner ? (
         <Image
           src={coverBanner}
@@ -469,7 +469,7 @@ function ShopWindow({
         </div>
       ) : (
         <div className="grid h-full w-full place-items-center bg-gradient-to-br from-coral/15 to-coral/5">
-          <Store size={34} className="text-coral-ink/40" aria-hidden="true" />
+          <Store size={34} className="text-terra-2/40" aria-hidden="true" />
         </div>
       )}
 
@@ -482,7 +482,7 @@ function ShopWindow({
       */}
       {(coverBanner || hasWindow) && (
         <>
-          <div aria-hidden="true" className="absolute inset-0 bg-coral/20" />
+          <div aria-hidden="true" className="absolute inset-0 bg-terra/20" />
           <div
             aria-hidden="true"
             className="absolute inset-0 bg-gradient-to-b from-canvas/80 via-canvas/45 to-canvas"
@@ -508,8 +508,8 @@ function ShopWindow({
 
 function Fact({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="bg-surface px-4 py-3">
-      <dt className="text-label font-semibold uppercase text-ink-faint">{label}</dt>
+    <div className="bg-paper px-4 py-3">
+      <dt className="text-label font-semibold uppercase text-ink-400">{label}</dt>
       <dd className="mt-1 text-lg font-semibold text-ink">{children}</dd>
     </div>
   );
@@ -524,7 +524,7 @@ function Meta({
 }) {
   return (
     <span className="inline-flex min-w-0 items-center gap-2">
-      <Icon size={15} className="shrink-0 text-coral-ink" aria-hidden="true" />
+      <Icon size={15} className="shrink-0 text-terra-2" aria-hidden="true" />
       <span className="truncate">{children}</span>
     </span>
   );
@@ -594,8 +594,8 @@ function Reviews({
 
   return (
     <div className="grid gap-6 lg:grid-cols-[280px_1fr]">
-      <div className="rounded-card border border-rule bg-surface p-5 shadow-card">
-        <p className="font-jost text-5xl font-semibold leading-none text-ink">
+      <div className="border border-line bg-paper p-5">
+        <p className="font-display text-5xl font-semibold leading-none text-ink">
           <Figure>{average.toFixed(1)}</Figure>
         </p>
         <div className="mt-2.5">
@@ -605,20 +605,20 @@ function Reviews({
         <div className="mt-5 space-y-2">
           {buckets.map(({ stars, count }) => (
             <div key={stars} className="flex items-center gap-2.5">
-              <span className="figure w-3 text-xs text-ink-muted">{stars}</span>
+              <span className="figure w-3 text-xs text-ink-500">{stars}</span>
               <Star size={11} className="fill-warn text-warn" aria-hidden="true" />
               <div
-                className="h-1.5 flex-1 overflow-hidden rounded-full bg-sunken ring-1 ring-inset ring-rule"
+                className="h-1.5 flex-1 overflow-hidden rounded-full bg-paper-x ring-1 ring-inset ring-rule"
                 role="presentation"
               >
                 <div
-                  className="h-full rounded-full bg-coral"
+                  className="h-full rounded-full bg-terra"
                   style={{
                     width: `${(count / reviews.length) * 100}%`,
                   }}
                 />
               </div>
-              <span className="figure w-4 text-right text-xs text-ink-faint">
+              <span className="figure w-4 text-right text-xs text-ink-400">
                 {count}
               </span>
             </div>
@@ -626,7 +626,7 @@ function Reviews({
         </div>
       </div>
 
-      <ul className="divide-y divide-rule overflow-hidden rounded-card border border-rule bg-surface shadow-card">
+      <ul className="divide-y divide-line overflow-hidden border border-line bg-paper">
         {reviews.map((review) => (
           <li key={review.id} className="flex items-center gap-4 px-5 py-4">
             {/*
@@ -634,14 +634,14 @@ function Reviews({
               relation, so this is an initial by design rather than a fallback
               for a missing image.
             */}
-            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-coral-soft font-jost text-sm font-semibold text-coral-ink">
+            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-terra-soft font-display text-sm font-semibold text-terra-2">
               {review.user?.name?.[0]?.toUpperCase() ?? "?"}
             </span>
             <div className="min-w-0 flex-1">
               <p className="clamp-1 text-sm font-medium text-ink">
                 {review.user?.name ?? "A buyer"}
               </p>
-              <p className="mt-0.5 text-xs text-ink-faint">
+              <p className="mt-0.5 text-xs text-ink-400">
                 {shortDate(review.createdAt)}
               </p>
             </div>

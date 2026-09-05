@@ -121,7 +121,7 @@ export default function SignupPage() {
             Already have one?{' '}
             <Link
               href="/login"
-              className="font-medium text-coral-ink underline-offset-4 hover:underline"
+              className="font-medium text-terra-2 underline-offset-4 hover:underline"
             >
               Sign in
             </Link>
@@ -191,7 +191,7 @@ export default function SignupPage() {
               setShowOtp(false);
               setServerError('');
             }}
-            className="mb-6 inline-flex items-center gap-1.5 text-sm text-ink-muted transition-colors hover:text-coral-ink"
+            className="mb-6 inline-flex items-center gap-1.5 text-sm text-ink-500 transition-colors hover:text-terra-2"
           >
             <ArrowLeft size={15} aria-hidden="true" />
             Change details

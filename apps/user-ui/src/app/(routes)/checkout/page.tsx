@@ -131,7 +131,7 @@ function CheckoutContent() {
   if (loading)
     return (
       <div className="flex justify-center items-center min-h-[70vh]">
-        <div className="animate-spin rounded-full h-12 w-12 border-4 border-coral border-t-transparent" />
+        <div className="animate-spin rounded-full h-12 w-12 border-4 border-terra border-t-transparent" />
       </div>
     );
 
@@ -145,14 +145,14 @@ function CheckoutContent() {
           <h2 className="text-xl font-semibold text-neg mb-2">
             Payment Failed
           </h2>
-          <p className="text-sm text-ink-muted mb-6">
+          <p className="text-sm text-ink-500 mb-6">
             {error}
             <br className="hidden sm:block" />
             Please go back and try again
           </p>
           <button
             onClick={() => router.push("/cart")}
-            className="bg-coral text-[#2b0f0a] px-5 py-2 rounded-lg font-medium hover:bg-coral-dim hover:text-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-coral/40"
+            className="bg-ink text-paper px-5 py-2 font-medium hover:bg-terra hover:text-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-terra/40"
           >
             Back to Cart
           </button>

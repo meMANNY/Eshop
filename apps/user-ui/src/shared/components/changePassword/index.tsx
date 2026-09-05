@@ -52,7 +52,7 @@ export default function ChangePassword() {
 
   return (
     <div className="max-w-xl">
-      <p className="text-sm text-ink-muted">
+      <p className="text-sm text-ink-500">
         Pick a password you don&apos;t use on any other site. You&apos;ll stay
         signed in on this device.
       </p>
@@ -70,7 +70,7 @@ export default function ChangePassword() {
           })}
         />
 
-        <div className="h-px bg-slate-100" />
+        <div className="h-px bg-surface" />
 
         <div>
           <PasswordField
@@ -99,7 +99,7 @@ export default function ChangePassword() {
                 <li
                   key={rule.label}
                   className={`flex items-center gap-2 text-xs transition-colors ${
-                    met ? "text-pos" : "text-ink-muted"
+                    met ? "text-pos" : "text-ink-500"
                   }`}
                 >
                   <span
@@ -107,7 +107,7 @@ export default function ChangePassword() {
                     className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full transition-colors ${
                       met
                         ? "bg-emerald-100 text-pos"
-                        : "bg-slate-100 text-transparent"
+                        : "bg-surface text-transparent"
                     }`}
                   >
                     <Check className="h-2.5 w-2.5" strokeWidth={3} />
@@ -134,9 +134,9 @@ export default function ChangePassword() {
         {(error || message) && (
           <div
             role={error ? "alert" : "status"}
-            className={`flex items-start gap-2.5 rounded-lg border p-3 text-sm ${
+            className={`flex items-start gap-2.5  border p-3 text-sm ${
               error
-                ? "border-red-200 bg-red-50 text-red-700"
+                ? "border-red-200 bg-neg/10 text-neg"
                 : "border-emerald-200 bg-pos/10 text-pos"
             }`}
           >
@@ -152,7 +152,7 @@ export default function ChangePassword() {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-coral px-5 py-2.5 text-sm font-medium text-[#2b0f0a] transition-colors hover:bg-coral-dim disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-coral sm:w-auto"
+          className="inline-flex w-full items-center justify-center gap-2 bg-terra px-5 py-2.5 text-sm font-medium text-paper transition-colors hover:bg-terra disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terra sm:w-auto"
         >
           {isSubmitting && <Loader size={16} color="text-white" />}
           {isSubmitting ? "Updating" : "Update password"}
@@ -173,7 +173,7 @@ const PasswordField = React.forwardRef<HTMLInputElement, PasswordFieldProps>(
 
     return (
       <div>
-        <label className="mb-1.5 block text-sm font-medium text-ink-muted">
+        <label className="mb-1.5 block text-sm font-medium text-ink-500">
           {label}
         </label>
         <div className="relative">
@@ -181,10 +181,10 @@ const PasswordField = React.forwardRef<HTMLInputElement, PasswordFieldProps>(
             ref={ref}
             type={visible ? "text" : "password"}
             aria-invalid={Boolean(error)}
-            className={`w-full rounded-lg border px-4 py-2.5 pr-11 text-ink placeholder:text-ink-faint transition-colors focus:outline-none focus:ring-2 ${
+            className={`w-full  border px-4 py-2.5 pr-11 text-ink placeholder:text-ink-400 transition-colors focus:outline-none focus:ring-2 ${
               error
-                ? "border-red-300 focus:border-red-400 focus:ring-red-200"
-                : "border-rule focus:border-coral focus:ring-coral/25"
+                ? "border-red-300 focus:border-red-400 focus:ring-neg/20"
+                : "border-line focus:border-terra focus:ring-terra/25"
             }`}
             {...props}
           />
@@ -192,7 +192,7 @@ const PasswordField = React.forwardRef<HTMLInputElement, PasswordFieldProps>(
             type="button"
             onClick={() => setVisible((v) => !v)}
             aria-label={visible ? "Hide password" : "Show password"}
-            className="absolute right-1.5 top-1/2 -translate-y-1/2 rounded-md p-2 text-ink-faint transition-colors hover:text-ink-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-coral"
+            className="absolute right-1.5 top-1/2 -translate-y-1/2 p-2 text-ink-400 transition-colors hover:text-ink-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terra"
           >
             {visible ? (
               <EyeOff className="h-4 w-4" />

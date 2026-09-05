@@ -61,7 +61,7 @@ function Presence({ online }: { online?: boolean }) {
         }`}
         aria-hidden="true"
       />
-      <span className={online ? "text-pos" : "text-ink-muted"}>
+      <span className={online ? "text-pos" : "text-ink-500"}>
         {online ? "Online" : "Offline"}
       </span>
     </span>
@@ -87,12 +87,12 @@ function Avatar({
         width={size}
         height={size}
         unoptimized
-        className="rounded-full border border-rule object-cover"
+        className="rounded-full border border-line object-cover"
         style={{ width: size, height: size }}
       />
       {online ? (
         <span
-          className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-surface bg-pos"
+          className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-paper bg-pos"
           aria-label={`${name ?? "Shop"} is online`}
         />
       ) : null}
@@ -104,8 +104,8 @@ function ThreadSkeleton() {
   return (
     <div className="space-y-1 p-3">
       {[0, 1, 2, 3].map((i) => (
-        <div key={i} className="flex items-center gap-3 rounded-lg px-3 py-2.5">
-          <div className="h-10 w-10 shrink-0 rounded-full bg-sunken" />
+        <div key={i} className="flex items-center gap-3 px-3 py-2.5">
+          <div className="h-10 w-10 shrink-0 rounded-full bg-paper-x" />
           <div className="flex-1 space-y-2">
             <Bar className="h-3 w-1/2" />
             <Bar className="h-2.5 w-3/4" />
@@ -310,15 +310,15 @@ function InboxContent() {
 
   return (
     <Container className="py-6 md:py-8">
-      <div className="flex h-[calc(100vh-11rem)] min-h-[520px] overflow-hidden rounded-card border border-rule bg-surface shadow-card">
+      <div className="flex h-[calc(100vh-11rem)] min-h-[520px] overflow-hidden border border-line bg-paper">
         {/* ---------------------------- THREAD LIST ---------------------------- */}
-        <aside className="flex w-[300px] shrink-0 flex-col border-r border-rule bg-sunken max-md:hidden">
-          <div className="flex items-baseline justify-between border-b border-rule px-4 py-4">
-            <h1 className="font-jost text-base font-semibold text-ink">
+        <aside className="flex w-[300px] shrink-0 flex-col border-r border-line bg-paper-x max-md:hidden">
+          <div className="flex items-baseline justify-between border-b border-line px-4 py-4">
+            <h1 className="font-display text-base font-semibold text-ink">
               Messages
             </h1>
             {chats.length > 0 ? (
-              <span className="font-mono text-xs tabular-nums text-ink-muted">
+              <span className="font-mono text-xs tabular-nums text-ink-500">
                 {chats.length}
               </span>
             ) : null}
@@ -328,7 +328,7 @@ function InboxContent() {
             {isLoading ? (
               <ThreadSkeleton />
             ) : chats.length === 0 ? (
-              <p className="px-4 py-8 text-center text-sm text-ink-muted">
+              <p className="px-4 py-8 text-center text-sm text-ink-500">
                 No conversations yet.
               </p>
             ) : (
@@ -341,10 +341,10 @@ function InboxContent() {
                       <button
                         onClick={() => handleChatSelect(c)}
                         aria-current={isActive ? "true" : undefined}
-                        className={`relative w-full rounded-lg px-3 py-2.5 text-left transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-coral/40 ${
+                        className={`relative w-full  px-3 py-2.5 text-left transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-terra/40 ${
                           isActive
-                            ? "bg-coral-soft"
-                            : "hover:bg-surface"
+                            ? "bg-terra-soft"
+                            : "hover:bg-paper"
                         }`}
                       >
                         {/* The active marker is a coral edge rather than a fill:
@@ -352,7 +352,7 @@ function InboxContent() {
                             unread pill sitting a few pixels away. */}
                         {isActive ? (
                           <span
-                            className="absolute inset-y-2 left-0 w-[3px] rounded-full bg-coral"
+                            className="absolute inset-y-2 left-0 w-[3px] rounded-full bg-terra"
                             aria-hidden="true"
                           />
                         ) : null}
@@ -366,24 +366,24 @@ function InboxContent() {
                           <div className="min-w-0 flex-1">
                             <div className="flex items-baseline justify-between gap-2">
                               <span
-                                className={`truncate font-jost text-sm ${
+                                className={`truncate font-display text-sm ${
                                   isActive
-                                    ? "font-semibold text-coral-ink"
+                                    ? "font-semibold text-terra-2"
                                     : "font-medium text-ink"
                                 }`}
                               >
                                 {c?.seller?.name}
                               </span>
-                              <span className="shrink-0 font-mono text-[11px] tabular-nums text-ink-muted">
+                              <span className="shrink-0 font-mono text-[11px] tabular-nums text-ink-500">
                                 {clockTime(c?.lastMessageAt)}
                               </span>
                             </div>
                             <div className="mt-0.5 flex items-center justify-between gap-2">
-                              <p className="truncate text-xs text-ink-muted">
+                              <p className="truncate text-xs text-ink-500">
                                 {getLastMessage(c)}
                               </p>
                               {c?.unreadCount > 0 && (
-                                <span className="shrink-0 rounded-full bg-coral px-1.5 py-px font-mono text-[10px] font-semibold tabular-nums text-[#2b0f0a]">
+                                <span className="shrink-0 rounded-full bg-terra px-1.5 py-px font-mono text-[10px] font-semibold tabular-nums text-paper">
                                   {c?.unreadCount > 9 ? "9+" : c?.unreadCount}
                                 </span>
                               )}
@@ -400,17 +400,17 @@ function InboxContent() {
         </aside>
 
         {/* ------------------------------ THREAD ------------------------------ */}
-        <section className="flex min-w-0 flex-1 flex-col bg-canvas">
+        <section className="flex min-w-0 flex-1 flex-col bg-paper">
           {selectedChat ? (
             <>
-              <header className="flex items-center gap-3 border-b border-rule bg-surface px-5 py-3.5">
+              <header className="flex items-center gap-3 border-b border-line bg-paper px-5 py-3.5">
                 <Avatar
                   src={selectedChat?.seller?.avatar}
                   name={selectedChat?.seller?.name}
                   size={38}
                 />
                 <div className="min-w-0">
-                  <h2 className="truncate font-jost text-sm font-semibold text-ink">
+                  <h2 className="truncate font-display text-sm font-semibold text-ink">
                     {selectedChat?.seller?.name}
                   </h2>
                   <p className="mt-0.5 text-xs">
@@ -427,7 +427,7 @@ function InboxContent() {
                   <div className="flex justify-center pb-3">
                     <button
                       onClick={loadMoreMessages}
-                      className="rounded-full border border-rule bg-surface px-3.5 py-1.5 text-xs font-medium text-ink-muted transition-colors hover:border-coral/40 hover:text-coral-ink focus:outline-none focus-visible:ring-2 focus-visible:ring-coral/40"
+                      className="rounded-full border border-line bg-paper px-3.5 py-1.5 text-xs font-medium text-ink-500 transition-colors hover:border-terra/40 hover:text-terra-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-terra/40"
                     >
                       Load earlier messages
                     </button>
@@ -455,7 +455,7 @@ function InboxContent() {
                       {startsDay && (
                         <div className="flex items-center gap-3 py-4">
                           <span className="h-px flex-1 bg-rule" />
-                          <span className="text-label font-semibold uppercase text-ink-muted">
+                          <span className="text-label font-semibold uppercase text-ink-500">
                             {dayLabel(msg.createdAt)}
                           </span>
                           <span className="h-px flex-1 bg-rule" />
@@ -474,21 +474,21 @@ function InboxContent() {
                         <div
                           className={`max-w-[min(78%,34rem)] whitespace-pre-wrap break-words px-3.5 py-2 text-sm leading-relaxed ${
                             mine
-                              ? "bg-coral text-[#2b0f0a]"
-                              : "border border-rule bg-surface text-ink"
+                              ? "bg-ink text-paper"
+                              : "border border-line bg-paper text-ink"
                           } ${
                             endsRun
                               ? mine
-                                ? "rounded-2xl rounded-br-md"
-                                : "rounded-2xl rounded-bl-md"
-                              : "rounded-2xl"
+                                ? " rounded-br-md"
+                                : " rounded-bl-md"
+                              : ""
                           }`}
                         >
                           {msg.text || msg.content}
                         </div>
 
                         {endsRun && (
-                          <span className="mt-1 px-1 font-mono text-[11px] tabular-nums text-ink-muted">
+                          <span className="mt-1 px-1 font-mono text-[11px] tabular-nums text-ink-500">
                             {msg.time || clockTime(msg.createdAt)}
                           </span>
                         )}
@@ -529,7 +529,7 @@ export default function Page() {
     <Suspense
       fallback={
         <Container className="py-6 md:py-8">
-          <div className="h-[calc(100vh-11rem)] min-h-[520px] animate-pulse rounded-card border border-rule bg-surface" />
+          <div className="h-[calc(100vh-11rem)] min-h-[520px] animate-pulse border border-line bg-paper" />
         </Container>
       }
     >

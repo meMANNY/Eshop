@@ -89,7 +89,7 @@ export default function LoginPage() {
         New to Eshop?{' '}
         <Link
           href="/signup"
-          className="font-medium text-coral-ink underline-offset-4 hover:underline"
+          className="font-medium text-terra-2 underline-offset-4 hover:underline"
         >
           Create an account
         </Link>
@@ -133,7 +133,7 @@ export default function LoginPage() {
         <div className="flex justify-end">
           <Link
             href="/forgot-password"
-            className="text-sm text-ink-muted underline-offset-4 transition-colors hover:text-coral-ink hover:underline"
+            className="text-sm text-ink-500 underline-offset-4 transition-colors hover:text-terra-2 hover:underline"
           >
             Forgot your password?
           </Link>

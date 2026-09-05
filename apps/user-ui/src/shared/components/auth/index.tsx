@@ -37,43 +37,52 @@ export function AuthShell({
   children: React.ReactNode;
 }) {
   return (
-    <main className="flex min-h-screen w-full bg-canvas">
-      <aside
-        className="relative hidden w-[46%] flex-col justify-between overflow-hidden px-12 py-10 lg:flex"
-        style={{
-          background:
-            'linear-gradient(155deg, rgba(255,111,97,0.20) 0%, rgba(255,111,97,0.07) 48%, #f5f5f5 100%)',
-        }}
-      >
-        <Link href="/" className="relative flex items-center gap-3">
-          {/* The same coral rail every page header in this app uses. */}
-          <span className="marker h-7" aria-hidden="true" />
-          <span className="font-jost text-2xl font-semibold tracking-[-0.02em] text-ink">
+    <main className="flex min-h-screen w-full bg-paper">
+      <aside className="relative hidden w-[46%] flex-col justify-between overflow-hidden border-r border-ink-line bg-surface px-12 py-10 lg:flex">
+        {/* One warm glow rather than a coral wash — the paper grain from the
+            root stylesheet already carries most of the texture. */}
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute -right-16 -top-16 h-72 w-72 rounded-full bg-glow-terra opacity-20 blur-[90px]"
+        />
+
+        <Link href="/" className="group relative flex items-baseline gap-2.5">
+          <span
+            className="h-2 w-2 shrink-0 rounded-full bg-terra-2 transition-transform group-hover:scale-125"
+            aria-hidden="true"
+          />
+          <span className="font-display text-xl font-medium tracking-tight text-ink">
             Eshop
+          </span>
+          <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-ink-400">
+            /account
           </span>
         </Link>
 
         <div className="relative flex flex-col items-start">
           {slip}
-          <h2 className="mt-12 max-w-sm font-jost text-[34px] font-semibold leading-[1.15] tracking-[-0.02em] text-ink">
+          <h2 className="mt-12 max-w-sm font-display text-[34px] font-medium leading-[1.05] tracking-tight text-ink">
             {headline}
           </h2>
-          <p className="mt-3 max-w-sm text-[15px] leading-relaxed text-ink-muted">
+          <p className="mt-4 max-w-sm text-[15px] leading-[1.55] text-ink-500">
             {blurb}
           </p>
         </div>
 
-        <p className="relative text-sm text-ink-faint">
-          Shop from independent sellers.
+        <p className="relative border-t border-line pt-5 font-mono text-[10px] uppercase tracking-[0.16em] text-ink-400">
+          shop from independent sellers
         </p>
       </aside>
 
       <div className="flex w-full items-center justify-center px-6 py-12 lg:w-[54%]">
         <div className="w-full max-w-[380px] animate-rise-in motion-reduce:animate-none">
           {/* The panel is hidden at this width, so the brand comes along. */}
-          <Link href="/" className="mb-10 flex items-center gap-2.5 lg:hidden">
-            <span className="marker h-6" aria-hidden="true" />
-            <span className="font-jost text-xl font-semibold tracking-[-0.02em] text-ink">
+          <Link href="/" className="mb-10 flex items-baseline gap-2.5 lg:hidden">
+            <span
+              className="h-2 w-2 shrink-0 rounded-full bg-terra-2"
+              aria-hidden="true"
+            />
+            <span className="font-display text-xl font-medium tracking-tight text-ink">
               Eshop
             </span>
           </Link>
@@ -93,11 +102,11 @@ export function AuthHeading({
 }) {
   return (
     <>
-      <h1 className="font-jost text-[32px] font-semibold leading-none tracking-[-0.02em] text-ink">
+      <h1 className="font-display text-[32px] font-semibold leading-none tracking-[-0.02em] text-ink">
         {title}
       </h1>
       {children ? (
-        <p className="mt-2.5 text-sm text-ink-muted">{children}</p>
+        <p className="mt-2.5 text-sm text-ink-500">{children}</p>
       ) : null}
     </>
   );
@@ -134,22 +143,22 @@ export function Slip({
 }) {
   return (
     <figure className="relative w-[290px] -rotate-[1.5deg]">
-      <div className="rounded-t-[3px] bg-surface px-7 pb-6 pt-7 font-mono text-[11px] uppercase leading-[2.1] tracking-[0.07em] text-ink-muted shadow-pop">
+      <div className="border border-ink-line bg-paper px-7 pb-6 pt-7 font-mono text-[11px] uppercase leading-[2.1] tracking-[0.07em] text-ink-500">
         <div className="text-center">
-          <p className="font-jost text-lg font-semibold normal-case tracking-[-0.01em] text-ink">
+          <p className="font-display text-lg font-medium normal-case tracking-tight text-ink">
             Eshop
           </p>
-          <p className="mt-0.5 text-[10px] text-ink-faint">{kind}</p>
+          <p className="mt-0.5 text-[10px] text-ink-400">{kind}</p>
         </div>
 
-        <div className="my-5 border-b border-dashed border-rule" />
+        <div className="my-5 border-b border-dashed border-ink-200" />
         {children}
-        <div className="my-5 border-b border-dashed border-rule" />
+        <div className="my-5 border-b border-dashed border-ink-200" />
 
         <div className="flex items-center gap-2 font-semibold text-ink">
           <span>{total.label}</span>
           <span
-            className="flex-1 border-b border-dotted border-ink-faint/60"
+            className="flex-1 border-b border-dotted border-ink-300"
             aria-hidden="true"
           />
           <span>{total.value}</span>
@@ -162,8 +171,8 @@ export function Slip({
         className="h-3 w-full"
         style={{
           background:
-            'linear-gradient(135deg, #ffffff 25%, transparent 25%) -8px 0 / 16px 16px repeat-x, linear-gradient(225deg, #ffffff 25%, transparent 25%) -8px 0 / 16px 16px repeat-x',
-          filter: 'drop-shadow(0 6px 10px rgba(16,21,28,0.10))',
+            'linear-gradient(135deg, #FAF7F0 25%, transparent 25%) -8px 0 / 16px 16px repeat-x, linear-gradient(225deg, #FAF7F0 25%, transparent 25%) -8px 0 / 16px 16px repeat-x',
+          filter: 'drop-shadow(0 4px 6px rgba(26,26,26,0.12))',
         }}
       />
     </figure>
@@ -173,7 +182,7 @@ export function Slip({
 /* ----------------------------------------------------------------- fields -- */
 
 const CONTROL =
-  'w-full rounded-lg border bg-surface py-2.5 pl-3.5 pr-11 text-sm text-ink outline-none transition-colors placeholder:text-ink-faint';
+  'w-full  border bg-paper py-2.5 pl-3.5 pr-11 text-sm text-ink outline-none transition-colors placeholder:text-ink-400';
 
 /**
  * A password input with its own show/hide control. `Field` cannot carry a
@@ -198,14 +207,14 @@ export const PasswordField = React.forwardRef<
           aria-describedby={error ? `${fieldId}-error` : undefined}
           {...props}
           className={`${CONTROL} ${
-            error ? 'border-neg/60' : 'border-rule focus:border-coral'
+            error ? 'border-neg/60' : 'border-line focus:border-terra'
           }`}
         />
         <button
           type="button"
           onClick={() => setVisible((v) => !v)}
           aria-label={visible ? 'Hide password' : 'Show password'}
-          className="absolute inset-y-0 right-0 flex items-center px-3.5 text-ink-faint transition-colors hover:text-ink"
+          className="absolute inset-y-0 right-0 flex items-center px-3.5 text-ink-400 transition-colors hover:text-ink"
         >
           {visible ? <EyeOff size={17} /> : <Eye size={17} />}
         </button>
@@ -225,7 +234,7 @@ export function FormError({ children }: { children?: React.ReactNode }) {
   return (
     <p
       role="alert"
-      className="rounded-lg border border-neg/30 bg-neg/5 px-3.5 py-2.5 text-sm text-neg"
+      className="border border-neg/30 bg-neg/5 px-3.5 py-2.5 text-sm text-neg"
     >
       {children}
     </p>
@@ -304,7 +313,7 @@ export function OtpInput({
           onChange={(e) => setDigit(index, e.target.value)}
           onKeyDown={(e) => onKeyDown(index, e)}
           aria-label={`Digit ${index + 1} of ${OTP_LENGTH}`}
-          className="figure h-14 w-14 rounded-lg border border-rule bg-surface text-center text-xl font-semibold text-ink outline-none transition-colors focus:border-coral disabled:opacity-50"
+          className="figure h-14 w-14 border border-line bg-paper text-center text-xl font-semibold text-ink outline-none transition-colors focus:border-terra disabled:opacity-50"
         />
       ))}
     </div>
@@ -357,12 +366,12 @@ export function ResendLine({
   onResend: () => void;
 }) {
   return (
-    <p className="text-center text-sm text-ink-muted">
+    <p className="text-center text-sm text-ink-500">
       {canResend ? (
         <button
           type="button"
           onClick={onResend}
-          className="font-medium text-coral-ink underline-offset-4 hover:underline"
+          className="font-medium text-terra-2 underline-offset-4 hover:underline"
         >
           Send a new code
         </button>

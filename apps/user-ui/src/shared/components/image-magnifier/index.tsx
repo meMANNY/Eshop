@@ -63,7 +63,7 @@ const ImageMagnifier = ({
   if (!src) {
     return (
       <div
-        className={`flex items-center justify-center rounded-lg bg-slate-100 text-sm text-ink-faint ${sizing.className} ${className}`}
+        className={`flex items-center justify-center  bg-surface text-sm text-ink-400 ${sizing.className} ${className}`}
         style={sizing.style}
       >
         No image
@@ -77,7 +77,7 @@ const ImageMagnifier = ({
       onMouseEnter={() => setIsZoomed(true)}
       onMouseLeave={reset}
       onMouseMove={handleMouseMove}
-      className={`relative overflow-hidden rounded-lg cursor-zoom-in ${sizing.className} ${className}`}
+      className={`relative overflow-hidden  cursor-zoom-in ${sizing.className} ${className}`}
       style={sizing.style}
     >
       <Image
