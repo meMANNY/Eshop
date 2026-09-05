@@ -1,21 +1,29 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import Link from "next/link";
+import Image from "next/image";
 import { PackageSearch, Store } from "lucide-react";
 import Hero from "@/shared/modules/hero";
 import axiosInstance from "@/utils/axiosInstance";
 import ProductCard from "@/shared/components/cards/product-card";
 import ShopCard from "@/shared/components/cards/shop.card";
 import {
+  ButtonLink,
   CardSkeleton,
+  Chip,
   Container,
   EmptyState,
-  SectionTitle,
+  Frame,
+  InkSection,
+  Kicker,
+  Reveal,
+  SectionHeader,
+  Serif,
+  SysStrip,
 } from "@/shared/components/ui";
 
 const GRID =
-  "grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 md:gap-5 2xl:grid-cols-5";
+  "grid grid-cols-2 gap-6 sm:grid-cols-3 md:grid-cols-4 lg:gap-8 2xl:grid-cols-5";
 
 export default function Page() {
   const {
@@ -80,107 +88,124 @@ export default function Page() {
   const heroProducts = (latestProducts?.length ? latestProducts : products) ?? [];
 
   return (
-    <main>
+    <>
       <Hero products={heroProducts} hasOffers={Boolean(offers?.length)} />
 
-      <Container className="space-y-14 py-14">
-        {/*
-          These four sections were four copies of the same grid, the same
-          `h-[250px] bg-gray-300` loading block and four differently-worded "none
-          yet" lines. One component, one skeleton, one empty state.
-        */}
-        <Shelf
-          title="Picked for you"
-          subtitle="Based on what you've been looking at."
-          isLoading={isLoading}
-          isError={isError}
-          items={products}
-          empty={{
-            icon: <PackageSearch size={28} />,
-            title: "Nothing to suggest yet",
-            hint: "Browse a few products and recommendations will show up here.",
-            href: "/products",
-            cta: "Browse products",
-          }}
-          render={(product: any) => (
-            <ProductCard
-              key={product.id}
-              product={product}
-              isEvent={product.starting_date}
-            />
-          )}
-        />
+      {/*
+        These four sections were four copies of the same grid, the same
+        `h-[250px] bg-gray-300` loading block and four differently-worded "none
+        yet" lines. One component, one skeleton, one empty state.
+      */}
+      <Shelf
+        index={1}
+        kicker="picked · for you"
+        title="Things we think you will like"
+        subtitle="Based on what you have been looking at."
+        isLoading={isLoading}
+        isError={isError}
+        items={products}
+        empty={{
+          icon: <PackageSearch size={28} />,
+          title: "Nothing to suggest yet",
+          hint: "Browse a few products and recommendations will show up here.",
+          href: "/products",
+          cta: "Browse products",
+        }}
+        render={(product: any) => (
+          <ProductCard
+            key={product.id}
+            product={product}
+            isEvent={product.starting_date}
+          />
+        )}
+      />
 
-        <Shelf
-          title="New arrivals"
-          subtitle="The most recent listings across every shop."
-          isLoading={isLoadingLatestProducts}
-          isError={isErrorLatestProducts}
-          items={latestProducts}
-          empty={{
-            icon: <PackageSearch size={28} />,
-            title: "No products yet",
-            hint: "New listings from sellers will appear here first.",
-            href: "/products",
-            cta: "Browse products",
-          }}
-          render={(product: any) => (
-            <ProductCard
-              key={product.id}
-              product={product}
-              isEvent={product.starting_date}
-            />
-          )}
-        />
+      <Shelf
+        index={2}
+        kicker="new · arrivals"
+        title={
+          <>
+            Fresh from the <Serif>workshop</Serif>.
+          </>
+        }
+        subtitle="The most recent listings across every shop."
+        isLoading={isLoadingLatestProducts}
+        isError={isErrorLatestProducts}
+        items={latestProducts}
+        empty={{
+          icon: <PackageSearch size={28} />,
+          title: "No products yet",
+          hint: "New listings from sellers will appear here first.",
+          href: "/products",
+          cta: "Browse products",
+        }}
+        render={(product: any) => (
+          <ProductCard
+            key={product.id}
+            product={product}
+            isEvent={product.starting_date}
+          />
+        )}
+      />
 
-        <Shelf
-          title="Shops to know"
-          subtitle="Sellers with the most orders this month."
-          isLoading={shopLoading}
-          items={shops}
-          empty={{
-            icon: <Store size={28} />,
-            title: "No shops ranked yet",
-            hint: "Once shops start taking orders, the busiest ones show up here.",
-            href: "/shops",
-            cta: "See all shops",
-          }}
-          render={(shop: any) => <ShopCard key={shop.id} shop={shop} />}
-        />
+      {/* The ink band. It uses `shops[0]`, already fetched for the shelf below,
+          so the page's most striking section costs no extra request. */}
+      <Spotlight shop={shops?.[0]} />
 
-        <Shelf
-          title="On offer"
-          subtitle="Limited-time promotions, while they last."
-          isLoading={offersLoading}
-          isError={offerError}
-          items={offers}
-          action={
-            <Link
-              href="/offers"
-              className="text-sm font-medium text-coral-ink transition-colors hover:text-coral-dim"
-            >
-              See all offers
-            </Link>
-          }
-          empty={{
-            icon: <PackageSearch size={28} />,
-            title: "No offers running",
-            hint: "When sellers put products on a timed promotion, they land here.",
-            href: "/products",
-            cta: "Browse products",
-          }}
-          render={(offer: any) => (
-            <ProductCard key={offer.id} product={offer} isEvent />
-          )}
-        />
-      </Container>
-    </main>
+      <Shelf
+        index={3}
+        kicker="shops · to know"
+        title="The sellers everyone is buying from"
+        subtitle="Sellers with the most orders this month."
+        isLoading={shopLoading}
+        items={shops}
+        empty={{
+          icon: <Store size={28} />,
+          title: "No shops ranked yet",
+          hint: "Once shops start taking orders, the busiest ones show up here.",
+          href: "/shops",
+          cta: "See all shops",
+        }}
+        render={(shop: any) => <ShopCard key={shop.id} shop={shop} />}
+      />
+
+      <Shelf
+        index={4}
+        kicker="offers · while they last"
+        title={
+          <>
+            On offer, <Serif>briefly</Serif>.
+          </>
+        }
+        subtitle="Limited-time promotions, while they last."
+        isLoading={offersLoading}
+        isError={offerError}
+        items={offers}
+        action={
+          <ButtonLink href="/offers" variant="ghost" mono arrow="→">
+            See all offers
+          </ButtonLink>
+        }
+        empty={{
+          icon: <PackageSearch size={28} />,
+          title: "No offers running",
+          hint: "When sellers put products on a timed promotion, they land here.",
+          href: "/products",
+          cta: "Browse products",
+        }}
+        render={(offer: any) => (
+          <ProductCard key={offer.id} product={offer} isEvent />
+        )}
+      />
+    </>
   );
 }
 
 function Shelf({
   title,
   subtitle,
+  kicker,
+  index,
   items,
   isLoading,
   isError,
@@ -188,51 +213,169 @@ function Shelf({
   empty,
   action,
 }: {
-  title: string;
+  title: React.ReactNode;
   subtitle?: string;
+  kicker?: string;
+  index?: number;
   items?: any[];
   isLoading?: boolean;
   isError?: boolean;
   render: (item: any) => React.ReactNode;
-  empty: { icon: React.ReactNode; title: string; hint: string; href: string; cta: string };
+  empty: {
+    icon: React.ReactNode;
+    title: string;
+    hint: string;
+    href: string;
+    cta: string;
+  };
   action?: React.ReactNode;
 }) {
   return (
-    <section>
-      <SectionTitle title={title} subtitle={subtitle} action={action} />
+    <section className="border-t border-ink-line py-16 lg:py-24">
+      <Container>
+        <SectionHeader
+          index={index}
+          kicker={kicker}
+          title={title}
+          subtitle={subtitle}
+          action={action}
+        />
 
-      {isLoading ? (
-        <div className={GRID}>
-          {Array.from({ length: 10 }).map((_, i) => (
-            <CardSkeleton key={i} />
-          ))}
-        </div>
-      ) : isError ? (
-        <div className="rounded-card border border-rule bg-surface">
-          <EmptyState
-            title="Couldn't load this list"
-            hint="The request didn't come back. Reload the page to try again."
-          />
-        </div>
-      ) : items?.length ? (
-        <div className={GRID}>{items.map(render)}</div>
-      ) : (
-        <div className="rounded-card border border-rule bg-surface">
-          <EmptyState
-            icon={empty.icon}
-            title={empty.title}
-            hint={empty.hint}
-            action={
-              <Link
-                href={empty.href}
-                className="inline-flex items-center rounded-lg bg-coral px-4 py-2.5 text-sm font-medium text-[#2b0f0a] transition-colors hover:bg-coral-dim"
-              >
-                {empty.cta}
-              </Link>
-            }
-          />
-        </div>
-      )}
+        {isLoading ? (
+          <div className={GRID}>
+            {Array.from({ length: 10 }).map((_, i) => (
+              <CardSkeleton key={i} />
+            ))}
+          </div>
+        ) : isError ? (
+          <div className="border border-line bg-paper">
+            <EmptyState
+              title="Couldn't load this list"
+              hint="The request didn't come back. Reload the page to try again."
+            />
+          </div>
+        ) : items?.length ? (
+          <div className={GRID}>
+            {items.map((item, i) => (
+              // The delay wraps every five cards so a long row staggers across
+              // rather than trailing off into a two-second wait at the end.
+              <Reveal key={item.id ?? i} delay={i % 5}>
+                {render(item)}
+              </Reveal>
+            ))}
+          </div>
+        ) : (
+          <div className="border border-line bg-paper">
+            <EmptyState
+              icon={empty.icon}
+              title={empty.title}
+              hint={empty.hint}
+              action={
+                <ButtonLink href={empty.href} variant="primary" arrow="→">
+                  {empty.cta}
+                </ButtonLink>
+              }
+            />
+          </div>
+        )}
+      </Container>
     </section>
+  );
+}
+
+/**
+ * The featured-shop band. A full-bleed ink section partway down a cream page is
+ * the theme's strongest structural device — it breaks a long scroll of product
+ * grids into a before and an after, and it is the only place on this page where
+ * a single shop gets room to be more than a card.
+ */
+function Spotlight({ shop }: { shop?: any }) {
+  if (!shop) return null;
+
+  return (
+    <InkSection>
+      <Container className="py-16 lg:py-24">
+        <SysStrip
+          className="mb-12"
+          items={[
+            { key: "~/spotlight", value: "top shop this month" },
+            { value: "fig.02", trailing: true },
+          ]}
+        />
+
+        <div className="relative grid gap-12 lg:grid-cols-12 lg:gap-10">
+          <span className="ghost-index" aria-hidden="true">
+            02
+          </span>
+
+          <div className="relative z-10 lg:col-span-7">
+            <Kicker>featured shop · verified</Kicker>
+
+            <h2 className="mt-5 font-display text-4xl font-medium leading-[0.98] tracking-tight text-on-ink md:text-5xl lg:text-6xl">
+              {shop.name}
+              <span className="text-terra-2">.</span>
+            </h2>
+
+            {shop.category ? (
+              <p className="mt-4 font-serif text-2xl italic text-terra lg:text-3xl">
+                {shop.category}
+              </p>
+            ) : null}
+
+            {shop.bio ? (
+              <p className="mt-6 max-w-xl text-base leading-[1.55] text-on-ink-muted">
+                {shop.bio}
+              </p>
+            ) : null}
+
+            <div className="mt-7 flex flex-wrap gap-2">
+              {shop.category ? <Chip>{shop.category}</Chip> : null}
+              {shop.address ? <Chip>{shop.address}</Chip> : null}
+              <Chip>{shop?.followers?.length ?? 0} followers</Chip>
+            </div>
+
+            <div className="mt-9 flex flex-wrap items-center gap-3">
+              <a
+                href={`/shop/${shop.id}`}
+                className="group inline-flex items-center gap-2 rounded-full border border-terra bg-terra px-6 py-3 text-sm font-medium tracking-tight text-ink transition-all duration-200 hover:-translate-y-px"
+              >
+                Visit shop
+                <span
+                  className="font-mono text-xs transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+                  aria-hidden="true"
+                >
+                  ↗
+                </span>
+              </a>
+              <a
+                href="/shops"
+                className="inline-flex items-center gap-2 rounded-full border border-ink-border px-6 py-3 text-sm font-medium tracking-tight text-on-ink transition-colors duration-200 hover:border-paper hover:bg-ink-soft"
+              >
+                All shops
+              </a>
+            </div>
+          </div>
+
+          {shop.coverBanner ? (
+            <div className="relative z-10 lg:col-span-5">
+              <Frame
+                tone="ink"
+                frameClassName="aspect-[4/3]"
+                caption={{ left: `fig.02 / ${shop.name}`, right: "verified" }}
+              >
+                <Image
+                  src={shop.coverBanner}
+                  alt={shop.name ?? "Shop banner"}
+                  fill
+                  unoptimized
+                  sizes="(max-width: 1024px) 100vw, 460px"
+                  className="object-cover"
+                />
+              </Frame>
+            </div>
+          ) : null}
+        </div>
+      </Container>
+    </InkSection>
   );
 }

@@ -338,16 +338,31 @@ export function Frame({
   caption,
   className = "",
   frameClassName = "",
+  tone = "paper",
 }: {
   children: React.ReactNode;
   caption?: { left: string; right?: string };
   className?: string;
   frameClassName?: string;
+  /** `ink` re-tints the border and caption for use inside an InkSection. */
+  tone?: "paper" | "ink";
 }) {
+  /*
+    The tone is a prop rather than something a caller overrides through
+    `frameClassName`. Two classes that both set `border-color` are resolved by
+    their order in the generated stylesheet, not by their order in the class
+    attribute, so an override there would work or not work depending on how
+    Tailwind happened to sort that build.
+  */
+  const shell =
+    tone === "ink" ? "border-ink-border bg-ink-soft" : "border-ink-line bg-surface";
+  const strip =
+    tone === "ink" ? "border-ink-border text-on-ink-muted" : "border-line text-ink-400";
+
   return (
     <div className={className}>
       <div
-        className={`crosshairs relative overflow-hidden border border-ink-line bg-surface ${frameClassName}`}
+        className={`crosshairs relative overflow-hidden border ${shell} ${frameClassName}`}
       >
         {children}
         {/* One element only has two pseudo-elements; this child carries the
@@ -355,7 +370,9 @@ export function Frame({
         <span className="xh-b" aria-hidden="true" />
       </div>
       {caption ? (
-        <div className="mt-3 flex items-center justify-between border-t border-line pt-2 font-mono text-[10px] uppercase tracking-[0.16em] text-ink-400">
+        <div
+          className={`mt-3 flex items-center justify-between border-t pt-2 font-mono text-[10px] uppercase tracking-[0.16em] ${strip}`}
+        >
           <span>{caption.left}</span>
           {caption.right ? <span className="text-terra">{caption.right}</span> : null}
         </div>
