@@ -13,6 +13,8 @@ interface ImageMagnifierProps {
   zoom?: number;
   /** Fill the parent's width (square) instead of using fixed px dimensions. */
   fluid?: boolean;
+  /** Draw the hard frame. Off when the caller already wraps this in a <Frame>. */
+  framed?: boolean;
   className?: string;
 }
 
@@ -30,6 +32,7 @@ const ImageMagnifier = ({
   height = 400,
   zoom = 2.2,
   fluid = false,
+  framed = false,
   className = "",
 }: ImageMagnifierProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -63,10 +66,10 @@ const ImageMagnifier = ({
   if (!src) {
     return (
       <div
-        className={`flex items-center justify-center  bg-surface text-sm text-ink-400 ${sizing.className} ${className}`}
+        className={`flex items-center justify-center border border-line bg-surface font-mono text-[10px] uppercase tracking-[0.16em] text-ink-300 ${sizing.className} ${className}`}
         style={sizing.style}
       >
-        No image
+        no image
       </div>
     );
   }
@@ -77,7 +80,11 @@ const ImageMagnifier = ({
       onMouseEnter={() => setIsZoomed(true)}
       onMouseLeave={reset}
       onMouseMove={handleMouseMove}
-      className={`relative overflow-hidden  cursor-zoom-in ${sizing.className} ${className}`}
+      /* Square, and framed only when nothing else is framing it: the lens is a
+         printed plate, not a rounded UI card. */
+      className={`relative cursor-zoom-in overflow-hidden bg-surface ${
+        framed ? "border border-ink-line" : ""
+      } ${sizing.className} ${className}`}
       style={sizing.style}
     >
       <Image

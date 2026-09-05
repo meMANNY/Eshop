@@ -102,11 +102,11 @@ export function AuthHeading({
 }) {
   return (
     <>
-      <h1 className="font-display text-[32px] font-semibold leading-none tracking-[-0.02em] text-ink">
+      <h1 className="font-display text-[32px] font-medium leading-[1.05] tracking-tight text-ink">
         {title}
       </h1>
       {children ? (
-        <p className="mt-2.5 text-sm text-ink-500">{children}</p>
+        <p className="mt-3 text-sm leading-[1.55] text-ink-500">{children}</p>
       ) : null}
     </>
   );
@@ -207,7 +207,7 @@ export const PasswordField = React.forwardRef<
           aria-describedby={error ? `${fieldId}-error` : undefined}
           {...props}
           className={`${CONTROL} ${
-            error ? 'border-neg/60' : 'border-line focus:border-terra'
+            error ? 'border-neg' : 'border-line focus:border-terra'
           }`}
         />
         <button
@@ -220,7 +220,10 @@ export const PasswordField = React.forwardRef<
         </button>
       </div>
       {error ? (
-        <p id={`${fieldId}-error`} className="mt-1.5 text-xs text-neg">
+        <p
+          id={`${fieldId}-error`}
+          className="mt-1.5 font-mono text-[10px] uppercase tracking-[0.12em] text-neg"
+        >
           {error}
         </p>
       ) : null}
@@ -234,7 +237,7 @@ export function FormError({ children }: { children?: React.ReactNode }) {
   return (
     <p
       role="alert"
-      className="border border-neg/30 bg-neg/5 px-3.5 py-2.5 text-sm text-neg"
+      className="border border-neg/40 bg-neg/5 px-3.5 py-2.5 font-mono text-[10px] uppercase tracking-[0.12em] leading-[1.6] text-neg"
     >
       {children}
     </p>
@@ -313,7 +316,7 @@ export function OtpInput({
           onChange={(e) => setDigit(index, e.target.value)}
           onKeyDown={(e) => onKeyDown(index, e)}
           aria-label={`Digit ${index + 1} of ${OTP_LENGTH}`}
-          className="figure h-14 w-14 border border-line bg-paper text-center text-xl font-semibold text-ink outline-none transition-colors focus:border-terra disabled:opacity-50"
+          className="figure h-14 w-14 border border-line bg-surface text-center text-xl font-semibold text-ink outline-none transition-colors focus:border-terra focus:bg-paper disabled:opacity-50"
         />
       ))}
     </div>
@@ -366,18 +369,18 @@ export function ResendLine({
   onResend: () => void;
 }) {
   return (
-    <p className="text-center text-sm text-ink-500">
+    <p className="text-center font-mono text-[10px] uppercase tracking-[0.14em] text-ink-400">
       {canResend ? (
         <button
           type="button"
           onClick={onResend}
-          className="font-medium text-terra-2 underline-offset-4 hover:underline"
+          className="link-underline text-terra-2 transition-colors hover:text-terra"
         >
-          Send a new code
+          send a new code →
         </button>
       ) : (
         <>
-          Didn&apos;t get it? You can ask for a new code in{' '}
+          no code yet? ask again in{' '}
           <span className="figure text-ink">{remaining}s</span>
         </>
       )}
