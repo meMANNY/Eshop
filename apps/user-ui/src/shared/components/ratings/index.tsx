@@ -33,12 +33,12 @@ export function Ratings({
 
           return (
             <span key={index} className="relative inline-flex">
-              <Star className={`${sizeClassName} text-rule`} />
+              <Star className={`${sizeClassName} text-ink-200`} />
               <span
-                className="absolute inset-0 overflow-hidden text-amber-400"
+                className="absolute inset-0 overflow-hidden text-terra"
                 style={{ width: `${fillPercent}%` }}
               >
-                <Star className={`${sizeClassName} fill-amber-400`} />
+                <Star className={`${sizeClassName} fill-terra`} />
               </span>
             </span>
           );
@@ -46,7 +46,7 @@ export function Ratings({
       </div>
 
       {showValue ? (
-        <span className="text-sm font-semibold text-ink">
+        <span className="figure text-sm font-semibold text-ink">
           {safeRating.toFixed(1)}
         </span>
       ) : null}

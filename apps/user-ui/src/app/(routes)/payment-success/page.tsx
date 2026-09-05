@@ -2,19 +2,17 @@
 
 import { Suspense, useEffect, useMemo, useState } from "react";
 
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import confetti from "canvas-confetti";
 import axiosInstance from "@/utils/axiosInstance";
 import { useStore } from "@/store";
-
 import {
-  CheckCircle2,
-  Truck,
-  ShoppingBag,
-  Clipboard,
-  ClipboardCheck,
-} from "lucide-react";
+  Container,
+  Serif,
+  SysStrip,
+  TileGrid,
+} from "@/shared/components/ui";
 
 function PaymentSuccessContent() {
   const searchParams = useSearchParams();
@@ -22,7 +20,6 @@ function PaymentSuccessContent() {
     () => searchParams.get("sessionId"),
     [searchParams]
   );
-  const router = useRouter();
   const queryClient = useQueryClient();
   const [copied, setCopied] = useState(false);
   const [orderStatus, setOrderStatus] = useState<
@@ -43,6 +40,9 @@ function PaymentSuccessContent() {
         angle,
         spread,
         origin: { x: originX, y: 0.6 },
+        // The confetti wears the theme's own palette rather than its default
+        // primaries, which read as a different product landing on the page.
+        colors: ["#FF6B35", "#C24A1B", "#FFBF4B", "#1A1A1A"],
       });
 
     burst(90, 60, 70, 0);
@@ -112,7 +112,7 @@ function PaymentSuccessContent() {
       cancelled = true;
       clearTimeout(timer);
     };
-  }, [sessionId]);
+  }, [sessionId, queryClient]);
 
   const onCopy = async () => {
     if (!sessionId) return;
@@ -123,119 +123,101 @@ function PaymentSuccessContent() {
     } catch {}
   };
 
+  const headline =
+    orderStatus === "success"
+      ? "confirmed"
+      : orderStatus === "failed"
+      ? "pending"
+      : "paid";
+
   return (
-    <div className="min-h-[80vh] w-full flex items-center justify-center px-4 py-12 bg-gradient-to-b from-green-50 to-white">
-      <div className="w-full max-w-xl">
-        <div className="rounded-2xl bg-surface border border-rule shadow-sm overflow-hidden">
-          <div className="bg-gradient-to-r from-green-500 to-emerald-500 p-6 text-white">
-            <div className="flex items-center gap-3">
-              <div className="bg-surface/15 rounded-full p-2">
-                <CheckCircle2 className="w-7 h-7" />
-              </div>
-              <div>
-                <h1 className="text-xl font-semibold leading-tight">
-                  {orderStatus === "creating"
-                    ? "Payment Successful"
-                    : orderStatus === "success"
-                    ? "Order Confirmed 🎉"
-                    : "Still confirming your order"}
-                </h1>
-                <p className="text-white/90 text-sm">
-                  {orderStatus === "creating"
-                    ? "Finalizing your order..."
-                    : orderStatus === "success"
-                    ? "Thank you! Your order has been placed."
-                    : "Your payment went through. Confirmation is taking longer than usual — your order will appear in Profile › My Orders shortly."}
-                </p>
-              </div>
-            </div>
-          </div>
+    <Container className="py-14 lg:py-20">
+      <SysStrip
+        className="mb-12"
+        items={[
+          { key: "~/order", value: `status: ${headline}` },
+          {
+            value:
+              orderStatus === "creating"
+                ? "waiting for confirmation"
+                : orderStatus === "success"
+                ? "order placed"
+                : "taking longer than usual",
+            hideOnMobile: true,
+          },
+          { value: "payment: accepted", trailing: true },
+        ]}
+      />
 
-          <div className="p-6">
-            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
-              <li className="flex items-start gap-3 rounded-xl border border-rule p-3">
-                <div className="mt-0.5">
-                  <Truck className="w-5 h-5 text-pos" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-ink">
-                    Track your shipment
-                  </p>
-                  <p className="text-xs text-ink-muted">
-                    See status, ETA, and courier updates.
-                  </p>
-                </div>
-              </li>
-              <li className="flex items-start gap-3 rounded-xl border border-rule p-3">
-                <div className="mt-0.5">
-                  <ShoppingBag className="w-5 h-5 text-pos" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-ink">
-                    Continue shopping
-                  </p>
-                  <p className="text-xs text-ink-muted">
-                    Check new arrivals and offers.
-                  </p>
-                </div>
-              </li>
-            </ul>
+      {/*
+        The old page opened with a green gradient banner and a tick in a circle —
+        a different design system arriving for one screen at the most important
+        moment in the app. The theme's own way of saying this is the word itself,
+        set large.
+      */}
+      <h1 className="marquee-title text-[clamp(4rem,16vw,11rem)]">
+        {headline}
+        <span className="text-terra-2">.</span>
+      </h1>
 
-            <div className="flex flex-col sm:flex-row gap-3">
-              <button
-                onClick={() => router.push("/profile?active=My+Orders")}
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 text-white px-5 py-2.5 text-sm font-medium shadow-sm hover:bg-emerald-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600/60"
-              >
-                <Truck className="w-4 h-4" /> Track Order
-              </button>
-              <button
-                onClick={() => router.push("/")}
-                className="inline-flex items-center justify-center gap-2 rounded-lg bg-coral text-[#2b0f0a] px-5 py-2.5 text-sm font-medium shadow-card transition-colors hover:bg-coral-dim hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-coral/40"
-              >
-                <ShoppingBag className="w-4 h-4" /> Continue Shopping
-              </button>
-            </div>
+      <p className="mt-8 max-w-xl text-base leading-[1.55] text-ink-500 lg:text-lg">
+        {orderStatus === "creating" ? (
+          <>
+            Your payment went through. We are waiting for the confirmation to
+            land — this usually takes a <Serif>few seconds</Serif>.
+          </>
+        ) : orderStatus === "success" ? (
+          <>
+            Thank you. Your order is placed and the sellers have been told to get
+            it <Serif>moving</Serif>.
+          </>
+        ) : (
+          <>
+            Your payment went through, but confirmation is taking longer than
+            usual. The order will appear in your profile shortly — nothing is
+            lost, and you have <Serif>not</Serif> been charged twice.
+          </>
+        )}
+      </p>
 
-            <div className="my-6 h-px bg-rule" />
-
-            <div className="flex items-center justify-between gap-3">
-              <div className="text-xs text-ink-muted">
-                <span className="block text-ink-faint">Payment Session ID</span>
-                <span className="font-mono text-ink-muted break-all select-all">
-                  {sessionId ?? "—"}
-                </span>
-              </div>
-              {sessionId && (
-                <button
-                  onClick={onCopy}
-                  className="inline-flex items-center gap-2 rounded-lg border border-rule px-3 py-2 text-xs font-medium text-ink-muted hover:border-coral/40 hover:text-coral-ink focus:outline-none focus-visible:ring-2 focus-visible:ring-coral/40"
-                >
-                  {copied ? (
-                    <>
-                      <ClipboardCheck className="w-4 h-4" /> Copied
-                    </>
-                  ) : (
-                    <>
-                      <Clipboard className="w-4 h-4" /> Copy
-                    </>
-                  )}
-                </button>
-              )}
-            </div>
-
-            <p className="sr-only" aria-live="polite">
-              {copied ? "Session ID copied to clipboard" : ""}
-            </p>
-          </div>
-        </div>
-
-        <p className="text-[11px] text-ink-faint text-center mt-3">
-          You can find your invoice and order details in{" "}
-          <span className="font-medium text-ink-muted">Profile › My Orders</span>
-          .
-        </p>
+      <div className="mt-12">
+        <TileGrid
+          items={[
+            { label: "View order", href: "/profile?active=My+Orders" },
+            { label: "Keep shopping", href: "/products" },
+            { label: "Your profile", href: "/profile" },
+          ]}
+          className="grid-cols-1 sm:grid-cols-3"
+        />
       </div>
-    </div>
+
+      <div className="mt-12 flex flex-wrap items-end justify-between gap-4 border-t border-ink-line pt-6">
+        <div className="min-w-0">
+          <span className="block font-mono text-[10px] uppercase tracking-[0.16em] text-ink-400">
+            payment session id
+          </span>
+          <span className="figure mt-1 block select-all break-all text-sm text-ink-500">
+            {sessionId ?? "—"}
+          </span>
+        </div>
+        {sessionId ? (
+          <button
+            onClick={onCopy}
+            className="link-underline shrink-0 font-mono text-[10px] uppercase tracking-[0.14em] text-ink-500 transition-colors hover:text-terra-2"
+          >
+            {copied ? "copied ✓" : "copy ⧉"}
+          </button>
+        ) : null}
+      </div>
+
+      <p className="sr-only" aria-live="polite">
+        {copied ? "Session ID copied to clipboard" : ""}
+      </p>
+
+      <p className="mt-6 font-mono text-[10px] uppercase tracking-[0.16em] text-ink-400">
+        invoice and details live in profile › my orders
+      </p>
+    </Container>
   );
 }
 
@@ -243,9 +225,9 @@ export default function PaymentSuccessPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-[60vh] flex items-center justify-center">
-          Loading...
-        </div>
+        <Container className="py-20">
+          <div className="h-12 w-40 animate-pulse bg-surface" />
+        </Container>
       }
     >
       <PaymentSuccessContent />

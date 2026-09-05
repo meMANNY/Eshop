@@ -2,7 +2,7 @@
 
 export default function Loader({
   size = 30,
-  color = "text-coral",
+  color = "text-terra-2",
 }: {
   size?: number;
   color: string;

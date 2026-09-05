@@ -1,12 +1,29 @@
 "use client";
 
 import axiosInstance from "@/utils/axiosInstance";
-import { ArrowLeft, Loader2, PackageX } from "lucide-react";
-import Link from "next/link";
+import { PackageX } from "lucide-react";
+import Image from "next/image";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import {
+  ButtonLink,
+  Card,
+  CardHead,
+  Chip,
+  Container,
+  Crumbs,
+  EmptyState,
+  Figure,
+  PageHeading,
+  StatusPill,
+  SysStrip,
+  money,
+  paymentTone,
+  shortDate,
+  shortId,
+} from "@/shared/components/ui";
 
-const statuses = [
+const STATUSES = [
   "Ordered",
   "Packed",
   "Shipped",
@@ -40,288 +57,251 @@ export default function Page() {
 
   if (loading)
     return (
-      <div className="flex min-h-[60vh] items-center justify-center bg-canvas">
-        <Loader2 className="h-6 w-6 animate-spin text-coral-ink" />
-      </div>
+      <Container className="py-20">
+        <div className="h-8 w-48 animate-pulse bg-surface" />
+        <div className="mt-8 h-40 w-full animate-pulse bg-surface" />
+      </Container>
     );
 
   if (!order)
     return (
-      <div className="flex min-h-[60vh] w-full flex-col items-center justify-center bg-canvas px-4 text-center">
-        <span className="flex h-14 w-14 items-center justify-center rounded-full bg-coral/10 text-coral-ink">
-          <PackageX size={24} />
-        </span>
-        <h2 className="mt-4 text-base font-semibold text-ink">
-          We couldn&apos;t find that order
-        </h2>
-        <p className="mt-1.5 max-w-sm text-sm text-ink-muted">
-          It may have been removed, or the link is no longer valid.
-        </p>
-        <Link
-          href="/profile?active=My+Orders"
-          className="mt-6 rounded-lg bg-coral px-4 py-2 text-sm font-medium text-[#2b0f0a] transition-colors hover:bg-coral-dim focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-coral"
-        >
-          Back to my orders
-        </Link>
-      </div>
+      <Container className="py-20">
+        <Card>
+          <EmptyState
+            icon={<PackageX size={28} />}
+            title="We couldn't find that order"
+            hint="It may have been removed, or the link is no longer valid."
+            action={
+              <ButtonLink
+                href="/profile?active=My+Orders"
+                variant="primary"
+                arrow="→"
+              >
+                Back to my orders
+              </ButtonLink>
+            }
+          />
+        </Card>
+      </Container>
     );
 
-  const activeIndex = statuses.indexOf(order.deliveryStatus);
-  const progressWidth =
-    activeIndex > 0 ? (activeIndex / (statuses.length - 1)) * 100 : 0;
+  const activeIndex = STATUSES.indexOf(order.deliveryStatus);
 
   return (
-    <div className="w-full bg-canvas pb-14">
-      <div className="mx-auto w-[90%] lg:w-[80%]">
-        {/* HEADER */}
-        <div className="pb-10">
-          <div className="mb-3 flex items-center gap-3 pt-8 md:pt-10">
-            {/* Coral marker — the same "you are here" accent used across the app. */}
-            <span
-              aria-hidden="true"
-              className="h-10 w-[4px] rounded-full bg-coral "
-            />
-            <h1 className="font-jost text-[40px] font-semibold leading-tight text-ink sm:text-[44px]">
-              Order{" "}
-              <span className="font-mono text-coral-ink">
-                #{order.id.slice(-6).toUpperCase()}
-              </span>
-            </h1>
-          </div>
-          <div className="flex items-center gap-2 text-sm text-ink-muted">
-            <Link href="/" className="transition-colors hover:text-coral-ink">
-              Home
-            </Link>
-            <span className="text-ink-faint">/</span>
-            <Link
-              href="/profile?active=My+Orders"
-              className="transition-colors hover:text-coral-ink"
-            >
-              My orders
-            </Link>
-            <span className="text-ink-faint">/</span>
-            <span className="text-ink">
-              #{order.id.slice(-6).toUpperCase()}
-            </span>
-          </div>
+    <div className="pb-16">
+      <Container className="pt-8">
+        <Crumbs
+          trail={[
+            { label: "My orders", href: "/profile?active=My+Orders" },
+            { label: shortId(order.id) },
+          ]}
+        />
+
+        <div className="mt-6">
+          <PageHeading
+            kicker={`/order · ${order.deliveryStatus?.toLowerCase() ?? "ordered"}`}
+            title={`Order ${shortId(order.id)}`}
+            actions={
+              <ButtonLink
+                href="/profile?active=My+Orders"
+                variant="ghost"
+                mono
+                arrow="←"
+              >
+                all orders
+              </ButtonLink>
+            }
+          />
         </div>
 
-        <Link
-          href="/profile?active=My+Orders"
-          className="mb-6 inline-flex items-center gap-2 text-sm font-medium text-ink-muted transition-colors hover:text-coral-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-coral"
-        >
-          <ArrowLeft size={16} />
-          Back to my orders
-        </Link>
+        <SysStrip
+          className="mb-12"
+          items={[
+            { key: "~/order", value: shortId(order.id) },
+            { value: shortDate(order.createdAt), hideOnMobile: true },
+            { value: `total ${money(Number(order.total))}`, trailing: true },
+          ]}
+        />
 
-        {/* DELIVERY PROGRESS */}
+        {/*
+          The progress rail was a rounded coral bar with glowing circular dots.
+          Here it is a hard rule with square markers that fill as each stage is
+          reached — the same vocabulary the rest of the theme uses for "this one,
+          not those".
+        */}
         <Card>
-          <h2 className="mb-8 text-lg font-semibold text-ink">
-            Delivery Progress
-          </h2>
-
-          <div className="mb-4 flex justify-between gap-2 text-xs font-medium">
-            {statuses.map((status, i) => (
+          <CardHead title="Delivery progress" note={`~/tracking · ${order.deliveryStatus}`} />
+          <div className="p-6">
+            <ol className="relative flex justify-between gap-2">
               <span
-                key={status}
-                className={`flex-1 text-center first:text-left last:text-right ${
-                  i <= activeIndex
-                    ? "font-semibold text-coral-ink"
-                    : "text-ink-faint"
-                }`}
-              >
-                {status}
-              </span>
-            ))}
-          </div>
-
-          <div className="relative flex items-center justify-between">
-            <div
-              aria-hidden="true"
-              className="absolute left-0 right-0 top-1/2 h-[3px] -translate-y-1/2 rounded-full bg-slate-200"
-            />
-            <div
-              aria-hidden="true"
-              className="absolute left-0 top-1/2 h-[3px] -translate-y-1/2 rounded-full bg-coral shadow-[0_0_10px_rgba(255,111,97,0.4)] transition-all duration-500 ease-in-out motion-reduce:transition-none"
-              style={{ width: `${progressWidth}%` }}
-            />
-
-            {statuses.map((status, i) => {
-              const reached = i <= activeIndex;
-              const current = i === activeIndex;
-              return (
-                <div
-                  key={status}
-                  className={`relative z-10 flex h-5 w-5 items-center justify-center rounded-full transition-all duration-500 motion-reduce:transition-none ${
-                    current
-                      ? "scale-110 bg-coral shadow-lg shadow-[#ff6f61]/40"
-                      : reached
-                      ? "bg-coral"
-                      : "bg-slate-300"
-                  }`}
-                >
-                  <span
-                    className={`h-2 w-2 rounded-full ${
-                      reached ? "bg-surface" : "bg-slate-400"
-                    }`}
-                  />
-                </div>
-              );
-            })}
+                aria-hidden="true"
+                className="absolute left-0 right-0 top-[7px] h-px bg-line"
+              />
+              <span
+                aria-hidden="true"
+                className="absolute left-0 top-[7px] h-px bg-terra-2 transition-all duration-500 motion-reduce:transition-none"
+                style={{
+                  width:
+                    activeIndex > 0
+                      ? `${(activeIndex / (STATUSES.length - 1)) * 100}%`
+                      : "0%",
+                }}
+              />
+              {STATUSES.map((status, i) => {
+                const reached = i <= activeIndex;
+                return (
+                  <li
+                    key={status}
+                    className="relative z-10 flex flex-1 flex-col items-center gap-3 first:items-start last:items-end"
+                  >
+                    <span
+                      aria-hidden="true"
+                      className={`h-[15px] w-[15px] border transition-colors duration-500 motion-reduce:transition-none ${
+                        reached
+                          ? "border-terra-2 bg-terra-2"
+                          : "border-ink-line bg-paper"
+                      }`}
+                    />
+                    <span
+                      className={`text-center font-mono text-[9px] uppercase leading-tight tracking-[0.12em] sm:text-[10px] ${
+                        reached ? "text-ink" : "text-ink-300"
+                      }`}
+                    >
+                      {status}
+                    </span>
+                  </li>
+                );
+              })}
+            </ol>
           </div>
         </Card>
 
-        {/* ORDER SUMMARY */}
-        <Card className="mt-6">
-          <h2 className="mb-4 text-lg font-semibold text-ink">
-            Order Summary
-          </h2>
-          <dl className="grid grid-cols-1 gap-x-10 sm:grid-cols-2">
-            <SummaryRow label="Payment status">
-              <span
-                className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ring-1 ring-inset ${
-                  order.status === "Paid"
-                    ? "bg-pos/10 text-pos ring-emerald-200"
-                    : "bg-amber-50 text-amber-700 ring-amber-200"
-                }`}
-              >
-                {order.status}
-              </span>
-            </SummaryRow>
+        <div className="mt-6 grid gap-6 lg:grid-cols-2">
+          <Card>
+            <CardHead title="Order summary" note="~/summary" />
+            <dl className="p-6">
+              <SummaryRow label="Payment status">
+                <StatusPill tone={paymentTone(order.status)}>
+                  {order.status}
+                </StatusPill>
+              </SummaryRow>
 
-            <SummaryRow label="Total paid">
-              <span className="text-base font-semibold text-ink">
-                ${Number(order.total).toFixed(2)}
-              </span>
-            </SummaryRow>
+              <SummaryRow label="Total paid">
+                <Figure className="text-base font-semibold text-ink">
+                  {money(Number(order.total))}
+                </Figure>
+              </SummaryRow>
 
-            {order.discountAmount > 0 && (
-              <SummaryRow label="Discount applied">
-                <span className="font-medium text-pos">
-                  -${Number(order.discountAmount).toFixed(2)}
-                  {order.couponCode?.discountType === "percentage"
-                    ? ` (${order.couponCode.discountValue}%)`
-                    : order.couponCode
-                    ? ` ($${order.couponCode.discountValue} off)`
-                    : ""}
+              {order.discountAmount > 0 ? (
+                <SummaryRow label="Discount applied">
+                  <Figure className="text-pos">
+                    −{money(Number(order.discountAmount))}
+                    {order.couponCode?.discountType === "percentage"
+                      ? ` (${order.couponCode.discountValue}%)`
+                      : order.couponCode
+                      ? ` ($${order.couponCode.discountValue} off)`
+                      : ""}
+                  </Figure>
+                </SummaryRow>
+              ) : null}
+
+              {order.couponCode ? (
+                <SummaryRow label="Coupon">
+                  <Chip className="border-terra-2/40 text-terra-2">
+                    {order.couponCode.public_name}
+                  </Chip>
+                </SummaryRow>
+              ) : null}
+
+              <SummaryRow label="Date">
+                <span className="text-sm text-ink">
+                  {shortDate(order.createdAt)}
                 </span>
               </SummaryRow>
-            )}
-
-            {order.couponCode && (
-              <SummaryRow label="Coupon">
-                <span className="rounded bg-coral/10 px-2 py-0.5 font-mono text-sm text-coral-ink">
-                  {order.couponCode.public_name}
-                </span>
-              </SummaryRow>
-            )}
-
-            <SummaryRow label="Date">
-              <span className="text-ink">
-                {new Date(order.createdAt).toLocaleDateString(undefined, {
-                  day: "numeric",
-                  month: "long",
-                  year: "numeric",
-                })}
-              </span>
-            </SummaryRow>
-          </dl>
-        </Card>
-
-        {/* SHIPPING ADDRESS */}
-        {order.shippingAddress && (
-          <Card className="mt-6">
-            <h2 className="mb-3 text-lg font-semibold text-ink">
-              Shipping Address
-            </h2>
-            <address className="space-y-1 text-sm not-italic text-ink-muted">
-              <p className="font-medium text-ink">
-                {order.shippingAddress.name}
-              </p>
-              <p>
-                {order.shippingAddress.street}, {order.shippingAddress.city},{" "}
-                {order.shippingAddress.zip}
-              </p>
-              <p>{order.shippingAddress.country}</p>
-            </address>
+            </dl>
           </Card>
-        )}
 
-        {/* ORDER ITEMS */}
+          {order.shippingAddress ? (
+            <Card>
+              <CardHead title="Shipping address" note="~/deliver-to" />
+              <address className="space-y-1 p-6 text-sm not-italic leading-[1.6] text-ink-500">
+                <p className="font-display text-base font-medium tracking-tight text-ink">
+                  {order.shippingAddress.name}
+                </p>
+                <p>
+                  {order.shippingAddress.street}, {order.shippingAddress.city},{" "}
+                  {order.shippingAddress.zip}
+                </p>
+                <p>{order.shippingAddress.country}</p>
+              </address>
+            </Card>
+          ) : null}
+        </div>
+
         <Card className="mt-6">
-          <h2 className="mb-4 text-lg font-semibold text-ink">
-            Order Items
-            <span className="ml-2 text-sm font-normal text-ink-faint">
-              ({order.items?.length ?? 0})
-            </span>
-          </h2>
-          <div className="space-y-3">
+          <CardHead
+            title="Order items"
+            note={`~/items · ${order.items?.length ?? 0}`}
+          />
+          <ul className="p-6 pt-0">
             {order.items?.map((item: any) => (
-              <div
+              <li
                 key={item.id ?? item.productId}
-                className="flex items-center gap-5 rounded-lg border border-rule p-4 transition-colors hover:border-rule hover:bg-slate-50"
+                className="flex items-start gap-5 border-b border-line py-5 last:border-0"
               >
-                <img
-                  src={
-                    item.product?.images?.[0]?.url ||
-                    "https://images.unsplash.com/photo-1635405074683-96d6921a2a68?w=500&auto=format&fit=crop&q=80"
-                  }
-                  alt={item.product?.title || "Product image"}
-                  className="h-16 w-16 shrink-0 rounded-md border border-rule object-cover"
-                />
+                <div className="relative h-16 w-16 shrink-0 overflow-hidden border border-line bg-surface">
+                  {/* Was a hotlinked Unsplash photo standing in for a missing
+                      product image — an unrelated stock picture in an order
+                      receipt, plus a third-party request per line. */}
+                  {item.product?.images?.[0]?.url ? (
+                    <Image
+                      src={item.product.images[0].url}
+                      alt=""
+                      fill
+                      unoptimized
+                      sizes="64px"
+                      className="object-cover"
+                    />
+                  ) : (
+                    <span className="grid h-full w-full place-items-center font-mono text-[9px] uppercase tracking-[0.14em] text-ink-300">
+                      no image
+                    </span>
+                  )}
+                </div>
+
                 <div className="min-w-0 flex-1">
-                  <p className="truncate font-medium text-ink">
-                    {item?.product?.title || "Unnamed Product"}
+                  <p className="truncate font-display text-base font-medium tracking-tight text-ink">
+                    {item?.product?.title || "Unnamed product"}
                   </p>
-                  <p className="mt-0.5 text-sm text-ink-muted">
-                    Quantity:{" "}
-                    <span className="text-ink-muted">{item?.quantity}</span>
+                  <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.14em] text-ink-400">
+                    qty <Figure>{item?.quantity}</Figure>
                   </p>
                   {item?.selectedOptions &&
-                    Object.keys(item.selectedOptions).length > 0 && (
-                      <div className="mt-1.5 flex flex-wrap gap-1.5">
-                        {Object.entries(item.selectedOptions).map(
-                          ([key, value]: [string, any]) =>
-                            value && (
-                              <span
-                                key={key}
-                                className="inline-flex items-center rounded-full border border-rule bg-slate-50 px-2 py-0.5 text-xs text-ink-muted"
-                              >
-                                <span className="capitalize text-ink-faint">
-                                  {key}:
-                                </span>
-                                <span className="ml-1">{value}</span>
-                              </span>
-                            )
-                        )}
-                      </div>
-                    )}
+                  Object.keys(item.selectedOptions).length > 0 ? (
+                    <div className="mt-2.5 flex flex-wrap gap-1.5">
+                      {Object.entries(item.selectedOptions).map(
+                        ([key, value]: [string, any]) =>
+                          value ? (
+                            <Chip key={key}>
+                              {key}: {value}
+                            </Chip>
+                          ) : null
+                      )}
+                    </div>
+                  ) : null}
                 </div>
-                <p className="shrink-0 text-sm font-semibold text-ink">
-                  ${Number(item?.price ?? 0).toFixed(2)}
-                </p>
-              </div>
+
+                <Figure className="shrink-0 text-sm font-semibold text-ink">
+                  {money(Number(item?.price ?? 0))}
+                </Figure>
+              </li>
             ))}
-          </div>
+          </ul>
         </Card>
-      </div>
+      </Container>
     </div>
   );
 }
-
-const Card = ({
-  children,
-  className = "",
-}: {
-  children: React.ReactNode;
-  className?: string;
-}) => (
-  <div
-    className={`rounded-card border border-rule bg-surface p-6 shadow-sm ${className}`}
-  >
-    {children}
-  </div>
-);
 
 const SummaryRow = ({
   label,
@@ -330,8 +310,8 @@ const SummaryRow = ({
   label: string;
   children: React.ReactNode;
 }) => (
-  <div className="flex items-center justify-between gap-4 border-b border-rule py-3 last:border-b-0">
-    <dt className="text-sm text-ink-muted">{label}</dt>
+  <div className="flex items-center justify-between gap-4 border-b border-line py-3 first:pt-0 last:border-b-0 last:pb-0">
+    <dt className="text-sm text-ink-500">{label}</dt>
     <dd className="text-sm">{children}</dd>
   </div>
 );
