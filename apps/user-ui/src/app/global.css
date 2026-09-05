@@ -3,43 +3,90 @@
 @tailwind utilities;
 
 /*
-  What used to sit here was the generated Nx welcome-page stylesheet. Besides
-  being dead, it redefined `.shadow`, `.rounded`, `.wrapper` and `.container` at
-  the top level — all real Tailwind utility names. The forgot-password page uses
-  bare `shadow` and `rounded` (and one `!rounded`), so those were rendering the
-  welcome page's 1.5rem radius instead of Tailwind's 0.25rem.
+  The editorial theme, cream half. This file holds the two things a Tailwind
+  config cannot express: the paper itself (grain, glows, fluid root size) and the
+  handful of compound classes — kicker, sys-strip, ghost index, crosshairs — that
+  are the actual signature of the look. Everything else lives in tailwind.config.
+
+  The variables below are duplicated from that config on purpose: the shared
+  `packages/components` are mounted inside whichever app renders them and read
+  these as CSS variables, so they follow the host app instead of hard-coding a
+  palette. Phase 5 switches those packages over.
 */
 
 :root {
   color-scheme: light;
 
-  --canvas: #f5f5f5;
-  --surface: #ffffff;
-  --sunken: #fafafa;
-  --rule: #e4e7eb;
+  --paper: #faf7f0;
+  --surface: #f2ede0;
+  --surface-alt: #efe8d8;
+  --line: #d8d2c2;
+  --ink-line: #1a1a1a;
 
-  --ink: #10151c;
-  --muted: #5b6673;
-  --faint: #8b95a3;
+  --ink: #1a1a1a;
+  --ink-600: #2a241b;
+  --ink-500: #4d4639;
+  --ink-400: #6e665a;
+  --ink-300: #9a9285;
+  --ink-200: #d8d2c2;
+  --ink-100: #ece7da;
 
-  --coral: #ff6f61;
-  --coral-dim: #e05a4d;
-  --coral-ink: #a83828;
+  --terra: #ff6b35;
+  --terra-2: #c24a1b;
+
+  /* Dark bands inside a cream page — footer, spotlight. */
+  --ink-soft: #262220;
+  --ink-raised: #302b27;
+  --ink-border: #3a3530;
+  --on-ink: #faf7f0;
+  --on-ink-muted: #a89e8f;
+  --on-ink-faint: #6e665a;
+
+  --pos: #2e7d5b;
+  --warn: #c57e1a;
+  --neg: #a6321e;
 }
 
 @layer base {
   html {
+    /* Fluid root size: the whole type scale is relative, so this tunes every
+       heading and label at once between a phone and a large desktop. */
+    font-size: clamp(15px, 12px + 0.2vw, 18px);
     -webkit-text-size-adjust: 100%;
     tab-size: 4;
     scroll-behavior: smooth;
+    /* `clip` rather than `hidden`: it stops the sideways scroll that oversized
+       ghost numerals and marquee titles cause, without turning <html> into a
+       scroll container and breaking `position: sticky` on the header. */
+    overflow-x: clip;
   }
 
   body {
-    background-color: var(--canvas);
+    background-color: var(--paper);
     color: var(--ink);
-    font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+    font-family: var(--font-sans), Inter, ui-sans-serif, system-ui, sans-serif;
     line-height: 1.5;
+    letter-spacing: -0.41px;
+    overscroll-behavior-y: none;
     -webkit-font-smoothing: antialiased;
+  }
+
+  /*
+    The paper itself: two very faint warm glows and an SVG noise field at 4.5%
+    alpha. Fixed and behind everything, so it never repaints on scroll and never
+    intercepts a click.
+  */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-color: var(--paper);
+    background-image:
+      radial-gradient(900px 500px at 8% 0%, rgba(255, 107, 53, 0.07), transparent 55%),
+      radial-gradient(800px 460px at 100% 100%, rgba(255, 191, 75, 0.06), transparent 60%),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E");
   }
 
   /*
@@ -48,20 +95,28 @@
     shifts width as it changes.
   */
   .figure {
-    font-family: var(--font-mono), ui-monospace, monospace;
+    font-family: var(--font-mono), "JetBrains Mono", ui-monospace, monospace;
     font-variant-numeric: tabular-nums;
     font-feature-settings: "tnum";
   }
 
-  /* One focus treatment for the whole storefront, kept off mouse clicks. */
+  /* Instrument Serif earns its place only as an italic accent word; there is no
+     upright use of it anywhere in this theme. */
+  .font-serif {
+    font-style: italic;
+  }
+
+  /* One focus treatment for the whole storefront, kept off mouse clicks. Square,
+     because nothing else in this theme is round. */
   :focus-visible {
-    outline: 2px solid var(--coral-ink);
+    outline: 2px solid var(--terra-2);
     outline-offset: 2px;
-    border-radius: 2px;
+    border-radius: 0;
   }
 
   ::selection {
-    background: rgba(255, 111, 97, 0.22);
+    background: rgba(194, 74, 27, 0.3);
+    color: var(--ink);
   }
 
   /* Product imagery is the point of a storefront; never let it overflow. */
@@ -72,9 +127,254 @@
 }
 
 @layer components {
+  /*
+    ---- kicker -------------------------------------------------------------
+    The small terracotta label above a heading, preceded by a 24px rule. It is
+    the theme's way of saying "this section is called X" without a second
+    heading level.
+  */
+  .kicker {
+    @apply inline-flex items-center gap-2 font-mono text-[0.7rem] font-semibold uppercase tracking-kicker text-terra;
+  }
+  .kicker::before {
+    content: "";
+    @apply inline-block h-px w-6 bg-terra;
+  }
+
+  /*
+    ---- sys-strip ----------------------------------------------------------
+    A metadata bar in the filesystem voice (`~/products ● 128 results`), ruled
+    top and bottom. It replaces the breadcrumb-plus-count row that most pages
+    currently open with.
+  */
+  .sys-strip {
+    @apply flex flex-wrap items-center gap-[0.6rem] border-y border-ink-line py-[0.55rem] font-mono text-[0.7rem] uppercase tracking-[0.08em] text-ink-400;
+  }
+  .sys-strip .sys-key {
+    @apply font-semibold text-ink;
+  }
+  .sys-strip .sys-dot {
+    @apply text-terra-2;
+  }
+  .sys-strip .sys-value {
+    @apply text-ink-500;
+  }
+
+  /*
+    ---- ghost index --------------------------------------------------------
+    The huge outlined numeral sitting behind a section heading. Outline only, no
+    fill, so it reads as a printer's mark rather than as content.
+  */
+  .ghost-index {
+    @apply pointer-events-none absolute right-0 top-[-0.18em] z-0 select-none font-display font-bold leading-none text-transparent;
+    font-size: clamp(5rem, 14vw, 11rem);
+    letter-spacing: -0.04em;
+    -webkit-text-stroke: 1px var(--ink-200);
+  }
+  @media (max-width: 640px) {
+    .ghost-index {
+      font-size: 4.5rem;
+      top: -0.1em;
+    }
+  }
+
+  /* ---- tag chip ---- */
+  .tag-chip {
+    @apply inline-flex items-center whitespace-nowrap border border-line px-[0.55rem] py-[0.2rem] font-mono text-[0.66rem] uppercase tracking-[0.12em] text-ink-500 transition-colors;
+  }
+  .group:hover .tag-chip {
+    border-color: var(--ink-300);
+  }
+
+  /*
+    ---- card hover ---------------------------------------------------------
+    The offset hard shadow is the whole trick: the card does not float on a blur,
+    it lifts off the page and casts a printed-looking edge.
+  */
+  .card-hover {
+    transition:
+      transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+      border-color 0.3s ease;
+  }
+  .card-hover:hover {
+    transform: translateY(-4px);
+    box-shadow:
+      4px 4px 0 0 var(--ink-line),
+      0 16px 30px -14px rgba(26, 26, 26, 0.22);
+    border-color: var(--ink-line);
+  }
+
+  /*
+    ---- buttons ------------------------------------------------------------
+    The pill is the one round shape in the system, which is what makes it read as
+    an action. Primary rests as ink and goes terracotta on hover — never the
+    other way round, because terracotta at rest fails contrast against paper.
+  */
+  .btn-primary {
+    @apply inline-flex items-center gap-2 rounded-full border border-ink bg-ink px-6 py-3 text-sm font-medium tracking-tight text-paper transition-all duration-200 hover:-translate-y-px hover:border-terra hover:bg-terra hover:text-white disabled:pointer-events-none disabled:opacity-45;
+  }
+  .btn-ghost {
+    @apply inline-flex items-center gap-2 rounded-full border border-line bg-transparent px-[1.4rem] py-[0.65rem] text-sm font-medium tracking-tight text-ink-500 transition-colors duration-200 hover:border-ink hover:bg-surface hover:text-ink disabled:pointer-events-none disabled:opacity-45;
+  }
+  /* Added alongside btn-primary/btn-ghost for label-style buttons. */
+  .btn-mono {
+    @apply font-mono text-[11px] font-semibold uppercase tracking-[0.12em];
+  }
+
+  /* ---- link underline ---- */
+  .link-underline {
+    @apply relative no-underline;
+  }
+  .link-underline::after {
+    content: "";
+    @apply absolute -bottom-0.5 left-0 h-0.5 w-0 bg-terra-2 transition-[width] duration-[250ms];
+  }
+  .link-underline:hover::after {
+    @apply w-full;
+  }
+
+  /* ---- rules ---- */
+  .rule-hard {
+    @apply h-px border-0 bg-ink-line;
+  }
+  .rule-soft {
+    @apply h-px border-0 bg-line;
+  }
+
+  /*
+    ---- ink section --------------------------------------------------------
+    A full-bleed near-black band inside the cream page — the footer and the
+    spotlight. Kickers stay terracotta; everything else inverts.
+  */
+  .ink-section {
+    @apply relative bg-ink text-on-ink;
+  }
+  .ink-section::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.5;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+  }
+  .ink-section > * {
+    position: relative;
+  }
+  .ink-section .sys-strip {
+    @apply border-ink-border text-on-ink-muted;
+  }
+  .ink-section .sys-strip .sys-key {
+    @apply text-on-ink;
+  }
+  .ink-section .sys-strip .sys-value {
+    @apply text-on-ink-muted;
+  }
+  .ink-section .ghost-index {
+    -webkit-text-stroke: 1px var(--ink-border);
+  }
+
+  /* ---- serif highlight and hero underline ---- */
+  .serif-hl {
+    @apply font-serif font-normal italic text-terra;
+  }
+  .hero-highlight {
+    @apply relative inline-block;
+    z-index: 0;
+  }
+  .hero-highlight::after {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    left: -0.03em;
+    right: -0.03em;
+    bottom: 0.02em;
+    height: 0.13em;
+    background: rgba(194, 74, 27, 0.28);
+  }
+
+  /*
+    ---- corner crosshairs --------------------------------------------------
+    Four L-shaped marks inside a framed image, like registration marks on a
+    printing plate. Applied to a `relative` frame; the bottom pair needs a
+    `<span class="xh-b">` child because one element only has two pseudos.
+  */
+  .crosshairs::before,
+  .crosshairs::after,
+  .crosshairs > .xh-b::before,
+  .crosshairs > .xh-b::after {
+    content: "";
+    position: absolute;
+    width: 0.875rem;
+    height: 0.875rem;
+    border-color: var(--terra-2);
+    border-style: solid;
+    border-width: 0;
+    pointer-events: none;
+  }
+  .crosshairs::before {
+    top: 0.625rem;
+    left: 0.625rem;
+    border-left-width: 1px;
+    border-top-width: 1px;
+  }
+  .crosshairs::after {
+    top: 0.625rem;
+    right: 0.625rem;
+    border-right-width: 1px;
+    border-top-width: 1px;
+  }
+  .crosshairs > .xh-b::before {
+    bottom: 0.625rem;
+    left: 0.625rem;
+    border-left-width: 1px;
+    border-bottom-width: 1px;
+  }
+  .crosshairs > .xh-b::after {
+    bottom: 0.625rem;
+    right: 0.625rem;
+    border-right-width: 1px;
+    border-bottom-width: 1px;
+  }
+
+  /* ---- marquee page title ---- */
+  .marquee-title {
+    @apply whitespace-nowrap font-display font-bold leading-[0.9] text-ink;
+    letter-spacing: -0.04em;
+  }
+
+  /*
+    ---- scroll reveal ------------------------------------------------------
+    Gated on `html.js` so that with JavaScript disabled — or before hydration —
+    the content is simply visible rather than stuck at opacity 0. Phase 6 adds
+    the IntersectionObserver that sets `.is-revealed`.
+  */
+  @media (prefers-reduced-motion: no-preference) {
+    html.js [data-reveal] {
+      opacity: 0;
+      transform: translateY(22px);
+      transition:
+        opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+        transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+      transition-delay: calc(var(--reveal-delay, 0) * 90ms);
+    }
+    html.js [data-reveal].is-revealed {
+      opacity: 1;
+      transform: none;
+    }
+
+    /* The hero does not wait for a scroll; it staggers itself on load. */
+    .hero-reveal {
+      opacity: 0;
+      animation: hero-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      animation-delay: calc(var(--reveal-d, 0) * 0.1s + 0.15s);
+    }
+  }
+
+  /* ---- scrollbars ---- */
   .scroll-slim {
     scrollbar-width: thin;
-    scrollbar-color: #cbd2da transparent;
+    scrollbar-color: var(--ink-200) transparent;
   }
   .scroll-slim::-webkit-scrollbar {
     width: 8px;
@@ -84,8 +384,7 @@
     background: transparent;
   }
   .scroll-slim::-webkit-scrollbar-thumb {
-    background-color: #cbd2da;
-    border-radius: 9999px;
+    background-color: var(--ink-200);
   }
 
   .scroll-none {
@@ -97,14 +396,14 @@
   }
 
   /*
-    The coral marker that names the section you're looking at — the same device
-    the seller and admin consoles use against their active route, so all three
-    surfaces mark "here" the same way.
+    Transitional: the old coral marker bar, now a 1px terracotta hairline so the
+    nine call sites read as editorial rules instead of rounded coral tabs. Phase
+    2 replaces them with kickers and Phase 7 deletes this.
   */
   .marker {
-    width: 4px;
-    border-radius: 9999px;
-    background-color: var(--coral);
+    width: 1px;
+    border-radius: 0;
+    background-color: var(--terra-2);
   }
 
   /* Clamps used by product titles and shop bios in grid cards. */
@@ -136,5 +435,16 @@
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+  /* Reveal and lift are opt-in motion, so under `reduce` they are not sped up —
+     they are removed, and the content simply is where it belongs. */
+  .hero-reveal,
+  [data-reveal] {
+    opacity: 1 !important;
+    transform: none !important;
+    animation: none !important;
+  }
+  .card-hover:hover {
+    transform: none;
   }
 }

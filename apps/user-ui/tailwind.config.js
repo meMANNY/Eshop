@@ -22,94 +22,167 @@ module.exports = {
     extend: {
       colors: {
         /*
-          The storefront is the light half of this product. `#ff6f61` was written
-          out as a literal 218 times across 30 files, so the palette existed but
-          could not be adjusted anywhere.
+          The editorial palette: warm cream paper, near-black ink, one terracotta
+          hue with exactly two steps. There is deliberately no blue, green or
+          purple in the chrome — status colours are re-tinted warm so they sit on
+          paper without reading as a different design system.
+
+          The block at the bottom keeps the old coral-marketplace names alive and
+          pointed at the new values. That is what makes this phase safe to merge
+          on its own: several hundred existing call sites change colour without
+          any of them being edited. Phase 7 deletes them once the components stop
+          referring to them.
         */
-        canvas: "#f5f5f5",
-        surface: "#ffffff",
-        sunken: "#fafafa",
-        rule: "#e4e7eb",
+        paper: "#FAF7F0",
+        surface: "#F2EDE0",
+        "surface-alt": "#EFE8D8",
+        line: "#D8D2C2",
 
         ink: {
-          DEFAULT: "#10151c",
-          muted: "#5b6673",
-          faint: "#8b95a3",
+          DEFAULT: "#1A1A1A",
+          // The hard rule. Same value as ink, named separately because it means
+          // "1px near-black divider", not "text colour" — the two diverge on the
+          // ink surfaces, where the rule lightens but the text does not.
+          line: "#1A1A1A",
+          // Dark bands inside a cream page: the footer, the spotlight, code.
+          soft: "#262220",
+          raised: "#302B27",
+          border: "#3A3530",
+          100: "#ECE7DA",
+          200: "#D8D2C2",
+          300: "#9A9285",
+          400: "#6E665A",
+          500: "#4D4639",
+          600: "#2A241B",
+          // Transitional aliases — Phase 7 deletes these.
+          muted: "#4D4639",
+          faint: "#6E665A",
+        },
+
+        "on-ink": {
+          DEFAULT: "#FAF7F0",
+          muted: "#A89E8F",
+          faint: "#6E665A",
         },
 
         /*
-          Coral has two jobs and they need two values on a light background.
-          `#ff6f61` is 2.73:1 on white — fine as a button FILL under dark text,
-          but it fails as text or as a hairline. `coral-ink` is the same hue
-          stepped down to 6.4:1 so links and labels are actually readable; it is
-          what every coral *word* in this app should wear.
+          Terracotta is the only hue in the system and it needs two steps for the
+          same reason coral did: `terra` is 2.7:1 on paper — a fill, a rule, or a
+          kicker at 11px bold, never body-size text. `terra-2` is 5.1:1 and is
+          what every terracotta *word* wears.
         */
-        coral: {
-          DEFAULT: "#ff6f61",
-          dim: "#e05a4d",
-          ink: "#a83828",
-          soft: "rgba(255,111,97,0.10)",
+        terra: {
+          DEFAULT: "#FF6B35",
+          2: "#C24A1B",
+          soft: "rgba(255,107,53,0.08)",
         },
 
-        /*
-          Status, re-stepped for a white surface. The dark-theme steps the two
-          consoles use sit at 1.7–2.8:1 here, effectively invisible. `warn` needs
-          two values for the same reason coral does: the amber reads as a dot or
-          a tint but not as text.
-        */
-        pos: "#15803d",
-        warn: { DEFAULT: "#eda100", ink: "#92400e" },
-        neg: "#c0243c",
+        // Status, re-tinted warm so it belongs to the paper rather than sitting
+        // on top of it. Reserved vocabulary; never a chart series.
+        pos: "#2E7D5B",
+        warn: { DEFAULT: "#C57E1A", ink: "#7A4B0E" },
+        neg: "#A6321E",
 
         // The one hue any chart may use, kept clear of brand and status.
         data: "#256abf",
+
+        // Blur decorations only.
+        glow: { terra: "#FF6B35", yellow: "#FFBF4B" },
+
+        // ---- transitional aliases (deleted in Phase 7) ----
+        canvas: "#FAF7F0",
+        sunken: "#F2EDE0",
+        rule: "#D8D2C2",
+        coral: {
+          DEFAULT: "#FF6B35",
+          dim: "#C24A1B",
+          ink: "#C24A1B",
+          soft: "rgba(255,107,53,0.08)",
+        },
       },
       fontFamily: {
         /*
-          `font-jost` was already used across seven files, but Jost was never
-          loaded and never added to this theme — so every heading meant to be
-          Jost silently fell back to the system stack. It is loaded now.
+          Four faces, four jobs. The portfolio this theme comes from self-hosts
+          Helvetica Neue; that face is proprietary and cannot ship in a public
+          repo, so `display` is Inter Tight — a true grotesque with the same
+          tight, neutral character. It sits next to Inter for body copy, which is
+          the same superfamily at a different width: related, not identical.
 
-          Plex Sans and Plex Mono are shared with the seller and admin consoles,
-          which keeps one voice across the product; Jost is the storefront's own
-          display face, geometric and a little fashion-leaning where the consoles
-          are instrumental.
+          Mono does roughly half the visible work in this theme (kickers, nav
+          labels, captions, indices), which is its strongest signature.
         */
-        sans: ["var(--font-sans)", "ui-sans-serif", "system-ui", "sans-serif"],
-        jost: ["var(--font-jost)", "var(--font-sans)", "sans-serif"],
-        display: ["var(--font-jost)", "var(--font-sans)", "sans-serif"],
-        mono: ["var(--font-mono)", "ui-monospace", "monospace"],
+        sans: ["var(--font-sans)", "Inter", "ui-sans-serif", "system-ui", "sans-serif"],
+        display: ["var(--font-display)", "Inter Tight", "Helvetica Neue", "Arial", "sans-serif"],
+        serif: ["var(--font-serif)", "Instrument Serif", "Georgia", "serif"],
+        mono: ["var(--font-mono)", "JetBrains Mono", "ui-monospace", "monospace"],
+        // Transitional alias — `font-jost` is still on 15 files.
+        jost: ["var(--font-display)", "Inter Tight", "sans-serif"],
       },
       fontSize: {
-        label: ["0.6875rem", { lineHeight: "1rem", letterSpacing: "0.12em" }],
+        label: ["0.6875rem", { lineHeight: "1rem", letterSpacing: "0.16em" }],
+        micro: ["0.625rem", { lineHeight: "1rem", letterSpacing: "0.18em" }],
+      },
+      letterSpacing: {
+        // NOTE: this redefines Tailwind's built-in `tracking-tight` (-0.025em)
+        // for the whole app, which is intended — the portfolio sets the same
+        // value globally on `body`. Every existing `tracking-tight` shifts too.
+        tight: "-0.41px",
+        kicker: "0.18em",
+        label: "0.14em",
       },
       borderRadius: {
-        card: "0.875rem",
+        // Everything in this theme is a hard rectangle; the pill is reserved for
+        // buttons. Redefining the token to 0 flips all 212 `rounded-card` call
+        // sites at once instead of editing them.
+        card: "0",
+        panel: "0",
       },
       boxShadow: {
-        card: "0 1px 2px rgba(16,21,28,0.05)",
-        lift: "0 8px 24px -10px rgba(16,21,28,0.18)",
-        pop: "0 20px 48px -16px rgba(16,21,28,0.28)",
+        card: "none",
+        // The portfolio's offset hard shadow, paired with a soft drop so the
+        // lift reads as paper moving rather than a UI card floating.
+        lift: "4px 4px 0 0 #1A1A1A, 0 16px 30px -14px rgba(26,26,26,0.22)",
+        pop: "0 0 0 1px #1A1A1A, 0 10px 30px rgba(0,0,0,0.15)",
+        ink: "0 10px 24px -12px rgba(26,26,26,0.35)",
+      },
+      transitionTimingFunction: {
+        editorial: "cubic-bezier(0.22, 1, 0.36, 1)",
+        hero: "cubic-bezier(0.16, 1, 0.3, 1)",
       },
       keyframes: {
-        "rise-in": {
-          from: { opacity: "0", transform: "translateY(6px)" },
+        "reveal-up": {
+          from: { opacity: "0", transform: "translateY(22px)" },
           to: { opacity: "1", transform: "translateY(0)" },
         },
-        shimmer: { "100%": { transform: "translateX(100%)" } },
-        // The staggered entrance for list items that start at `opacity-0`.
-        fadeSlideUp: {
+        "hero-up": {
+          from: { opacity: "0", transform: "translateY(18px)" },
+          to: { opacity: "1", transform: "translateY(0)" },
+        },
+        "fade-in": {
           from: { opacity: "0", transform: "translateY(12px)" },
           to: { opacity: "1", transform: "translateY(0)" },
         },
+        shimmer: { "100%": { transform: "translateX(100%)" } },
+        heartbeat: {
+          "0%,100%": { transform: "scale(1)" },
+          "25%,75%": { transform: "scale(1.3)" },
+          "50%": { transform: "scale(1)" },
+        },
+        "sig-draw": { to: { strokeDashoffset: "0" } },
       },
       animation: {
-        "rise-in": "rise-in 0.3s ease-out both",
+        "reveal-up": "reveal-up 0.7s cubic-bezier(0.22,1,0.36,1) both",
+        "hero-up": "hero-up 0.7s cubic-bezier(0.16,1,0.3,1) both",
+        "fade-in": "fade-in 0.55s cubic-bezier(0.22,1,0.36,1) both",
         shimmer: "shimmer 1.6s infinite",
+        heartbeat: "heartbeat 0.8s ease-in-out",
         // `both` is load-bearing: it holds opacity:1 after the run, and holds
         // the from-state during the per-item animation-delay. Without it the
         // card falls back to its own `opacity-0` and never becomes visible.
-        fadeSlideUp: "fadeSlideUp 0.35s ease-out both",
+        //
+        // The last two are transitional aliases so existing call sites animate.
+        "rise-in": "fade-in 0.55s cubic-bezier(0.22,1,0.36,1) both",
+        fadeSlideUp: "reveal-up 0.7s cubic-bezier(0.22,1,0.36,1) both",
       },
     },
   },

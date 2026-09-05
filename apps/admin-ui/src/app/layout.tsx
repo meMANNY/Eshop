@@ -9,7 +9,6 @@ export const metadata = {
   title: "Eshop Ops",
   description: "Operations console for the Eshop marketplace",
 };
-
 /*
   Three faces, three jobs.
 

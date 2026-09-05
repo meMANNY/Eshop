@@ -1,5 +1,10 @@
 import './global.css';
-import { IBM_Plex_Mono, IBM_Plex_Sans, Jost } from 'next/font/google';
+import {
+  Inter,
+  Inter_Tight,
+  Instrument_Serif,
+  JetBrains_Mono,
+} from 'next/font/google';
 import { Toaster } from 'react-hot-toast';
 import Providers from './providers';
 
@@ -9,32 +14,44 @@ export const metadata = {
 };
 
 /*
-  Roboto was loaded here and used in zero files — a wasted font request on every
-  page load. Jost is the opposite problem: `font-jost` was already applied across
-  seven files but the font was never loaded and never added to the Tailwind
-  theme, so those headings silently fell back to the system stack.
+  Four faces, four jobs — the editorial theme's type system.
 
-  Plex Sans and Plex Mono are shared with the seller and admin consoles so the
-  product has one voice; Jost is the storefront's own display face.
+  The theme this is ported from sets its headings in Helvetica Neue, self-hosted.
+  That face is proprietary and cannot ship in this repository, so `display` is
+  Inter Tight: a genuine grotesque with the same tight, neutral, Swiss character.
+  Pairing it with Inter for body copy is the same superfamily at two widths —
+  related enough to feel deliberate, different enough to separate a heading from
+  a paragraph.
+
+  Instrument Serif appears only as an italic accent word inside a heading, and
+  JetBrains Mono carries roughly half the visible text: kickers, nav labels,
+  captions, prices and index numerals. That mono density is the single strongest
+  signature of the look, which is why it is a loaded face rather than a fallback.
 */
-const sans = IBM_Plex_Sans({
-  weight: ['400', '500', '600'],
+const sans = Inter({
   subsets: ['latin'],
   variable: '--font-sans',
   display: 'swap',
 });
 
-const mono = IBM_Plex_Mono({
-  weight: ['400', '500', '600'],
+const display = Inter_Tight({
   subsets: ['latin'],
-  variable: '--font-mono',
+  variable: '--font-display',
   display: 'swap',
 });
 
-const jost = Jost({
-  weight: ['500', '600', '700'],
+// Instrument Serif is not a variable font; the two styles are separate files.
+const serif = Instrument_Serif({
   subsets: ['latin'],
-  variable: '--font-jost',
+  weight: '400',
+  style: ['normal', 'italic'],
+  variable: '--font-serif',
+  display: 'swap',
+});
+
+const mono = JetBrains_Mono({
+  subsets: ['latin'],
+  variable: '--font-mono',
   display: 'swap',
 });
 
@@ -45,8 +62,21 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <head>
+        {/*
+          Marks the document as scripted before first paint. The scroll-reveal
+          CSS is gated on `html.js`, so without this the reveal never starts —
+          and, more importantly, a visitor with JavaScript disabled sees the
+          content rather than a page of elements stuck at opacity 0.
+        */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `document.documentElement.classList.add('js')`,
+          }}
+        />
+      </head>
       <body
-        className={`${sans.variable} ${mono.variable} ${jost.variable} min-h-screen bg-canvas font-sans text-ink antialiased`}
+        className={`${sans.variable} ${display.variable} ${serif.variable} ${mono.variable} flex min-h-screen flex-col bg-paper font-sans text-ink antialiased selection:bg-terra-2/30`}
       >
         {/*
           The header used to sit here, which put the storefront's search bar and
@@ -63,11 +93,11 @@ export default function RootLayout({
           position="top-right"
           toastOptions={{
             className:
-              '!bg-surface !text-ink !border !border-rule !rounded-xl !text-sm !font-medium !shadow-pop',
+              '!rounded-none !border !border-ink-line !bg-paper !text-ink !font-mono !text-[11px] !uppercase !tracking-[0.12em] !shadow-lift',
             style: { padding: '12px 14px', maxWidth: '360px' },
-            success: { iconTheme: { primary: '#15803d', secondary: '#ffffff' } },
-            error: { iconTheme: { primary: '#c0243c', secondary: '#ffffff' } },
-            loading: { iconTheme: { primary: '#a83828', secondary: '#ffffff' } },
+            success: { iconTheme: { primary: '#2E7D5B', secondary: '#FAF7F0' } },
+            error: { iconTheme: { primary: '#A6321E', secondary: '#FAF7F0' } },
+            loading: { iconTheme: { primary: '#C24A1B', secondary: '#FAF7F0' } },
             duration: 4000,
           }}
         />
